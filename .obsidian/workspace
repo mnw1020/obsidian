@@ -1,0 +1,93 @@
+{
+  "main": {
+    "id": "ef3b3fb91ac4bf24",
+    "type": "split",
+    "children": [
+      {
+        "id": "6a8168cf47c758a3",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "f.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "cd98281498d877b5",
+    "type": "split",
+    "children": [
+      {
+        "id": "be6466312afb4f19",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2bd40c9080ba8ae2",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "5465b177d5827f33",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "fa0acfc345f0ccea",
+    "type": "split",
+    "children": [
+      {
+        "id": "b0fc6e46a4ea5e45",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "19693aeed730c1ce",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "f.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "6a8168cf47c758a3",
+  "lastOpenFiles": [
+    "f.md"
+  ]
+}
