@@ -1,3 +1,3 @@
 # Conflict files
 Please resolve them and commit per command (This file will be deleted before the commit).
-- [[Исправь свое детство. Курпатов. Конспект.txt]]
+- Not a file: "Английские слова.md"
