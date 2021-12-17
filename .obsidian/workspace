@@ -18,96 +18,81 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "3eebb3bbce03f6db",
-    "type": "split",
+    "id": "51858b412f9bd2ab",
+    "type": "mobile-drawer",
     "children": [
       {
-        "id": "f9b2ba95c84ae48f",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "42ee6c7e802e89a2",
-            "type": "leaf",
-            "state": {
-              "type": "file-explorer",
-              "state": {}
-            }
-          },
-          {
-            "id": "84e8367f830348b0",
-            "type": "leaf",
-            "state": {
-              "type": "search",
-              "state": {
-                "query": "tag:#mask",
-                "matchingCase": false,
-                "explainSearch": false,
-                "collapseAll": false,
-                "extraContext": false,
-                "sortOrder": "alphabetical"
-              }
-            }
+        "id": "d9a5b2653273e5a4",
+        "type": "leaf",
+        "state": {
+          "type": "file-explorer",
+          "state": {}
+        }
+      },
+      {
+        "id": "5337247dfd2a1446",
+        "type": "leaf",
+        "state": {
+          "type": "search",
+          "state": {
+            "query": "",
+            "matchingCase": false,
+            "explainSearch": false,
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical"
           }
-        ]
+        }
+      },
+      {
+        "id": "be64d4fc8b2e3f37",
+        "type": "leaf",
+        "state": {
+          "type": "tag",
+          "state": {
+            "sortOrder": "frequency",
+            "useHierarchy": true
+          }
+        }
       }
     ],
-    "direction": "horizontal",
-    "width": 359
+    "currentTab": 0
   },
   "right": {
-    "id": "1e1439764e682346",
-    "type": "split",
+    "id": "3c5a9618cd8576a1",
+    "type": "mobile-drawer",
     "children": [
       {
-        "id": "ca0f2782d763dd63",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "85de654d1c607f66",
-            "type": "leaf",
-            "state": {
-              "type": "backlink",
-              "state": {
-                "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
-                "collapseAll": false,
-                "extraContext": false,
-                "sortOrder": "alphabetical",
-                "showSearch": false,
-                "searchQuery": "",
-                "backlinkCollapsed": true,
-                "unlinkedCollapsed": true
-              }
-            }
-          },
-          {
-            "id": "69bdbd54f4d04e00",
-            "type": "leaf",
-            "state": {
-              "type": "tag",
-              "state": {
-                "sortOrder": "frequency",
-                "useHierarchy": false
-              }
-            }
+        "id": "8cdf5767e9b06ef5",
+        "type": "leaf",
+        "state": {
+          "type": "backlink",
+          "state": {
+            "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical",
+            "showSearch": false,
+            "searchQuery": "",
+            "backlinkCollapsed": false,
+            "unlinkedCollapsed": true
           }
-        ],
-        "currentTab": 1
+        }
       }
     ],
-    "direction": "horizontal",
-    "width": 211
+    "currentTab": 0
   },
   "active": "7efec50e4dad699a",
   "lastOpenFiles": [
     "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "психология/Три Типа Мышления (Курпатов).md",
+    "психология/роль отца.md",
     "_hotkeys.md",
     "Английские слова.md",
     "1 (98).jpg.md",
     "1 (98).jpg",
     "психология/стих.md",
     "1 (97).jpg",
-    "1 (180).jpg",
-    "1 (201).jpg",
-    "1 (113).jpg"
+    "1 (180).jpg"
   ]
 }
