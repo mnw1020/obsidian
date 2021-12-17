@@ -1,15 +1,15 @@
 {
   "main": {
-    "id": "ef3b3fb91ac4bf24",
+    "id": "fedaf1a52affe191",
     "type": "split",
     "children": [
       {
-        "id": "6a8168cf47c758a3",
+        "id": "067a7edbfe55d671",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "test.md",
+            "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
             "mode": "source"
           }
         }
@@ -18,15 +18,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "cd98281498d877b5",
+    "id": "3eebb3bbce03f6db",
     "type": "split",
     "children": [
       {
-        "id": "be6466312afb4f19",
+        "id": "f9b2ba95c84ae48f",
         "type": "tabs",
         "children": [
           {
-            "id": "2bd40c9080ba8ae2",
+            "id": "42ee6c7e802e89a2",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -34,12 +34,12 @@
             }
           },
           {
-            "id": "5465b177d5827f33",
+            "id": "84e8367f830348b0",
             "type": "leaf",
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#Давайте",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -55,27 +55,38 @@
     "width": 300
   },
   "right": {
-    "id": "fa0acfc345f0ccea",
+    "id": "1e1439764e682346",
     "type": "split",
     "children": [
       {
-        "id": "b0fc6e46a4ea5e45",
+        "id": "ca0f2782d763dd63",
         "type": "tabs",
         "children": [
           {
-            "id": "19693aeed730c1ce",
+            "id": "85de654d1c607f66",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "test.md",
+                "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
                 "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
+              }
+            }
+          },
+          {
+            "id": "69bdbd54f4d04e00",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
               }
             }
           }
@@ -86,9 +97,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "6a8168cf47c758a3",
+  "active": "067a7edbfe55d671",
   "lastOpenFiles": [
-    "test.md",
-    "f.md"
+    "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "Английские слова.md",
+    "психология/Ассертивность.md",
+    "психология/Десять быков дзэн.md",
+    "психология/стих.md",
+    "психология/Три Типа Мышления (Курпатов).md",
+    "психология/сны.md",
+    "психология/письмо.md",
+    "психология/Задачи горевания.md",
+    "Кулинария 446bdb8cc4be46479ab2cf1783c0feaf/Суп fd39686dadb849b99f26aded232f97e1/Мексиканский суп из фасоли ee68d4db71a14af6baffd73852371fa2.md"
   ]
 }
