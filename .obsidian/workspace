@@ -4,7 +4,7 @@
     "type": "split",
     "children": [
       {
-        "id": "7efec50e4dad699a",
+        "id": "6c92365e8d3a11a8",
         "type": "leaf",
         "state": {
           "type": "markdown",
@@ -116,7 +116,7 @@
     "direction": "horizontal",
     "width": 300
   },
-  "active": "7efec50e4dad699a",
+  "active": "6c92365e8d3a11a8",
   "lastOpenFiles": [
     "Английские слова.md",
     "conflict-files-obsidian-git.md",
