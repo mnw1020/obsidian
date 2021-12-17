@@ -39,7 +39,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "autor",
+                "query": "tag:#Часть",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,

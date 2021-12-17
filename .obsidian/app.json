@@ -1,4 +1,6 @@
 {
   "foldHeading": true,
-  "foldIndent": true
+  "foldIndent": true,
+  "useMarkdownLinks": true,
+  "newLinkFormat": "relative"
 }
