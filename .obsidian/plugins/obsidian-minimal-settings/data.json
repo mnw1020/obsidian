@@ -3,7 +3,7 @@
   "accentHue": 35,
   "accentSat": 100,
   "lightStyle": "minimal-light",
-  "darkStyle": "minimal-dark",
+  "darkStyle": "minimal-dark-black",
   "uiFont": "-apple-system,BlinkMacSystemFont,\"Segoe UI Emoji\",\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,sans-serif",
   "textFont": "-apple-system,BlinkMacSystemFont,\"Segoe UI Emoji\",\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,sans-serif",
   "editorFont": "-apple-system,BlinkMacSystemFont,\"Segoe UI Emoji\",\"Segoe UI\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,sans-serif",

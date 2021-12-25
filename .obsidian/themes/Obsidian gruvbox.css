@@ -61,7 +61,7 @@
     --text-link:                  var(--bright-blue);
     --text-a:                     var(--bright-orange);
     --text-a-hover:               var(--bright-blue);
-    --text-mark:                  rgba(215, 153, 33, 0.4); /* neutral-yellow */
+    --text-mark:                  rgba(115, 153, 33, 0.4); /* neutral-yellow */
     --pre-code:                   var(--dark1);
     --text-highlight-bg:          var(--faded-aqua);
     --interactive-accent:         var(--bright-orange);
@@ -124,7 +124,7 @@
 }
 
 .markdown-preview-view {
-  font-family: var(--default-font);
+  font-family: var(--editor-font);
 }
 
 .theme-dark code[class*="language-"],
