@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_templates/Без названия.md",
+            "file": "Английские слова.md",
             "mode": "source"
           }
         }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_templates/Без названия.md",
+                "file": "Английские слова.md",
                 "collapseAll": true,
                 "extraContext": true,
                 "sortOrder": "alphabetical",
@@ -106,13 +106,13 @@
   },
   "active": "7efec50e4dad699a",
   "lastOpenFiles": [
+    "Английские слова.md",
     "_templates/Без названия.md",
     "_templates/Блок со скрытым текстом.md",
-    "Английские слова.md",
-    "Таблетка от страха. Курпатов.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
-    "_hotkeys.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
+    "Таблетка от страха. Курпатов.md",
+    "_hotkeys.md",
     "2021-12-25-11-49-47.md",
     "психология/Десять быков дзэн.md",
     "психология/письмо.md"
