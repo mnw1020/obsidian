@@ -178,7 +178,7 @@ Disabled features */
   --text:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
   
   /* Editor font */
-  --text-editor:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+  --text-editor:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif,"JetBrains Mono",JetBrains Mono;
   
   /* Code font */
   --font-monospace:Menlo,SFMono-Regular,Consolas,"Roboto Mono",monospace;
