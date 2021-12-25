@@ -46,8 +46,8 @@
 
 .theme-dark
 {
-    --background-primary:         var(--dark0);
-    --background-primary-alt:     var(--dark0);
+    --background-primary:         var(--dark0-hard);
+    --background-primary-alt:     var(--dark0-hard);
     --background-secondary:       var(--dark0-hard);
     --background-secondary-alt:   var(--dark1);
     --text-normal:                var(--light0);
