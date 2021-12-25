@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Английские слова.md",
+            "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
             "mode": "source"
           }
         }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Английские слова.md",
+                "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Английские слова.md"
+                "file": "Исправь свое детство. Курпатов. Конспект.txt.md"
               }
             }
           }
@@ -117,8 +117,8 @@
   },
   "active": "2d3a17069c874600",
   "lastOpenFiles": [
-    "Английские слова.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "Английские слова.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "Таблетка от страха. Курпатов.md",
     "_templates/_hotkeys.md",
