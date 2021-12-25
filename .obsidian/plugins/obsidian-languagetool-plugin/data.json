@@ -1,0 +1,7 @@
+{
+  "serverUrl": "https://api.languagetool.org",
+  "glassBg": true,
+  "shouldAutoCheck": true,
+  "pickyMode": false,
+  "staticLanguage": "ru-RU"
+}
