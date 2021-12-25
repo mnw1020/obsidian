@@ -20,4 +20,8 @@
 |       `alt + q`       |      развернуть все      |
 |       `alt + w`       |       свернуть все       |
 |       `alt + a`       |  @ переход на заголовок  |
-![d](_attach/Screenshot_20211119-130240913.jpg)![d](_attach/Screenshot_20211119-130240913%201.jpg)![](_templates/_attach/Screenshot_20211119-130240913%202.jpg)
+![d](_attach/Screenshot_20211119-130240913.jpg)![d](_attach/Screenshot_20211119-130240913%201.jpg)![](_templates/_attach/Screenshot_20211119-130240913%202.jpg
+
+
+<colors ef>ef
+## 	\
