@@ -4,13 +4,14 @@
     "type": "split",
     "children": [
       {
-        "id": "2d3a17069c874600",
+        "id": "748c5e2507a99f24",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_templates/_hotkeys.md",
-            "mode": "source"
+            "file": "Таблетка от страха. Курпатов.md",
+            "mode": "source",
+            "backlinks": true
           }
         }
       }
@@ -68,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_templates/_hotkeys.md",
+                "file": "Таблетка от страха. Курпатов.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,8 +105,16 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_templates/_hotkeys.md"
+                "file": "Таблетка от страха. Курпатов.md"
               }
+            }
+          },
+          {
+            "id": "4a8feeddd09221ae",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {}
             }
           }
         ],
@@ -115,14 +124,14 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "2d3a17069c874600",
+  "active": "748c5e2507a99f24",
   "lastOpenFiles": [
-    "_templates/_hotkeys.md",
-    "_templates/Блок со скрытым текстом.md",
+    "Таблетка от страха. Курпатов.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "_templates/Блок со скрытым текстом.md",
+    "_templates/_hotkeys.md",
     "Английские слова.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
-    "Таблетка от страха. Курпатов.md",
     "_templates/Без названия.md",
     "_templates/Untitled Kanban.md",
     "_hotkeys.md",
