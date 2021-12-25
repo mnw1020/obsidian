@@ -8,9 +8,10 @@
 |*Текст*||
 |`alt + ↑`|переместить строку вверх|
 |`alt + ↓`|переместить строку вниз|
-|`shift + c`|форматировать как код|
+|`alt + ё`|форматировать как код|
 |`shift + h`|подсветка текста|
 |`ctrl + h`|поиск и замена|
+|alt + shift + \|||
 |Прочее||
 |`ctrl + t`|открыть файл в typora|
 |`ctrl + m (hotkey++)`|чекбокс-список|
@@ -19,6 +20,13 @@
 |`alt + w`|свернуть все|
 |`alt + a`|@ переход на заголовок|
 
-
+|ы/||||||
 vdv
-vуадла
+`kk``k
+-   `Alt` + `1` - `7` for input `!`, `@`, `#`, `$`, `%`, `^`, `&` symbols
+-   `Alt` + cyrillic `х` or `ъ` (or EN `[` and `]`) for input `[``]`
+-   `Alt` + `Shift` + cyrillic `х` or `ъ` (or EN `{` and `}`) for input `{``}`
+-   `Alt` + cyrillic `б` or `ю` (or EN `,` and `.`) for input `<``>`
+-   `Alt` + cyrillic `ё` for input code fences
+-   `Alt` + `Shift` + cyrillic `ё` (or EN `~`) for input code fences for python code
+-   `Alt` + `Shift` + `\` for input `|` symbol
