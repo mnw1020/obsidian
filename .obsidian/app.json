@@ -3,5 +3,8 @@
   "foldIndent": true,
   "useMarkdownLinks": true,
   "newLinkFormat": "relative",
-  "attachmentFolderPath": "./"
+  "attachmentFolderPath": "./",
+  "strictLineBreaks": true,
+  "showLineNumber": true,
+  "rightToLeft": false
 }
