@@ -2,9 +2,9 @@
 |hotkeys|comment|
 |:-:|:-|
 |		*GIT*	||	
-|`ctrl+alt+g`|git commit|
-|`trl+alt+p`|git push|
-|`ctrl+shift+p`|git pull|
+|`ctrl + alt + g`|git commit|
+|`trl + alt + p`|git push|
+|`ctrl + shift + p`|git pull|
 |*Text*||
-|`Alt+↑`|переместить строку вверх|
-|`Alt+↑`|переместить строку вверх|
+|`alt + ↑`|переместить строку вверх|
+|`alt + ↓`|переместить строку вниз|
