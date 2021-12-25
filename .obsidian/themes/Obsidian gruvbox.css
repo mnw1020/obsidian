@@ -323,7 +323,7 @@ thead
 
 .cm-inline-code
 {
-    color: var(--inline-code) !important;
+    color: rgba(0,0,0, 0.6); /*var(--inline-code) !important;*/
     background-color: var(--pre-code) !important;
     padding: 1px !important;
 }
