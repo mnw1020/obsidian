@@ -69,7 +69,7 @@
     --background-modifier-border: var(--dark2);
     --text-accent:                var(--bright-orange);
     --interactive-accent-rgb:     var(--bright-orange);
-    --inline-code:                var(--bright-blue);
+    --inline-code:                var(--bright-orange);
     --code-block:                 var(--bright-blue);
     --vim-cursor:                 var(--bright-orange);
     --text-selection:             rgba(168, 153, 132, 0.5); /* light4 */
@@ -323,7 +323,7 @@ thead
 
 .cm-inline-code
 {
-    color: rgba(0,0,0, 0.6); /*var(--inline-code) !important;*/
+    color: *var(--inline-code) !important;
     background-color: var(--pre-code) !important;
     padding: 1px !important;
 }
