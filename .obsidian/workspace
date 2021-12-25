@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_templates/_hotkeys.md",
+            "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
             "mode": "source"
           }
         }
@@ -68,11 +68,11 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_templates/_hotkeys.md",
+                "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
                 "collapseAll": false,
-                "extraContext": true,
+                "extraContext": false,
                 "sortOrder": "alphabetical",
-                "showSearch": true,
+                "showSearch": false,
                 "searchQuery": "",
                 "backlinkCollapsed": false,
                 "unlinkedCollapsed": false
@@ -106,13 +106,13 @@
   },
   "active": "2d3a17069c874600",
   "lastOpenFiles": [
+    "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "_templates/_hotkeys.md",
     "Таблетка от страха. Курпатов.md",
-    "Исправь свое детство. Курпатов. Конспект.txt.md",
     "_templates/Без названия.md",
     "_templates/Untitled Kanban.md",
     "_templates/Блок со скрытым текстом.md",
-    "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "Английские слова.md",
     "_hotkeys.md",
     "2021-12-25-11-49-47.md"
