@@ -6,5 +6,8 @@
   "attachmentFolderPath": "./",
   "strictLineBreaks": true,
   "showLineNumber": true,
-  "rightToLeft": false
+  "rightToLeft": false,
+  "showUnsupportedFiles": true,
+  "newFileLocation": "current",
+  "promptDelete": false
 }
