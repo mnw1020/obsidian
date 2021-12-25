@@ -46,9 +46,9 @@
 
 .theme-dark
 {
-    --background-primary:         rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
-    --background-primary-alt:     rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
-    --background-secondary:       rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
+    --background-primary:         var(--dark0);
+    --background-primary-alt:     var(--dark0);
+    --background-secondary:       var(--dark0-hard);
     --background-secondary-alt:   var(--dark1);
     --text-normal:                var(--light0);
     --text-faint:                 var(--light3);
@@ -61,7 +61,7 @@
     --text-link:                  var(--bright-blue);
     --text-a:                     var(--bright-orange);
     --text-a-hover:               var(--bright-blue);
-    --text-mark:                  rgba(215, 153, 33, 0.7); /* neutral-yellow */
+    --text-mark:                  rgba(215, 153, 33, 0.4); /* neutral-yellow */
     --pre-code:                   var(--dark1);
     --text-highlight-bg:          var(--faded-aqua);
     --interactive-accent:         var(--bright-orange);
@@ -69,7 +69,7 @@
     --background-modifier-border: var(--dark2);
     --text-accent:                var(--bright-orange);
     --interactive-accent-rgb:     var(--bright-orange);
-    --inline-code:                var(--bright-orange);
+    --inline-code:                var(--bright-blue);
     --code-block:                 var(--bright-blue);
     --vim-cursor:                 var(--bright-orange);
     --text-selection:             rgba(168, 153, 132, 0.5); /* light4 */
@@ -124,7 +124,7 @@
 }
 
 .markdown-preview-view {
-  font-family: var(--editor-font);
+  font-family: var(--default-font);
 }
 
 .theme-dark code[class*="language-"],
@@ -323,7 +323,7 @@ thead
 
 .cm-inline-code
 {
-    color: *var(--inline-code) !important;
+    color: var(--inline-code) !important;
     background-color: var(--pre-code) !important;
     padding: 1px !important;
 }
@@ -401,7 +401,7 @@ thead
 .cm-header-1,
 .markdown-preview-section h1
 {
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     font-size: 2.2em !important;
     color: var(--text-title-h1) !important;
 }
@@ -409,15 +409,15 @@ thead
 .cm-header-2,
 .markdown-preview-section h2
 {
-    font-weight: 900 !important;
-    font-size: 1.8em !important;
+    font-weight: 500 !important;
+    font-size: 2.0em !important;
     color: var(--text-title-h2) !important;
 }
 
 .cm-header-3,
 .markdown-preview-section h3
 {
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     font-size: 1.8em !important;
     color: var(--text-title-h3) !important;
 }
@@ -425,7 +425,7 @@ thead
 .cm-header-4,
 .markdown-preview-section h4
 {
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     font-size: 1.6em !important;
     color: var(--text-title-h4) !important;
 }
@@ -433,7 +433,7 @@ thead
 .cm-header-5,
 .markdown-preview-section h5
 {
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     font-size: 1.4em !important;
     color: var(--text-title-h5) !important;
 }
@@ -441,15 +441,7 @@ thead
 .cm-header-6,
 .markdown-preview-section h6
 {
-    font-weight: 900 !important;
-    font-size: 1.2em !important;
-    color: var(--text-title-h6) !important;
-}
-
-.cm-header-7,
-.markdown-preview-section h7
-{
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     font-size: 1.2em !important;
     color: var(--text-title-h6) !important;
 }
