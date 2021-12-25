@@ -46,9 +46,9 @@
 
 .theme-dark
 {
-    --background-primary:         var(--dark0-hard);
-    --background-primary-alt:     var(--dark0-hard);
-    --background-secondary:       var(--dark0-hard);
+    --background-primary:         rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
+    --background-primary-alt:     rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
+    --background-secondary:       rgba(0,0,0, 0.6); /*var(--dark0-hard);*/
     --background-secondary-alt:   var(--dark1);
     --text-normal:                var(--light0);
     --text-faint:                 var(--light3);
@@ -61,7 +61,7 @@
     --text-link:                  var(--bright-blue);
     --text-a:                     var(--bright-orange);
     --text-a-hover:               var(--bright-blue);
-    --text-mark:                  rgba(115, 153, 33, 0.4); /* neutral-yellow */
+    --text-mark:                  rgba(215, 153, 33, 0.7); /* neutral-yellow */
     --pre-code:                   var(--dark1);
     --text-highlight-bg:          var(--faded-aqua);
     --interactive-accent:         var(--bright-orange);
