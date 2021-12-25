@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
+            "file": "_templates/_hotkeys.md",
             "mode": "source"
           }
         }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
+                "file": "_templates/_hotkeys.md",
                 "collapseAll": false,
                 "extraContext": true,
                 "sortOrder": "alphabetical",
@@ -106,15 +106,15 @@
   },
   "active": "7efec50e4dad699a",
   "lastOpenFiles": [
+    "_templates/_hotkeys.md",
+    "_templates/Без названия.md",
+    "_templates/Untitled Kanban.md",
+    "_templates/Блок со скрытым текстом.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "Таблетка от страха. Курпатов.md",
-    "_templates/_hotkeys.md",
     "Английские слова.md",
-    "_templates/Без названия.md",
-    "_templates/Блок со скрытым текстом.md",
     "_hotkeys.md",
-    "2021-12-25-11-49-47.md",
-    "психология/Десять быков дзэн.md"
+    "2021-12-25-11-49-47.md"
   ]
 }
