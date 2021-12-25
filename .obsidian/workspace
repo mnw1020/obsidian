@@ -69,13 +69,13 @@
               "type": "backlink",
               "state": {
                 "file": "Исправь свое детство. Курпатов. Конспект.txt.md",
-                "collapseAll": false,
-                "extraContext": false,
+                "collapseAll": true,
+                "extraContext": true,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
                 "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
               }
             }
           },
@@ -98,8 +98,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -108,9 +107,9 @@
   "active": "7efec50e4dad699a",
   "lastOpenFiles": [
     "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "Английские слова.md",
     "Таблетка от страха. Курпатов.md",
     "_hotkeys.md",
-    "Английские слова.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "2021-12-25-11-49-47.md",
     "психология/Десять быков дзэн.md",
