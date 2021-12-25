@@ -2,7 +2,7 @@
   "frameless": false,
   "hideRibbon": false,
   "hideStatus": false,
-  "hideScroll": true,
+  "hideScroll": false,
   "hideTooltips": false,
   "hideSearchSuggestions": false,
   "hideInstructions": false,
