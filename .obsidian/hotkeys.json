@@ -58,14 +58,6 @@
       "key": "T"
     }
   ],
-  "editor:toggle-code": [
-    {
-      "modifiers": [
-        "Shift"
-      ],
-      "key": "C"
-    }
-  ],
   "editor:toggle-highlight": [
     {
       "modifiers": [

@@ -9,5 +9,9 @@
   "rightToLeft": false,
   "showUnsupportedFiles": true,
   "newFileLocation": "current",
-  "promptDelete": false
+  "promptDelete": false,
+  "spellcheckDictionary": [
+    "домолвлены",
+    "встречалися"
+  ]
 }
