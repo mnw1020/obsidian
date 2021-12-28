@@ -13,5 +13,8 @@
   "table-editor-obsidian",
   "dataview",
   "obsidian-query-language",
-  "obsidian-query2table"
+  "obsidian-query2table",
+  "remember-cursor-position",
+  "unique-attachments",
+  "consistent-attachments-and-links"
 ]
