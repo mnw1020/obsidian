@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_templates/_hotkeys.md",
+            "file": "психология/Ассертивность.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_templates/_hotkeys.md",
+                "file": "психология/Ассертивность.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_templates/_hotkeys.md"
+                "file": "психология/Ассертивность.md"
               }
             }
           },
@@ -125,10 +125,10 @@
   },
   "active": "748c5e2507a99f24",
   "lastOpenFiles": [
+    "психология/Ассертивность.md",
     "_templates/_hotkeys.md",
     "_templates/Без названия.md",
     "психология/Десять быков дзэн.md",
-    "психология/Ассертивность.md",
     "психология/Задачи горевания.md",
     "_templates/Блок со скрытым текстом.md",
     "психология/Мышечная броня.md",

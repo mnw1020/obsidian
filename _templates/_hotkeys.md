@@ -23,8 +23,10 @@
 ![d](_attach/Screenshot_20211119-130240913.jpg)
 
 
+
+
 ```dataview
-TABLE file.mtime as Edited
+TABLE file.mtime as Edited, intensity
 FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "Index.md"
 SORT file.mtime desc
@@ -37,3 +39,10 @@ WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
 
+в
+```dataview
+table file.ctime, file.mtime
+from "психология"
+where file.name != "+Inbox TOC"
+sort file.mtime descending
+```
