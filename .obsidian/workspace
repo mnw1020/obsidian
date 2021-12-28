@@ -10,7 +10,7 @@
           "type": "markdown",
           "state": {
             "file": "_index.md",
-            "mode": "source",
+            "mode": "preview",
             "backlinks": false
           }
         }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#ffffff",
+                "query": "tag:#utrecht",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
