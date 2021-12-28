@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_templates/_hotkeys.md",
+            "file": "_index.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_templates/_hotkeys.md",
+                "file": "_index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_templates/_hotkeys.md"
+                "file": "_index.md"
               }
             }
           },
@@ -125,7 +125,8 @@
   },
   "active": "748c5e2507a99f24",
   "lastOpenFiles": [
-    "_templates/_hotkeys.md",
+    "_index.md",
+    "Английские слова.md",
     "_templates/Без названия.md",
     "психология/Ассертивность.md",
     "психология/Десять быков дзэн.md",
@@ -133,7 +134,6 @@
     "_templates/Блок со скрытым текстом.md",
     "психология/Мышечная броня.md",
     "психология/письмо.md",
-    "психология/роль отца.md",
-    "психология/сны.md"
+    "психология/роль отца.md"
   ]
 }
