@@ -14,20 +14,6 @@ SORT file.ctime desc
 ```
 <br>
 
-```oql
-name: "Daily notes"
-query: "психология"
-template: "string"
-format: "{name}: {count}"
-debug: true
-wrapper: h1
-```
-
-#utrecht
-
-
-
-
 -tx-
 |        hotkeys        |         comment          |
 |:---------------------:|:------------------------:|
