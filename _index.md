@@ -14,6 +14,13 @@ SORT file.ctime desc
 ```
 <br>
 
+```oql
+name: Folder 1
+query: "психология" 
+template: "autor" # Renders to a list with notes linked
+sort: 'random' # Render the list in random order
+limit: 10 # Limit it to the first 10
+```
 
 -tx-
 |        hotkeys        |         comment          |

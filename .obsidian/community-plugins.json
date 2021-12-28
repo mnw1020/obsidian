@@ -11,5 +11,7 @@
   "obsidian-kanban",
   "shortcuts-extender",
   "table-editor-obsidian",
-  "dataview"
+  "dataview",
+  "obsidian-query-language",
+  "obsidian-query2table"
 ]
