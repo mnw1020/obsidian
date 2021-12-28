@@ -22,8 +22,6 @@
 |       `alt + a`       |  @ переход на заголовок  |
 ![d](_attach/Screenshot_20211119-130240913.jpg)
 
-#d
-
 ```dataview
-list from #d
+TABLE Таблетка от страха. Курпатов
 ```
