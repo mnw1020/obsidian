@@ -27,3 +27,7 @@ table name, autor
 from "психология"
 sort file.name
 ```
+
+```dataview
+task from #dd 
+```
