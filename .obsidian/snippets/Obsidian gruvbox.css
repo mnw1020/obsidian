@@ -139,13 +139,15 @@
     content: counter(section) ". ";
 }
 
-tbody tr:nth-child (odd) {
+
+.table-view-table > tbody tr:nth-child::odd {
 
     background-color: #C9E4F6;/* фон нечетных строк */
+	color: var(--text-title-h6) !important;
 
   }
 
-  tbody tr:nth-child (even) {
+.table-view-table > tbody tr:nth-child::even {
 
     background-color: #B4DAF2;/* фон четных строк */
 
