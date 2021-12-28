@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "748c5e2507a99f24",
+        "id": "726c1439e3976f6b",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Английские слова.md",
+            "file": "Таблетка от страха. Курпатов.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Английские слова.md",
+                "file": "Таблетка от страха. Курпатов.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Английские слова.md"
+                "file": "Таблетка от страха. Курпатов.md"
               }
             }
           },
@@ -123,17 +123,17 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "748c5e2507a99f24",
+  "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "Таблетка от страха. Курпатов.md",
+    "Сенека. Нравственные письма к Луцилию. Конспект.md",
+    "Исправь свое детство. Курпатов. Конспект.txt.md",
+    "Без названия.md",
     "Английские слова.md",
     "_index.md",
     "_templates/Блок со скрытым текстом.md",
-    "Таблетка от страха. Курпатов.md",
     "_templates/Без названия.md",
     "_attach/12.mp3",
-    "психология/сны.md",
-    "_attach/28.mp3",
-    "_attach/Screenshot_20211119-135834474.jpg",
-    "_templates/_attach/85d7b8e6f319e042ac9f2dae1e341573.jpg"
+    "психология/сны.md"
   ]
 }
