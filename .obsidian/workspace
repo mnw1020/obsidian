@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_index.md",
+            "file": "_templates/Блок со скрытым текстом.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_index.md",
+                "file": "_templates/Блок со скрытым текстом.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_index.md"
+                "file": "_templates/Блок со скрытым текстом.md"
               }
             }
           },
@@ -125,8 +125,8 @@
   },
   "active": "748c5e2507a99f24",
   "lastOpenFiles": [
-    "_index.md",
     "_templates/Блок со скрытым текстом.md",
+    "_index.md",
     "Английские слова.md",
     "Таблетка от страха. Курпатов.md",
     "_templates/Без названия.md",

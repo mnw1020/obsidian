@@ -12,9 +12,6 @@ FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-<details><summary>text</summary>
-	# hidden text
-</details>
 
 -tx-
 |        hotkeys        |         comment          |
