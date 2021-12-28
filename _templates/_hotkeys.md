@@ -23,7 +23,7 @@
 ![d](_attach/Screenshot_20211119-130240913.jpg)
 
 ```dataview
-table name, autor
+TABLE file.name AS "наз", rating AS "Rating"
 from "психология"
 sort file.name
 ```
