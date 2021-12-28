@@ -14,5 +14,8 @@
       "left": 2
     }
   },
-  "Английские слова.md": "RiAB"
+  "Английские слова.md": "RiAB",
+  "_templates": "RiAnticlockwiseLine",
+  "_attach": "RiAttachment2",
+  "_index.md": "RiStarLine"
 }

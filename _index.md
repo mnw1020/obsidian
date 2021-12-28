@@ -1,7 +1,7 @@
 ```dataview
 TABLE file.mtime as Edited 
 FROM ""
-WHERE date(now) - file.mtime <= dur(3 days) and file.name != "Index.md"
+WHERE date(now) - file.mtime <= dur(3 days) and file.name != "_index"
 SORT file.mtime desc
 ```
 <br>
@@ -12,9 +12,9 @@ FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-<br>
-
-![](_attach/28.mp3)
+<details><summary>text</summary>
+	# hidden text
+</details>
 
 -tx-
 |        hotkeys        |         comment          |
