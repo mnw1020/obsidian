@@ -125,6 +125,11 @@
     color: var(--text-title-h6) !important;
 }
 
+.table-view-table tr {
+    border-bottom: 1px solid;
+}
+
+/* счетчик строк */
 .table-view-table {
     counter-reset: section;
 }
