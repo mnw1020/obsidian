@@ -23,5 +23,7 @@
 ![d](_attach/Screenshot_20211119-130240913.jpg)
 
 ```dataview
-TABLE Таблетка от страха. Курпатов
+table name, autor
+from "психология"
+sort file.name
 ```
