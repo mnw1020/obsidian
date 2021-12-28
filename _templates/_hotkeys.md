@@ -38,11 +38,3 @@ FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-
-в
-```dataview
-table file.ctime, file.mtime
-from "психология"
-where file.name != "+Inbox TOC"
-sort file.mtime descending
-```
