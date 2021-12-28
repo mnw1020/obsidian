@@ -98,5 +98,13 @@
       ],
       "key": "A"
     }
+  ],
+  "unique-attachments:rename-all-attachments": [
+    {
+      "modifiers": [
+        "Meta"
+      ],
+      "key": "\\"
+    }
   ]
 }
