@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_index.md",
+            "file": "_templates/Без названия.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_index.md",
+                "file": "_templates/Без названия.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_index.md"
+                "file": "_templates/Без названия.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "748c5e2507a99f24",
   "lastOpenFiles": [
-    "_index.md",
-    "_templates/_attach/85d7b8e6f319e042ac9f2dae1e341573.jpg",
-    "_attach/Screenshot_20211119-135834474.jpg",
-    "Английские слова.md",
     "_templates/Без названия.md",
-    "психология/Ассертивность.md",
-    "психология/Десять быков дзэн.md",
-    "психология/Задачи горевания.md",
-    "_templates/Блок со скрытым текстом.md",
-    "психология/Мышечная броня.md"
+    "_attach/12.mp3",
+    "психология/сны.md",
+    "_attach/28.mp3",
+    "_attach/Screenshot_20211119-135834474.jpg",
+    "_templates/_attach/85d7b8e6f319e042ac9f2dae1e341573.jpg",
+    "_templates/_attach/Screenshot_20211119-130240913 1.jpg",
+    "_templates/_attach/Screenshot_20211119-130240913 2.jpg",
+    "_index.md",
+    "consistant-report.md"
   ]
 }
