@@ -26,7 +26,7 @@
 
 
 ```dataview
-TABLE file.mtime as Edited, intensity
+TABLE file.mtime as Edited
 FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "Index.md"
 SORT file.mtime desc

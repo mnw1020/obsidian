@@ -124,3 +124,12 @@
     font-size: 1.2em !important;
     color: var(--text-title-h6) !important;
 }
+
+.table-view-table {
+    counter-reset: section;
+}
+
+.table-view-table > tbody > tr > td:first-child::before {
+    counter-increment: section;
+    content: counter(section) ". ";
+}
