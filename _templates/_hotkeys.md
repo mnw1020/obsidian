@@ -22,15 +22,6 @@
 |       `alt + a`       |  @ переход на заголовок  |
 ![d](_attach/Screenshot_20211119-130240913.jpg)
 
-```dataview
-TABLE file.name AS "наз", rating AS "Rating"
-from "психология"
-sort file.name
-```
-
-```dataview
-task from #dd 
-```
 
 ```dataview
 TABLE file.mtime as Edited
@@ -38,3 +29,11 @@ FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "Index.md"
 SORT file.mtime desc
 ```
+
+```dataview
+TABLE file.ctime as Created
+FROM ""
+WHERE date(now) - file.ctime <= dur(3 days)
+SORT file.ctime desc
+```
+
