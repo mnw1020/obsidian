@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_index.md",
-            "mode": "preview",
+            "file": "Таблетка от страха. Курпатов.md",
+            "mode": "source",
             "backlinks": false
           }
         }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_index.md",
+                "file": "Таблетка от страха. Курпатов.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_index.md"
+                "file": "Таблетка от страха. Курпатов.md"
               }
             }
           },
@@ -125,12 +125,12 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
-    "_index.md",
     "Таблетка от страха. Курпатов.md",
-    "Сенека. Нравственные письма к Луцилию. Конспект.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
-    "Без названия.md",
     "Английские слова.md",
+    "_index.md",
+    "Сенека. Нравственные письма к Луцилию. Конспект.md",
+    "Без названия.md",
     "_templates/Блок со скрытым текстом.md",
     "_templates/Без названия.md",
     "_attach/12.mp3",
