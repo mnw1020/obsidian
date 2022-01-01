@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Кулинария/Суп/Голос.md",
-            "mode": "preview",
+            "file": "Голос.md",
+            "mode": "source",
             "backlinks": false
           }
         }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#utrecht",
+                "query": "голос",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Кулинария/Суп/Голос.md",
+                "file": "Голос.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Кулинария/Суп/Голос.md"
+                "file": "Голос.md"
               }
             }
           },
@@ -117,8 +117,7 @@
               "state": {}
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "horizontal",
@@ -126,15 +125,15 @@
   },
   "active": "aaf27efb6c249a25",
   "lastOpenFiles": [
-    "Кулинария/Суп/Голос.md",
-    "Кулинария/Суп/Брамборачка.md",
+    "Голос.md",
+    "Кулинария/Горячее блюдо/Мясо фри.md",
+    "психология/стих.md",
     "Книги/Прочитать.md",
+    "Кулинария/Суп/Брамборачка.md",
     "_index.md",
     "Английские слова.md",
     "психология/Мышечная броня.md",
     "психология/Десять быков дзэн.md",
-    "психология/Ассертивность.md",
-    "Цитата.md",
-    "Цитата/Слишком много сладкого 6423f62ccbc04e329e0690c0c7864c5b.md"
+    "психология/Ассертивность.md"
   ]
 }
