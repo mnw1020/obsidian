@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_index.md",
+            "file": "Кулинария/Выпечка/Чизкейк творожный.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_index.md",
+                "file": "Кулинария/Выпечка/Чизкейк творожный.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_index.md"
+                "file": "Кулинария/Выпечка/Чизкейк творожный.md"
               }
             }
           },
@@ -126,15 +126,15 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "Кулинария/Выпечка/Чизкейк творожный.md",
+    "Кулинария/Выпечка/Сосиски в бездрожжевом тесте.md",
+    "Кулинария/Выпечка/Кекс на сгущённом молоке.md",
+    "Кулинария/Выпечка/Булочки с посыпкой.md",
+    "Кулинария/Выпечка/Булочка домашняя.md",
     "_index.md",
     "Кулинария/Соус и приправы.md",
     "_templates/Блок со скрытым текстом.md",
     "Кулинария 446bdb8cc4be46479ab2cf1783c0feaf/Суп fd39686dadb849b99f26aded232f97e1.csv.md",
-    "Кулинария/Кулинария.md",
-    "Linux/_index.md",
-    "Linux/X-server - Установка и настройка.md",
-    "Linux/wget.md",
-    "Linux/Virtualbox.md",
-    "Linux/SED - Одно-строчные скрипты.md"
+    "Кулинария/Кулинария.md"
   ]
 }
