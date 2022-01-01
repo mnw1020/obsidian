@@ -17,26 +17,26 @@
 ```bash
 $ uname -r
 ```
-Скачиваем ядро (ftp://kernel.org/pub/linux/kernel/)[ftp://kernel.org/pub/linux/kernel/](ftp://kernel.org/pub/linux/kernel/) или через wget
-
-$ wget [https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.19.3.tar.xz](https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.19.3.tar.xz)
-
+Скачиваем ядро [ftp://kernel.org/pub/linux/kernel/](ftp://kernel.org/pub/linux/kernel/) или через wget
+```bash
+$ wget https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.19.3.tar.xz
+```
 Распаковываем в /usr/src
-
+```bash
 $ cd /usr/src
 
 # tar xf ~/linux-3.19.3.tar.xz
-
+```
 В каталоге /usr/src должна быть символьная ссылка "linux", указывающая на текущую версию ядра.
-
+```bash
 # ln -s /usr/src/linux-3.19.3 /usr/src/linux
 
 # cd /usr/src/linux
-
+```
 Создаем конфиг. Копируем конфиг с текущего загруженого ядра:
-
+```bash
 # cp /boot/config-`uname -r` .config
-
+```
 Запускаем "make oldconfig" - отвечаем на новые вопросы, старые значения будут сохранены.
 
 Оппции конфигуратора:
@@ -51,38 +51,39 @@ $ cd /usr/src
 -   **localyesconfig** - файл конфигурации, похожий на предыдущий, но здесь большая часть будет включена непосредственно в ядро. Идеальный вариант для начинающих.
 
 ...Собираем:
-
+```bash
 $ make -j 3
-
+```
 Где,
 
 -   j 3 - Количество потоков (количество ядер +1)
 
 ... _или_ Собираем в deb-пакеты:
-
+```bash
 $ make -j 5 KDEB_PKGVERSION=1.ribalinux deb-pkg
-
+```
 Если собирали вручную, вручную же и устанавливаем:
 
 модули в /lib/modules:
-
+```bash
 # make modules_install
-
+```
 заголовки:
-
+```bash
 # make headers_install
-
+```
 затем устанавливаем ядро автоматически:
-
+```bash
 # make install
-
+```
 или руками:
-
+```bash
 # cp arch/x86/boot/bzImage /boot/vmlinuz-3.19.3
 
 # cp System.map /boot/System.map-3.19.3
 
 # cp .config /boot/config-3.19.3
+```
 
 создаем INIT RAM FS (INIT RAM DISK) или initramfs (initrd)
 
@@ -90,6 +91,7 @@ $ make -j 5 KDEB_PKGVERSION=1.ribalinux deb-pkg
 
 Создаем ссылки в /boot
 
+```bash
 # ln -s /boot/config-3.19.3 /boot/config
 
 # ln -s /boot/System.map-3.19.3 /boot/System.map
@@ -97,6 +99,7 @@ $ make -j 5 KDEB_PKGVERSION=1.ribalinux deb-pkg
 # ln -s /boot/vmlinuz-3.19.3 /boot/vmlinuz
 
 # ln -s /boot/initrd /boot/initrd
+```
 
 затем обновляем загрузчик:
 
