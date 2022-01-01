@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_temp/aliexpress.md",
-            "mode": "source",
+            "file": "_index.md",
+            "mode": "preview",
             "backlinks": false
           }
         }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_temp/aliexpress.md",
+                "file": "_index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_temp/aliexpress.md"
+                "file": "_index.md"
               }
             }
           },
@@ -125,8 +125,8 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
-    "_temp/aliexpress.md",
     "_index.md",
+    "_temp/aliexpress.md",
     "_attach/20170919_140115.jpg",
     "Таблетка от страха. Курпатов.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
