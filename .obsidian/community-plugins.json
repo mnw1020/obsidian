@@ -17,5 +17,6 @@
   "remember-cursor-position",
   "unique-attachments",
   "consistent-attachments-and-links",
-  "obsidian-admonition"
+  "obsidian-admonition",
+  "obsidian-reveal-active-file"
 ]
