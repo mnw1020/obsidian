@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
-            "mode": "source",
+            "file": "Спортивное питание.md",
+            "mode": "preview",
             "backlinks": false
           }
         }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
+                "file": "Спортивное питание.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md"
+                "file": "Спортивное питание.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "aaf27efb6c249a25",
   "lastOpenFiles": [
-    "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
-    "Спортивное питание 1421d8ce7c734a8f9e9dd3782c9a32b8.md",
+    "Спортивное питание.md",
+    "Биохак 7f520e9f7b6a42eaa445176ad75cbb8a.md",
+    "Аптечка.md",
     "Инвестиции - мультипликаторы.md",
     "Стройка.md",
     "Linux/Программы linux.md",
     "Голос.md",
     "Цитата.md",
     "психология/Десять быков дзэн.md",
-    "психология/стих.md",
-    "_temp/telegram.md"
+    "психология/стих.md"
   ]
 }
