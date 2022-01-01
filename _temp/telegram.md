@@ -46,4 +46,9 @@ CleverMind - https://t.me/CleverMindRu_Official - Ноотропы, Биохак
 [TEEN VIDEOS] - https://t.me/teenagers_video  
 [Naked Young Girls] - https://t.me/NakedYoungGirls  
 [TEEN ITALIA]
-Биохакинг - 
+Биохакинг - https://t.me/hack_bio - Узнайте секрет долгой, продуктивной и здоровой жизни! Информация только от проверенных экспертов, авторские и переведённые статьи.  
+ЖЕЛЕЗНЫЙ ЧЕЛОВЕК - https://t.me/ironchelo - Канал фитнес тренера Артема Иванова  
+Ноотропы и разгон мозга - https://t.me/mind_rise - Ноотропы, прокачка мозга, саморазвитие, научно доказанные методы биохакинга.  
+Товарищ Доктор | Здоровье - https://t.me/tovarishdok
+
+###### Путешествия
