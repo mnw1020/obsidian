@@ -61,4 +61,9 @@ Kosmo - https://t.me/kosmo_off  Ruslan Verin - Путешествия - https://
 [ScroogeMcDuck] - @ScroogeMcDucks_bot - aliexpress купоны  
 [SafeCalls] - @SafeCallsBot - анонимные звонки  
 [Temp-Mail] - @TempMail_org_bot - временная почта от https://temp-mail.org  
-Radio Bot - @RadioBot - радио
+Radio Bot - @RadioBot - радио  
+Тележка Инвестора - @investtelega_bot - От Дмитрия Солодина  
+MotherMovies - фильмы - @MotherMoviesBot - Рекомендации фильмов  
+MotherSearch - поиск (search) - @MotherSearchBot - Поисковик  
+ГдеПосылка - @GdePosylkaBot - трекинг посылок
+KinoNavigator - @kinav_bot - Рекомендации фильмов от сервиса типа Kinopoisk
