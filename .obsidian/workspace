@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Таблетка от страха. Курпатов.md",
+            "file": "Linux/kernel.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Таблетка от страха. Курпатов.md",
+                "file": "Linux/kernel.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Таблетка от страха. Курпатов.md"
+                "file": "Linux/kernel.md"
               }
             }
           },
@@ -125,6 +125,8 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "Linux/kernel.md",
+    "Linux/wget.md",
     "Таблетка от страха. Курпатов.md",
     "_index.md",
     "_temp/aliexpress.md",
@@ -132,8 +134,6 @@
     "Исправь свое детство. Курпатов. Конспект.txt.md",
     "Английские слова.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
-    "_templates/Блок со скрытым текстом.md",
-    "_templates/Без названия.md",
-    "_attach/12.mp3"
+    "_templates/Блок со скрытым текстом.md"
   ]
 }
