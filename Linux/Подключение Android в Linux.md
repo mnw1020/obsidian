@@ -1,8 +1,3 @@
-# Подключение Android в Linux
-
-Created: February 28, 2015 12:00 AM
-Updated: April 14, 2015 4:28 PM
-
 [http://wiki.cyanogenmod.org/w/Doc:_adb_intro#Secure_USB_debugging](http://wiki.cyanogenmod.org/w/Doc:_adb_intro#Secure_USB_debugging)
 
 **[http://linux-notes.org/ustanovka-android-tools-adb-fastboot-qtadb-na-debian-ubuntu-linux-mint/](http://linux-notes.org/ustanovka-android-tools-adb-fastboot-qtadb-na-debian-ubuntu-linux-mint/)**

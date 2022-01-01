@@ -1,7 +1,3 @@
-# Conky
-
-Created: February 3, 2015 7:43 PM
-Updated: April 8, 2015 3:27 PM
 
 **Измеряем температуру винтов**
 

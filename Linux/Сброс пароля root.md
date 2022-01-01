@@ -1,8 +1,3 @@
-# Сброс пароля root
-
-Created: April 5, 2015 3:48 PM
-Updated: April 5, 2015 3:49 PM
-
 [http://habrahabr.ru/post/54103/](http://habrahabr.ru/post/54103/)
 
 - -----

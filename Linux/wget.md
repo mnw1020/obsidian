@@ -10,11 +10,11 @@ wget -b -c -w5 -r -l0 -np --relative -k [http://www.poplinux.ru/](http:
 
 Копирование Web-сайта со структурой (grabbing):
 
-1.  # Непрерывное копирование (высокая скорость):
+1.  Непрерывное копирование (высокая скорость):
     
 2.  wget --no-parent -r -l 0 -k [http://www.geocities.com/airfly/](http://www.geocities.com/airfly/)
     
-3.  # Копирование с паузами 1 сек (меньше нагрузка на сайт)
+3.  Копирование с паузами 1 сек (меньше нагрузка на сайт)
     
 4.  wget -w 1 --no-parent -r -l 0 -k [http://www.geocities.com/airfly/](http://www.geocities.com/airfly/)
     
@@ -26,8 +26,7 @@ wget -b -c -w5 -r -l0 -np --relative -k [http://www.poplinux.ru/](http:
 Чтобы выкачать файлы из списка, содержащего прямые ссылки:
 
 1.  wget -i linklist
-2.  # или
-    
+2.  или
 3.  wget -input-file=linklist
 
 Здесь указывается только файл, в котором содержатся ссылки.Файл может также быть HTML-страницей, в которой есть ссылки. Они будут выкачаны указанной выше командой.

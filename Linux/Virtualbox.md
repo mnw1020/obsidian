@@ -1,8 +1,3 @@
-# Virtualbox
-
-Created: February 23, 2015 2:48 AM
-Updated: April 5, 2015 3:50 PM
-
 [http://kubuntu.ru/node/11199](http://kubuntu.ru/node/11199)
 
 [http://habrahabr.ru/sandbox/37839/](http://habrahabr.ru/sandbox/37839/)

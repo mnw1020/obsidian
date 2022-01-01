@@ -126,14 +126,14 @@
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
     "Linux/_index.md",
-    "Linux/Инфа о системе (консоль).md",
-    "Linux/Conky.md",
-    "_temp/telegram.md",
-    "_temp/aliexpress.md",
-    "_index.md",
     "Linux/X-server - Установка и настройка.md",
-    "Linux/kernel.md",
     "Linux/wget.md",
-    "Таблетка от страха. Курпатов.md"
+    "Linux/Virtualbox.md",
+    "Linux/SED - Одно-строчные скрипты.md",
+    "Linux/Mount - Автоматическое монтирование.md",
+    "Linux/Java и Flash - Установка.md",
+    "Linux/Conky.md",
+    "Linux/Сброс пароля root.md",
+    "Linux/Подключение Android в Linux.md"
   ]
 }

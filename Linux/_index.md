@@ -36,13 +36,11 @@ sudo passwd или sudo su и получить терминал рута. или
 
 Alias terminala
 Редактируются в файле ~/.bash_aliases например 
-`alias man='man -L ru'alias install='sudo apt-get install -y'применить настройки:source ~/.bash_aliases`
+`alias man='man -L ru'alias install='sudo apt-get install -y'`
+применить настройки: source ~/.bash_aliases
 
 Вывод терминала
-
 редактируем файл ~/.bashrc
-
 nano ~/.bashrcтуда дописываем строку
 `export PS1="\[\e[00;33m\][\[\e[0m\]\[\e[00;36m\]\w\[\e[0m\]\[\e[00;33m\]]\[\e[0m\]\[\e[00;31m\]>>\[\e[0m\]"`
-
 саму строку можно сгенерировать на http://bashrcgenerator.com/

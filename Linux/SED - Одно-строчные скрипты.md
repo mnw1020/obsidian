@@ -1,8 +1,3 @@
-# SED - Одно-строчные скрипты
-
-Created: February 17, 2015 2:23 PM
-Updated: April 10, 2015 12:02 AM
-
 [Перейти к основному содержанию](http://ant0.ru/sed1line.html#main-content)
 
 [Антон Тарасов (Ant0)](http://ant0.ru/)
