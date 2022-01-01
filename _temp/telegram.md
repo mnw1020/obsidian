@@ -20,4 +20,16 @@ Invest Era - https://t.me/usamarke1
 IF Stocks - https://t.me/if_stocks - InvestFuture  
 headlines - https://t.me/headlines_for_traders - Новости  
 ProfitGate - экономика, трейдинг, инвестиции. - https://t.me/ProfitGate  
-PROGRESS — Инвестиции - 
+PROGRESS — Инвестиции - https://t.me/progressinvest  
+Усиленные Инвестиции - https://t.me/eninv
+
+###### Психология
+[Твоя Злата| Блог Сексолога] - https://t.me/Sexsolog_Zlata  
+[Я в пикапе!] - https://t.me/pasha_nauchit  
+Откровения куртизанки - https://t.me/joinchat/AAAAAE7gmjO0c2Bkz-t9jA  
+Кофе. Дым. Секс. - https://t.me/dnevnikbrutala - Доступно рассказываю, как соблазнить любую девушку, а так же о том, как следует себя вести настоящему мужчине.   
+Евгений Чичваркин - https://t.me/echichvarkin - основатель евросети о бизнесе и обо всем  
+СУПЕР НАТУРАЛ - https://t.me/joinchat/NfiZet-7-bZhNzM6 - Авторское мышление о мужском саморазвитии, психологи и твоем личностном росте.  
+Агрессивный психолог - https://t.me/agr_psi - Канал практикующего психолога который говорит ПРЯМЫМ ТЕКСТОМ о сложных психологических проблемах  
+Мужской разговор - https://t.me/talkbro - Мужской блог. Сильный текст. Призыв к действию.  
+Бог Диалога - https://t.me/work_ation - 
