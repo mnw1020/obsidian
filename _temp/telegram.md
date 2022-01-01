@@ -73,3 +73,17 @@ Google Drive и другие облака (Техподдержка)
 Flibusta - @flibustafreebookbot  
 Buklya - @buklyabot - Здесь представлен список каналов и ботов, где можно найти книги.  
 ###### Psy
+КНИЖНЫЙ ЧЕРВЬ - https://t.me/bookworm_2019 - Переводы редких книг
+Chipollino Onion Club  
+Chipollino Grow Club  
+I’M⚡️FLASHBACK  
+Drugой Art - @Drug0yArt  
+Ethno_Grow - @ethnogrow  
+Medical Grow   
+Dzagi - @dzagiofficial  
+Журнал ТРАВА - https://t.me/joinchat/AAAAAE0t1oOblFpqUXyYJQ  
+EntheoGrow  
+Kanna.biz 2.0
+ГенПлан - https://t.me/genplan_chanel  
+Гроурепорты Dzagi - @dzagirep  
+MedСannabis (ЖУРНАЛ) - 
