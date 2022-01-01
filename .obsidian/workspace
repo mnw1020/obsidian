@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Голос.md",
+            "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
             "mode": "source",
             "backlinks": false
           }
@@ -40,7 +40,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "голос",
+                "query": "",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Голос.md",
+                "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Голос.md"
+                "file": "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "aaf27efb6c249a25",
   "lastOpenFiles": [
+    "Аптечка 198ccbe805294ecb8d1591f8a1a8c379.md",
+    "Спортивное питание 1421d8ce7c734a8f9e9dd3782c9a32b8.md",
+    "Инвестиции - мультипликаторы.md",
+    "Стройка.md",
+    "Linux/Программы linux.md",
     "Голос.md",
-    "Кулинария/Горячее блюдо/Мясо фри.md",
-    "психология/стих.md",
-    "Книги/Прочитать.md",
-    "Кулинария/Суп/Брамборачка.md",
-    "_index.md",
-    "Английские слова.md",
-    "психология/Мышечная броня.md",
+    "Цитата.md",
     "психология/Десять быков дзэн.md",
-    "психология/Ассертивность.md"
+    "психология/стих.md",
+    "_temp/telegram.md"
   ]
 }
