@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Кулинария/_index.md",
+            "file": "Кулинария/Соус и приправы.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Кулинария/_index.md",
+                "file": "Кулинария/Соус и приправы.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Кулинария/_index.md"
+                "file": "Кулинария/Соус и приправы.md"
               }
             }
           },
@@ -126,8 +126,8 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
-    "Кулинария/_index.md",
     "Кулинария/Соус и приправы.md",
+    "Кулинария/_index.md",
     "Кулинария/Суп/Мексиканский суп из фасоли.md",
     "Кулинария/Салат/Салат из рукколы с куриной грудкой.md",
     "Кулинария/Салат/Гранатовый браслет.md",
