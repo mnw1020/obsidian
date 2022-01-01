@@ -67,3 +67,9 @@ MotherMovies - фильмы - @MotherMoviesBot - Рекомендации фил
 MotherSearch - поиск (search) - @MotherSearchBot - Поисковик  
 ГдеПосылка - @GdePosylkaBot - трекинг посылок
 KinoNavigator - @kinav_bot - Рекомендации фильмов от сервиса типа Kinopoisk
+Google Drive и другие облака (Техподдержка)  
+Продажа Google|OneDrive - @cloudbuy_4pda_bot  
+Развитие голоса и речи - @gromich_bot
+Flibusta - @flibustafreebookbot  
+Buklya - @buklyabot - Здесь представлен список каналов и ботов, где можно найти книги.  
+###### Psy
