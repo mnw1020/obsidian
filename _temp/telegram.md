@@ -52,3 +52,8 @@ CleverMind - https://t.me/CleverMindRu_Official - Ноотропы, Биохак
 Товарищ Доктор | Здоровье - https://t.me/tovarishdok
 
 ###### Путешествия
+Kosmo - https://t.me/kosmo_off  Ruslan Verin - Путешествия - https://t.me/ruslanverin  
+ПОЕХАВШИЙ - https://t.me/misha_edet
+
+###### Бот
+[GENPLAN] - @GENPLAN_shop_bot - Интернет-магазин www.genplan.ws  
