@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_temp/telegram.md",
+            "file": "Linux/_index.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_temp/telegram.md",
+                "file": "Linux/_index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_temp/telegram.md"
+                "file": "Linux/_index.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "Linux/_index.md",
+    "Linux/Инфа о системе (консоль).md",
+    "Linux/Conky.md",
     "_temp/telegram.md",
     "_temp/aliexpress.md",
     "_index.md",
     "Linux/X-server - Установка и настройка.md",
     "Linux/kernel.md",
     "Linux/wget.md",
-    "Таблетка от страха. Курпатов.md",
-    "_attach/20170919_140115.jpg",
-    "Исправь свое детство. Курпатов. Конспект.txt.md",
-    "Английские слова.md"
+    "Таблетка от страха. Курпатов.md"
   ]
 }
