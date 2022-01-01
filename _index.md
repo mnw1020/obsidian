@@ -12,8 +12,7 @@ FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-
-H
+<br><br>
 
 -tx-
 |        hotkeys        |         comment          |
