@@ -103,13 +103,17 @@ $ make -j 5 KDEB_PKGVERSION=1.ribalinux deb-pkg
 
 затем обновляем загрузчик:
 
+```py
 # update-grub
+```
 
 Если собирали в deb-пакеты, просто устанавливаем их:
 
+```py
 # dpkg -i ../linux*.deb
 
 # reboot
+```
 
 ---
 
@@ -123,19 +127,27 @@ $ make -j 5 KDEB_PKGVERSION=1.ribalinux deb-pkg
 
 Распаковка:
 
+```bash
 xz -d -c %filename%
+```
 
 Сначала проверяем совместимость:
 
+```bash
 # patch -p --dry-run < %filename%
+```
 
 И установка:
 
+```bash
 # patch -p1 < %filename%
+```
 
 Если нужно, отмена установки:
 
+```bash
 # patch -R -p1 < %filename%
+```
 
 Затем компилируем, etc.
 

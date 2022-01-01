@@ -552,7 +552,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
             ? editor.getSelection()
             : false;
         if (selectedText) {
-            editor.replaceSelection("```py\n".concat(selectedText, "\n```"));
+            editor.replaceSelection("```bash\n".concat(selectedText, "\n```"));
         }
         else
             editor.replaceSelection("`");
