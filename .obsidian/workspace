@@ -4,12 +4,14 @@
     "type": "split",
     "children": [
       {
-        "id": "8801668990ebcbdb",
+        "id": "e482cffb4de65604",
         "type": "leaf",
         "state": {
-          "type": "kanban",
+          "type": "markdown",
           "state": {
-            "file": "_Task/_index.md"
+            "file": "Голос.md",
+            "mode": "preview",
+            "backlinks": false
           }
         }
       }
@@ -67,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_Task/_index.md",
+                "file": "Голос.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_Task/_index.md"
+                "file": "Голос.md"
               }
             }
           },
@@ -121,17 +123,17 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "8801668990ebcbdb",
+  "active": "e482cffb4de65604",
   "lastOpenFiles": [
+    "Голос.md",
+    "Биохак 7f520e9f7b6a42eaa445176ad75cbb8a.md",
+    "Аптечка.md",
     "_Task/_index.md",
+    "_index.md",
+    "_Task/Вернуть 13 за лечение.md",
     "_Task/Дописать робота.md",
     "Цитата.md",
     "Без названия.md",
-    "Кулинария/Без названия.md",
-    "Кулинария/Соус и приправы.md",
-    "Биохак 7f520e9f7b6a42eaa445176ad75cbb8a.md",
-    "Спортивное питание.md",
-    "Инвестиции - мультипликаторы.md",
-    "Аптечка.md"
+    "Кулинария/Без названия.md"
   ]
 }
