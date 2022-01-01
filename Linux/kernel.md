@@ -157,6 +157,9 @@ xz -d -c %filename%
 
 Скрипт обновления ядра
 
-# расскоментировать, если пакетов нет#apt-get install kernel-package libncurses5-dev fakeroot wget bzip2echo Installing $1cd /usr/srcwget -c [kernel.org/pub/linux/kernel/v2.6/linux-](http://kernel.org/pub/linux/kernel/v2.6/linux-)$1.tar.bz2tar xjf linux-$1.tar.bz2rm linuxln -s linux-$1 linuxcd /usr/src/linuxcp /boot/config-`uname -r` ./.config# make menuconfig# раскомментировать если понадобилось поменять конфигурациюmake-kpkg cleanfakeroot make-kpkg --initrd kernel_image kernel_headersdpkg -i linux*.debrm -f *.debНа автомате, этот скрипт обновляет у меня ядро еще с 2.6.27, запускаю так./kernel.sh 2.6.32.7
-
----
+```
+# расскоментировать, если пакетов нет
+#apt-get install kernel-package libncurses5-dev fakeroot wget bzip2echo Installing $1cd /usr/srcwget -c [kernel.org/pub/linux/kernel/v2.6/linux-](http://kernel.org/pub/linux/kernel/v2.6/linux-)$1.tar.bz2tar xjf linux-$1.tar.bz2rm linuxln -s linux-$1 linuxcd /usr/src/linuxcp /boot/config-`uname -r` ./.config
+# make menuconfig
+# раскомментировать если понадобилось поменять конфигурацию make-kpkg cleanfakeroot make-kpkg --initrd kernel_image kernel_headersdpkg -i linux*.debrm -f *.debНа автомате, этот скрипт обновляет у меня ядро еще с 2.6.27, запускаю так./kernel.sh 2.6.32.7
+```
