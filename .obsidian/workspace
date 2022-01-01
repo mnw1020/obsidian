@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "_index.md",
-            "mode": "preview",
+            "file": "Таблетка от страха. Курпатов.md",
+            "mode": "source",
             "backlinks": false
           }
         }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_index.md",
+                "file": "Таблетка от страха. Курпатов.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "_index.md"
+                "file": "Таблетка от страха. Курпатов.md"
               }
             }
           },
@@ -125,10 +125,10 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "Таблетка от страха. Курпатов.md",
     "_index.md",
     "_temp/aliexpress.md",
     "_attach/20170919_140115.jpg",
-    "Таблетка от страха. Курпатов.md",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
     "Английские слова.md",
     "Сенека. Нравственные письма к Луцилию. Конспект.md",
