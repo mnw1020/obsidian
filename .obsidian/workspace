@@ -4,7 +4,7 @@
     "type": "split",
     "children": [
       {
-        "id": "aaf27efb6c249a25",
+        "id": "0f67c7e96812b9ce",
         "type": "leaf",
         "state": {
           "type": "kanban",
@@ -121,11 +121,11 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "aaf27efb6c249a25",
+  "active": "0f67c7e96812b9ce",
   "lastOpenFiles": [
     "Untitled Kanban.md",
-    "Дописать робота.md",
     "Цитата.md",
+    "Дописать робота.md",
     "Без названия.md",
     "Кулинария/Без названия.md",
     "Кулинария/Соус и приправы.md",

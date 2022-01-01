@@ -7,7 +7,7 @@ kanban-plugin: basic
 ## [Срочно] - прямо сейчас
 
 - [ ] 
-- [ ] [Дописать робота](Дописать%20робота.md) ^x0m6oz
+- [ ] [Дописать робота](Дописать%20робота.md)  @{2022-01-14}
 
 
 ## [Важно] - чуть попозже
@@ -26,6 +26,6 @@ kanban-plugin: basic
 
 %% kanban:settings
 ```
-{"kanban-plugin":"basic"}
+{"kanban-plugin":"basic","show-checkboxes":true}
 ```
 %%
