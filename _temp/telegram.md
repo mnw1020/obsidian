@@ -57,3 +57,8 @@ Kosmo - https://t.me/kosmo_off  Ruslan Verin - Путешествия - https://
 
 ###### Бот
 [GENPLAN] - @GENPLAN_shop_bot - Интернет-магазин www.genplan.ws  
+[ShadeRoger] - @ShadeRoger_bot - aliexpress купоны  
+[ScroogeMcDuck] - @ScroogeMcDucks_bot - aliexpress купоны  
+[SafeCalls] - @SafeCallsBot - анонимные звонки  
+[Temp-Mail] - @TempMail_org_bot - временная почта от https://temp-mail.org  
+Radio Bot - @RadioBot - радио
