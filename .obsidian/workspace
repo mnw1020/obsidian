@@ -10,7 +10,7 @@
           "type": "markdown",
           "state": {
             "file": "Спортивное питание.md",
-            "mode": "source",
+            "mode": "preview",
             "backlinks": false
           }
         }
@@ -126,14 +126,14 @@
   "active": "aaf27efb6c249a25",
   "lastOpenFiles": [
     "Спортивное питание.md",
+    "_templates/Блок со скрытым текстом ad-note.md",
+    "_templates/Блок со скрытым текстом.md",
+    "Кулинария/_index.md",
+    "_index.md",
+    "Цитата.md",
     "Биохак 7f520e9f7b6a42eaa445176ad75cbb8a.md",
     "Аптечка.md",
     "Инвестиции - мультипликаторы.md",
-    "Стройка.md",
-    "Linux/Программы linux.md",
-    "Голос.md",
-    "Цитата.md",
-    "психология/Десять быков дзэн.md",
-    "психология/стих.md"
+    "Стройка.md"
   ]
 }
