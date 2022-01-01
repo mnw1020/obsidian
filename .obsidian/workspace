@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Linux/X-server - Установка и настройка.md",
+            "file": "_temp/telegram.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Linux/X-server - Установка и настройка.md",
+                "file": "_temp/telegram.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Linux/X-server - Установка и настройка.md"
+                "file": "_temp/telegram.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "726c1439e3976f6b",
   "lastOpenFiles": [
+    "_temp/telegram.md",
+    "_temp/aliexpress.md",
+    "_index.md",
     "Linux/X-server - Установка и настройка.md",
     "Linux/kernel.md",
     "Linux/wget.md",
-    "_index.md",
     "Таблетка от страха. Курпатов.md",
-    "_temp/aliexpress.md",
     "_attach/20170919_140115.jpg",
     "Исправь свое детство. Курпатов. Конспект.txt.md",
-    "Английские слова.md",
-    "Сенека. Нравственные письма к Луцилию. Конспект.md"
+    "Английские слова.md"
   ]
 }
