@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "726c1439e3976f6b",
+        "id": "aaf27efb6c249a25",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Английские слова.md",
+            "file": "Книги/Прочитать.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Английские слова.md",
+                "file": "Книги/Прочитать.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Английские слова.md"
+                "file": "Книги/Прочитать.md"
               }
             }
           },
@@ -124,8 +124,9 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "726c1439e3976f6b",
+  "active": "aaf27efb6c249a25",
   "lastOpenFiles": [
+    "Книги/Прочитать.md",
     "Английские слова.md",
     "психология/Мышечная броня.md",
     "психология/Десять быков дзэн.md",
@@ -134,7 +135,6 @@
     "Цитата/Слишком много сладкого 6423f62ccbc04e329e0690c0c7864c5b.md",
     "Цитата/Обьяснительная 8b5832d6be254a6b85392251ac7d5ae5.md",
     "Цитата/Мотивация 57eb2021d4ce469f8f7771b1c8d736c1.md",
-    "Цитата/Вера - это 34904fe9e80b4283859ee6a38212d808.md",
-    "Цитата/Забавно 9e7299216c6445478ff282a86ce1ca12.md"
+    "Цитата/Вера - это 34904fe9e80b4283859ee6a38212d808.md"
   ]
 }
