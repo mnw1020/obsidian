@@ -32,4 +32,18 @@ PROGRESS — Инвестиции - https://t.me/progressinvest
 СУПЕР НАТУРАЛ - https://t.me/joinchat/NfiZet-7-bZhNzM6 - Авторское мышление о мужском саморазвитии, психологи и твоем личностном росте.  
 Агрессивный психолог - https://t.me/agr_psi - Канал практикующего психолога который говорит ПРЯМЫМ ТЕКСТОМ о сложных психологических проблемах  
 Мужской разговор - https://t.me/talkbro - Мужской блог. Сильный текст. Призыв к действию.  
-Бог Диалога - https://t.me/work_ation - 
+Бог Диалога - https://t.me/work_ation - Говори, как Бог, и добивайся от других чего тебе угодно  
+Зеркало|Мир психологии - https://t.me/psyhomirror - Эссе на тему глубинной психологии и бессознательных аспектов, управляющих общественным поведением.  
+Кафедра Власти l НЛП-блог А.Кирсанова - https://t.me/kafedra_vlasti - Я Александр Кирсанов - профайлер с 12-ти летним стажем. Делюсь здесь опытом своей работы и уникальными знаниями.  
+CleverMind - https://t.me/CleverMindRu_Official - Ноотропы, Биохакинг, Мозг  
+Развивайся, ЁП - https://t.me/evolveiop - Системный подход к саморазвитию.  
+ОТНОШЕНИЯ НАИЗНАНКУ - https://t.me/otnosheniya_naiznanky   
+Заложники мыслей - https://t.me/joinchat/Rq9Xz4vkBWbm4gfd - Саморазвитие во всех направлениях. НЛП и техники.  
+
+###### Медицина
+[YOUNG GIRLS] - https://t.me/youngs_girls  
+[NUDE YOUNG GIRLS] - https://t.me/joinchat/AAAAAEmObD1rJo2Vg54COQ  
+[TEEN VIDEOS] - https://t.me/teenagers_video  
+[Naked Young Girls] - https://t.me/NakedYoungGirls  
+[TEEN ITALIA]
+Биохакинг - 
