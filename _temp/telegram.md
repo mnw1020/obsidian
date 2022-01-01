@@ -38,58 +38,59 @@
 - Заложники мыслей - https://t.me/joinchat/Rq9Xz4vkBWbm4gfd - Саморазвитие во всех направлениях. НЛП и техники.  
 
 ###### Медицина
-[YOUNG GIRLS] - https://t.me/youngs_girls  
-[NUDE YOUNG GIRLS] - https://t.me/joinchat/AAAAAEmObD1rJo2Vg54COQ  
-[TEEN VIDEOS] - https://t.me/teenagers_video  
-[Naked Young Girls] - https://t.me/NakedYoungGirls  
-[TEEN ITALIA]
-Биохакинг - https://t.me/hack_bio - Узнайте секрет долгой, продуктивной и здоровой жизни! Информация только от проверенных экспертов, авторские и переведённые статьи.  
-ЖЕЛЕЗНЫЙ ЧЕЛОВЕК - https://t.me/ironchelo - Канал фитнес тренера Артема Иванова  
-Ноотропы и разгон мозга - https://t.me/mind_rise - Ноотропы, прокачка мозга, саморазвитие, научно доказанные методы биохакинга.  
-Товарищ Доктор | Здоровье - https://t.me/tovarishdok
+- [YOUNG GIRLS] - https://t.me/youngs_girls  
+- [NUDE YOUNG GIRLS] - https://t.me/joinchat/AAAAAEmObD1rJo2Vg54COQ  
+- [TEEN VIDEOS] - https://t.me/teenagers_video  
+- [Naked Young Girls] - https://t.me/NakedYoungGirls  
+- [TEEN ITALIA]
+- Биохакинг - https://t.me/hack_bio - Узнайте секрет долгой, продуктивной и здоровой жизни! Информация только от проверенных экспертов, авторские и переведённые статьи.  
+- ЖЕЛЕЗНЫЙ ЧЕЛОВЕК - https://t.me/ironchelo - Канал фитнес тренера Артема Иванова  
+- Ноотропы и разгон мозга - https://t.me/mind_rise - Ноотропы, прокачка мозга, саморазвитие, научно доказанные методы биохакинга.  
+- Товарищ Доктор | Здоровье - https://t.me/tovarishdok
 
 ###### Путешествия
-Kosmo - https://t.me/kosmo_off  Ruslan Verin - Путешествия - https://t.me/ruslanverin  
-ПОЕХАВШИЙ - https://t.me/misha_edet
+- Kosmo - https://t.me/kosmo_off  
+- Ruslan Verin - Путешествия - https://t.me/ruslanverin  
+- ПОЕХАВШИЙ - https://t.me/misha_edet
 
 ###### Бот
-[GENPLAN] - @GENPLAN_shop_bot - Интернет-магазин www.genplan.ws  
-[ShadeRoger] - @ShadeRoger_bot - aliexpress купоны  
-[ScroogeMcDuck] - @ScroogeMcDucks_bot - aliexpress купоны  
-[SafeCalls] - @SafeCallsBot - анонимные звонки  
-[Temp-Mail] - @TempMail_org_bot - временная почта от https://temp-mail.org  
-Radio Bot - @RadioBot - радио  
-Тележка Инвестора - @investtelega_bot - От Дмитрия Солодина  
-MotherMovies - фильмы - @MotherMoviesBot - Рекомендации фильмов  
-MotherSearch - поиск (search) - @MotherSearchBot - Поисковик  
-ГдеПосылка - @GdePosylkaBot - трекинг посылок
-KinoNavigator - @kinav_bot - Рекомендации фильмов от сервиса типа Kinopoisk
-Google Drive и другие облака (Техподдержка)  
-Продажа Google|OneDrive - @cloudbuy_4pda_bot  
-Развитие голоса и речи - @gromich_bot
-Flibusta - @flibustafreebookbot  
-Buklya - @buklyabot - Здесь представлен список каналов и ботов, где можно найти книги.  
+- [GENPLAN] - @GENPLAN_shop_bot - Интернет-магазин www.genplan.ws  
+- [ShadeRoger] - @ShadeRoger_bot - aliexpress купоны  
+- [ScroogeMcDuck] - @ScroogeMcDucks_bot - aliexpress купоны  
+- [SafeCalls] - @SafeCallsBot - анонимные звонки  
+- [Temp-Mail] - @TempMail_org_bot - временная почта от https://temp-mail.org  
+- Radio Bot - @RadioBot - радио  
+- Тележка Инвестора - @investtelega_bot - От Дмитрия Солодина  
+- MotherMovies - фильмы - @MotherMoviesBot - Рекомендации фильмов  
+- MotherSearch - поиск (search) - @MotherSearchBot - Поисковик  
+- ГдеПосылка - @GdePosylkaBot - трекинг посылок
+- KinoNavigator - @kinav_bot - Рекомендации фильмов от сервиса типа Kinopoisk
+- Google Drive и другие облака (Техподдержка)  
+- Продажа Google|OneDrive - @cloudbuy_4pda_bot  
+- Развитие голоса и речи - @gromich_bot
+- Flibusta - @flibustafreebookbot  
+- Buklya - @buklyabot - Здесь представлен список каналов и ботов, где можно найти книги.  
 
 ###### Psy
-КНИЖНЫЙ ЧЕРВЬ - https://t.me/bookworm_2019 - Переводы редких книг
-Chipollino Onion Club  
-Chipollino Grow Club  
-I’M⚡️FLASHBACK  
-Drugой Art - @Drug0yArt  
-Ethno_Grow - @ethnogrow  
-Medical Grow   
-Dzagi - @dzagiofficial  
-Журнал ТРАВА - https://t.me/joinchat/AAAAAE0t1oOblFpqUXyYJQ  
-Журнал ТРАВА, библиотека Weedy Publishing - https://t.me/weedypublishing  
-EntheoGrow  
-Entheogrow2
-Kanna.biz 2.0
-ГенПлан - https://t.me/genplan_chanel  
-Гроурепорты Dzagi - @dzagirep  
-MedСannabis (ЖУРНАЛ) - https://t.me/joinchat/AAAAAEqORC8vPWxxaJwQVA  
-dooodka – культура 420 - https://t.me/joinchat/C-L0-xuyLKuiBhE8fQ7h6Q  
-Библиотека Психонавта - https://t.me/psylibro  
-SIYANIE Led - https://t.me/siyanie_led - Свет  
-ProGrow©  
-Psychedelic trip - 
-Weedy Republic - https://t.me/weedyrepublic
+- КНИЖНЫЙ ЧЕРВЬ - https://t.me/bookworm_2019 - Переводы редких книг
+- Chipollino Onion Club  
+- Chipollino Grow Club  
+- I’M⚡️FLASHBACK  
+- Drugой Art - @Drug0yArt  
+- Ethno_Grow - @ethnogrow  
+- Medical Grow   
+- Dzagi - @dzagiofficial  
+- Журнал ТРАВА - https://t.me/joinchat/AAAAAE0t1oOblFpqUXyYJQ  
+- Журнал ТРАВА, библиотека Weedy Publishing - https://t.me/weedypublishing  
+- EntheoGrow  
+- Entheogrow2
+- Kanna.biz 2.0
+- ГенПлан - https://t.me/genplan_chanel  
+- Гроурепорты Dzagi - @dzagirep  
+- MedСannabis (ЖУРНАЛ) - https://t.me/joinchat/AAAAAEqORC8vPWxxaJwQVA  
+- dooodka – культура 420 - https://t.me/joinchat/C-L0-xuyLKuiBhE8fQ7h6Q  
+- Библиотека Психонавта - https://t.me/psylibro  
+- SIYANIE Led - https://t.me/siyanie_led - Свет  
+- ProGrow©  
+- Psychedelic trip - 
+- Weedy Republic - https://t.me/weedyrepublic
