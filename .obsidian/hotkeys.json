@@ -98,5 +98,13 @@
       ],
       "key": "\\"
     }
+  ],
+  "shortcuts-extender:shortcut-hidden-block": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "L"
+    }
   ]
 }

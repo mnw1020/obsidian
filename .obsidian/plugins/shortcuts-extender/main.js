@@ -572,7 +572,7 @@ var shortcutsExtender = /** @class */ (function (_super) {
         else
             editor.replaceSelection("`");
     };
-	shortcutsExtender.prototype.shortcutHiddenBlock = function () {
+	shortcutsExtender.prototype.shortcutHidenBlock = function () {
         var _a;
         var editor = (_a = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)) === null || _a === void 0 ? void 0 : _a.editor;
         if (editor == null) {
