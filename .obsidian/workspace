@@ -4,12 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "0f67c7e96812b9ce",
+        "id": "8801668990ebcbdb",
         "type": "leaf",
         "state": {
           "type": "kanban",
           "state": {
-            "file": "Untitled Kanban.md"
+            "file": "_Task/_index.md"
           }
         }
       }
@@ -67,7 +67,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Untitled Kanban.md",
+                "file": "_Task/_index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +103,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Untitled Kanban.md"
+                "file": "_Task/_index.md"
               }
             }
           },
@@ -121,11 +121,11 @@
     "direction": "horizontal",
     "width": 232
   },
-  "active": "0f67c7e96812b9ce",
+  "active": "8801668990ebcbdb",
   "lastOpenFiles": [
-    "Untitled Kanban.md",
+    "_Task/_index.md",
+    "_Task/Дописать робота.md",
     "Цитата.md",
-    "Дописать робота.md",
     "Без названия.md",
     "Кулинария/Без названия.md",
     "Кулинария/Соус и приправы.md",
