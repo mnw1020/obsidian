@@ -233,6 +233,21 @@ var shortcutsExtender = /** @class */ (function (_super) {
                         },
                     ],
                 });
+				this.addCommand({
+                    id: "shortcut-hidden-block",
+                    name: "Shortcut for hidden-block",
+                    callback: function () { return _this.shortcutHidenBlock(); },
+                    hotkeys: [
+                        {
+                            modifiers: ["Alt", "Ctrl"],
+                            key: "ё",
+                        },
+                        {
+                            modifiers: ["Alt", "Ctrl"],
+                            key: "~",
+                        },
+                    ],
+                });
                 this.addCommand({
                     id: "shortcut-code",
                     name: "Shortcut for code fences (`)",
@@ -553,6 +568,21 @@ var shortcutsExtender = /** @class */ (function (_super) {
             : false;
         if (selectedText) {
             editor.replaceSelection("```bash\n".concat(selectedText, "\n```"));
+        }
+        else
+            editor.replaceSelection("`");
+    };
+	shortcutsExtender.prototype.shortcutHiddenBlock = function () {
+        var _a;
+        var editor = (_a = this.app.workspace.getActiveViewOfType(obsidian.MarkdownView)) === null || _a === void 0 ? void 0 : _a.editor;
+        if (editor == null) {
+            return;
+        }
+        var selectedText = editor.somethingSelected()
+            ? editor.getSelection()
+            : false;
+        if (selectedText) {
+            editor.replaceSelection("<details><summary>text</summary>\n".concat(selectedText, "</details>"));
         }
         else
             editor.replaceSelection("`");
