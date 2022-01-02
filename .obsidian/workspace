@@ -40,10 +40,10 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "любовь",
+                "query": "psy",
                 "matchingCase": false,
-                "explainSearch": true,
-                "collapseAll": true,
+                "explainSearch": false,
+                "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
               }
