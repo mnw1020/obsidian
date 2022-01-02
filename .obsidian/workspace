@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Кулинария/Выпечка/Булочка домашняя.md",
+            "file": "Книги/Андрей Курпатов. Исправь свое детство.md",
             "mode": "source",
             "backlinks": false
           }
@@ -40,10 +40,10 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "азитром",
+                "query": "любовь",
                 "matchingCase": false,
                 "explainSearch": true,
-                "collapseAll": false,
+                "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical"
               }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Кулинария/Выпечка/Булочка домашняя.md",
+                "file": "Книги/Андрей Курпатов. Исправь свое детство.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Кулинария/Выпечка/Булочка домашняя.md"
+                "file": "Книги/Андрей Курпатов. Исправь свое детство.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "e482cffb4de65604",
   "lastOpenFiles": [
+    "Книги/Андрей Курпатов. Исправь свое детство.md",
+    "психология/стих.md",
+    "Книги/Андрей Курпатов. Исправь свое детство. Конспект.txt.md",
     "Кулинария/Выпечка/Булочка домашняя.md",
     "Цитата.md",
     "Стройка.md",
     "Аптечка.md",
     "Голос.md",
     "_Task/_index.md",
-    "_index.md",
-    "_temp/Исправь свое детство. Курпатов. Конспект.txt.md",
-    "_temp/Таблетка от страха. Курпатов.md",
-    "Спортивное питание.md"
+    "_index.md"
   ]
 }
