@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Голос.md",
+            "file": "Кулинария/Выпечка/Булочка домашняя.md",
             "mode": "source",
             "backlinks": false
           }
@@ -69,7 +69,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Голос.md",
+                "file": "Кулинария/Выпечка/Булочка домашняя.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -105,7 +105,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Голос.md"
+                "file": "Кулинария/Выпечка/Булочка домашняя.md"
               }
             }
           },
@@ -125,15 +125,15 @@
   },
   "active": "e482cffb4de65604",
   "lastOpenFiles": [
+    "Кулинария/Выпечка/Булочка домашняя.md",
+    "Цитата.md",
+    "Стройка.md",
+    "Аптечка.md",
     "Голос.md",
     "_Task/_index.md",
     "_index.md",
     "_temp/Исправь свое детство. Курпатов. Конспект.txt.md",
     "_temp/Таблетка от страха. Курпатов.md",
-    "Спортивное питание.md",
-    "Биохак 7f520e9f7b6a42eaa445176ad75cbb8a.md",
-    "Аптечка.md",
-    "_Task/Вернуть 13 за лечение.md",
-    "_Task/Дописать робота.md"
+    "Спортивное питание.md"
   ]
 }
