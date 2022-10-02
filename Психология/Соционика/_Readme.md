@@ -6,6 +6,3 @@ https://relaza.com/proyti-test
 https://osocionike.ru/types
 https://socioniks.net/sociotype/
 https://relaza.com/castes
-
-функции:
-https://socioniks.net/functions/
