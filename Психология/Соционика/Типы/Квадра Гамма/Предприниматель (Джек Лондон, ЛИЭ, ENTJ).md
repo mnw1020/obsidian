@@ -1,4 +1,5 @@
-**Логико-интуитивный экстраверт.**
+**ЛИЭ – Логико-Интуитивный Экстраверт  
+**ENTJ Extraverted, iNtuitive, Thinking, Judging.
 
 # socioniks.net
 **Общее описание**
