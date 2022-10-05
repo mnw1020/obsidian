@@ -1,1 +1,1 @@
-![](Психология/Соционика/Отношения/_attach/relation.gif)
+![](_attach/relation.gif)
