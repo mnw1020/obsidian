@@ -5,3 +5,5 @@
 **H (Гармонизирующий)** = Сенсорика комфорта (S) + Интуиция времени (T)
 
 https://www.youtube.com/watch?v=55_34Uedang
+
+https://mysocio.ru
