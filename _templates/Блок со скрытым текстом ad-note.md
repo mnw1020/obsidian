@@ -2,5 +2,5 @@
 title: Title
 collapse: у
 
-у
+text
 ```
