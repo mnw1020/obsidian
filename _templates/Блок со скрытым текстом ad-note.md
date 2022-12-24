@@ -1,6 +1,6 @@
 ```ad-note
 title: Title
-collapse:
+collapse: у
 
-
+у
 ```
