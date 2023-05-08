@@ -14,7 +14,6 @@ SORT file.ctime desc
 ```
 <br><br>
 
--tx-
 |        hotkeys        |         comment          |
 |:---------------------:|:------------------------:|
 |       ***GIT***       ||
