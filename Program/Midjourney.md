@@ -1,4 +1,6 @@
-Нейро для создания изображений
+Нейронка для создания изображений
+
+/imagine prompt обьект :: детали :: фон :: стиль --параметры
 
 # prompt
 Портрет
@@ -7,7 +9,7 @@
 Лого
 ::5 Professional Logo Design::6 sleek, modern, memorable, simple, scalable, vector graphics, Adobe Illustrator, professional, corporate, award-winning, glibatree style::4 badge icon, logo, on black background::3 word art, text, lettering::-4 deformed, cartoonish::-2
 
-# command
+# Параметры
 –-iw 0.25 = Задает вес изображения загруженного в качестве референса.
 
 –-ar 1:1 = Cоотношение сторон.
