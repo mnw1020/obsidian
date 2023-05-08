@@ -2,12 +2,11 @@
 
 /imagine prompt обьект :: детали :: фон :: стиль --параметры
 
-# prompt
-Портрет
-::5 Premium Portrait Photography::4 well-lit, sharp-focus, high-quality, artistic, unique, award-winning photograph, Canon EOS 5D Mark IV DSLR, f/8, ISO 100, 1/250 second, close-up, natural light, professional, flattering, headshot, glibatree style::3 black and white, grainy, deformed, watermark::-2
+# Вес
+Приоритет одного параметра над другим. Указывается относительным числом через :: (hot::1 dog::2)
 
-Лого
-::5 Professional Logo Design::6 sleek, modern, memorable, simple, scalable, vector graphics, Adobe Illustrator, professional, corporate, award-winning, glibatree style::4 badge icon, logo, on black background::3 word art, text, lettering::-4 deformed, cartoonish::-2
+# Смешивание двух фото
+/imagine URL1 URL2 :: обьект :: детали :: фон :: стиль --параметры
 
 # Параметры
 –-iw 0.25 = Задает вес изображения загруженного в качестве референса.
@@ -16,7 +15,7 @@
 
 -–s 100 = Задает уровень стилизации. Чем выше, тем сильнее.
 
-–-q = Задает уровень качества генерации.
+–-q 1 = Задает уровень качества генерации.
 
 –-chaos или --c = Задает уровень "хаоса".
 
@@ -39,3 +38,10 @@
 –-upbeta = Создает изображение более высокого разрешения.
 
 –-no = Исключение определенных объектов.
+
+# prompt
+Портрет
+::5 Premium Portrait Photography::4 well-lit, sharp-focus, high-quality, artistic, unique, award-winning photograph, Canon EOS 5D Mark IV DSLR, f/8, ISO 100, 1/250 second, close-up, natural light, professional, flattering, headshot, glibatree style::3 black and white, grainy, deformed, watermark::-2
+
+Лого
+::5 Professional Logo Design::6 sleek, modern, memorable, simple, scalable, vector graphics, Adobe Illustrator, professional, corporate, award-winning, glibatree style::4 badge icon, logo, on black background::3 word art, text, lettering::-4 deformed, cartoonish::-2
