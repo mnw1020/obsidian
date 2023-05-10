@@ -43,6 +43,12 @@
 –-no = Исключение определенных объектов.
 
 # prompt
+https://github.com/willwulfken/MidJourney-Styles-and-Keywords-Reference/blob/main/Pages/Niji_Journey/Niji_V4/Style_Pages/Artists.md
+
+https://midjourney-prompt-helper.netlify.app
+
+https://prompthero.com
+
 Портрет
 ::5 Premium Portrait Photography::4 well-lit, sharp-focus, high-quality, artistic, unique, award-winning photograph, Canon EOS 5D Mark IV DSLR, f/8, ISO 100, 1/250 second, close-up, natural light, professional, flattering, headshot, glibatree style::3 black and white, grainy, deformed, watermark::-2
 
