@@ -1,8 +1,8 @@
 ```dataview
 TABLE WITHOUT ID 
-	file.link AS "Файл",
+	title AS "Название",
 	autor AS "Автор",
-	title AS "Название"
+	file.link AS "Файл"
 FROM "Книги"
 where !contains(file.folder,"_Мнение")
 SORT title ASC
