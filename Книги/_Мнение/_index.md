@@ -29,7 +29,7 @@ TABLE WITHOUT ID
 	date AS "Дата",
 	file.link AS "Файл"
 FROM "Книги/_Мнение"
-SORT raiting ASC
+SORT raiting DESC
 ```
 # по Дате
 ```dataview
