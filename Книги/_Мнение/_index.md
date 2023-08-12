@@ -1,3 +1,4 @@
+# по Названию 
 ```dataview
 TABLE WITHOUT ID 
 	title AS "Название",
@@ -8,9 +9,4 @@ TABLE WITHOUT ID
 FROM "Книги/_Мнение"
 SORT title ASC
 ```
-
-
-
-
-
-
+# по 
