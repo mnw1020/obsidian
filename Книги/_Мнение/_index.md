@@ -1,4 +1,7 @@
-# по Названию 
+---
+obsidianUIMode: preview
+---
+
 ```dataview
 TABLE WITHOUT ID 
 	title AS "Название",
