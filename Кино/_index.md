@@ -1,4 +1,3 @@
-
 ---
 cssClasses: cards, cards-cover, cards-1-1, table-max, cards-cols-4
 ---
@@ -23,16 +22,6 @@ table without id
 	category as "Тип"
 from "Кино"
 where poster != null
-where completed = "да"
-Sort watchlist ASC
-```
-
-```dataview
-TABLE WITHOUT ID
-	("![](" + poster + ")") as "Poster",
-file.link as "Название"
-from "Кино"
-
 where completed = "да"
 Sort watchlist ASC
 ```
