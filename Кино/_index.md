@@ -17,6 +17,6 @@ table without id
 	category as "Тип"
 from "Кино"
 where poster != null
-where poster == "да"
+where completed = "да"
 Sort watchlist ASC
 ```
