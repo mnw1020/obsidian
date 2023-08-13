@@ -1,3 +1,16 @@
+---
+obsidianUIMode: preview
+---
+
+```button
+name Новая заметка
+type note(_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+action Тег
+templater true
+color blue
+```
+
+---
 ```dataview
 TABLE file.mtime as Edited 
 FROM ""
