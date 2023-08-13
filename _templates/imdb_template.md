@@ -1,6 +1,5 @@
 
 ---
-rating: "{{VALUE}}"
 category: "{{VALUE:typeLink}}"
 poster: "{{VALUE:Poster}}"
 imdbId: "{{VALUE:imdbID}}"
@@ -16,4 +15,5 @@ watchlist: {{DATE:gggg-MM-DD}}
 tags: 
   - movies
   - to-watch
+rating: "{{VALUE:Оценка}}"
 ---
