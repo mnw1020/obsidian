@@ -22,13 +22,8 @@ color blue
 
 
 
-
 ```button
-name Toggle spellcheck
-type comand
-action Toggle spellcheck
-color blue
+name 🎬 movie
+type command
+action QuickAdd:  movie_imdb
 ```
-^button-spellcheck
-
-праверка 
