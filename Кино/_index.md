@@ -15,7 +15,20 @@ Sort watchlist ASC
 
 ```button
 name Добавить
-type comand
-action "QuickAdd: movie_imdb
+type comand "QuickAdd: movie_imdb"
+action <% "QuickAdd: movie_imdb" %>
 color blue
 ```
+
+
+
+
+```button
+name Toggle spellcheck
+type comand
+action Toggle spellcheck
+color blue
+```
+^button-spellcheck
+
+праверка 
