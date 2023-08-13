@@ -11,21 +11,25 @@ color blue
 ```
 
 ---
+# Измененные заметки:
 ```dataview
 TABLE file.mtime as Edited 
 FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "_index"
 SORT file.mtime desc
 ```
-<br>
 
+---
+# Новые заметки:
 ```dataview
 TABLE file.ctime as Created
 FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-<br>
+
+---
+# Hotkey:
 
 |        hotkeys        |         comment          |
 |:---------------------:|:------------------------:|
