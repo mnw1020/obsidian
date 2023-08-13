@@ -7,7 +7,7 @@ color blue
 
 ```dataview
 table without id
-	("![](" + poster + ")") as "Poster",
+	("![](" + poster:: + ")") as "Poster",
 	file.link as "Название",
 	released as "Дата",
 	director as "Режисер",
@@ -16,7 +16,7 @@ table without id
 	string(genre) as "Жанр",
 	category as "Тип"
 from "Кино"
-where poster != null
+where poster:: != null
 where completed = "да"
 Sort watchlist ASC
 ```

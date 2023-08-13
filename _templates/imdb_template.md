@@ -1,7 +1,6 @@
 
 ---
 category: "{{VALUE:typeLink}}"
-poster: "{{VALUE:Poster}}"
 imdbId: "{{VALUE:imdbID}}"
 scoreImdb: "{{VALUE:imdbRating}}"
 length: "{{VALUE:Runtime}}"
@@ -18,3 +17,6 @@ tags:
 rating: "{{VALUE:Оценка}}"
 completed: "{{VALUE:Просмотр завершен?}}"
 ---
+
+> [!example]+ Meta
+> poster: "{{VALUE:Poster}}"
