@@ -8,6 +8,8 @@ length: "{{VALUE:Runtime}}"
 director: {{VALUE:directorLink}}
 genre: {{VALUE:genreLinks}}
 year: {{VALUE:Year}}
+released: {{VALUE:Released}}
+ratings: {{VALUE:Ratings}}
 cast: {{VALUE:actorLinks}}
 plot: "{{VALUE:Plot}}"
 watchlist: {{DATE:gggg-MM-DD}}
