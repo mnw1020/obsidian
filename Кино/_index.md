@@ -14,7 +14,8 @@ Sort watchlist ASC
 ```
 
 ```button
-name Новый проект Role04
-type note(Projects/New Project) template
-action Шаблон Role04
+name Добавить
+type comand
+action "QuickAdd: movie_imdb
+color blue
 ```
