@@ -13,7 +13,6 @@ genre:
   - "[[Sci-Fi]]"
 year: 1999
 released: 31 Mar 1999
-ratings: [object Object],[object Object],[object Object]
 cast: 
   - "[[Keanu Reeves]]"
   - "[[Laurence Fishburne]]"
