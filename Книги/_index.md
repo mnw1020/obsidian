@@ -7,5 +7,6 @@ TABLE WITHOUT ID
 	file.link AS "Файл"
 FROM "Книги"
 where !contains(file.folder,"_Мнение")
+where title != null
 SORT title ASC
 ```
