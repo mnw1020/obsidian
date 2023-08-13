@@ -10,4 +10,5 @@ table without id
 	category as "Тип"
 from "Кино"
 where poster != null
+Sort watchlist ASC
 ```
