@@ -1,3 +1,10 @@
+```button
+name 🎬 Добавить
+type command
+action QuickAdd: movie_imdb
+color blue 
+```
+
 ```dataview
 table without id
 	("![](" + poster + ")") as "Poster",
@@ -10,20 +17,6 @@ table without id
 	category as "Тип"
 from "Кино"
 where poster != null
+where poster == "да"
 Sort watchlist ASC
-```
-
-```button
-name Добавить
-type comand "QuickAdd: movie_imdb"
-action <% "QuickAdd: movie_imdb" %>
-color blue
-```
-
-
-
-```button
-name 🎬 movie
-type command
-action QuickAdd:  movie_imdb
 ```
