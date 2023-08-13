@@ -1,7 +1,7 @@
 const notice = msg => new Notice(msg, 5000);
 const log = msg => console.log(msg);
 
-const API_KEY_OPTION = "ss;
+const API_KEY_OPTION = "b159eeb1";
 const API_URL = "https://www.omdbapi.com/";
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
             [API_KEY_OPTION]: {
                 type: "text",
                 defaultValue: "",
-                placeholder: "OMDb API Key",
+                placeholder: "b159eeb1",
             },
         }
     }
