@@ -1,3 +1,9 @@
+
+---
+cssClasses: cards, cards-cover, cards-1-1, table-max, cards-cols-4
+---
+
+
 ```button
 name 🎬 Добавить
 type command
@@ -23,6 +29,10 @@ Sort watchlist ASC
 
 ```dataview
 TABLE WITHOUT ID
-("![](" + poster + ")") as "Poster"
+	("![](" + poster + ")") as "Poster",
+file.link as "Название"
 from "Кино"
+
+where completed = "да"
+Sort watchlist ASC
 ```
