@@ -1,5 +1,5 @@
-
 ---
+poster: "{{VALUE:Poster}}"
 category: "{{VALUE:typeLink}}"
 imdbId: "{{VALUE:imdbID}}"
 scoreImdb: "{{VALUE:imdbRating}}"
@@ -17,6 +17,3 @@ tags:
 rating: "{{VALUE:Оценка}}"
 completed: "{{VALUE:Просмотр завершен?}}"
 ---
-
-> [!example]+ Meta
-> poster: "{{VALUE:Poster}}"
