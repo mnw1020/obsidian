@@ -1,7 +1,7 @@
 ---
 autor: dobrochan.ru
 title: Осознанные сновидения
-date: 03-2022
+date: 2022-02
 tag: #сон
 ---
 # Введение
