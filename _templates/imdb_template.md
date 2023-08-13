@@ -16,4 +16,5 @@ tags:
   - movies
   - to-watch
 rating: "{{VALUE:Оценка}}"
+completed: "{{VALUE:Просмотр завершен?}}"
 ---

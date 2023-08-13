@@ -12,3 +12,9 @@ from "Кино"
 where poster != null
 Sort watchlist ASC
 ```
+
+```button
+name Новый проект Role04
+type note(Projects/New Project) template
+action Шаблон Role04
+```
