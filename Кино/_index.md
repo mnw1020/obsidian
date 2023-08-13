@@ -4,37 +4,10 @@ table without id
 	file.link as "Название",
 	year as "Год",
 	director as "Режисер",
-	"⭐ " + scoreImdb as "⭐ IMDB",
+	scoreImdb as "⭐ IMDB",
 	rating as "⭐",
-	genre as "Жанр",
+	string(genre) as "Жанр",
 	category as "Тип"
 from "Кино"
 where poster != null
 ```
-
-
-
-
----
-category: "[[Series]]"
-poster: "https://m.media-amazon.com/images/M/MV5BNmU0NDg3ZTgtNWYzZS00M2FmLTgxNmMtYTYzNmZjMzk1MzIzXkEyXkFqcGdeQXVyNDM1ODc2NzE@._V1_SX300.jpg"
-imdbId: "tt15474794"
-scoreImdb: "N/A"
-length: "N/A"
-director: 
-  - "[[N/A]]"
-genre: 
-  - "[[Comedy]]"
-  - "[[Sci-Fi]]"
-year: 2022–
-cast: 
-  - "[[Pelageya Nevzorova]]"
-  - "[[Nikita Kologrivyy]]"
-  - "[[Andrey Skorokhod]]"
-plot: "What will happen if, as a result of biological warfare, almost the entire male population dies out? Women will grieve (for a short time), and then they will unite and create a new better world - with eco-towns, renewable energy, o..."
-watchlist: 2023-08-13
-tags: 
-  - movies
-  - to-watch
-rating:
----
