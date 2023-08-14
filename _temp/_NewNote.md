@@ -1,4 +1,11 @@
 ---
+autor: Name
+title: Name
+date: 2023-08-14
+rating: 0-10
+modify: 2023-08-14 23:53
+---
+---
 obsidian UIMode: preview
 ---
 
@@ -74,3 +81,4 @@ SORT file.ctime desc
 |       `alt + q`       |      развернуть все      |
 |       `alt + w`       |       свернуть все       |
 |        `alt+a`        |  @ переход на заголовок  |
+
