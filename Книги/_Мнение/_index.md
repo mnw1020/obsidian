@@ -6,11 +6,10 @@ obsidianUIMode: preview
 TABLE WITHOUT ID 
 	title AS "Название",
 	autor AS "Автор",
-	raiting AS "⭐",
+	rating AS "⭐",
 	date AS "Дата",
 	file.link AS "Файл"
 FROM "Книги/_Мнение"
 where title != null
 SORT title ASC
 ```
-
