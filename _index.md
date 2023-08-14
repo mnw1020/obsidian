@@ -1,28 +1,27 @@
 ```button
-name Новая заметка
+name new note
 type note(_temp/_NewNote) template
 action Тег
 color blue
 ```
 
 ```button
-name new note
-type note(te2023-08-14) template
+name new note 2
+type note(_temp/2023-08-14) template
 action Тег
 templater true
 color blue
 ```
 
-
 ```button
-name Новая заметка (Android)
+name new note (Android)
 type note(Obsidi/_temp/_NewNote) template
 action Тег
 color blue
 ```
 
 ```button
-name Новая заметка 2 (Android)
+name new note 2 (Android)
 type note(Obsidi/_temp/2023-08-14) template
 template true
 action Тег
