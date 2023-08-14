@@ -1,7 +1,3 @@
----
-obsidian UIMode: preview
----
-
 ```button
 name Новая заметка
 type note(_temp/_NewNote) template
@@ -10,12 +6,13 @@ color blue
 ```
 
 ```button
-name Новая заметка 2
-type note(<%tp.date.now("YYYY-MM-DD")%>) template
+name new note
+type note(te2023-08-14) template
 action Тег
 templater true
 color blue
 ```
+
 
 ```button
 name Новая заметка (Android)
@@ -26,7 +23,7 @@ color blue
 
 ```button
 name Новая заметка 2 (Android)
-type note(Obsidi/_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+type note(Obsidi/_temp/2023-08-14) template
 template true
 action Тег
 color blue
