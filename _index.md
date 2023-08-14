@@ -10,12 +10,27 @@ color blue
 ```
 
 ```button
+name Новая заметка 2
+type note(_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+action Тег
+template true
+color blue
+```
+
+```button
 name Новая заметка (Android)
-type note(Obsidi/_temp/NewNote) template
+type note(Obsidi/_temp/_NewNote) template
 action Тег
 color blue
 ```
 
+```button
+name Новая заметка 2 (Android)
+type note(Obsidi/_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+template true
+action Тег
+color blue
+```
 ---
 # Измененные заметки:
 ```dataview
