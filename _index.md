@@ -11,10 +11,18 @@ color blue
 
 ```button
 name Новая заметка 2
-type note(_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+type note(<%tp.date.now("YYYY-MM-DD")%>) template
 action Тег
-template true
+templater true
 color blue
+```
+
+
+```button
+name Make an Hourly Note
+type note(<% tp.date.now("HH:MM") %>) template
+templater true
+action Тег
 ```
 
 ```button
