@@ -16,9 +16,13 @@ SORT title ASC
 
 
 ```dataview
-Table without id
-Title, autor, rating, date
-From "Obsidi/Книги/_Мнение"
-Where title != null
-Sort title asc
+TABLE WITHOUT ID 
+	title AS "Название",
+	autor AS "Автор",
+	rating AS "⭐",
+	date AS "Дата",
+	file.link AS "Файл"
+FROM "Obsidi/Книги/_Мнение"
+where title != null
+SORT title ASC
 ```
