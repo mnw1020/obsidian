@@ -6,7 +6,7 @@ obsidianUIMode: preview
 name Новая заметка
 type note(_temp/_NewNote) template
 action Тег
-color orange
+color blue
 ```
 
 ```button
