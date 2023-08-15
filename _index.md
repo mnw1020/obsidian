@@ -1,8 +1,8 @@
 ```button
 name new note
 type note(_temp/<%tp.date.now("YYYY-MM-DD")%>) template
-action Тег
 templater true
+action Тег
 color blue
 ```
 
