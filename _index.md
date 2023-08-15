@@ -1,6 +1,7 @@
+а
 ```button
-name new note
-type note(_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+name new ввnote
+type note(_temp/2023-08-15) template
 templater true
 action Тег
 color blue
@@ -8,7 +9,7 @@ color blue
 
 ```button
 name new note (Android)
-type note(Obsidi/_temp/<%tp.date.now("YYYY-MM-DD")%>) template
+type note(Obsidi/_temp/2023-08-15) template
 templater true
 action Тег
 color blue
