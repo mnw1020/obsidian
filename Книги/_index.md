@@ -14,6 +14,8 @@ where title != null
 SORT title ASC
 ```
 
+
+
 ```dataview
 TABLE WITHOUT ID 
 	title AS "Название",
