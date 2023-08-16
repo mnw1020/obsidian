@@ -9,7 +9,7 @@ TABLE WITHOUT ID
 	rating AS "⭐",
 	date AS "Дата",
 	file.link AS "Файл"
-FROM "Книги/_Мнение"
+FROM "Книги/Художественные"
 where title != null
 SORT title ASC
 ```
@@ -22,7 +22,7 @@ TABLE WITHOUT ID
 	rating AS "⭐",
 	date AS "Дата",
 	file.link AS "Файл"
-FROM "Obsidi/Книги/_Мнение"
+FROM "Obsidi/Книги/Художественные"
 where title != null
 SORT title ASC
 ```

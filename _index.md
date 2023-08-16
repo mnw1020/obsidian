@@ -38,18 +38,18 @@ SORT file.ctime desc
 
 |        hotkeys        |         comment          |
 |:---------------------:|:------------------------:|
-|       ***GIT***       ||
+|       ***GIT***       |                          |
 |   `ctrl + alt + g`    |        git commit        |
 |   `ctrl + alt + p`    |         git push         |
 |      `ctrl + s`       |         git save         |
 |  `ctrl + shift + p`   |         git pull         |
-|      ***Текст***      ||
+|      ***Текст***      |                          |
 |       `alt + ↑`       | переместить строку вверх |
 |       `alt + ↓`       | переместить строку вниз  |
 |       `alt + ё`       |  форматировать как код   |
 |       `alt + #`       |           `#`            |
 |   `alt + shift + \`   |           `|`            |
-|     ***Прочее***      ||
+|     ***Прочее***      |                          |
 |      `ctrl + t`       |  открыть файл в typora   |
 | `ctrl + m (hotkey++)` |      чекбокс-список      |
 |       `Ctrl+l`        |   Раскрывающийся блок    |
@@ -58,3 +58,18 @@ SORT file.ctime desc
 |       `alt + q`       |      развернуть все      |
 |       `alt + w`       |       свернуть все       |
 |        `alt+a`        |  @ переход на заголовок  |
+|                       |                          |
+|                       |                          |
+
+# Help
+
+```dataview
+TABLE WITHOUT ID 
+	title AS "Название",
+	autor AS "Автор",
+	date AS "Дата",
+	file.link AS "Файл"
+FROM "Книги"
+where !contains(file.folder,"_Мнение")
+where title != null
+SORT title ASC
