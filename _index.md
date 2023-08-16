@@ -58,18 +58,15 @@ SORT file.ctime desc
 |       `alt + q`       |      развернуть все      |
 |       `alt + w`       |       свернуть все       |
 |        `alt+a`        |  @ переход на заголовок  |
-|                       |                          |
-|                       |                          |
+
 
 # Help
-
-```dataview
-TABLE WITHOUT ID 
-	title AS "Название",
+## dataview
+TABLE WITHOUT ID // TABLE или LIST
+	title AS "Название", // Колонки
 	autor AS "Автор",
-	date AS "Дата",
 	file.link AS "Файл"
-FROM "Книги"
-where !contains(file.folder,"_Мнение")
+FROM "Книги" // Откуда брать инфу
+where !contains(file.folder,"Мнение") // Что исключать
 where title != null
-SORT title ASC
+SORT title ASC // Сортировка
