@@ -10,7 +10,7 @@ TABLE WITHOUT ID
 	file.link AS "Файл"
 FROM "Книги/Non-fiction"
 where title != null
-SORT title ASC
+SORT date DESC
 ```
 
 
@@ -23,5 +23,5 @@ TABLE WITHOUT ID
 	file.link AS "Файл"
 FROM "Obsidi/Non-fiction"
 where title != null
-SORT title ASC
+SORT date ASC
 ```
