@@ -23,5 +23,5 @@ TABLE WITHOUT ID
 	file.link AS "Файл"
 FROM "Obsidi/Non-fiction"
 where title != null
-SORT date ASC
+SORT date DESC
 ```
