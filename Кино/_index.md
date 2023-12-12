@@ -14,12 +14,9 @@ color blue
 table without id
 	("![](" + poster + ")") as "Poster",
 	file.link as "Название",
-	released as "Дата",
-	director as "Режисер",
+	watchlist as "Просмотрено",
 	scoreImdb as "⭐ IMDB",
-	rating as "⭐",
-	string(genre) as "Жанр",
-	category as "Тип"
+	rating as "⭐"
 from "Кино"
 where poster != null
 where completed = "да"
@@ -30,12 +27,9 @@ Sort watchlist ASC
 table without id
 	("![](" + poster + ")") as "Poster",
 	file.link as "Название",
-	released as "Дата",
-	director as "Режисер",
+	watchlist as "Просмотрено",
 	scoreImdb as "⭐ IMDB",
-	rating as "⭐",
-	string(genre) as "Жанр",
-	category as "Тип"
+	rating as "⭐"
 from "Obsidi/Кино"
 where poster != null
 where completed = "да"
