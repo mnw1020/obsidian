@@ -1,22 +1,21 @@
-
 ---
-category: "[[Series]]"
+category: "Series"
 poster: "https://m.media-amazon.com/images/M/MV5BOTk2NzUyOTctZDdlMS00MDJlLTgzNTEtNzQzYjFhNjA0YjBjXkEyXkFqcGdeQXVyMjg1NDcxNDE@._V1_SX300.jpg"
 imdbId: "tt5753856"
 scoreImdb: "8.7"
 length: "60 min"
 director: 
-  - "[[N/A]]"
+  - "N/A"
 genre: 
-  - "[[Crime]]"
-  - "[[Drama]]"
-  - "[[Mystery]]"
+  - "Crime"
+  - "Drama"
+  - "Mystery"
 year: 2017–2020
 released: 01 Dec 2017
 cast: 
-  - "[[Louis Hofmann]]"
-  - "[[Karoline Eichhorn]]"
-  - "[[Lisa Vicari]]"
+  - "Louis Hofmann"
+  - "Karoline Eichhorn"
+  - "Lisa Vicari"
 plot: "A family saga with a supernatural twist, set in a German town where the disappearance of two young children exposes the relationships among four families."
 watchlist: 2023-08-13
 tags: 
