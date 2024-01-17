@@ -18,4 +18,3 @@ rating: "{{VALUE:Оценка}}"
 completed: "{{VALUE:Просмотр завершен?}}"
 ---
 ![]({{VALUE:Poster}})
-
