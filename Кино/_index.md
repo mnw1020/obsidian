@@ -12,7 +12,7 @@ color blue
 
 ```dataview
 table without id
-	("![](" + poster + ")") as "Poster",
+	("![|64](" + poster + ")") as "Poster",
 	file.link as "Название",
 	watchlist as "Просмотрено",
 	scoreImdb as "⭐ IMDB",
