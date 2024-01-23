@@ -1,5 +1,6 @@
 ---
 obsidianUIMode: preview
+cssclasses: cards
 ---
 
 
@@ -12,7 +13,7 @@ color blue
 
 ```dataview
 table without id
-	("![|64](" + poster + ")") as "Poster",
+	("![](" + poster + ")") as "Poster",
 	file.link as "Название",
 	watchlist as "Просмотрено",
 	scoreImdb as "⭐ IMDB",
