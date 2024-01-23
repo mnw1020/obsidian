@@ -1,5 +1,5 @@
 ---
-cssClasses: cards, cards-cover, cards-1-1, table-max, cards-cols-4
+obsidianUIMode: preview
 ---
 
 
@@ -25,7 +25,7 @@ Sort watchlist ASC
 
 ```dataview
 table without id
-	("![](" + poster + ")") as "Poster",
+	("![|32](" + poster + ")") as "Poster",
 	file.link as "Название",
 	watchlist as "Просмотрено",
 	scoreImdb as "⭐ IMDB",
