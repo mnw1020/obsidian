@@ -71,4 +71,5 @@ where !contains(file.folder,"Мнение") // Что исключать
 where title != null
 SORT title ASC // Сортировка
 
-# 
+# Символы
+—
