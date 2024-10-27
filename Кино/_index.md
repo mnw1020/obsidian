@@ -21,7 +21,7 @@ table without id
 from "Кино"
 where poster != null
 where completed = "да"
-Sort watchlist ASC
+Sort watchlist DESC
 ```
 
 ```dataview
