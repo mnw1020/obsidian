@@ -1,5 +1,5 @@
 # chatgpt a-p-i
-все строки собррать в одну с "-"
+все строки собрат в одну с "-"
 sk
 proj
 hOmYzFgsGqxW4dhc2P77_ofsff0_CsCtMsiHSLf_ePrHoNcPxRCZP7idXWx
