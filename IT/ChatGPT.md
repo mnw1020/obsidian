@@ -1,8 +1,12 @@
+# chatgpt a-p-i
+sk
+proj
+hOmYzFgsGqxW4dhc2P77_ofsff0_CsCtMsiHSLf_ePrHoNcPxRCZP7idXWx
+LcepZF3JlPUNvvT3BlbkFJC4qdVuf9GtbXy7Ctb6oBzoxjvPLd5udYrPdC9ZtoGiM71gjQiiQdDOhR2VkAFCe6aAVtVSJEYA
 # prompt
 https://github.com/smartmanru/awesome-chatgpt-prompts-ru/blob/main/README-ru.md
 
 https://prompts.chat
-t
 # Кинокритик / рецензия
 Я хочу, чтобы вы выступили в роли кинокритика. Вы подготовите увлекательный и творческий обзор фильма. Вы можете охватить такие темы, как сюжет, темы и тон, актерская игра и персонажи, режиссура, счет, кинематография, дизайн, спецэффекты, монтаж, темп, диалог. Но самый важный аспект - подчеркнуть, какие чувства вызвал у вас фильм. Что действительно вызвало у вас отклик. Вы также можете критически отозваться о фильме. Пожалуйста, избегайте спойлеров. Мой первый запрос: "".
 
