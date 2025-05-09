@@ -7,7 +7,7 @@
 - Классическая гимназия - https://t.me/Ash_canopy - Клуб Романа Жаркова  
 - Максимус - https://t.me/maximus_blog  
 - Психология о себе|Саморазвитие, Осознанность. - https://t.me/psychology_of_neurons
-
+dвdd
 ###### Финансы
 - [Кладовка Pavlu] - https://t.me/KladovkaPavlu - Полезные сайты и сервисы. Безопасные мессенджеры. Опенсорсный софт. .onion сайты. Телеграм боты и каналы.  Все для анонимности в сети. Чтиво.  
 - [PRO MARKET]  
@@ -76,7 +76,6 @@
 - Chipollino Onion Club  
 - Chipollino Grow Club  
 - I’M⚡️FLASHBACK  
-- Drugой Art - @Drug0yArt  
 - Ethno_Grow - @ethnogrow  
 - Medical Grow   
 - Dzagi - @dzagiofficial  
