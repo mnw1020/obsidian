@@ -65,6 +65,8 @@ Sort watchlist ASC
 30.06.2025
 
 # Сериалы
-## Новичек (The rookie) 7
+## Новичек(The rookie) 7
 просмотрен s7ep18
 22.08.2025
+
+## Декстер. Воскрешение (Dexter. Resurrection) 8
