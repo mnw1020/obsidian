@@ -4,8 +4,7 @@ category: "{{VALUE:typeLink}}"
 imdbId: "{{VALUE:imdbID}}"
 scoreImdb: "{{VALUE:imdbRating}}"
 length: "{{VALUE:Runtime}}"
-director:
-  "{ VALUE:directorLink }": 
+director:: {{VALUE:directorLink}}
 genre:
   "{ VALUE:genreLinks }": 
 year:
