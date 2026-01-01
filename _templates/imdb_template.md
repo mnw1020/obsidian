@@ -1,4 +1,5 @@
 ---
+Название:: {{tp.file.title}}
 Просмотрено:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
@@ -16,3 +17,5 @@ poster:: {{VALUE:Poster}}
 
 ---
 ![]({{VALUE:Poster}})
+
+tt13327038
