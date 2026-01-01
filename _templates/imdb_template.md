@@ -1,17 +1,18 @@
 ---
-imdbId: "{{VALUE:imdbID}}"
-scoreImdb: "{{VALUE:imdbRating}}"
-length: "{{VALUE:Runtime}}"
-Режисер:: {{VALUE:directorLink}}
-genre:: {{VALUE:genreLinks}}
-year:: {{VALUE:Year}}
-released:: {{VALUE:Released}} 
-cast:: {{VALUE:actorLinks}}
-plot:: {{VALUE:Plot}}
-watchlist:: {{DATE:gggg-MM-DD}} 
+Просмотрено:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
-rating: "{{VALUE:Оценка}}"
+Оценка: "{{VALUE:Оценка}}"
+Оценка imdb: "{{VALUE:imdbRating}}"
+Жанр:: {{VALUE:genreLinks}}
+Релиз:: {{VALUE:Released}} 
+Время: "{{VALUE:Runtime}}"
+Режисер:: {{VALUE:directorLink}}
+Актеры:: {{VALUE:actorLinks}}
+Описание:: {{VALUE:Plot}}
+imdb Id: "{{VALUE:imdbID}}"
+
+
 completed: "{{VALUE:Просмотр завершен?}}"
 ---
 
