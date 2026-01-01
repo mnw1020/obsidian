@@ -17,7 +17,7 @@ color blue
 table without id
 	("![|64](" + poster + ")") as "Poster",
 	file.link as "Название",
-	watch as "Просмотрено",
+	dateformat(watch, "dd.MM.yyyy") as "Просмотрено",
 	rating as "⭐"
 from "Кино"
 where poster != null
@@ -30,7 +30,7 @@ Sort watchlist DESC
 table without id
 	("![|64](" + poster + ")") as "Poster",
 	file.link as "Название",
-	watch as "Просмотрено",
+	dateformat(watch, "dd.MM.yyyy") as "Просмотрено",
 	rating as "⭐"
 from "Кино"
 where poster != null
