@@ -1,10 +1,8 @@
 ---
-poster: "{{VALUE:Poster}}"
-category: "{{VALUE:typeLink}}"
 imdbId: "{{VALUE:imdbID}}"
 scoreImdb: "{{VALUE:imdbRating}}"
 length: "{{VALUE:Runtime}}"
-director:: {{VALUE:directorLink}}
+Режисер:: {{VALUE:directorLink}}
 genre:: {{VALUE:genreLinks}}
 year:: {{VALUE:Year}}
 released:: {{VALUE:Released}} 
