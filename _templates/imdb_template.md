@@ -2,8 +2,6 @@
 poster: "{{VALUE:Poster}}"
 category: "{{VALUE:typeLink}}"
 imdbId: "{{VALUE:imdbID}}"
-
----
-
----
-![]({{VALUE:Poster}})
+scoreImdb: "{{VALUE:imdbRating}}"
+length: "{{VALUE:Runtime}}"
+director: "{{VALUE:directorLink}}"
