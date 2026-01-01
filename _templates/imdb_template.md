@@ -3,6 +3,7 @@
 watch:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
+  - serial
 rating: "{{VALUE:Оценка}}"
 scoreImdb: "{{VALUE:imdbRating}}"
 Жанр:: {{VALUE:genreLinks}}
