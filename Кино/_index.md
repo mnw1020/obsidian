@@ -21,7 +21,7 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
-where tags = "- movies"
+WHERE contains(tags, "movies")
 Sort watchlist DESC
 ```
 
@@ -34,7 +34,7 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
-where tags = "serial"
+WHERE contains(tags, "serial")
 Sort watchlist DESC
 ```
 
