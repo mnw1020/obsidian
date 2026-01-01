@@ -1,5 +1,5 @@
 ---
-Название:: {{VALUE:Title}}
+Название:: "{{VALUE:Title}}"
 Просмотрено:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
