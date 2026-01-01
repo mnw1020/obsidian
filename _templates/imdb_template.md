@@ -1,6 +1,6 @@
 ---
 Название:: "{{VALUE:Title}}"
-Просмотрено:: {{DATE:gggg-MM-DD}} 
+watch:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
 rating: "{{VALUE:Оценка}}"
