@@ -21,8 +21,7 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
-where tags = "
-  - movies"
+where tags = "movies"
 Sort watchlist DESC
 ```
 
