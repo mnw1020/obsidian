@@ -12,6 +12,7 @@ color blue
 ```
 
 ---
+# Фильм
 ```dataview
 table without id
 	("![|64](" + poster + ")") as "Poster",
@@ -20,21 +21,22 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
-whhere tags 
+where tags = "
+  - movies"
 Sort watchlist DESC
 ```
 
+# Сериал
 ```dataview
 table without id
-	("![|32](" + poster + ")") as "Poster",
+	("![|64](" + poster + ")") as "Poster",
 	file.link as "Название",
-	watchlist as "Просмотрено",
-	scoreImdb as "⭐ IMDB",
+	watch as "Просмотрено",
 	rating as "⭐"
-from "Obsidi/Кино"
+from "Кино"
 where poster != null
-where completed = "да"
-Sort watchlist ASC
+where tags = "serial"
+Sort watchlist DESC
 ```
 
 
