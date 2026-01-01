@@ -1,11 +1,11 @@
 ---
 Название:: "{{VALUE:Title}}"
 watch:: {{DATE:gggg-MM-DD}} 
+rating: "{{VALUE:Оценка}}"
+scoreImdb: "{{VALUE:imdbRating}}"
 tags:
   - movies
   - serial
-rating: "{{VALUE:Оценка}}"
-scoreImdb: "{{VALUE:imdbRating}}"
 Жанр:: {{VALUE:genreLinks}}
 Релиз:: {{VALUE:Released}} 
 Время: "{{VALUE:Runtime}}"
