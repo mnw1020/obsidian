@@ -20,6 +20,7 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
+whhere tags 
 Sort watchlist DESC
 ```
 
