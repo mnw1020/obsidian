@@ -21,7 +21,6 @@ table without id
 	rating as "⭐"
 from "Кино"
 where poster != null
-where completed = "да"
 Sort watchlist DESC
 ```
 
