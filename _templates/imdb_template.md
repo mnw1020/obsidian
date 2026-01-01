@@ -1,7 +1,7 @@
 ---
 Название:: "{{VALUE:Title}}"
-watch:: {{DATE:gggg-MM-DD}} 
-rating: "{{VALUE:Оценка}}"
+Просмотрено:: {{DATE:gggg-MM-DD}} 
+Оценка: "{{VALUE:Оценка}}"
 scoreImdb: "{{VALUE:imdbRating}}"
 tags:
   - movies
