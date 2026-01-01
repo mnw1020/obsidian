@@ -1,5 +1,5 @@
 ---
-watchlist:: {{DATE:gggg-MM-DD}} 
+Просмотрено:: {{DATE:gggg-MM-DD}} 
 tags:
   - movies
 rating: "{{VALUE:Оценка}}"
@@ -11,9 +11,7 @@ scoreImdb: "{{VALUE:imdbRating}}"
 Актеры:: {{VALUE:actorLinks}}
 Описание:: {{VALUE:Plot}}
 imdb Id:: "{{VALUE:imdbID}}"
-Poster:: {{VALUE:Poster}}
-
-completed: "{{VALUE:Просмотр завершен?}}"
+poster:: {{VALUE:Poster}}
 ---
 
 ---
