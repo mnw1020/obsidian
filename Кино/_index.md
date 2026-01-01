@@ -16,9 +16,9 @@ color blue
 table without id
 	("![|64](" + poster + ")") as "Poster",
 	file.link as "Название",
-	Просмотрено as "Просмотрено",
-	Оценка_imdb as "⭐ IMDB",
-	Оценка as "⭐"
+	watchlist as "Просмотрено",
+	scoreImdb as "⭐ IMDB1",
+	rating as "⭐"
 from "Кино"
 where poster != null
 Sort watchlist DESC
