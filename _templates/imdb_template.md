@@ -1,19 +1,19 @@
 ---
-Название:: "{{VALUE:Title}}"
-Просмотрено:: {{DATE:gggg-MM-DD}} 
+Название: "{{VALUE:Title}}"
+Просмотрено: {{DATE:gggg-MM-DD}} 
 Оценка: "{{VALUE:Оценка}}"
-scoreImdb: "{{VALUE:imdbRating}}"
+"Оценка Imdb": "{{VALUE:imdbRating}}"
 tags:
   - movies
   - serial
-Жанр:: {{VALUE:genreLinks}}
-Релиз:: {{VALUE:Released}} 
+Жанр: {{VALUE:genreLinks}}
+Релиз: {{VALUE:Released}} 
 Время: "{{VALUE:Runtime}}"
-Режисер:: {{VALUE:directorLink}}
-Актеры:: {{VALUE:actorLinks}}
-Описание:: {{VALUE:Plot}}
-imdb Id:: "{{VALUE:imdbID}}"
-poster:: {{VALUE:Poster}}
+Режисер: {{VALUE:directorLink}}
+Актеры: {{VALUE:actorLinks}}
+Описание: {{VALUE:Plot}}
+imdb Id: "{{VALUE:imdbID}}"
+poster: {{VALUE:Poster}}
 ---
 
 ---
