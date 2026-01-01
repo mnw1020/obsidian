@@ -2,7 +2,7 @@
 Просмотрено:: 2026-01-01 
 tags:
   - movies
-rating: "3"
+rating: "6"
 scoreImdb: "6.3"
 Жанр:: 
   - "[[Comedy]]"
@@ -22,5 +22,3 @@ poster:: https://m.media-amazon.com/images/M/MV5BYzQwMzdiMDQtNTNmNS00ZjlkLWFmYTY
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BYzQwMzdiMDQtNTNmNS00ZjlkLWFmYTYtODliZGZmNWM1YjUzXkEyXkFqcGc@._V1_SX300.jpg)
-
-tt13327038

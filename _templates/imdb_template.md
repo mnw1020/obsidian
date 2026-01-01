@@ -16,5 +16,3 @@ poster:: {{VALUE:Poster}}
 
 ---
 ![]({{VALUE:Poster}})
-
-tt13327038
