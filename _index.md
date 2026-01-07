@@ -28,7 +28,7 @@ SORT file.mtime desc
 ---
 # Новые заметки:
 ```dataview
-TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Сооздано"
+TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Создано"
 FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
