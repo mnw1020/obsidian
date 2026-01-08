@@ -6,6 +6,9 @@ rating: 0-10
 modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
 ---
 
+Date: <% tp.date.now("YYYY-MM-DD") %>
+Modified: <%* tp.date.now("YYYY-MM-DD HH:mm") %>
+
 # Измененные заметки:
 ```dataview
 TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Редактировано"
