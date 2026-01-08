@@ -5,32 +5,7 @@ date: <% tp.date.now("YYYY-MM-DD") %>
 rating: 0-10
 modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
 ---
-а
-```button
-name Создать заметку
-type command
-action "Templater: Create new note from template"
-template "Тег.md"
-color blue
-```
 
-```button
-name Создать заметку2
-type command
-action "templater-templates:insert-templater-template"
-templater true
-color blue
-```
-
-```button
-```button
-name Создать заметку с шаблоном
-type command
-action "Templater: Create new note from template"
-template "_templates/Новая"
-color blue
-```
----
 # Измененные заметки:
 ```dataview
 TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Редактировано"
