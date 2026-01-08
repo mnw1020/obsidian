@@ -7,10 +7,19 @@ modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
 ---
 а
 ```button
-name new ввnote
-type note(_temp/<%tp.date.now("YYYY-MM-DD HH:mm")%>) template
+name Создать заметку
+type note(_temp/<% tp.date.now("YYYY-MM-DD HH-mm") %>)
+template
 templater true
 action Тег
+color blue
+```
+
+```button
+name Создать заметку2
+type command
+action "templater-templates:insert-templater-template"
+templater true
 color blue
 ```
 
