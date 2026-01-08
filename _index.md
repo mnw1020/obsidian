@@ -8,10 +8,9 @@ modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
 а
 ```button
 name Создать заметку
-type note(_temp/new)
-template
-templater true
-action Тег
+type command
+action "Templater: Create new note from template"
+template "Тег.md"
 color blue
 ```
 
