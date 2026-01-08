@@ -12,7 +12,7 @@
 
 ## Вы здесь
 
-[Главная](http://ant0.ru/)»[Блоги](http://ant0.ru/blog)»[Блог Ant0](http://ant0.ru/blog.html)»Одно-строчные скрипты SED
+[Главная](http://ant0.ru/)"[Блоги](http://ant0.ru/blog)"[Блог Ant0](http://ant0.ru/blog.html)"Одно-строчные скрипты SED
 
 # Одно-строчные скрипты SED
 
