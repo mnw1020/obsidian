@@ -24,10 +24,11 @@ color blue
 ```
 
 ```button
-name Создать заметку с датой
+```button
+name Создать заметку с шаблоном
 type command
-action Templater: Create new note from template
-template "_templates/Новая заметка"
+action "Templater: Create new note from template"
+template "_templates/Новая"
 color blue
 ```
 ---
