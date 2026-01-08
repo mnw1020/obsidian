@@ -22,7 +22,7 @@ table without id
 from "Кино"
 where poster != null
 WHERE contains(tags, "movies")
-Sort file.link ASC
+Sort Просмотрено DESC
 ```
 
 # Сериал
@@ -35,5 +35,5 @@ table without id
 from "Кино"
 where poster != null
 WHERE contains(tags, "serial")
-Sort file.link ASC
+Sort Просмотрено DESC
 ```
