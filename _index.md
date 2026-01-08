@@ -8,7 +8,7 @@ modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
 а
 ```button
 name Создать заметку
-type note(_temp/<% tp.date.now("YYYY-MM-DD HH-mm") %>)
+type note(_temp/new)
 template
 templater true
 action Тег
@@ -23,6 +23,13 @@ templater true
 color blue
 ```
 
+```button
+name Создать заметку с датой
+type command
+action Templater: Create new note from template
+template "_templates/Новая заметка"
+color blue
+```
 ---
 # Измененные заметки:
 ```dataview
