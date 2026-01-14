@@ -1,34 +1,18 @@
----
-autor: Name
-title: Name
-date: <% tp.date.now("YYYY-MM-DD") %>
-rating: 0-10
-modify: <%tp.date.now("YYYY-MM-DD HH:mm")%>
----
-
-Date: <% tp.date.now("YYYY-MM-DD") %>
-Modified: <%* tp.date.now("YYYY-MM-DD HH:mm") %>
-
-# Измененные заметки:
+# Измененные заметки
 ```dataview
 TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Редактировано"
 FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "_index"
 SORT file.mtime desc
 ```
-
-
----
-# Новые заметки:
+# Новые заметки
 ```dataview
 TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Создано"
 FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
-
----
-# Hotkey:
+# Hotkey
 
 |        hotkeys        |         comment          |     |
 | :-------------------: | :----------------------: | --- |
@@ -52,7 +36,6 @@ SORT file.ctime desc
 |       `alt + q`       |      развернуть все      |     |
 |       `alt + w`       |       свернуть все       |     |
 |        `alt+a`        |  @ переход на заголовок  |     |
-
 # Help
 ## dataview
 TABLE WITHOUT ID // TABLE или LIST
@@ -63,10 +46,8 @@ FROM "Книги" // Откуда брать инфу
 where !contains(file.folder,"Мнение") // Что исключать
 where title != null
 SORT title ASC // Сортировка
-
 # Символы
 —
-
 # Оглавление
 >[!abstract]+ Оглавление
 >[\_\_index](__index.md#^s001)  
@@ -119,4 +100,3 @@ SORT title ASC // Сортировка
 >[\_\_index](__index.md#^s048)  
 >[\_\_index](__index.md#^s049)  
 >[\_\_index](__index.md#^s050)
-
