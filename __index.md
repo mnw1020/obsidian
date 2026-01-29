@@ -13,6 +13,7 @@ WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
 ```
 # Hotkey
+з
 
 |        hotkeys        |         comment          |     |
 | :-------------------: | :----------------------: | --- |
