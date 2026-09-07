@@ -57,9 +57,13 @@ views:
       - property: formula.rating
         direction: DESC
     limit: 12
+    image: note.poster
+    imageAspectRatio: 0.65
     cardSize: 200
     imageFit: contain
-    id: pg3kjv-Последние
+    textPreviewProperty: note.Описание
+    fallbackToContent: false
+    textPreviewLines: 7
   - type: cards
     name: Лучшие
     filters:
@@ -243,3 +247,23 @@ views:
     sort:
       - property: file.name
         direction: ASC
+  - type: cards
+    name: Последние 2
+    order:
+      - file.name
+      - formula.type
+      - formula.watched
+      - formula.rating
+      - formula.imdb_rating
+      - formula.release_display
+      - Описание
+    sort:
+      - property: Просмотрено
+        direction: DESC
+      - property: formula.rating
+        direction: DESC
+    limit: 12
+    image: note.poster
+    imageAspectRatio: 0.65
+    cardSize: 200
+    imageFit: contain
