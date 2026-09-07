@@ -1,0 +1,59 @@
+filters:
+  and:
+    - file.inFolder("Кино")
+    - file.hasTag("movies")
+
+formulas:
+  watched: 'if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")'
+  rating: 'if(note.Оценка, number(note.Оценка), null)'
+
+properties:
+  file.name:
+    displayName: "Название"
+  formula.watched:
+    displayName: "Просмотрено"
+  formula.rating:
+    displayName: "⭐"
+
+views:
+  - type: cards
+    name: "Последние"
+    limit: 100
+    order:
+      - file.name
+      - formula.watched
+      - formula.rating
+    sort:
+      - property: note.Просмотрено
+        direction: DESC
+    image: note.poster
+    imageFit: contain
+    imageAspectRatio: 1.5
+    cardSize: 170
+
+  - type: table
+    name: "Все фильмы"
+    order:
+      - file.name
+      - formula.watched
+      - formula.rating
+    sort:
+      - property: note.Просмотрено
+        direction: DESC
+
+  - type: cards
+    name: "Лучшие"
+    limit: 100
+    order:
+      - file.name
+      - formula.rating
+      - formula.watched
+    sort:
+      - property: formula.rating
+        direction: DESC
+      - property: note.Просмотрено
+        direction: DESC
+    image: note.poster
+    imageFit: contain
+    imageAspectRatio: 1.5
+    cardSize: 170
