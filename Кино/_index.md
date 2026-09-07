@@ -59,12 +59,15 @@ for (const [icon, label, value] of stats) {
 }
 ```
 
+<br>
+
 ```button
 name 🎬 Добавить
 type command
 action QuickAdd: movie_imdb
 color blue 
 ```
+---
 
 ## 🕐 Последние просмотры
 
