@@ -41,16 +41,12 @@ properties:
   note.Режисер:
     displayName: Режиссёр
 views:
-  - type: dynamic-views-grid
+  - type: cards
     name: Последние
     order:
       - file.name
-      - formula.type
-      - formula.watched
       - formula.rating
       - formula.imdb_rating
-      - formula.release_display
-      - Описание
     sort:
       - property: Просмотрено
         direction: DESC
@@ -64,11 +60,12 @@ views:
     textPreviewLines: 7
     imageProperty: note.poster
     imageFormat: poster
-    propertyNames: inline
+    propertyNames: hide
     id: 0myciy-Последние
     image: note.poster
     displayFirstAsTitle: true
     showFileImages: never
+    posterInteractToReveal: true
   - type: cards
     name: Лучшие
     filters:
