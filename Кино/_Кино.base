@@ -20,6 +20,8 @@ properties:
     displayName: Название
   note.Название:
     displayName: Оригинальное название
+  note.Описание:
+    displayName: Описание
   formula.type:
     displayName: Тип
   formula.watched:
@@ -39,7 +41,7 @@ properties:
   note.Режисер:
     displayName: Режиссёр
 views:
-  - type: cards
+  - type: dynamic-views-grid
     name: Последние
     order:
       - file.name
@@ -48,16 +50,16 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
+      - Описание
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
     limit: 12
-    image: note.poster
-    imageAspectRatio: 0.67
+    cardSize: 200
     imageFit: contain
-    cardSize: 175
+    id: pg3kjv-Последние
   - type: cards
     name: Лучшие
     filters:
@@ -69,6 +71,7 @@ views:
       - formula.imdb_rating
       - formula.watched
       - formula.release_display
+      - Описание
     sort:
       - property: formula.rating
         direction: DESC
@@ -92,6 +95,7 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
+      - Описание
     sort:
       - property: Просмотрено
         direction: DESC
@@ -113,6 +117,7 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.watched
+      - Описание
     sort:
       - property: formula.release_date
         direction: DESC
@@ -135,6 +140,7 @@ views:
       - formula.imdb_rating
       - formula.release_display
       - Жанр
+      - Описание
     sort:
       - property: Просмотрено
         direction: DESC
@@ -157,6 +163,7 @@ views:
       - formula.imdb_rating
       - formula.release_display
       - Жанр
+      - Описание
     sort:
       - property: Просмотрено
         direction: DESC
