@@ -64,6 +64,11 @@ views:
     textPreviewProperty: note.Описание
     fallbackToContent: false
     textPreviewLines: 7
+    imageProperty: note.Постер источник
+    showFileImages: always
+    imageFormat: poster
+    posterInteractToReveal: true
+    propertyNames: hide
   - type: cards
     name: Лучшие
     filters:
