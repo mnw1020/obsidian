@@ -4,47 +4,43 @@ filters:
     - or:
         - file.hasTag("movies")
         - file.hasTag("serial")
-
 formulas:
-  type: 'if(file.hasTag("serial"), "📺 Сериал", if(file.hasTag("movies"), "🎬 Фильм", ""))'
-  rating: 'if(note.Оценка, number(note.Оценка), null)'
-  imdb_rating: 'if(note["Оценка Imdb"], number(note["Оценка Imdb"]), null)'
-  rating_delta: 'if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)'
-  watched: 'if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")'
-  release_raw: 'if(note.Релиз, note.Релиз.toString().trim().replace(/\\s+/g, " "), null)'
-  release_iso: 'if(!note.Релиз, null, if(note.Релиз.isType("date"), note.Релиз.format("YYYY-MM-DD"), if(/^\d{4}-\d{2}-\d{2}$/.matches(formula.release_raw), formula.release_raw, if(/^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/i.matches(formula.release_raw), formula.release_raw.replace(/^(\d) ([A-Za-z]{3}) (\d{4})$/, "0$1 $2 $3").replace(/^(\d{2}) Jan (\d{4})$/i, "$2-01-$1").replace(/^(\d{2}) Feb (\d{4})$/i, "$2-02-$1").replace(/^(\d{2}) Mar (\d{4})$/i, "$2-03-$1").replace(/^(\d{2}) Apr (\d{4})$/i, "$2-04-$1").replace(/^(\d{2}) May (\d{4})$/i, "$2-05-$1").replace(/^(\d{2}) Jun (\d{4})$/i, "$2-06-$1").replace(/^(\d{2}) Jul (\d{4})$/i, "$2-07-$1").replace(/^(\d{2}) Aug (\d{4})$/i, "$2-08-$1").replace(/^(\d{2}) Sep (\d{4})$/i, "$2-09-$1").replace(/^(\d{2}) Oct (\d{4})$/i, "$2-10-$1").replace(/^(\d{2}) Nov (\d{4})$/i, "$2-11-$1").replace(/^(\d{2}) Dec (\d{4})$/i, "$2-12-$1"), null))))'
-  release_date: 'if(formula.release_iso, date(formula.release_iso), null)'
-  release_display: 'if(formula.release_date, formula.release_date.format("DD.MM.YYYY"), if(note.Релиз, note.Релиз.toString(), ""))'
-  release_year: 'if(formula.release_date, formula.release_date.year, null)'
-
+  type: if(file.hasTag("serial"), "📺 Сериал", if(file.hasTag("movies"), "🎬 Фильм", ""))
+  rating: if(note.Оценка, number(note.Оценка), null)
+  imdb_rating: if(note["Оценка Imdb"], number(note["Оценка Imdb"]), null)
+  rating_delta: if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)
+  watched: if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")
+  release_raw: if(note.Релиз, note.Релиз.toString().trim().replace(/\\s+/g, " "), null)
+  release_iso: if(!note.Релиз, null, if(note.Релиз.isType("date"), note.Релиз.format("YYYY-MM-DD"), if(/^\d{4}-\d{2}-\d{2}$/.matches(formula.release_raw), formula.release_raw, if(/^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/i.matches(formula.release_raw), formula.release_raw.replace(/^(\d) ([A-Za-z]{3}) (\d{4})$/, "0$1 $2 $3").replace(/^(\d{2}) Jan (\d{4})$/i, "$2-01-$1").replace(/^(\d{2}) Feb (\d{4})$/i, "$2-02-$1").replace(/^(\d{2}) Mar (\d{4})$/i, "$2-03-$1").replace(/^(\d{2}) Apr (\d{4})$/i, "$2-04-$1").replace(/^(\d{2}) May (\d{4})$/i, "$2-05-$1").replace(/^(\d{2}) Jun (\d{4})$/i, "$2-06-$1").replace(/^(\d{2}) Jul (\d{4})$/i, "$2-07-$1").replace(/^(\d{2}) Aug (\d{4})$/i, "$2-08-$1").replace(/^(\d{2}) Sep (\d{4})$/i, "$2-09-$1").replace(/^(\d{2}) Oct (\d{4})$/i, "$2-10-$1").replace(/^(\d{2}) Nov (\d{4})$/i, "$2-11-$1").replace(/^(\d{2}) Dec (\d{4})$/i, "$2-12-$1"), null))))
+  release_date: if(formula.release_iso, date(formula.release_iso), null)
+  release_display: if(formula.release_date, formula.release_date.format("DD.MM.YYYY"), if(note.Релиз, note.Релиз.toString(), ""))
+  release_year: if(formula.release_date, formula.release_date.year, null)
 properties:
   file.name:
-    displayName: "Название"
+    displayName: Название
   note.Название:
-    displayName: "Оригинальное название"
+    displayName: Оригинальное название
   formula.type:
-    displayName: "Тип"
+    displayName: Тип
   formula.watched:
-    displayName: "Просмотрено"
+    displayName: Просмотрено
   formula.rating:
-    displayName: "Моя оценка"
+    displayName: Моя оценка
   formula.imdb_rating:
-    displayName: "IMDb"
+    displayName: IMDb
   formula.rating_delta:
-    displayName: "Δ к IMDb"
+    displayName: Δ к IMDb
   formula.release_display:
-    displayName: "Релиз"
+    displayName: Релиз
   formula.release_year:
-    displayName: "Год"
+    displayName: Год
   note.Жанр:
-    displayName: "Жанр"
+    displayName: Жанр
   note.Режисер:
-    displayName: "Режиссёр"
-
+    displayName: Режиссёр
 views:
   - type: cards
-    name: "Последние"
-    limit: 12
+    name: Последние
     order:
       - file.name
       - formula.type
@@ -53,21 +49,20 @@ views:
       - formula.imdb_rating
       - formula.release_display
     sort:
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
+    limit: 12
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: cards
-    name: "Лучшие"
-    limit: 12
+    name: Лучшие
     filters:
       and:
-        - 'formula.rating != null'
+        - formula.rating != null
     order:
       - file.name
       - formula.rating
@@ -79,16 +74,15 @@ views:
         direction: DESC
       - property: formula.imdb_rating
         direction: DESC
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
+    limit: 12
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: cards
-    name: "Последние сериалы"
-    limit: 12
+    name: Последние сериалы
     filters:
       and:
         - file.hasTag("serial")
@@ -99,21 +93,20 @@ views:
       - formula.imdb_rating
       - formula.release_display
     sort:
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
+    limit: 12
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: cards
-    name: "Новые релизы"
-    limit: 12
+    name: Новые релизы
     filters:
       and:
-        - 'formula.release_date != null'
+        - formula.release_date != null
     order:
       - file.name
       - formula.release_display
@@ -125,14 +118,13 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
+    limit: 12
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: cards
-    name: "Фильмы"
-    limit: 100
+    name: Фильмы
     filters:
       and:
         - file.hasTag("movies")
@@ -142,20 +134,19 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
-      - note.Жанр
+      - Жанр
     sort:
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
+    limit: 100
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: cards
-    name: "Сериалы"
-    limit: 100
+    name: Сериалы
     filters:
       and:
         - file.hasTag("serial")
@@ -165,22 +156,22 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
-      - note.Жанр
+      - Жанр
     sort:
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
+    limit: 100
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
     cardSize: 175
-
   - type: table
-    name: "По году релиза"
+    name: По году релиза
     filters:
       and:
-        - 'formula.release_date != null'
+        - formula.release_date != null
     groupBy:
       property: formula.release_year
       direction: DESC
@@ -191,36 +182,34 @@ views:
       - formula.rating
       - formula.imdb_rating
       - formula.watched
-      - note.Жанр
+      - Жанр
     sort:
       - property: formula.release_date
         direction: DESC
       - property: formula.rating
         direction: DESC
-
   - type: table
-    name: "Все"
+    name: Все
     order:
       - file.name
-      - note.Название
+      - Название
       - formula.type
       - formula.watched
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
-      - note.Жанр
-      - note.Режисер
+      - Жанр
+      - Режисер
     sort:
-      - property: note.Просмотрено
+      - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
-
   - type: table
-    name: "Выше IMDb"
+    name: Выше IMDb
     filters:
       and:
-        - 'formula.rating_delta != null'
+        - formula.rating_delta != null
     order:
       - file.name
       - formula.type
@@ -233,16 +222,15 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
-
   - type: table
-    name: "Проблемные даты"
+    name: Проблемные даты
     filters:
       and:
-        - 'note.Релиз != null'
-        - 'formula.release_date == null'
+        - note.Релиз != null
+        - formula.release_date == null
     order:
       - file.name
-      - note.Релиз
+      - Релиз
       - formula.type
       - formula.watched
     sort:
