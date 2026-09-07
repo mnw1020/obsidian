@@ -5,6 +5,7 @@ filters:
 formulas:
   watched: if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")
   rating: if(note.Оценка, number(note.Оценка), null)
+  Без названия: ""
 properties:
   file.name:
     displayName: Название
@@ -19,9 +20,12 @@ views:
       - file.name
       - formula.watched
       - formula.rating
+      - formula.Без названия
+      - tags
     sort:
       - property: Просмотрено
         direction: DESC
+    limit: 4
     image: note.poster
     imageFit: contain
     imageAspectRatio: 1.5
@@ -53,5 +57,6 @@ views:
     imageFit: contain
     imageAspectRatio: 1.5
     cardSize: 170
-  - type: list
+  - type: table
     name: представление
+    cardSize: 110
