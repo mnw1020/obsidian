@@ -6,8 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Horror]]'
-- '[[Mystery]]'
+- '[[ужасы]]'
+- '[[детектив]]'
 Релиз: 17 Mar 2022
 Время: 105 min
 Режисер:
@@ -18,13 +18,29 @@ tags:
 - '[[Бриттани Сноу]]'
 - '[[Кид Кади]]'
 - '[[Мартин Хендерсон]]'
-Описание: null
+Описание: 1979 год, Техас. Компания из шести человек арендует небольшой дом у пожилой пары фермеров, чтобы снимать фильм для взрослых. Хотя хозяин недвижимости сразу предупреждает, чтобы приезжие не шумели и вели себя прилично, продюсер, разумеется, пренебрегает его просьбой. Вскоре выяснится, что старички не такие безобидные, как казалось на первый взгляд.
 imdb Id: tt13560574
-poster: https://m.media-amazon.com/images/M/MV5BODUwYTNhMTMtYWQ5Ny00YTdmLWIxOTAtNDczNzVlYzg2NDFkXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://avatars.mds.yandex.net/get-kinopoisk-image/10900341/f9b8d422-6b34-46f3-85e1-515e3c00090a/1200x630
 Тип: Фильм
 Год: '2022'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+- Новая Зеландия
+Возраст: '18'
+Kinopoisk Id: '4382899'
+Кинопоиск URL: https://www.kinopoisk.ru/film/4382899/
+IMDb URL: https://www.imdb.com/title/tt13560574/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BODUwYTNhMTMtYWQ5Ny00YTdmLWIxOTAtNDczNzVlYzg2NDFkXkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://avatars.mds.yandex.net/get-kinopoisk-image/10900341/f9b8d422-6b34-46f3-85e1-515e3c00090a/1200x630)

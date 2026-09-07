@@ -6,7 +6,7 @@
 tags:
 - serial
 Жанр:
-- '[[Documentary]]'
+- '[[документальный]]'
 Релиз: 25 Apr 2010
 Время: 43 min
 Режисер:
@@ -19,14 +19,29 @@ tags:
 - '[[Мелисса Риччи]]'
 - '[[Саймон Хайнс]]'
 - '[[Кристофер Го]]'
-Описание: null
-imdb Id: null
-poster: null
+Описание: Знаменитый физик, профессор Стивен Хокинг, который в 30 лет оказался практически полностью парализован из-за прогрессирующей болезни, делится мыслями о самых интригующих загадках Вселенной, таких как инопланетная жизнь или путешествие во времени.
+imdb Id: tt1655078
+poster: https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg
 Тип: Сериал
 Год: '2010'
 aliases:
 - 'Discovery: Во Вселенную со Стивеном Хокингом'
-- Into the Universe with Stephen Hawking
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+Слоган: —
+Kinopoisk Id: '542489'
+Кинопоиск URL: https://www.kinopoisk.ru/film/542489/
+IMDb URL: https://www.imdb.com/title/tt1655078/
+Постер источник: IMDb
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
+
+---
+![](https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg)

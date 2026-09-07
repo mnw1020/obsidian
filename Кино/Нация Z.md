@@ -6,8 +6,8 @@
 tags:
 - serial
 Жанр:
-- '[[Sci-Fi]]'
-- '[[Horror]]'
+- '[[фантастика]]'
+- '[[ужасы]]'
 Релиз: 12 Sep 2014
 Время: 43 min
 Режисер:
@@ -22,16 +22,30 @@ tags:
 - '[[Кит Аллан]]'
 - '[[Келлита Смит]]'
 - '[[Анастасия Баранова]]'
-Описание: null
+Описание: Спустя три года после того, как вирус зомби распространился и уничтожил почти всю страну, команда должна перевезти оставшегося в живых от действия чумы из Нью-Йорка в Калифорнию, где последняя функционирующая вирусная лаборатория ждет его кровь. Хотя антитела, которыми он обладает, являются последней надеждой мира получить вакцину, этот человек скрывает мрачную тайну.
 imdb Id: tt3843168
-poster: https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/2/4/8/6/0/0/0/0/0/0/610x900_2486.jpg
 Тип: Сериал
 Год: 2014-2018
 aliases:
-- Z Nation
+- Нация Z
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+Возраст: '16'
+Слоган: It's a man eat man world
+Kinopoisk Id: '841371'
+Кинопоиск URL: https://www.kinopoisk.ru/film/841371/
+IMDb URL: https://www.imdb.com/title/tt3843168/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 Просмотрено s02ep05
 
 ---
-![](https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg)
+![](https://img.imgilall.me/movies/franchise/2/4/8/6/0/0/0/0/0/0/610x900_2486.jpg)

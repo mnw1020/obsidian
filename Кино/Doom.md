@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Sci-Fi]]'
+- '[[экранизация игры]]'
+- '[[фантастика]]'
 Релиз: 20 Oct 2005
 Время: 105 min
 Режисер:
@@ -17,13 +18,30 @@ tags:
 - '[[Розамунд Пайк]]'
 - '[[Деобиа Опарей]]'
 - '[[Бен Дэниелс]]'
-Описание: null
+Описание: 2045 год. После того как из далёкой научной лаборатории Олдуай был получен сигнал о помощи, на Марс прибывает отряд космического спецназа и обнаруживает разгромленную станцию. Вскоре выясняется, что на людей здесь охотятся полчища ужасных мутантов.
 imdb Id: tt0419706
-poster: https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYtNzgwNGE3MjQ0MzYyXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/4/1/7/5/0/0/0/0/0/0/610x900_4175.jpg
 Тип: Фильм
 Год: '2005'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+- Чехия
+Возраст: '18'
+Слоган: Никто не выйдет живым
+Kinopoisk Id: '84140'
+Кинопоиск URL: https://www.kinopoisk.ru/film/84140/
+IMDb URL: https://www.imdb.com/title/tt0419706/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYtNzgwNGE3MjQ0MzYyXkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://img.imgilall.me/movies/franchise/4/1/7/5/0/0/0/0/0/0/610x900_4175.jpg)

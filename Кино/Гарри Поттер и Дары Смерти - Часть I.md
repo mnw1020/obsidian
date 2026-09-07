@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Fantasy]]'
+- '[[экранизация]]'
+- '[[фэнтези]]'
 Релиз: 11 Nov 2010
 Время: 146 min
 Режисер:
@@ -17,16 +18,32 @@ tags:
 - '[[Эмма Уотсон]]'
 - '[[Том Фелтон]]'
 - '[[Бонни Райт]]'
-Описание: null
+Описание: Гарри Поттера ждёт самое страшное испытание в жизни — смертельная схватка с Волан-де-Мортом. Ждать помощи не от кого — Гарри одинок, как никогда… Друзья и враги Гарри предстают в совершенно неожиданном свете. Граница между Добром и Злом становится всё призрачнее…
 imdb Id: tt0926084
-poster: https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcwODE3MDAwNA@@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/3/8/9/0/0/0/0/0/0/0/610x900_389.jpg
 Тип: Фильм
 Год: '2010'
 aliases:
 - 'Гарри Поттер и Дары Смерти: Часть I'
-- 'Harry Potter and the Deathly Hallows: Part 1'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+- США
+Возраст: '16'
+Слоган: Опасность повсюду
+Kinopoisk Id: '276762'
+Кинопоиск URL: https://www.kinopoisk.ru/film/276762/
+IMDb URL: https://www.imdb.com/title/tt0926084/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcwODE3MDAwNA@@._V1_SX300.jpg)
+
+---
+![](https://img.imgilall.me/movies/franchise/3/8/9/0/0/0/0/0/0/0/610x900_389.jpg)

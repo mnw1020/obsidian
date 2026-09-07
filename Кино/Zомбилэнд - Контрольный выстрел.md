@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Action]]'
+- '[[сцена после титров]]'
+- '[[боевик]]'
 Релиз: 09 Oct 2019
 Время: 99 min
 Режисер:
@@ -17,18 +18,32 @@ tags:
 - '[[Эмма Стоун]]'
 - '[[Эбигейл Бреслин]]'
 - '[[Зои Дойч]]'
-Описание: null
+Описание: Беспощадная и бесстрашная четверка охотников на зомби продолжает свое путешествие в глубь страны. На этот раз им предстоит сразиться не только с новыми видами живых мертвецов, но и познакомиться с другими выжившими. Кроме того, в собственных рядах наших героев намечается серьезный разлад.
 imdb Id: tt1560220
-poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/8/5/3/2/0/0/0/0/0/0/610x900_8532.jpg
 Тип: Фильм
 Год: '2019'
 aliases:
 - 'Zомбилэнд: Контрольный выстрел'
-- 'Zombieland: Double Tap'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+- Канада
+Возраст: '18'
+Слоган: —
+Kinopoisk Id: '489414'
+Кинопоиск URL: https://www.kinopoisk.ru/film/489414/
+IMDb URL: https://www.imdb.com/title/tt1560220/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 Продолжение на порядок лучше. Сколько самоиронии и юморного
  легкого сарказма, просто класс. Спецэффекты на уровне.
 
 ---
-![](https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg)
+![](https://img.imgilall.me/movies/franchise/8/5/3/2/0/0/0/0/0/0/610x900_8532.jpg)

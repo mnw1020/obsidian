@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Sci-Fi]]'
+- '[[экранизация]]'
+- '[[фантастика]]'
 Релиз: 02 Jun 2013
 Время: 116 min
 Режисер:
@@ -17,15 +18,31 @@ tags:
 - '[[Стерлинг Джеринс]]'
 - '[[Эбигейл Харгров]]'
 - '[[Даниэла Картес]]'
-Описание: null
+Описание: Бывший сотрудник ООН Джерри Лэйн оказывается в эпицентре эпидемии неизвестного вируса, который за считанные секунды превращает людей в зомби. Пытаясь найти противоядие против вируса, Лэйн путешествует вместе со своей группой почти по всему миру, поражённому эпидемией. Теперь судьба всего мира висит на волоске, и Джерри — его единственная надежда.
 imdb Id: tt0816711
-poster: https://m.media-amazon.com/images/M/MV5BODg3ZTM2YWQtZDE5Ny00NGNiLTkzYjgtYWVlYjNkOTg5NDI1XkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/1/1/8/7/0/0/0/0/0/0/610x900_1187.jpg
 Тип: Фильм
 Год: '2013'
 aliases:
-- World War Z
+- Война миров Z
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+Возраст: '16'
+Слоган: Remember Philly!
+Kinopoisk Id: '261636'
+Кинопоиск URL: https://www.kinopoisk.ru/film/261636/
+IMDb URL: https://www.imdb.com/title/tt0816711/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BODg3ZTM2YWQtZDE5Ny00NGNiLTkzYjgtYWVlYjNkOTg5NDI1XkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://img.imgilall.me/movies/franchise/1/1/8/7/0/0/0/0/0/0/610x900_1187.jpg)

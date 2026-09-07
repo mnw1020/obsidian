@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Adventure]]'
+- '[[экранизация]]'
+- '[[приключения]]'
 Релиз: 15 Mar 2017
 Время: 141 min
 Режисер:
@@ -17,16 +18,31 @@ tags:
 - '[[Том Холланд]]'
 - '[[Эдвард Эшли]]'
 - '[[Сиенна Миллер]]'
-Описание: null
+Описание: Эльдорадо, таинственная столица инков, загадочный Город Z. Вымысел или реальность? В 1925 году экспедиция полковника Фоссета, члена Королевского Географического общества, бесследно исчезла в джунглях Амазонии в поисках Города Z.
 imdb Id: tt1212428
-poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/1/8/4/5/0/0/0/0/0/0/610x900_1845.jpg
 Тип: Фильм
 Год: '2016'
 aliases:
-- The Lost City of Z
+- Затерянный город Z
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+- Великобритания
+Возраст: '16'
+Слоган: Основано на реальной, но невероятной истории
+Kinopoisk Id: '432794'
+Кинопоиск URL: https://www.kinopoisk.ru/film/432794/
+IMDb URL: https://www.imdb.com/title/tt1212428/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 растянуто и скучно
 
 ---
-![](https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg)
+![](https://img.imgilall.me/movies/franchise/1/8/4/5/0/0/0/0/0/0/610x900_1845.jpg)
