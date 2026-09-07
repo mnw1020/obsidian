@@ -1,39 +1,14 @@
----
-obsidianUIMode: preview
-cssclasses: cards
----
+# 🎬 Кино
 
+> Основной каталог. По умолчанию показываются 100 последних фильмов,
+> чтобы Obsidian не пытался одновременно загрузить 1544 интернет-постера.
 
-```button
-name 🎬 Добавить
-type command
-action QuickAdd: movie_imdb
-color blue 
-```
+![[Кино.base#Лучшие]]
 
----
-# Фильм
-```dataview
-table without id
-	("![|64](" + poster + ")") as "Poster",
-	file.link as "Название",
-	dateformat(Просмотрено, "dd.MM.yyyy") as "Просмотрено",
-	Оценка as "⭐"
-from "Кино"
-where poster != null
-WHERE contains(tags, "movies")
-Sort Просмотрено DESC
-```
+## Другие представления
 
-# Сериал
-```dataview
-table without id
-	("![|64](" + poster + ")") as "Poster",
-	file.link as "Название",
-	dateformat(Просмотрено, "dd.MM.yyyy") as "Просмотрено",
-	Оценка as "⭐"
-from "Кино"
-where poster != null
-WHERE contains(tags, "serial")
-Sort Просмотрено DESC
-```
+Открой [[Кино.base]] и переключай представления в левом верхнем углу:
+
+- **Последние** - 100 последних фильмов карточками с постерами.
+- **Все фильмы** - вся коллекция таблицей без постеров.
+- **Лучшие** - 100 фильмов с максимальной оценкой, карточками.
