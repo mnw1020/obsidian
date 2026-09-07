@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Action]]'
+- '[[сцена после титров]]'
+- '[[боевик]]'
 Релиз: 02 Oct 2009
 Время: 88 min
 Режисер:
@@ -17,16 +18,30 @@ tags:
 - '[[Эмма Стоун]]'
 - '[[Эбигейл Бреслин]]'
 - '[[Билл Мюррей]]'
-Описание: null
+Описание: После нашествия зомби в США небольшая группа выживших скитается по стране от побережья к побережью, сражаясь с живыми мертвецами. Они решают остановиться в парке развлечений, надеясь, что там будут в безопасности.
 imdb Id: tt1156398
-poster: https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcwMjA4Mjg3Mg@@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/1/1/4/6/0/0/0/0/0/0/610x900_1146.jpg
 Тип: Фильм
 Год: '2009'
 aliases:
-- Zombieland
+- Добро Пожаловать В Zомбилэнд
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+Возраст: '18'
+Слоган: Живой мертвому не товарищ
+Kinopoisk Id: '427122'
+Кинопоиск URL: https://www.kinopoisk.ru/film/427122/
+IMDb URL: https://www.imdb.com/title/tt1156398/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 проходной роад-мув, ничего особенного вообще.
 
 ---
-![](https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcwMjA4Mjg3Mg@@._V1_SX300.jpg)
+![](https://img.imgilall.me/movies/franchise/1/1/4/6/0/0/0/0/0/0/610x900_1146.jpg)

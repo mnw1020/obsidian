@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Music]]'
+- '[[музыка]]'
+- '[[2010-е]]'
 Релиз: 26 Jun 2019
 Время: 116 min
 Режисер:
@@ -17,10 +18,27 @@ tags:
 - '[[Джоэль Фрай]]'
 - '[[Эд Ширан]]'
 - '[[Кейт Маккиннон]]'
-Описание: null
-imdb Id: null
-poster: null
+Описание: Ещё месяц назад Джек был обычным неудачником. Теперь он суперзвезда, миллионы людей слушают его песни, билеты на концерты раскупаются за секунду. В чём секрет? Всё просто. Джек — единственный человек в мире, кто помнит о существовании The Beatles.
+imdb Id: tt8079248
+poster: https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgwNzY0MTE0NzM@._V1_.jpg
 Тип: Фильм
 Год: '2019'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+- Китай
+Возраст: '12'
+Слоган: Мир забыл про The Beatles. Но только не Джек...
+Kinopoisk Id: '1144300'
+Кинопоиск URL: https://www.kinopoisk.ru/film/1144300/
+IMDb URL: https://www.imdb.com/title/tt8079248/
+Постер источник: IMDb
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
+---
+![](https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgwNzY0MTE0NzM@._V1_.jpg)

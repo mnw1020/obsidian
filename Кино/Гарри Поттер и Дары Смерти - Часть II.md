@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Fantasy]]'
+- '[[экранизация]]'
+- '[[фэнтези]]'
 Релиз: 07 Jul 2011
 Время: 130 min
 Режисер:
@@ -17,16 +18,32 @@ tags:
 - '[[Эмма Уотсон]]'
 - '[[Рэйф Файнс]]'
 - '[[Хелена Бонем Картер]]'
-Описание: null
+Описание: В грандиозной последней главе битва между добрыми и злыми силами мира волшебников перерастает во всеобщую войну. Ставки ещё никогда не были так высоки, а поиск убежища — столь сложен. И быть может именно Гарри Поттеру придется пожертвовать всем в финальном сражении с Волан-де-Мортом. Способен ли наш герой спасти мир? И всё закончится здесь.
 imdb Id: tt1201607
-poster: https://m.media-amazon.com/images/M/MV5BOTA1Mzc2N2ItZWRiNS00MjQzLTlmZDQtMjU0NmY1YWRkMGQ4XkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/3/9/0/0/0/0/0/0/0/0/610x900_390.jpg
 Тип: Фильм
 Год: '2011'
 aliases:
 - 'Гарри Поттер и Дары Смерти: Часть II'
-- 'Harry Potter and the Deathly Hallows: Part 2'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+- США
+Возраст: '16'
+Слоган: Все закончится
+Kinopoisk Id: '407636'
+Кинопоиск URL: https://www.kinopoisk.ru/film/407636/
+IMDb URL: https://www.imdb.com/title/tt1201607/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BOTA1Mzc2N2ItZWRiNS00MjQzLTlmZDQtMjU0NmY1YWRkMGQ4XkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://img.imgilall.me/movies/franchise/3/9/0/0/0/0/0/0/0/0/610x900_390.jpg)

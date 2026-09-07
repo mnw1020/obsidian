@@ -6,7 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Action]]'
+- '[[экранизация комикса]]'
+- '[[боевик]]'
 Релиз: 20 Sep 2017
 Время: 141 min
 Режисер:
@@ -17,13 +18,29 @@ tags:
 - '[[Марк Стронг]]'
 - '[[Джулианна Мур]]'
 - '[[Холли Берри]]'
-Описание: null
-imdb Id: null
-poster: null
+Описание: Когда штаб-квартиры секретной службы Kingsman уничтожены, и весь мир оказался в заложниках у неизвестных, британские суперагенты обнаруживают, что в один день вместе с их организацией была еще создана американская разведка — Statesman. Теперь эти две элитные спецслужбы должны объединиться и бросить вызов общему безжалостному врагу, чтобы спасти мир, то есть заняться тем, что для Эггси становится обычным делом…
+imdb Id: tt4649466
+poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg
 Тип: Фильм
 Год: '2017'
 aliases:
 - 'Kingsman: Золотое кольцо'
-- 'Kingsman: The Golden Circle'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Великобритания
+- США
+Возраст: '18'
+Слоган: Reports of my death have been greatly exaggerated
+Kinopoisk Id: '906654'
+Кинопоиск URL: https://www.kinopoisk.ru/film/906654/
+IMDb URL: https://www.imdb.com/title/tt4649466/
+Постер источник: IMDb
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
+---
+![](https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg)

@@ -6,8 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Drama]]'
-- '[[Crime]]'
+- '[[драма]]'
+- '[[криминал]]'
 Релиз: 07 Nov 2024
 Время: 88 min
 Режисер:
@@ -18,17 +18,29 @@ tags:
 - '[[Ержан Тусупов]]'
 - '[[Шугыла Ешенова]]'
 - '[[Берик Айтжанов]]'
-Описание: null
+Описание: Алдик и Кана снова в центре рискованного бизнеса. Экшен-продолжение культового сериала. Смотрите онлайн фильм SHEKER. Последний шанс на Кинопоиске.
 imdb Id: tt37660303
-poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://avatars.mds.yandex.net/get-kinopoisk-image/1898899/089c398e-53d9-4b36-b69a-906b206d1647/1200x630
 Тип: Фильм
 Год: '2024'
 aliases:
 - 'Sheker: Последний шанс'
-- Sheker. Poslednij shans
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Казахстан
+Возраст: '18'
+Kinopoisk Id: '6264285'
+Кинопоиск URL: https://www.kinopoisk.ru/film/6264285/
+IMDb URL: https://www.imdb.com/title/tt37660303/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
+
 Слабее конечно, чем сериал, но тоже неплохо. Эпизод в бангкоке огонь)
 
 ---
-![](https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg)
+![](https://avatars.mds.yandex.net/get-kinopoisk-image/1898899/089c398e-53d9-4b36-b69a-906b206d1647/1200x630)

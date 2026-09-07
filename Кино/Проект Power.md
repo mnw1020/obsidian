@@ -6,8 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Sci-Fi]]'
-- '[[Action]]'
+- '[[фантастика]]'
+- '[[боевик]]'
 Релиз: 19 Aug 2020
 Время: 112 min
 Режисер:
@@ -19,15 +19,31 @@ tags:
 - '[[Доминик Фишбэк]]'
 - '[[Родриго Санторо]]'
 - '[[Кортни Б. Вэнс]]'
-Описание: null
+Описание: 'В Новый Орлеан завозят капсулы, которые дают проглотившим их суперспособности на 5 минут. Но какие силы получит человек, предугадать невозможно: кого-то ждёт невидимость или суперскорость, а кого-то — мгновенная смерть. Старшеклассница Робин приторговывает этими пилюлями, чтобы сводить концы с концами и накопить на операцию для больной матери, и иногда снабжает ими знакомого полицейского Фрэнка. Однажды на Робин выходит бывший военный Арт и вынуждает её помочь ему отыскать источник загадочных капсул.'
 imdb Id: tt7550000
-poster: https://m.media-amazon.com/images/M/MV5BM2QxNjM4YTAtMjY1Yi00YjMwLTlkOWUtZmIzYmZmNzUwNDU1XkEyXkFqcGc@._V1_SX300.jpg
+poster: https://img.imgilall.me/movies/franchise/3/5/3/5/0/0/0/0/0/0/610x900_35350.jpg
 Тип: Фильм
 Год: '2020'
 aliases:
-- Project Power
+- Проект Power
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- США
+Возраст: '16'
+Слоган: What would you risk for 5 minutes of pure power?
+Kinopoisk Id: '1190299'
+Кинопоиск URL: https://www.kinopoisk.ru/film/1190299/
+IMDb URL: https://www.imdb.com/title/tt7550000/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BM2QxNjM4YTAtMjY1Yi00YjMwLTlkOWUtZmIzYmZmNzUwNDU1XkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://img.imgilall.me/movies/franchise/3/5/3/5/0/0/0/0/0/0/610x900_35350.jpg)

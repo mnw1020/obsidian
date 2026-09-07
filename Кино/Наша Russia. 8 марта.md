@@ -6,8 +6,8 @@
 tags:
 - movies
 Жанр:
-- '[[Comedy]]'
-- '[[Music]]'
+- '[[комедия]]'
+- '[[музыка]]'
 Релиз: '2025'
 Время: 86 min
 Режисер:
@@ -22,13 +22,28 @@ tags:
 - '[[Люся Чеботина]]'
 - '[[Григорий Лепс]]'
 - '[[Любовь Успенская]]'
-Описание: null
+Описание: Бородач, честный гаишник и нечестные чиновники возвращаются. Комедия со звездными гостями. Смотрите онлайн фильм Наша Russia. 8 марта на Кинопоиске.
 imdb Id: tt33094176
-poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg
+poster: https://avatars.mds.yandex.net/get-kinopoisk-image/10953618/74a1ecf7-01f6-4ff4-aa06-ff419704b435/1200x630
 Тип: Фильм
 Год: '2025'
 Источник даты: Дата выставления оценки из CSV
+Страны:
+- Россия
+Возраст: '18'
+Kinopoisk Id: '6267717'
+Кинопоиск URL: https://www.kinopoisk.ru/film/6267717/
+IMDb URL: https://www.imdb.com/title/tt33094176/
+Постер источник: Кинопоиск
+Описание источник: Кинопоиск
+Источники:
+- IMDb
+- Кинопоиск
+Источник оценки: My rating из backup_341187_votes.csv
 ---
 
 ---
 ![](https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg)
+
+---
+![](https://avatars.mds.yandex.net/get-kinopoisk-image/10953618/74a1ecf7-01f6-4ff4-aa06-ff419704b435/1200x630)
