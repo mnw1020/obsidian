@@ -61,11 +61,8 @@ views:
     imageFormat: poster
     propertyNames: hide
     id: 0myciy-Последние
-    image: note.poster
     displayFirstAsTitle: true
     showFileImages: never
-    posterInteractToReveal: false
-    posterDisplayMode: fade
   - type: cards
     name: Лучшие
     filters:
@@ -214,6 +211,8 @@ views:
       - Жанр
       - Режисер
     sort:
+      - property: formula.type
+        direction: DESC
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
