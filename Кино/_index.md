@@ -2,7 +2,6 @@
 cssclasses:
   - movies-dashboard
 ---
-
 # 🎬 Кинотека
 
 ```dataviewjs
@@ -58,17 +57,12 @@ for (const [icon, label, value] of stats) {
     grid.appendChild(card);
 }
 ```
-
-<br>
-
 ```button
 name 🎬 Добавить
 type command
 action QuickAdd: movie_imdb
 color blue 
 ```
----
-
 ## 🕐 Последние просмотры
 
 ![[_Кино.base#Последние]]
