@@ -1,7 +1,4 @@
----
-cssclasses:
-  - movies-dashboard
----
+
 
 # 🎬 Кинотека
 
