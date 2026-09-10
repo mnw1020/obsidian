@@ -39,7 +39,7 @@ views:
     name: Повторные просмотры
     filters:
       and:
-        - note.Просмотр > 1
+        - Просмотр > 1
     order:
       - Фильм
       - formula.viewing_label
