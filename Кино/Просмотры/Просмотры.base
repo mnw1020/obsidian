@@ -1,0 +1,49 @@
+filters:
+  and:
+    - file.inFolder("Кино/Просмотры")
+    - file.hasTag("viewing")
+
+formulas:
+  when: 'if(note.Дата, note.Дата.format("DD.MM.YYYY"), if(note.Год, note.Год.toString(), ""))'
+  rating: 'if(note.Оценка, number(note.Оценка), null)'
+
+properties:
+  note.Фильм:
+    displayName: Фильм
+  formula.when:
+    displayName: Когда
+  formula.rating:
+    displayName: Оценка
+  note.Комментарий:
+    displayName: Комментарий
+
+views:
+  - type: table
+    name: Все просмотры
+    order:
+      - note.Фильм
+      - formula.when
+      - formula.rating
+      - note.Комментарий
+      - file.name
+    sort:
+      - property: note.Год
+        direction: DESC
+      - property: note.Дата
+        direction: DESC
+
+  - type: table
+    name: По фильмам
+    groupBy:
+      property: note.Фильм
+      direction: ASC
+    order:
+      - formula.when
+      - formula.rating
+      - note.Комментарий
+      - file.name
+    sort:
+      - property: note.Год
+        direction: DESC
+      - property: note.Дата
+        direction: DESC
