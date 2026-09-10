@@ -231,7 +231,7 @@ views:
       - formula.watched
     sort:
       - property: formula.rating_delta
-        direction: DESC
+        direction: ASC
       - property: formula.rating
         direction: DESC
   - type: table
