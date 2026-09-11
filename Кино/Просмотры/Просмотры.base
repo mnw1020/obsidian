@@ -27,7 +27,7 @@ views:
     order:
       - Фильм
       - formula.viewing_label
-	  - note.Сезон
+      - Сезон
       - formula.when
       - formula.rating
       - Комментарий
@@ -47,7 +47,7 @@ views:
     order:
       - Фильм
       - formula.viewing_label
-	  - note.Сезон
+      - Сезон
       - formula.when
       - formula.rating
       - Комментарий
