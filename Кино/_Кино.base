@@ -54,7 +54,7 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
-    limit: 12
+    limit: 20
     cardSize: 200
     imageFit: contain
     textPreviewProperty: note.Описание
@@ -68,29 +68,34 @@ views:
     showFileImages: never
     minimumColumns: one
     displaySecondAsSubtitle: false
-  - type: cards
+  - type: dynamic-views-grid
     name: Последние сериалы
     filters:
       and:
         - file.hasTag("serial")
     order:
       - file.name
-      - formula.watched
-      - Сезон
       - formula.rating
-      - formula.imdb_rating
-      - formula.release_display
-      - Описание
+      - Сезон
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
-    limit: 12
-    image: note.poster
-    imageAspectRatio: 0.67
+    limit: 20
+    cardSize: 200
     imageFit: contain
-    cardSize: 175
+    textPreviewProperty: note.Описание
+    fallbackToContent: false
+    textPreviewLines: 7
+    imageProperty: note.poster
+    imageFormat: poster
+    propertyNames: hide
+    id: 0myciy-Последние
+    displayFirstAsTitle: true
+    showFileImages: never
+    minimumColumns: one
+    displaySecondAsSubtitle: false
   - type: table
     name: Все
     order:
@@ -110,7 +115,7 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
-  - type: cards
+  - type: table
     name: Фильмы
     filters:
       and:
