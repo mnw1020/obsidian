@@ -20,14 +20,16 @@ module.exports = async (params) => {
             .filter(Boolean);
     }
 
-    function isMovie(file) {
+    function isMedia(file) {
         if (!file || file.extension !== "md") return false;
 
         if (!file.path.startsWith(MEDIA_FOLDER + "/")) return false;
         if (file.path.startsWith(VIEWINGS_FOLDER + "/")) return false;
 
         const fm = getFrontmatter(file);
-        return getTags(fm).includes("movies");
+        const tags = getTags(fm);
+
+        return tags.includes("movies") || tags.includes("serial");
     }
 
     function getCurrentViewingCount(frontmatter) {
@@ -77,29 +79,31 @@ module.exports = async (params) => {
     // Иначе показываем список фильмов.
     let movieFile = app.workspace.getActiveFile();
 
-    if (!isMovie(movieFile)) {
+    if (!isMedia(movieFile)) {
         const movies = app.vault
             .getMarkdownFiles()
-            .filter(isMovie)
+            .filter(isMedia)
             .sort((a, b) => a.basename.localeCompare(b.basename, "ru"));
 
         if (movies.length === 0) {
-            new Notice("В папке Кино не найдено файлов с тегом movies.");
+            new Notice("В папке Кино не найдено файлов с тегом movies или serial.");
             return;
         }
 
         const displayNames = movies.map(file => {
             const fm = getFrontmatter(file);
+            const tags = getTags(fm);
+            const icon = tags.includes("serial") ? "📺" : "🎬";
             const originalTitle = fm["Название"];
 
             if (
                 originalTitle &&
                 String(originalTitle).trim() !== file.basename
             ) {
-                return `${file.basename} | ${originalTitle}`;
+                return `${icon} ${file.basename} | ${originalTitle}`;
             }
 
-            return file.basename;
+            return `${icon} ${file.basename}`;
         });
 
         movieFile = await quickAddApi.suggester(
