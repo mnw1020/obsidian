@@ -66,6 +66,13 @@ views:
     id: 0myciy-Последние
     displayFirstAsTitle: true
     showFileImages: never
+    posterDisplayMode: fade
+    posterInteractToReveal: false
+    imageRatio: 1
+    cardGapDesktop: 8
+    minimumColumns: one
+    titleLines: 2
+    displaySecondAsSubtitle: false
   - type: cards
     name: Лучшие
     filters:
