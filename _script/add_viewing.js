@@ -1,6 +1,7 @@
-const { Notice, normalizePath } = require("obsidian");
+module.exports = async (params) => {
+    const { app, quickAddApi, obsidian } = params;
+    const { Notice, normalizePath } = obsidian;
 
-module.exports = async ({ app, quickAddApi }) => {
     const MEDIA_FOLDER = "Кино";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
 
@@ -36,13 +37,12 @@ module.exports = async ({ app, quickAddApi }) => {
             return Math.floor(explicitCount);
         }
 
-        // Если фильм уже имеет дату просмотра, но счетчика еще нет,
+        // Если дата просмотра уже есть, но счетчика еще нет,
         // считаем, что первый просмотр уже был.
         if (frontmatter?.["Просмотрено"]) {
             return 1;
         }
 
-        // Для новой, еще не просмотренной карточки.
         return 0;
     }
 
@@ -73,8 +73,8 @@ module.exports = async ({ app, quickAddApi }) => {
         );
     }
 
-    // Если команда запущена из открытой карточки фильма,
-    // используем ее сразу. Иначе показываем выбор фильма.
+    // Если открыт фильм, используем его.
+    // Иначе показываем список фильмов.
     let movieFile = app.workspace.getActiveFile();
 
     if (!isMovie(movieFile)) {
@@ -177,13 +177,13 @@ module.exports = async ({ app, quickAddApi }) => {
 
     const safeMovieName = movieFile.basename.replace(/[\\/:*?"<>|]/g, "-");
 
-    let fileName =
+    const fileName =
         `${safeMovieName} - просмотр ${nextCount} - ${viewingDate}.md`;
 
-    let viewingPath = normalizePath(`${VIEWINGS_FOLDER}/${fileName}`);
+    const viewingPath = normalizePath(
+        `${VIEWINGS_FOLDER}/${fileName}`
+    );
 
-    // Если по какой-то причине файл с таким именем уже существует,
-    // не перезаписываем его.
     if (app.vault.getAbstractFileByPath(viewingPath)) {
         new Notice(`Запись уже существует:\n${viewingPath}`);
         return;
@@ -213,7 +213,10 @@ module.exports = async ({ app, quickAddApi }) => {
         content += comment + "\n";
     }
 
-    const viewingFile = await app.vault.create(viewingPath, content);
+    const viewingFile = await app.vault.create(
+        viewingPath,
+        content
+    );
 
     await app.fileManager.processFrontMatter(
         movieFile,
@@ -221,8 +224,6 @@ module.exports = async ({ app, quickAddApi }) => {
             frontmatter["Просмотрено"] = viewingDate;
             frontmatter["Количество просмотров"] = nextCount;
 
-            // Текущая оценка основной карточки становится
-            // оценкой после последнего просмотра.
             if (rating !== null) {
                 frontmatter["Оценка"] = rating;
             }
@@ -233,6 +234,5 @@ module.exports = async ({ app, quickAddApi }) => {
         `${movieFile.basename}: добавлен просмотр #${nextCount}`
     );
 
-    // Открываем созданную запись просмотра.
     await app.workspace.getLeaf(false).openFile(viewingFile);
 };
