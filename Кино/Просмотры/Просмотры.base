@@ -35,6 +35,7 @@ views:
         direction: DESC
       - property: Просмотр
         direction: DESC
+    id: bsuoux-Все просмотры
   - type: table
     name: Повторные просмотры
     filters:
