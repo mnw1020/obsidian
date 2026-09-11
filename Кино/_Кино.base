@@ -28,7 +28,7 @@ properties:
   formula.watched:
     displayName: Просмотрено
   formula.watch_count:
-    displayName: Просмотров	
+    displayName: Просмотров
   formula.rating:
     displayName: Моя оценка
   formula.imdb_rating:
@@ -237,7 +237,7 @@ views:
         direction: ASC
       - property: formula.rating
         direction: DESC
-    - type: cards
+  - type: cards
     name: Самые пересматриваемые
     filters:
       and:
@@ -256,7 +256,7 @@ views:
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
-    cardSize: 175		
+    cardSize: 175
   - type: table
     name: Проблемные даты
     filters:
