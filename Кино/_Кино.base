@@ -105,6 +105,7 @@ views:
     order:
       - file.name
       - formula.watched
+	  - note.Сезон
       - formula.rating
       - formula.imdb_rating
       - formula.release_display
