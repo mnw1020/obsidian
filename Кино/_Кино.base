@@ -10,6 +10,7 @@ formulas:
   imdb_rating: if(note["Оценка Imdb"], number(note["Оценка Imdb"]), null)
   rating_delta: if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)
   watched: if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")
+  watch_count: if(note["Количество просмотров"], number(note["Количество просмотров"]), 1)
   release_raw: if(note.Релиз, note.Релиз.toString().trim().replace(/\\s+/g, " "), null)
   release_iso: if(!note.Релиз, null, if(note.Релиз.isType("date"), note.Релиз.format("YYYY-MM-DD"), if(/^\d{4}-\d{2}-\d{2}$/.matches(formula.release_raw), formula.release_raw, if(/^\d{1,2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/i.matches(formula.release_raw), formula.release_raw.replace(/^(\d) ([A-Za-z]{3}) (\d{4})$/, "0$1 $2 $3").replace(/^(\d{2}) Jan (\d{4})$/i, "$2-01-$1").replace(/^(\d{2}) Feb (\d{4})$/i, "$2-02-$1").replace(/^(\d{2}) Mar (\d{4})$/i, "$2-03-$1").replace(/^(\d{2}) Apr (\d{4})$/i, "$2-04-$1").replace(/^(\d{2}) May (\d{4})$/i, "$2-05-$1").replace(/^(\d{2}) Jun (\d{4})$/i, "$2-06-$1").replace(/^(\d{2}) Jul (\d{4})$/i, "$2-07-$1").replace(/^(\d{2}) Aug (\d{4})$/i, "$2-08-$1").replace(/^(\d{2}) Sep (\d{4})$/i, "$2-09-$1").replace(/^(\d{2}) Oct (\d{4})$/i, "$2-10-$1").replace(/^(\d{2}) Nov (\d{4})$/i, "$2-11-$1").replace(/^(\d{2}) Dec (\d{4})$/i, "$2-12-$1"), null))))
   release_date: if(formula.release_iso, date(formula.release_iso), null)
@@ -26,6 +27,8 @@ properties:
     displayName: Тип
   formula.watched:
     displayName: Просмотрено
+  formula.watch_count:
+    displayName: Просмотров	
   formula.rating:
     displayName: Моя оценка
   formula.imdb_rating:
@@ -234,6 +237,26 @@ views:
         direction: ASC
       - property: formula.rating
         direction: DESC
+    - type: cards
+    name: Самые пересматриваемые
+    filters:
+      and:
+        - formula.watch_count > 1
+    order:
+      - file.name
+      - formula.watch_count
+      - formula.rating
+      - formula.watched
+    sort:
+      - property: formula.watch_count
+        direction: DESC
+      - property: Просмотрено
+        direction: DESC
+    limit: 12
+    image: note.poster
+    imageAspectRatio: 0.67
+    imageFit: contain
+    cardSize: 175		
   - type: table
     name: Проблемные даты
     filters:
