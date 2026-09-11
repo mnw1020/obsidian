@@ -63,6 +63,12 @@ type command
 action QuickAdd: movie_imdb
 color blue 
 ```
+```button
+name 👁 Добавить просмотр
+type command
+action QuickAdd: Добавить просмотр
+color green
+```
 ## 🕐 Последние просмотры
 
 ![[_Кино.base#Последние]]
