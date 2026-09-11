@@ -69,6 +69,12 @@ type command
 action QuickAdd: Добавить просмотр
 color green
 ```
+```button
+name 📺 Добавить сезон
+type command
+action QuickAdd: Добавить сезон
+color gray
+```
 ## 🕐 Последние просмотры
 
 ![[_Кино.base#Последние]]

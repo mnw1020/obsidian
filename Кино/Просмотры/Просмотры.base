@@ -19,12 +19,15 @@ properties:
     displayName: Оценка
   note.Комментарий:
     displayName: Комментарий
+  note.Сезон:
+    displayName: Сезон
 views:
   - type: table
     name: Все просмотры
     order:
       - Фильм
       - formula.viewing_label
+	  - note.Сезон
       - formula.when
       - formula.rating
       - Комментарий
@@ -44,6 +47,7 @@ views:
     order:
       - Фильм
       - formula.viewing_label
+	  - note.Сезон
       - formula.when
       - formula.rating
       - Комментарий
