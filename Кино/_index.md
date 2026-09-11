@@ -57,24 +57,9 @@ for (const [icon, label, value] of stats) {
     grid.appendChild(card);
 }
 ```
-```button
-name 🎬 Добавить
-type command
-action QuickAdd: movie_imdb
-color blue 
-```
-```button
-name 👁 Добавить просмотр
-type command
-action QuickAdd: Добавить просмотр
-color green
-```
-```button
-name 📺 Добавить сезон
-type command
-action QuickAdd: Добавить сезон
-color gray
-```
+
+`button-add-movie` `button-add-viewing` `button-add-season`
+
 ## 🕐 Последние просмотры
 
 ![[_Кино.base#Последние]]
@@ -106,3 +91,27 @@ color gray
 - **Выше IMDb** - где твоя оценка сильнее всего отличается от IMDb в плюс.
 - **Проблемные даты** - записи, у которых `Релиз` не удалось автоматически распознать.
 - **Повторные просмотры** - [[Просмотры/Просмотры.base#Повторные просмотры|открыть только просмотры №2 и дальше]].
+
+```button
+name 🎬 Добавить
+type command
+action QuickAdd: movie_imdb
+color purple
+```
+^button-add-movie
+
+```button
+name ...просмотр
+type command
+action QuickAdd: Добавить просмотр
+color gray
+```
+^button-add-viewing
+
+```button
+name ...сезон
+type command
+action QuickAdd: Добавить сезон
+color gray
+```
+^button-add-season
