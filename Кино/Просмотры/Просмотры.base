@@ -6,6 +6,8 @@ formulas:
   when: if(note.Дата, note.Дата.format("DD.MM.YYYY"), if(note.Год, note.Год.toString(), ""))
   rating: if(note.Оценка, number(note.Оценка), null)
   viewing_label: 'if(note.Просмотр, "Просмотр #" + number(note.Просмотр).toString(), "")'
+  previous_rating: if(note["Предыдущая оценка"] != null, number(note["Предыдущая оценка"]), null)
+  rating_delta: if(note["Изменение оценки"] != null, number(note["Изменение оценки"]), null)
 properties:
   note.Фильм:
     displayName: Фильм
@@ -17,6 +19,10 @@ properties:
     displayName: Когда
   formula.rating:
     displayName: Оценка
+  formula.previous_rating:
+    displayName: Предыдущая оценка
+  formula.rating_delta:
+    displayName: Δ оценки
   note.Комментарий:
     displayName: Комментарий
   note.Сезон:
@@ -58,3 +64,23 @@ views:
         direction: DESC
       - property: Просмотр
         direction: DESC
+  - type: table
+    name: Изменение оценки
+    filters:
+      and:
+        - note["Последний просмотр"] == true
+        - formula.rating_delta != null
+    order:
+      - Фильм
+      - formula.previous_rating
+      - formula.rating
+      - formula.rating_delta
+      - formula.viewing_label
+      - formula.when
+    sort:
+      - property: formula.rating_delta
+        direction: DESC
+      - property: Дата
+        direction: DESC
+    columnSize:
+      formula.previous_rating: 170
