@@ -21,6 +21,8 @@ properties:
     displayName: Предыдущая
   formula.delta_label:
     displayName: Δ
+  note.Комментарий:
+    displayName: Комментарий	
 views:
   - type: table
     name: Все сезоны
@@ -29,7 +31,7 @@ views:
       - Сезон
       - formula.when
       - formula.rating
-      - formula.delta_label
+      - Комментарий
     sort:
       - property: formula.delta_label
         direction: ASC
