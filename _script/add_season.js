@@ -5,66 +5,8 @@ module.exports = async (params) => {
     const MEDIA_FOLDER = "Кино";
     const SEASONS_FOLDER = "Кино/Сезоны";
 
-    // Один динамический блок в оригинальной карточке.
-    // Он сам подхватывает все будущие файлы сезонов.
-    const SEASONS_BLOCK = `\`\`\`dataviewjs
-const normalizePath = value =>
-    String(value ?? "")
-        .replace(/^\\[\\[/, "")
-        .replace(/\\]\\]$/, "")
-        .split("|")[0]
-        .replace(/\\.md$/i, "")
-        .trim();
-
-const currentPath = normalizePath(dv.current().file.path);
-const currentName = dv.current().file.name;
-
-const seasons = dv.pages('"Кино/Сезоны"')
-    .where(p => {
-        const linkPath = normalizePath(p.Сериал?.path ?? p.Сериал);
-
-        return (
-            linkPath === currentPath ||
-            linkPath === currentName ||
-            linkPath.endsWith("/" + currentName)
-        );
-    })
-    .sort(p => Number(p.Сезон ?? 0), "asc");
-
-for (const season of seasons) {
-    const number = Number(season.Сезон ?? 0);
-    const rating =
-        season.Оценка !== null &&
-        season.Оценка !== undefined &&
-        String(season.Оценка).trim() !== ""
-            ? Number(season.Оценка)
-            : null;
-
-    const title =
-        rating !== null && Number.isFinite(rating)
-            ? \`Сезон \${number} (\${rating}/10)\`
-            : \`Сезон \${number} (без оценки)\`;
-
-    dv.el("h1", "# " + title);
-
-    const raw = await dv.io.load(season.file.path);
-
-    if (!raw) {
-        dv.paragraph("_Не удалось загрузить заметку сезона._");
-        continue;
-    }
-
-    const body = raw
-        .replace(/^---\\s*\\r?\\n[\\s\\S]*?\\r?\\n---\\s*\\r?\\n?/, "")
-        .trim();
-
-    if (body) {
-        dv.paragraph(body);
-    } else {
-        dv.paragraph("_Без комментария._");
-    }
-}
-\`\`\``;
+    const SEASONS_START = "<!-- SEASONS:START -->";
+    const SEASONS_END = "<!-- SEASONS:END -->";
 
     function getFrontmatter(file) {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
@@ -111,6 +53,18 @@ for (const season of seasons) {
         return Number.isFinite(result) ? result : null;
     }
 
+    function formatNumber(value) {
+        const number = toNumber(value);
+
+        if (number === null) {
+            return "";
+        }
+
+        return Number.isInteger(number)
+            ? String(number)
+            : String(number);
+    }
+
     function isRealDate(year, month, day) {
         const date = new Date(Date.UTC(year, month - 1, day));
 
@@ -142,7 +96,7 @@ for (const season of seasons) {
             .trim()
             .replace(/^@date:/, "");
 
-        // Только год -> YYYY-01-01
+        // Только год: 2021 -> 2021-01-01
         let match = text.match(/^(\d{4})$/);
 
         if (match) {
@@ -168,7 +122,7 @@ for (const season of seasons) {
             }
         }
 
-        // Старый формат вроде 09 Jun 2021
+        // Старый формат: 09 Jun 2021
         match = text.match(
             /^(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/i
         );
@@ -359,7 +313,7 @@ for (const season of seasons) {
             result = result.replace(imageRegex, "");
         }
 
-        // Удаляем только конечный разделитель, который стоял перед постером.
+        // Конечный разделитель, который обычно стоит перед постером.
         result = result.replace(
             /\n\s*(?:---|\*\*\*|___)\s*$/m,
             ""
@@ -368,10 +322,39 @@ for (const season of seasons) {
         return result.trim();
     }
 
-    function cleanSeasonBody(text, posterUrl) {
-        let result = removeExactPoster(text, posterUrl);
+    function removeOldGeneratedBlocks(body) {
+        let result = String(body ?? "");
 
-        // Старый block-id в отдельном файле сезона обычно уже не нужен.
+        // Старый DataviewJS-блок из предыдущей версии.
+        result = result.replace(
+            /```dataviewjs[\s\S]*?```/gi,
+            ""
+        );
+
+        // Старый Dataview-блок, если он когда-то использовался.
+        result = result.replace(
+            /```dataview[\s\S]*?```/gi,
+            ""
+        );
+
+        // Нативный блок, если по какой-то причине сезоны надо мигрировать заново.
+        const start = result.indexOf(SEASONS_START);
+        const end = result.indexOf(SEASONS_END);
+
+        if (start !== -1 && end !== -1 && end > start) {
+            result =
+                result.slice(0, start) +
+                result.slice(end + SEASONS_END.length);
+        }
+
+        return result.trim();
+    }
+
+    function cleanSeasonBody(text, posterUrl) {
+        let result = removeOldGeneratedBlocks(text);
+        result = removeExactPoster(result, posterUrl);
+
+        // Старый block-id переносить в файл сезона не нужно.
         result = result.replace(
             /^\s*\^[A-Za-z0-9_-]+\s*$/gm,
             ""
@@ -381,13 +364,13 @@ for (const season of seasons) {
     }
 
     function parseLegacySeasons(body, posterUrl) {
-        const cleanBody = removeExactPoster(body, posterUrl);
+        const cleanBody = cleanSeasonBody(body, posterUrl);
 
         // Поддерживает:
         // # 1 Сезон
         // # Сезон 1
         // # Сезон 1 (9)
-        // # 1 сезон (8/10)
+        // # Сезон 1 (9/10)
         const regex =
             /^#{1,6}\s*(?:(\d+)\s*сезон|сезон\s*(\d+))(?:\s*\(([^)]*)\))?\s*$/gim;
 
@@ -474,6 +457,16 @@ for (const season of seasons) {
         );
     }
 
+    function makeBackLink(serialFile) {
+        return (
+            "[[" +
+            serialFile.path.replace(/\.md$/i, "") +
+            "|← " +
+            serialFile.basename +
+            "]]"
+        );
+    }
+
     function safeName(name) {
         return String(name)
             .replace(/[\\/:*?"<>|]/g, "-")
@@ -507,8 +500,6 @@ for (const season of seasons) {
             content += "Оценка:\n";
         }
 
-        content += "Предыдущая оценка:\n";
-        content += "Изменение оценки:\n";
         content += "tags:\n";
         content += "  - season\n";
         content += "---\n\n";
@@ -517,8 +508,9 @@ for (const season of seasons) {
             content += comment.trim() + "\n";
         }
 
+        // Ссылка обратно на оригинальную карточку.
         content += "\n---\n";
-        content += `${makeSerialLink(serialFile).replace("|", "|← ")}\n`;
+        content += makeBackLink(serialFile) + "\n";
 
         return content;
     }
@@ -575,22 +567,6 @@ for (const season of seasons) {
                     frontmatter["Оценка"] = rating;
                 }
 
-                const previous = toNumber(
-                    frontmatter["Предыдущая оценка"]
-                );
-
-                if (previous !== null) {
-                    frontmatter["Предыдущая оценка"] = previous;
-                }
-
-                const delta = toNumber(
-                    frontmatter["Изменение оценки"]
-                );
-
-                if (delta !== null) {
-                    frontmatter["Изменение оценки"] = delta;
-                }
-
                 const tags = getTags(frontmatter);
 
                 if (!tags.includes("season")) {
@@ -602,14 +578,20 @@ for (const season of seasons) {
         );
     }
 
-    async function rebuildSeasonDeltas(serialFile) {
-        const files = getSeasonFiles(serialFile)
+    function sortSeasonFiles(files) {
+        return [...files]
             .filter(file => getSeasonNumber(file) !== null)
             .sort(
                 (a, b) =>
                     getSeasonNumber(a) -
                     getSeasonNumber(b)
             );
+    }
+
+    async function rebuildSeasonDeltas(serialFile) {
+        const files = sortSeasonFiles(
+            getSeasonFiles(serialFile)
+        );
 
         for (const file of files) {
             await normalizeSeasonFile(file);
@@ -658,17 +640,41 @@ for (const season of seasons) {
         }
     }
 
-    async function normalizeOriginalFrontmatter(serialFile) {
+    async function normalizeOriginalFrontmatter(
+        serialFile,
+        latestDate
+    ) {
+        const seasonFiles = sortSeasonFiles(
+            getSeasonFiles(serialFile)
+        );
+
+        const maxSeason =
+            seasonFiles.length > 0
+                ? Math.max(
+                    ...seasonFiles.map(getSeasonNumber)
+                )
+                : 0;
+
         await app.fileManager.processFrontMatter(
             serialFile,
             frontmatter => {
-                const watched = normalizeDate(
-                    frontmatter["Просмотрено"]
-                );
+                if (latestDate) {
+                    frontmatter["Просмотрено"] = latestDate;
+                } else {
+                    const watched = normalizeDate(
+                        frontmatter["Просмотрено"]
+                    );
 
-                if (watched) {
-                    frontmatter["Просмотрено"] = watched;
+                    if (watched) {
+                        frontmatter["Просмотрено"] = watched;
+                    }
                 }
+
+                frontmatter["Количество сезонов"] =
+                    seasonFiles.length;
+
+                frontmatter["Последний сезон"] =
+                    maxSeason;
 
                 const rating = toNumber(
                     frontmatter["Оценка"]
@@ -703,12 +709,44 @@ for (const season of seasons) {
         );
     }
 
-    async function replaceOriginalBody(serialFile) {
+    async function readSeasonComment(file) {
+        const raw = await app.vault.read(file);
+        const parts = splitFrontmatter(raw);
+
+        let body = parts.body.trim();
+
+        // Убираем нижнюю служебную ссылку назад:
+        // ---
+        // [[Кино/Локи|← Локи]]
+        body = body.replace(
+            /\n?\s*---\s*\r?\n\s*\[\[[^\]\n]+\|←[^\]\n]+\]\]\s*$/i,
+            ""
+        );
+
+        // Совместимость со старыми файлами сезона,
+        // где внутри мог быть собственный "# Сезон N".
+        body = body.replace(
+            /^#{1,6}\s*(?:(?:\d+)\s*сезон|сезон\s*(?:\d+))(?:\s*\([^)]*\))?\s*\r?\n+/i,
+            ""
+        );
+
+        return body.trim();
+    }
+
+    async function rebuildOriginalMarkdown(serialFile) {
+        const seasonFiles = sortSeasonFiles(
+            getSeasonFiles(serialFile)
+        );
+
         const fm = getFrontmatter(serialFile);
         const poster = String(fm.poster ?? "").trim();
 
-        const currentText = await app.vault.read(serialFile);
-        const parts = splitFrontmatter(currentText);
+        const originalText =
+            await app.vault.read(serialFile);
+
+        const parts = splitFrontmatter(
+            originalText
+        );
 
         if (!parts.frontmatterText) {
             throw new Error(
@@ -716,11 +754,44 @@ for (const season of seasons) {
             );
         }
 
-        let body = "\n\n" + SEASONS_BLOCK + "\n";
+        const chunks = [];
 
-        // Постер обязательно остается в самом низу оригинальной карточки.
+        chunks.push(SEASONS_START);
+
+        for (const file of seasonFiles) {
+            const season = getSeasonNumber(file);
+            const seasonFm = getFrontmatter(file);
+            const rating = toNumber(
+                seasonFm["Оценка"]
+            );
+
+            const heading =
+                rating !== null
+                    ? `# Сезон ${season} (${formatNumber(rating)}/10)`
+                    : `# Сезон ${season} (без оценки)`;
+
+            const comment =
+                await readSeasonComment(file);
+
+            chunks.push(heading);
+
+            if (comment) {
+                chunks.push(comment);
+            }
+        }
+
+        chunks.push(SEASONS_END);
+
+        let body =
+            "\n\n" +
+            chunks.join("\n\n") +
+            "\n";
+
+        // Постер всегда в самом низу оригинального файла.
         if (poster) {
-            body += `\n---\n![](${poster})\n`;
+            body +=
+                "\n---\n" +
+                `![](${poster})\n`;
         }
 
         await app.vault.modify(
@@ -760,7 +831,8 @@ for (const season of seasons) {
 
             if (
                 originalTitle &&
-                String(originalTitle).trim() !== file.basename
+                String(originalTitle).trim() !==
+                    file.basename
             ) {
                 return (
                     `📺 ${file.basename}` +
@@ -780,16 +852,24 @@ for (const season of seasons) {
         if (!serialFile) return;
     }
 
-    const originalText = await app.vault.read(serialFile);
-    const originalParts = splitFrontmatter(originalText);
-    const originalFm = getFrontmatter(serialFile);
+    const originalText =
+        await app.vault.read(serialFile);
 
-    const poster = String(originalFm.poster ?? "").trim();
+    const originalParts =
+        splitFrontmatter(originalText);
 
-    let seasonFiles = getSeasonFiles(serialFile);
+    const originalFm =
+        getFrontmatter(serialFile);
+
+    const poster =
+        String(originalFm.poster ?? "").trim();
+
+    let seasonFiles =
+        getSeasonFiles(serialFile);
 
     // -------------------------------------------------
-    // 2. Определяем старые сезоны для встроенной миграции
+    // 2. Встроенная миграция старого оригинального файла
+    //    выполняется только если файлов сезонов еще нет.
     // -------------------------------------------------
 
     let legacySeasons = [];
@@ -801,10 +881,11 @@ for (const season of seasons) {
         );
 
         if (legacySeasons.length === 0) {
-            const plain = getPlainLegacySeason(
-                originalParts.body,
-                poster
-            );
+            const plain =
+                getPlainLegacySeason(
+                    originalParts.body,
+                    poster
+                );
 
             if (plain) {
                 legacySeasons = [plain];
@@ -812,23 +893,22 @@ for (const season of seasons) {
         }
     }
 
-    const originalDate = normalizeDate(
-        originalFm["Просмотрено"]
-    );
+    const originalDate =
+        normalizeDate(
+            originalFm["Просмотрено"]
+        );
 
-    const originalRating = toNumber(
-        originalFm["Оценка"]
-    );
+    const originalRating =
+        toNumber(
+            originalFm["Оценка"]
+        );
 
-    // Если старая карточка уже содержит сезоны,
-    // предлагаем следующий после максимального.
     const existingNumbers = seasonFiles
         .map(getSeasonNumber)
         .filter(value => value !== null);
 
-    const legacyNumbers = legacySeasons.map(
-        item => item.season
-    );
+    const legacyNumbers = legacySeasons
+        .map(item => item.season);
 
     const maxKnownSeason = Math.max(
         0,
@@ -842,51 +922,57 @@ for (const season of seasons) {
             : 2;
 
     // -------------------------------------------------
-    // 3. Новый сезон
+    // 3. Ввод нового сезона
     // -------------------------------------------------
 
-    const values = await quickAddApi.requestInputs([
-        {
-            id: "season",
-            label: "Сезон",
-            type: "number",
-            defaultValue: String(suggestedSeason),
-            numericConfig: {
-                min: 1,
-                step: 1
+    const values =
+        await quickAddApi.requestInputs([
+            {
+                id: "season",
+                label: "Сезон",
+                type: "number",
+                defaultValue:
+                    String(suggestedSeason),
+                numericConfig: {
+                    min: 1,
+                    step: 1
+                }
+            },
+            {
+                id: "date",
+                label: "Дата окончания сезона",
+                type: "date",
+                dateFormat: "YYYY-MM-DD",
+                defaultValue:
+                    quickAddApi.date.now(
+                        "YYYY-MM-DD"
+                    )
+            },
+            {
+                id: "rating",
+                label: "Оценка сезона",
+                type: "number",
+                optional: true,
+                numericConfig: {
+                    min: 1,
+                    max: 10,
+                    step: 1
+                }
+            },
+            {
+                id: "comment",
+                label: "Комментарий",
+                type: "textarea",
+                optional: true,
+                placeholder:
+                    "Мысль после сезона..."
             }
-        },
-        {
-            id: "date",
-            label: "Дата окончания сезона",
-            type: "date",
-            dateFormat: "YYYY-MM-DD",
-            defaultValue:
-                quickAddApi.date.now("YYYY-MM-DD")
-        },
-        {
-            id: "rating",
-            label: "Оценка сезона",
-            type: "number",
-            optional: true,
-            numericConfig: {
-                min: 1,
-                max: 10,
-                step: 1
-            }
-        },
-        {
-            id: "comment",
-            label: "Комментарий",
-            type: "textarea",
-            optional: true,
-            placeholder: "Мысль после сезона..."
-        }
-    ]);
+        ]);
 
     if (!values) return;
 
-    const newSeason = Number(values.season);
+    const newSeason =
+        Number(values.season);
 
     if (
         !Number.isInteger(newSeason) ||
@@ -898,7 +984,8 @@ for (const season of seasons) {
         return;
     }
 
-    const newDate = normalizeDate(values.date);
+    const newDate =
+        normalizeDate(values.date);
 
     if (!newDate) {
         new Notice(
@@ -910,9 +997,11 @@ for (const season of seasons) {
     let newRating = null;
 
     if (
-        String(values.rating ?? "").trim() !== ""
+        String(values.rating ?? "").trim() !==
+        ""
     ) {
-        newRating = toNumber(values.rating);
+        newRating =
+            toNumber(values.rating);
 
         if (
             newRating === null ||
@@ -926,29 +1015,32 @@ for (const season of seasons) {
         }
     }
 
-    const newComment = String(
-        values.comment ?? ""
-    ).trim();
+    const newComment =
+        String(values.comment ?? "").trim();
 
-    // Если сезон уже существует, не создаем дубль.
-    seasonFiles = getSeasonFiles(serialFile);
+    seasonFiles =
+        getSeasonFiles(serialFile);
 
-    if (hasSeason(seasonFiles, newSeason)) {
+    if (
+        hasSeason(
+            seasonFiles,
+            newSeason
+        )
+    ) {
         new Notice(
             `${serialFile.basename}: сезон ${newSeason} уже существует.`
         );
         return;
     }
 
-    // Для первой миграции нужна старая дата.
     if (
         seasonFiles.length === 0 &&
         legacySeasons.length > 0 &&
         !originalDate
     ) {
         new Notice(
-            "Для переноса старого сезона нет корректного поля Просмотрено " +
-            "в оригинальной карточке."
+            "Для переноса старого сезона нет корректного " +
+            "поля Просмотрено в оригинальной карточке."
         );
         return;
     }
@@ -964,119 +1056,156 @@ for (const season of seasons) {
     }
 
     // -------------------------------------------------
-    // 4. Встроенная миграция - только если сезонов еще нет
+    // 4. Первая миграция
     // -------------------------------------------------
 
     let migrated = 0;
 
     if (seasonFiles.length === 0) {
-        const sortedLegacy = [...legacySeasons]
-            .sort((a, b) => a.season - b.season);
+        const sortedLegacy =
+            [...legacySeasons]
+                .sort(
+                    (a, b) =>
+                        a.season - b.season
+                );
 
         const maxLegacyNumber =
             sortedLegacy.length > 0
                 ? Math.max(
-                    ...sortedLegacy.map(item => item.season)
+                    ...sortedLegacy.map(
+                        item => item.season
+                    )
                 )
                 : 0;
 
         for (const item of sortedLegacy) {
-            // Если оценка была прямо в старом заголовке,
-            // используем ее.
-            // Если старый сезон всего один - используем общую старую оценку.
-            // Если старых сезонов несколько - общую старую оценку
-            // относим только к последнему старому сезону.
-            let legacyRating = item.rating;
+            let legacyRating =
+                item.rating;
 
+            // Если старый файл был просто одним отзывом,
+            // старая общая оценка становится оценкой сезона 1.
+            // Если старых сезонных разделов несколько,
+            // общую оценку относим только к последнему старому сезону,
+            // если в заголовках не было собственных оценок.
             if (legacyRating === null) {
-                if (sortedLegacy.length === 1) {
-                    legacyRating = originalRating;
-                } else if (
-                    item.season === maxLegacyNumber
+                if (
+                    sortedLegacy.length === 1
                 ) {
-                    legacyRating = originalRating;
+                    legacyRating =
+                        originalRating;
+                } else if (
+                    item.season ===
+                    maxLegacyNumber
+                ) {
+                    legacyRating =
+                        originalRating;
                 }
             }
 
-            await createSeasonFile({
-                serialFile,
-                seasonNumber: item.season,
-                date: originalDate,
-                rating: legacyRating,
-                comment: item.comment
-            });
+            const migratedFile =
+                await createSeasonFile({
+                    serialFile,
+                    seasonNumber:
+                        item.season,
+                    date:
+                        originalDate,
+                    rating:
+                        legacyRating,
+                    comment:
+                        item.comment
+                });
+
+            await normalizeSeasonFile(
+                migratedFile
+            );
 
             migrated++;
         }
 
-        // Если пользователь вдруг выбрал номер,
-        // совпадающий с только что мигрированным сезоном.
-        const afterMigration = getSeasonFiles(serialFile);
+        const afterMigration =
+            getSeasonFiles(serialFile);
 
-        if (hasSeason(afterMigration, newSeason)) {
-            new Notice(
-                `Старые сезоны перенесены, но сезон ${newSeason} уже существует. ` +
-                "Новый сезон не создан."
+        // Если введенный "новый" сезон уже был найден
+        // в старом оригинальном тексте - дубль не создаем,
+        // но все равно переводим оригинал в нативную схему.
+        if (
+            hasSeason(
+                afterMigration,
+                newSeason
+            )
+        ) {
+            await rebuildSeasonDeltas(
+                serialFile
             );
 
-            await rebuildSeasonDeltas(serialFile);
-            await normalizeOriginalFrontmatter(serialFile);
-            await replaceOriginalBody(serialFile);
+            await normalizeOriginalFrontmatter(
+                serialFile,
+                null
+            );
+
+            await rebuildOriginalMarkdown(
+                serialFile
+            );
+
+            new Notice(
+                `${serialFile.basename}: перенесено старых сезонов: ${migrated}. ` +
+                `Сезон ${newSeason} уже существовал, дубль не создан.`
+            );
 
             return;
         }
-
-        // Создаем новый сезон.
-        const created = await createSeasonFile({
-            serialFile,
-            seasonNumber: newSeason,
-            date: newDate,
-            rating: newRating,
-            comment: newComment
-        });
-
-        await normalizeSeasonFile(created);
-        await rebuildSeasonDeltas(serialFile);
-
-        // Только при первой миграции меняем оригинал.
-        await normalizeOriginalFrontmatter(serialFile);
-        await replaceOriginalBody(serialFile);
-
-        new Notice(
-            `${serialFile.basename}: перенесено старых сезонов: ${migrated}; ` +
-            `добавлен сезон ${newSeason}.`
-        );
-
-        await app.workspace
-            .getLeaf(false)
-            .openFile(created);
-
-        return;
     }
 
     // -------------------------------------------------
-    // 5. Если хотя бы один файл сезона уже есть:
-    //    ОРИГИНАЛЬНЫЙ ФАЙЛ НЕ ТРОГАЕМ
+    // 5. Создание нового сезона
     // -------------------------------------------------
 
-    const created = await createSeasonFile({
-        serialFile,
-        seasonNumber: newSeason,
-        date: newDate,
-        rating: newRating,
-        comment: newComment
-    });
+    const created =
+        await createSeasonFile({
+            serialFile,
+            seasonNumber:
+                newSeason,
+            date:
+                newDate,
+            rating:
+                newRating,
+            comment:
+                newComment
+        });
 
-    await normalizeSeasonFile(created);
-
-    // Можно менять файлы сезонов:
-    // пересчитываем дельты оценок.
-    await rebuildSeasonDeltas(serialFile);
-
-    new Notice(
-        `${serialFile.basename}: добавлен сезон ${newSeason}. ` +
-        "Оригинальная карточка не изменялась."
+    await normalizeSeasonFile(
+        created
     );
+
+    // Дельта относительно предыдущего сезона.
+    await rebuildSeasonDeltas(
+        serialFile
+    );
+
+    // Нормализуем YAML оригинала + количество сезонов.
+    await normalizeOriginalFrontmatter(
+        serialFile,
+        newDate
+    );
+
+    // ВАЖНО:
+    // оригинальный файл каждый раз собирается НАТИВНЫМ Markdown.
+    // Никакого Dataview/DataviewJS внутри него больше нет.
+    await rebuildOriginalMarkdown(
+        serialFile
+    );
+
+    if (migrated > 0) {
+        new Notice(
+            `${serialFile.basename}: перенесено старых сезонов: ${migrated}; ` +
+            `добавлен сезон ${newSeason}; оригинальная карточка пересобрана.`
+        );
+    } else {
+        new Notice(
+            `${serialFile.basename}: добавлен сезон ${newSeason}; ` +
+            `оригинальная карточка пересобрана.`
+        );
+    }
 
     await app.workspace
         .getLeaf(false)
