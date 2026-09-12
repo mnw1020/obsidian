@@ -733,6 +733,24 @@ module.exports = async (params) => {
         return body.trim();
     }
 
+
+    async function syncSeasonComments(serialFile) {
+        const files = sortSeasonFiles(
+            getSeasonFiles(serialFile)
+        );
+
+        for (const file of files) {
+            const comment = await readSeasonComment(file);
+
+            await app.fileManager.processFrontMatter(
+                file,
+                frontmatter => {
+                    frontmatter["Комментарий"] = comment;
+                }
+            );
+        }
+    }
+
     async function rebuildOriginalMarkdown(serialFile) {
         const seasonFiles = sortSeasonFiles(
             getSeasonFiles(serialFile)
@@ -1143,6 +1161,10 @@ module.exports = async (params) => {
                 null
             );
 
+            await syncSeasonComments(
+                serialFile
+            );
+
             await rebuildOriginalMarkdown(
                 serialFile
             );
@@ -1186,6 +1208,12 @@ module.exports = async (params) => {
     await normalizeOriginalFrontmatter(
         serialFile,
         newDate
+    );
+
+    // Тело файла сезона остается источником комментария.
+    // Для Bases автоматически зеркалим его в YAML-свойство.
+    await syncSeasonComments(
+        serialFile
     );
 
     // ВАЖНО:
