@@ -45,7 +45,7 @@ for (const season of seasons) {
             ? \`Сезон \${number} (\${rating}/10)\`
             : \`Сезон \${number} (без оценки)\`;
 
-    dv.header(1, "# " + title);
+    dv.el("h1", "# " + title);
 
     const raw = await dv.io.load(season.file.path);
 
