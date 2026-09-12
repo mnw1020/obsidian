@@ -13,6 +13,8 @@ properties:
     displayName: Сериал
   note.Сезон:
     displayName: Сезон
+  note.Комментарий:
+    displayName: Комментарий
   formula.when:
     displayName: Когда
   formula.rating:
@@ -21,8 +23,6 @@ properties:
     displayName: Предыдущая
   formula.delta_label:
     displayName: Δ
-  note.Комментарий:
-    displayName: Комментарий	
 views:
   - type: table
     name: Все сезоны
@@ -33,8 +33,6 @@ views:
       - formula.rating
       - Комментарий
     sort:
-      - property: formula.delta_label
-        direction: ASC
       - property: Сериал
         direction: ASC
       - property: Сезон
@@ -54,3 +52,5 @@ views:
     sort:
       - property: note["Изменение оценки"]
         direction: DESC
+    columnSize:
+      formula.previous_rating: 133

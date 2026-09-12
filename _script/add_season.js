@@ -1,6 +1,6 @@
 module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
-    const { Notice, normalizePath } = obsidian;
+    const { Notice, normalizePath, parseYaml } = obsidian;
 
     const MEDIA_FOLDER = "Кино";
     const SEASONS_FOLDER = "Кино/Сезоны";
@@ -199,6 +199,21 @@ module.exports = async (params) => {
 
     function yamlString(value) {
         return JSON.stringify(String(value ?? ""));
+    }
+
+    function yamlMultiline(value) {
+        const text = String(value ?? "").replace(/\r\n/g, "\n");
+
+        if (!text) {
+            return 'Комментарий: ""\n';
+        }
+
+        const indented = text
+            .split("\n")
+            .map(line => "  " + line)
+            .join("\n");
+
+        return "Комментарий: |-\n" + indented + "\n";
     }
 
     function getLinkTarget(value) {
@@ -457,16 +472,6 @@ module.exports = async (params) => {
         );
     }
 
-    function makeBackLink(serialFile) {
-        return (
-            "[[" +
-            serialFile.path.replace(/\.md$/i, "") +
-            "|← " +
-            serialFile.basename +
-            "]]"
-        );
-    }
-
     function safeName(name) {
         return String(name)
             .replace(/[\\/:*?"<>|]/g, "-")
@@ -502,15 +507,8 @@ module.exports = async (params) => {
 
         content += "tags:\n";
         content += "  - season\n";
-        content += "---\n\n";
-
-        if (comment) {
-            content += comment.trim() + "\n";
-        }
-
-        // Ссылка обратно на оригинальную карточку.
-        content += "\n---\n";
-        content += makeBackLink(serialFile) + "\n";
+        content += yamlMultiline(comment);
+        content += "---\n";
 
         return content;
     }
@@ -595,6 +593,7 @@ module.exports = async (params) => {
 
         for (const file of files) {
             await normalizeSeasonFile(file);
+            await migrateSeasonFileToYaml(file);
         }
 
         for (let i = 0; i < files.length; i++) {
@@ -709,22 +708,50 @@ module.exports = async (params) => {
         );
     }
 
-    async function readSeasonComment(file) {
+    async function readSeasonYamlComment(file) {
+        const raw = await app.vault.read(file);
+        const parts = splitFrontmatter(raw);
+
+        if (!parts.frontmatterText) {
+            return "";
+        }
+
+        const yamlText = parts.frontmatterText
+            .replace(/^---\s*\r?\n/, "")
+            .replace(/\r?\n---\s*$/, "");
+
+        const parsed = parseYaml(yamlText) ?? {};
+        const value = parsed["Комментарий"];
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+        return String(value).trim();
+    }
+
+    async function readLegacySeasonBody(file) {
         const raw = await app.vault.read(file);
         const parts = splitFrontmatter(raw);
 
         let body = parts.body.trim();
 
-        // Убираем нижнюю служебную ссылку назад:
-        // ---
-        // [[Кино/Локи|← Локи]]
+        // Старый wikilink-backlink.
         body = body.replace(
             /\n?\s*---\s*\r?\n\s*\[\[[^\]\n]+\|←[^\]\n]+\]\]\s*$/i,
             ""
         );
 
-        // Совместимость со старыми файлами сезона,
-        // где внутри мог быть собственный "# Сезон N".
+        // Старый Markdown-backlink.
+        body = body.replace(
+            /\n?\s*---\s*\r?\n\s*\[←[^\]\n]+\]\([^)]+\)\s*$/i,
+            ""
+        );
+
+        // Старые версии могли писать заголовок сезона в тело.
         body = body.replace(
             /^#{1,6}\s*(?:(?:\d+)\s*сезон|сезон\s*(?:\d+))(?:\s*\([^)]*\))?\s*\r?\n+/i,
             ""
@@ -733,6 +760,48 @@ module.exports = async (params) => {
         return body.trim();
     }
 
+    async function migrateSeasonFileToYaml(file) {
+        const yamlComment =
+            await readSeasonYamlComment(file);
+
+        const legacyBody =
+            await readLegacySeasonBody(file);
+
+        // YAML - единственный источник.
+        // Если YAML уже заполнен, старое тело не перезаписывает его.
+        const finalComment =
+            yamlComment || legacyBody;
+
+        await app.fileManager.processFrontMatter(
+            file,
+            frontmatter => {
+                frontmatter["Комментарий"] =
+                    finalComment;
+            }
+        );
+
+        // Полностью очищаем тело файла сезона.
+        const updated =
+            await app.vault.read(file);
+
+        const parts =
+            splitFrontmatter(updated);
+
+        if (!parts.frontmatterText) {
+            throw new Error(
+                `Не найден YAML frontmatter: ${file.path}`
+            );
+        }
+
+        await app.vault.modify(
+            file,
+            parts.frontmatterText + "\n"
+        );
+    }
+
+    async function readSeasonComment(file) {
+        return await readSeasonYamlComment(file);
+    }
 
     async function syncSeasonComments(serialFile) {
         const files = sortSeasonFiles(
@@ -740,14 +809,7 @@ module.exports = async (params) => {
         );
 
         for (const file of files) {
-            const comment = await readSeasonComment(file);
-
-            await app.fileManager.processFrontMatter(
-                file,
-                frontmatter => {
-                    frontmatter["Комментарий"] = comment;
-                }
-            );
+            await migrateSeasonFileToYaml(file);
         }
     }
 
@@ -1210,8 +1272,8 @@ module.exports = async (params) => {
         newDate
     );
 
-    // Тело файла сезона остается источником комментария.
-    // Для Bases автоматически зеркалим его в YAML-свойство.
+    // YAML `Комментарий` - единственный источник отзыва.
+    // Старые тела файлов при необходимости мигрируются автоматически.
     await syncSeasonComments(
         serialFile
     );
