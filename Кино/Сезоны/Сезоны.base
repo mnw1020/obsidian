@@ -1,0 +1,56 @@
+filters:
+  and:
+    - file.inFolder("Кино/Сезоны")
+    - file.hasTag("season")
+
+formulas:
+  when: if(note.Дата, note.Дата.format("DD.MM.YYYY"), "")
+  rating: if(note.Оценка != null, number(note.Оценка), null)
+  previous_rating: if(note["Предыдущая оценка"] != null, number(note["Предыдущая оценка"]), null)
+  delta: if(note["Изменение оценки"] != null, number(note["Изменение оценки"]), null)
+  delta_label: 'if(formula.delta != null, if(formula.delta > 0, "+" + formula.delta.toString(), formula.delta.toString()), "")'
+
+properties:
+  note.Сериал:
+    displayName: Сериал
+  note.Сезон:
+    displayName: Сезон
+  formula.when:
+    displayName: Когда
+  formula.rating:
+    displayName: Оценка
+  formula.previous_rating:
+    displayName: Предыдущая
+  formula.delta_label:
+    displayName: Δ
+
+views:
+  - type: table
+    name: Все сезоны
+    order:
+      - note.Сериал
+      - note.Сезон
+      - formula.when
+      - formula.rating
+      - formula.delta_label
+    sort:
+      - property: note.Сериал
+        direction: ASC
+      - property: note.Сезон
+        direction: ASC
+
+  - type: table
+    name: Изменение оценки
+    filters:
+      and:
+        - note["Изменение оценки"] != null
+    order:
+      - note.Сериал
+      - note.Сезон
+      - formula.previous_rating
+      - formula.rating
+      - formula.delta_label
+      - formula.when
+    sort:
+      - property: note["Изменение оценки"]
+        direction: DESC
