@@ -350,6 +350,88 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         );
     }
 
+    function viewingSortKey(file) {
+        const fm = getFrontmatter(file);
+        const viewingNumber = toNumber(fm["Просмотр"]);
+        const date = normalizeDate(fm["Дата"]);
+        const dateValue = date ? Date.parse(date + "T00:00:00Z") : 0;
+
+        return {
+            viewingNumber:
+                viewingNumber !== null ? viewingNumber : -1,
+            dateValue,
+            name: file.path
+        };
+    }
+
+    async function updateRatingComparison(mediaFile) {
+        const files = getViewingFiles(mediaFile);
+
+        files.sort((a, b) => {
+            const ka = viewingSortKey(a);
+            const kb = viewingSortKey(b);
+
+            if (ka.viewingNumber !== kb.viewingNumber) {
+                return ka.viewingNumber - kb.viewingNumber;
+            }
+
+            if (ka.dateValue !== kb.dateValue) {
+                return ka.dateValue - kb.dateValue;
+            }
+
+            return ka.name.localeCompare(kb.name, "ru");
+        });
+
+        for (const file of files) {
+            await app.fileManager.processFrontMatter(
+                file,
+                frontmatter => {
+                    frontmatter["Последний просмотр"] = false;
+                    delete frontmatter["Предыдущая оценка"];
+                    delete frontmatter["Изменение оценки"];
+                }
+            );
+        }
+
+        if (files.length === 0) {
+            return;
+        }
+
+        const latestFile = files[files.length - 1];
+        const previousFile =
+            files.length >= 2 ? files[files.length - 2] : null;
+
+        const latestRating = toNumber(
+            getFrontmatter(latestFile)["Оценка"]
+        );
+
+        const previousRating = previousFile
+            ? toNumber(getFrontmatter(previousFile)["Оценка"])
+            : null;
+
+        await app.fileManager.processFrontMatter(
+            latestFile,
+            frontmatter => {
+                frontmatter["Последний просмотр"] = true;
+
+                if (
+                    latestRating !== null &&
+                    previousRating !== null
+                ) {
+                    frontmatter["Предыдущая оценка"] =
+                        previousRating;
+                    frontmatter["Изменение оценки"] =
+                        Math.round(
+                            (latestRating - previousRating) * 10
+                        ) / 10;
+                } else {
+                    delete frontmatter["Предыдущая оценка"];
+                    delete frontmatter["Изменение оценки"];
+                }
+            }
+        );
+    }
+
     async function normalizeOriginalFrontmatter(
         mediaFile,
         viewingDate,
@@ -757,6 +839,8 @@ SORT Просмотр DESC, Год DESC, Дата DESC
     for (const file of viewingFiles) {
         await normalizeViewingFile(file);
     }
+
+    await updateRatingComparison(mediaFile);
 
     const finalStats = getViewingStats(
         getViewingFiles(mediaFile)
