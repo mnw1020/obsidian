@@ -1007,8 +1007,7 @@ module.exports = async (params) => {
         return normalizePath(
             `${VIEWINGS_FOLDER}/` +
             `${safeName(mediaFile.basename)}` +
-            ` - просмотр ${number}` +
-            ` - ${date}.md`
+            ` - v${number}.md`
         );
     }
 
