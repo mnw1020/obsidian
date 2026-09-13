@@ -1,94 +1,95 @@
 module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
-    const { Notice, normalizePath } = obsidian;
+    const { Notice, normalizePath, parseYaml } = obsidian;
 
     const MEDIA_FOLDER = "Кино";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
+    const SEASONS_FOLDER = "Кино/Сезоны";
 
-    const HISTORY_BLOCK = `\`\`\`dataview
-TABLE WITHOUT ID
-  Просмотр AS "№",
-  choice(Дата != null, dateformat(Дата, "dd.MM.yyyy"), string(Год)) AS "Когда",
-  Оценка AS "⭐",
-  Комментарий AS "Мысль",
-  file.link AS "Запись"
-FROM "Кино/Просмотры"
-WHERE Фильм = this.file.link
-SORT Просмотр DESC, Год DESC, Дата DESC
-\`\`\``;
+    const VIEWINGS_START = "<!-- VIEWINGS:START -->";
+    const VIEWINGS_END = "<!-- VIEWINGS:END -->";
+    const SEASONS_START = "<!-- SEASONS:START -->";
+    const SEASONS_END = "<!-- SEASONS:END -->";
 
-    function getFrontmatter(file) {
+
+    function getCachedFm(file) {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     }
 
-    function getTags(frontmatter) {
-        const raw = frontmatter?.tags;
+    function getTags(fm) {
+        const raw = fm?.tags;
         if (!raw) return [];
 
-        const tags = Array.isArray(raw) ? raw : [raw];
-
-        return tags
-            .map(tag => String(tag).trim().replace(/^#/, ""))
+        return (Array.isArray(raw) ? raw : [raw])
+            .map(v => String(v).trim().replace(/^#/, ""))
             .filter(Boolean);
     }
 
-    function isMedia(file) {
-        if (!file || file.extension !== "md") return false;
-        if (!file.path.startsWith(MEDIA_FOLDER + "/")) return false;
-        if (file.path.startsWith(VIEWINGS_FOLDER + "/")) return false;
-
-        const tags = getTags(getFrontmatter(file));
-
-        return tags.includes("movies") || tags.includes("serial");
-    }
-
     function toNumber(value) {
-        if (value === null || value === undefined || value === "") {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
             return null;
         }
 
-        if (typeof value === "number") {
-            return Number.isFinite(value) ? value : null;
-        }
+        const n = Number(
+            String(value).trim().replace(",", ".")
+        );
 
-        const normalized = String(value)
-            .trim()
-            .replace(",", ".");
+        return Number.isFinite(n) ? n : null;
+    }
 
-        if (!normalized) return null;
+    function isRealDate(year, month, day) {
+        const date = new Date(
+            Date.UTC(year, month - 1, day)
+        );
 
-        const result = Number(normalized);
-
-        return Number.isFinite(result) ? result : null;
+        return (
+            date.getUTCFullYear() === year &&
+            date.getUTCMonth() === month - 1 &&
+            date.getUTCDate() === day
+        );
     }
 
     function normalizeDate(value) {
-        if (value === null || value === undefined || value === "") {
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
             return null;
         }
 
-        let text;
-
-        if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        if (
+            value instanceof Date &&
+            !Number.isNaN(value.getTime())
+        ) {
             const y = value.getFullYear();
-            const m = String(value.getMonth() + 1).padStart(2, "0");
-            const d = String(value.getDate()).padStart(2, "0");
+            const m = String(
+                value.getMonth() + 1
+            ).padStart(2, "0");
+            const d = String(
+                value.getDate()
+            ).padStart(2, "0");
+
             return `${y}-${m}-${d}`;
         }
 
-        text = String(value)
+        const text = String(value)
             .trim()
             .replace(/^@date:/, "");
 
-        // Только год: 2021 -> 2021-01-01
         let match = text.match(/^(\d{4})$/);
 
         if (match) {
             return `${match[1]}-01-01`;
         }
 
-        // ISO или почти ISO: 2021-8-3 -> 2021-08-03
-        match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        match = text.match(
+            /^(\d{4})-(\d{1,2})-(\d{1,2})/
+        );
 
         if (match) {
             const year = Number(match[1]);
@@ -106,29 +107,20 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             }
         }
 
-        // На всякий случай поддерживаем старый вид 08 Jun 2018.
+        const months = {
+            jan: 1, feb: 2, mar: 3, apr: 4,
+            may: 5, jun: 6, jul: 7, aug: 8,
+            sep: 9, oct: 10, nov: 11, dec: 12
+        };
+
         match = text.match(
             /^(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/i
         );
 
         if (match) {
-            const months = {
-                jan: 1,
-                feb: 2,
-                mar: 3,
-                apr: 4,
-                may: 5,
-                jun: 6,
-                jul: 7,
-                aug: 8,
-                sep: 9,
-                oct: 10,
-                nov: 11,
-                dec: 12
-            };
-
             const day = Number(match[1]);
-            const month = months[match[2].toLowerCase()];
+            const month =
+                months[match[2].toLowerCase()];
             const year = Number(match[3]);
 
             if (isRealDate(year, month, day)) {
@@ -145,96 +137,23 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         return null;
     }
 
-    function isRealDate(year, month, day) {
-        const date = new Date(Date.UTC(year, month - 1, day));
+    function displayDate(value) {
+        const date = normalizeDate(value);
 
-        return (
-            date.getUTCFullYear() === year &&
-            date.getUTCMonth() === month - 1 &&
-            date.getUTCDate() === day
-        );
-    }
+        if (!date) return "";
 
-    function yamlString(value) {
-        return JSON.stringify(String(value ?? ""));
-    }
-
-    function getLinkTarget(value) {
-        if (!value) return "";
-
-        if (typeof value === "object" && value.path) {
-            return String(value.path).replace(/\.md$/i, "");
-        }
-
-        let text = String(value).trim();
-
-        if (text.startsWith("[[") && text.endsWith("]]")) {
-            text = text.slice(2, -2);
-        }
-
-        text = text.split("|")[0].trim();
-
-        return text.replace(/\.md$/i, "");
-    }
-
-    function viewingBelongsToMedia(frontmatter, mediaFile) {
-        const target = getLinkTarget(frontmatter?.["Фильм"]);
-
-        if (!target) return false;
-
-        const mediaPath = mediaFile.path.replace(/\.md$/i, "");
-        const mediaName = mediaFile.basename;
-
-        return (
-            target === mediaPath ||
-            target === mediaName ||
-            target.endsWith("/" + mediaName)
-        );
-    }
-
-    function getViewingFiles(mediaFile) {
-        return app.vault
-            .getMarkdownFiles()
-            .filter(file => {
-                if (!file.path.startsWith(VIEWINGS_FOLDER + "/")) {
-                    return false;
-                }
-
-                const fm = getFrontmatter(file);
-
-                return viewingBelongsToMedia(fm, mediaFile);
-            });
-    }
-
-    function getViewingStats(files) {
-        let maxViewing = 0;
-
-        for (const file of files) {
-            const fm = getFrontmatter(file);
-            const number = toNumber(fm["Просмотр"]);
-
-            if (
-                number !== null &&
-                Number.isInteger(number) &&
-                number > maxViewing
-            ) {
-                maxViewing = number;
-            }
-        }
-
-        return {
-            count: files.length,
-            maxViewing
-        };
+        const [y, m, d] = date.split("-");
+        return `${d}.${m}.${y}`;
     }
 
     function splitFrontmatter(text) {
-        const lines = text.split(/\r?\n/);
+        const lines =
+            String(text ?? "").split(/\r?\n/);
 
         if (lines[0]?.trim() !== "---") {
             return {
                 frontmatterText: "",
-                body: text
+                body: String(text ?? "")
             };
         }
 
@@ -250,7 +169,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         if (closingIndex === -1) {
             return {
                 frontmatterText: "",
-                body: text
+                body: String(text ?? "")
             };
         }
 
@@ -264,231 +183,104 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         };
     }
 
-    function extractLegacyReview(body) {
-        let result = String(body ?? "");
+    async function readFm(file) {
+        const raw = await app.vault.read(file);
+        const parts = splitFrontmatter(raw);
 
-        // Уже вставленный блок истории не является отзывом.
-        result = result.replace(
-            /```dataview[\s\S]*?```/gi,
-            ""
-        );
+        if (!parts.frontmatterText) {
+            return {};
+        }
 
-        // Убираем отдельные строки с картинками-постерами.
-        result = result.replace(
-            /^\s*!\[[^\]]*\]\([^\n]*\)\s*$/gim,
-            ""
-        );
+        const yaml = parts.frontmatterText
+            .replace(/^---\s*\r?\n/, "")
+            .replace(/\r?\n---\s*$/, "");
 
-        result = result.replace(
-            /^\s*!\[\[[^\n]*\]\]\s*$/gim,
-            ""
-        );
-
-        // Старый разделитель перед постером тоже не нужен.
-        result = result.replace(
-            /^\s*(---|\*\*\*|___)\s*$/gm,
-            ""
-        );
-
-        return result.trim();
+        return parseYaml(yaml) ?? {};
     }
 
-    async function normalizeViewingFile(file) {
-        await app.fileManager.processFrontMatter(
-            file,
-            frontmatter => {
-                const date = normalizeDate(frontmatter["Дата"]);
-
-                if (date) {
-                    frontmatter["Дата"] = date;
-                    frontmatter["Год"] = Number(date.slice(0, 4));
-                } else {
-                    const year = toNumber(frontmatter["Год"]);
-
-                    if (
-                        year !== null &&
-                        Number.isInteger(year) &&
-                        year >= 1000 &&
-                        year <= 9999
-                    ) {
-                        frontmatter["Год"] = year;
-                        frontmatter["Дата"] = `${year}-01-01`;
-                    }
-                }
-
-                const viewingNumber = toNumber(
-                    frontmatter["Просмотр"]
-                );
-
-                if (viewingNumber !== null) {
-                    frontmatter["Просмотр"] = Math.trunc(
-                        viewingNumber
-                    );
-                }
-
-                const rating = toNumber(frontmatter["Оценка"]);
-
-                if (rating !== null) {
-                    frontmatter["Оценка"] = rating;
-                }
-
-                const tags = getTags(frontmatter);
-
-                if (!tags.includes("viewing")) {
-                    tags.push("viewing");
-                }
-
-                frontmatter.tags = tags;
-
-                if (
-                    frontmatter["Комментарий"] === null ||
-                    frontmatter["Комментарий"] === undefined
-                ) {
-                    frontmatter["Комментарий"] = "";
-                }
-            }
+    function yamlString(value) {
+        return JSON.stringify(
+            String(value ?? "")
         );
     }
 
-    function viewingSortKey(file) {
-        const fm = getFrontmatter(file);
-        const viewingNumber = toNumber(fm["Просмотр"]);
-        const date = normalizeDate(fm["Дата"]);
-        const dateValue = date ? Date.parse(date + "T00:00:00Z") : 0;
+    function yamlMultiline(value) {
+        const text = String(value ?? "")
+            .replace(/\r\n/g, "\n");
 
-        return {
-            viewingNumber:
-                viewingNumber !== null ? viewingNumber : -1,
-            dateValue,
-            name: file.path
-        };
+        if (!text) {
+            return 'Комментарий: ""\n';
+        }
+
+        const indented = text
+            .split("\n")
+            .map(line => "  " + line)
+            .join("\n");
+
+        return (
+            "Комментарий: |-\n" +
+            indented +
+            "\n"
+        );
     }
 
-    async function updateRatingComparison(mediaFile) {
-        const files = getViewingFiles(mediaFile);
+    function linkTarget(value) {
+        if (!value) return "";
 
-        files.sort((a, b) => {
-            const ka = viewingSortKey(a);
-            const kb = viewingSortKey(b);
+        if (
+            typeof value === "object" &&
+            value.path
+        ) {
+            return String(value.path)
+                .replace(/\.md$/i, "");
+        }
 
-            if (ka.viewingNumber !== kb.viewingNumber) {
-                return ka.viewingNumber - kb.viewingNumber;
-            }
+        let text = String(value).trim();
 
-            if (ka.dateValue !== kb.dateValue) {
-                return ka.dateValue - kb.dateValue;
-            }
+        if (
+            text.startsWith("[[") &&
+            text.endsWith("]]")
+        ) {
+            text = text.slice(2, -2);
+        }
 
-            return ka.name.localeCompare(kb.name, "ru");
-        });
+        return text
+            .split("|")[0]
+            .trim()
+            .replace(/\.md$/i, "");
+    }
 
-        for (const file of files) {
-            await app.fileManager.processFrontMatter(
-                file,
-                frontmatter => {
-                    frontmatter["Последний просмотр"] = false;
-                    delete frontmatter["Предыдущая оценка"];
-                    delete frontmatter["Изменение оценки"];
-                }
+    function resolveLink(value, sourcePath) {
+        const target = linkTarget(value);
+
+        if (!target) return null;
+
+        const direct =
+            app.vault.getAbstractFileByPath(
+                target + ".md"
+            ) ??
+            app.vault.getAbstractFileByPath(
+                target
             );
+
+        if (direct?.extension === "md") {
+            return direct;
         }
 
-        if (files.length === 0) {
-            return;
-        }
-
-        const latestFile = files[files.length - 1];
-        const previousFile =
-            files.length >= 2 ? files[files.length - 2] : null;
-
-        const latestRating = toNumber(
-            getFrontmatter(latestFile)["Оценка"]
-        );
-
-        const previousRating = previousFile
-            ? toNumber(getFrontmatter(previousFile)["Оценка"])
-            : null;
-
-        await app.fileManager.processFrontMatter(
-            latestFile,
-            frontmatter => {
-                frontmatter["Последний просмотр"] = true;
-
-                if (
-                    latestRating !== null &&
-                    previousRating !== null
-                ) {
-                    frontmatter["Предыдущая оценка"] =
-                        previousRating;
-                    frontmatter["Изменение оценки"] =
-                        Math.round(
-                            (latestRating - previousRating) * 10
-                        ) / 10;
-                } else {
-                    delete frontmatter["Предыдущая оценка"];
-                    delete frontmatter["Изменение оценки"];
-                }
-            }
-        );
+        return app.metadataCache
+            .getFirstLinkpathDest(
+                target,
+                sourcePath
+            );
     }
 
-    async function normalizeOriginalFrontmatter(
-        mediaFile,
-        viewingDate,
-        viewingCount,
-        newRating
-    ) {
-        await app.fileManager.processFrontMatter(
-            mediaFile,
-            frontmatter => {
-                const oldWatched = normalizeDate(
-                    frontmatter["Просмотрено"]
-                );
-
-                frontmatter["Просмотрено"] =
-                    viewingDate ?? oldWatched;
-
-                frontmatter["Количество просмотров"] =
-                    Math.trunc(viewingCount);
-
-                const currentRating = toNumber(
-                    frontmatter["Оценка"]
-                );
-
-                if (newRating !== null) {
-                    frontmatter["Оценка"] = newRating;
-                } else if (currentRating !== null) {
-                    frontmatter["Оценка"] = currentRating;
-                }
-
-                const imdbRating = toNumber(
-                    frontmatter["Оценка Imdb"]
-                );
-
-                if (imdbRating !== null) {
-                    frontmatter["Оценка Imdb"] = imdbRating;
-                }
-
-                const release = normalizeDate(
-                    frontmatter["Релиз"]
-                );
-
-                if (release) {
-                    frontmatter["Релиз"] = release;
-                }
-
-                // Нормализуем оба распространенных варианта tags
-                // в обычный YAML-массив.
-                const tags = getTags(frontmatter);
-
-                if (tags.length > 0) {
-                    frontmatter.tags = tags;
-                }
-            }
-        );
+    function safeName(name) {
+        return String(name)
+            .replace(/[\\/:*?"<>|]/g, "-")
+            .trim();
     }
 
-    function buildMovieLink(mediaFile) {
+    function makeMediaLink(mediaFile) {
         return (
             "[[" +
             mediaFile.path.replace(/\.md$/i, "") +
@@ -498,276 +290,1006 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         );
     }
 
+
+    function isMedia(file) {
+        if (!file || file.extension !== "md") return false;
+        if (!file.path.startsWith(MEDIA_FOLDER + "/")) return false;
+        if (file.path.startsWith(VIEWINGS_FOLDER + "/")) return false;
+        if (file.path.startsWith(SEASONS_FOLDER + "/")) return false;
+
+        const tags = getTags(getCachedFm(file));
+        return tags.includes("movies") || tags.includes("serial");
+    }
+
+
+    async function getViewingFiles(mediaFile) {
+        const result = [];
+
+        for (
+            const file of
+            app.vault.getMarkdownFiles()
+        ) {
+            if (
+                !file.path.startsWith(
+                    VIEWINGS_FOLDER + "/"
+                )
+            ) {
+                continue;
+            }
+
+            const fm = await readFm(file);
+            const linked = resolveLink(
+                fm["Фильм"],
+                file.path
+            );
+
+            if (
+                linked?.path ===
+                mediaFile.path
+            ) {
+                result.push(file);
+            }
+        }
+
+        return result;
+    }
+
+    async function getSeasonFiles(mediaFile) {
+        const result = [];
+
+        for (
+            const file of
+            app.vault.getMarkdownFiles()
+        ) {
+            if (
+                !file.path.startsWith(
+                    SEASONS_FOLDER + "/"
+                )
+            ) {
+                continue;
+            }
+
+            const fm = await readFm(file);
+            const linked = resolveLink(
+                fm["Сериал"],
+                file.path
+            );
+
+            if (
+                linked?.path ===
+                mediaFile.path
+            ) {
+                result.push(file);
+            }
+        }
+
+        return result;
+    }
+
+    async function readLegacyViewingBody(file) {
+        const raw = await app.vault.read(file);
+        const parts = splitFrontmatter(raw);
+
+        let body = parts.body.trim();
+
+        body = body.replace(
+            /^#{1,6}\s*просмотр\s*\d+(?:\s*\([^)]*\))?\s*\r?\n+/i,
+            ""
+        );
+
+        body = body.replace(
+            /\n?\s*---\s*\r?\n\s*\[\[[^\]\n]+\|←[^\]\n]+\]\]\s*$/i,
+            ""
+        );
+
+        return body.trim();
+    }
+
+    async function migrateViewingFile(file) {
+        const before = await readFm(file);
+
+        const yamlComment =
+            String(
+                before["Комментарий"] ?? ""
+            ).trim();
+
+        const bodyComment =
+            await readLegacyViewingBody(file);
+
+        const finalComment =
+            yamlComment || bodyComment;
+
+        await app.fileManager
+            .processFrontMatter(
+                file,
+                fm => {
+                    const date =
+                        normalizeDate(
+                            fm["Дата"]
+                        );
+
+                    if (date) {
+                        fm["Дата"] = date;
+                        fm["Год"] =
+                            Number(
+                                date.slice(0, 4)
+                            );
+                    }
+
+                    const number =
+                        toNumber(
+                            fm["Просмотр"]
+                        );
+
+                    if (number !== null) {
+                        fm["Просмотр"] =
+                            Math.trunc(number);
+                    }
+
+                    const rating =
+                        toNumber(
+                            fm["Оценка"]
+                        );
+
+                    if (rating !== null) {
+                        fm["Оценка"] =
+                            rating;
+                    }
+
+                    fm["Комментарий"] =
+                        finalComment;
+
+                    const tags =
+                        getTags(fm);
+
+                    if (
+                        !tags.includes(
+                            "viewing"
+                        )
+                    ) {
+                        tags.push(
+                            "viewing"
+                        );
+                    }
+
+                    fm.tags = tags;
+                }
+            );
+
+        const updated =
+            await app.vault.read(file);
+
+        const parts =
+            splitFrontmatter(updated);
+
+        if (parts.frontmatterText) {
+            await app.vault.modify(
+                file,
+                parts.frontmatterText + "\n"
+            );
+        }
+    }
+
+    async function getViewingRows(
+        mediaFile,
+        migrate = true
+    ) {
+        const files =
+            await getViewingFiles(
+                mediaFile
+            );
+
+        const rows = [];
+
+        for (const file of files) {
+            if (migrate) {
+                await migrateViewingFile(
+                    file
+                );
+            }
+
+            const fm =
+                await readFm(file);
+
+            const number =
+                toNumber(
+                    fm["Просмотр"]
+                );
+
+            if (number === null) {
+                continue;
+            }
+
+            rows.push({
+                file,
+                number:
+                    Math.trunc(number),
+                date:
+                    normalizeDate(
+                        fm["Дата"]
+                    ),
+                rating:
+                    toNumber(
+                        fm["Оценка"]
+                    ),
+                comment:
+                    String(
+                        fm["Комментарий"] ??
+                        ""
+                    ).trim()
+            });
+        }
+
+        rows.sort((a, b) => {
+            if (
+                a.number !== b.number
+            ) {
+                return (
+                    a.number -
+                    b.number
+                );
+            }
+
+            return (
+                (a.date ?? "")
+                    .localeCompare(
+                        b.date ?? ""
+                    )
+            );
+        });
+
+        return rows;
+    }
+
+    async function getSeasonRows(
+        mediaFile
+    ) {
+        const files =
+            await getSeasonFiles(
+                mediaFile
+            );
+
+        const rows = [];
+
+        for (const file of files) {
+            const fm =
+                await readFm(file);
+
+            const season =
+                toNumber(
+                    fm["Сезон"]
+                );
+
+            if (season === null) {
+                continue;
+            }
+
+            let comment =
+                String(
+                    fm["Комментарий"] ??
+                    ""
+                ).trim();
+
+            if (!comment) {
+                const raw =
+                    await app.vault.read(
+                        file
+                    );
+
+                const parts =
+                    splitFrontmatter(raw);
+
+                comment =
+                    parts.body.trim();
+            }
+
+            rows.push({
+                file,
+                season:
+                    Math.trunc(season),
+                date:
+                    normalizeDate(
+                        fm["Дата"]
+                    ),
+                rating:
+                    toNumber(
+                        fm["Оценка"]
+                    ),
+                comment
+            });
+        }
+
+        rows.sort(
+            (a, b) =>
+                a.season -
+                b.season
+        );
+
+        return rows;
+    }
+
+    async function rebuildViewingDeltas(
+        mediaFile
+    ) {
+        const rows =
+            await getViewingRows(
+                mediaFile,
+                true
+            );
+
+        for (const row of rows) {
+            await app.fileManager
+                .processFrontMatter(
+                    row.file,
+                    fm => {
+                        fm[
+                            "Последний просмотр"
+                        ] = false;
+
+                        delete fm[
+                            "Предыдущая оценка"
+                        ];
+
+                        delete fm[
+                            "Изменение оценки"
+                        ];
+                    }
+                );
+        }
+
+        if (rows.length === 0) {
+            return;
+        }
+
+        const latest =
+            rows[
+                rows.length - 1
+            ];
+
+        const previous =
+            rows.length >= 2
+                ? rows[
+                    rows.length - 2
+                ]
+                : null;
+
+        await app.fileManager
+            .processFrontMatter(
+                latest.file,
+                fm => {
+                    fm[
+                        "Последний просмотр"
+                    ] = true;
+
+                    if (
+                        previous &&
+                        previous.rating !== null &&
+                        latest.rating !== null
+                    ) {
+                        fm[
+                            "Предыдущая оценка"
+                        ] =
+                            previous.rating;
+
+                        fm[
+                            "Изменение оценки"
+                        ] =
+                            Number(
+                                (
+                                    latest.rating -
+                                    previous.rating
+                                ).toFixed(2)
+                            );
+                    }
+                }
+            );
+    }
+
+    async function updateMediaSummary(
+        mediaFile
+    ) {
+        const viewings =
+            await getViewingRows(
+                mediaFile,
+                false
+            );
+
+        const seasons =
+            await getSeasonRows(
+                mediaFile
+            );
+
+        if (
+            viewings.length === 0 &&
+            seasons.length === 0
+        ) {
+            return;
+        }
+
+        const dates = [
+            ...viewings
+                .map(r => r.date),
+            ...seasons
+                .map(r => r.date)
+        ]
+            .filter(Boolean)
+            .sort();
+
+        const latestViewing =
+            viewings.length > 0
+                ? viewings[
+                    viewings.length - 1
+                ]
+                : null;
+
+        await app.fileManager
+            .processFrontMatter(
+                mediaFile,
+                fm => {
+                    if (
+                        dates.length > 0
+                    ) {
+                        fm["Просмотрено"] =
+                            dates[
+                                dates.length - 1
+                            ];
+                    }
+
+                    if (
+                        viewings.length > 0
+                    ) {
+                        fm[
+                            "Количество просмотров"
+                        ] =
+                            Math.max(
+                                viewings.length,
+                                ...viewings.map(
+                                    r => r.number
+                                )
+                            );
+
+                        if (
+                            latestViewing
+                                .rating !== null
+                        ) {
+                            fm["Оценка"] =
+                                latestViewing
+                                    .rating;
+                        }
+                    }
+
+                    if (
+                        seasons.length > 0
+                    ) {
+                        fm[
+                            "Количество сезонов"
+                        ] =
+                            seasons.length;
+
+                        fm[
+                            "Последний сезон"
+                        ] =
+                            Math.max(
+                                ...seasons.map(
+                                    r => r.season
+                                )
+                            );
+                    }
+
+                    const imdb =
+                        toNumber(
+                            fm[
+                                "Оценка Imdb"
+                            ]
+                        );
+
+                    if (imdb !== null) {
+                        fm[
+                            "Оценка Imdb"
+                        ] = imdb;
+                    }
+
+                    const tags =
+                        getTags(fm);
+
+                    if (
+                        tags.length > 0
+                    ) {
+                        fm.tags = tags;
+                    }
+                }
+            );
+    }
+
+    async function rebuildOriginalNative(
+        mediaFile
+    ) {
+        const viewings =
+            await getViewingRows(
+                mediaFile,
+                false
+            );
+
+        const seasons =
+            await getSeasonRows(
+                mediaFile
+            );
+
+        const raw =
+            await app.vault.read(
+                mediaFile
+            );
+
+        const parts =
+            splitFrontmatter(raw);
+
+        if (!parts.frontmatterText) {
+            throw new Error(
+                "В оригинальном файле нет YAML frontmatter."
+            );
+        }
+
+        const fm =
+            await readFm(
+                mediaFile
+            );
+
+        const poster =
+            String(
+                fm.poster ?? ""
+            ).trim();
+
+        const chunks = [];
+
+        if (seasons.length > 0) {
+            chunks.push(
+                SEASONS_START
+            );
+
+            for (
+                const row of
+                seasons
+            ) {
+                const rating =
+                    row.rating !== null
+                        ? `${row.rating}/10`
+                        : "без оценки";
+
+                chunks.push(
+                    `# Сезон ${row.season} (${rating})`
+                );
+
+                if (row.comment) {
+                    chunks.push(
+                        row.comment
+                    );
+                }
+            }
+
+            chunks.push(
+                SEASONS_END
+            );
+        }
+
+        if (viewings.length > 0) {
+            chunks.push(
+                VIEWINGS_START
+            );
+
+            for (
+                const row of
+                viewings
+            ) {
+                const rating =
+                    row.rating !== null
+                        ? `${row.rating}/10`
+                        : "без оценки";
+
+                chunks.push(
+                    `# Просмотр ${row.number} (${rating})`
+                );
+
+                if (row.date) {
+                    chunks.push(
+                        `*${displayDate(row.date)}*`
+                    );
+                }
+
+                if (row.comment) {
+                    chunks.push(
+                        row.comment
+                    );
+                }
+            }
+
+            chunks.push(
+                VIEWINGS_END
+            );
+        }
+
+        let result =
+            parts.frontmatterText;
+
+        if (chunks.length > 0) {
+            result +=
+                "\n\n" +
+                chunks.join("\n\n") +
+                "\n";
+        } else {
+            result += "\n";
+        }
+
+        if (poster) {
+            result +=
+                "\n---\n" +
+                `![](${poster})\n`;
+        }
+
+        await app.vault.modify(
+            mediaFile,
+            result
+        );
+    }
+
+
+    function removeGeneratedBlocks(body) {
+        let result = String(body ?? "");
+
+        result = result.replace(
+            /<!-- VIEWINGS:START -->[\s\S]*?<!-- VIEWINGS:END -->/gi,
+            ""
+        );
+
+        result = result.replace(
+            /<!-- SEASONS:START -->[\s\S]*?<!-- SEASONS:END -->/gi,
+            ""
+        );
+
+        result = result.replace(
+            /```dataviewjs[\s\S]*?```/gi,
+            ""
+        );
+
+        result = result.replace(
+            /```dataview[\s\S]*?```/gi,
+            ""
+        );
+
+        return result;
+    }
+
+    function extractLegacyReview(body, poster) {
+        let result =
+            removeGeneratedBlocks(body);
+
+        if (poster) {
+            const escaped =
+                String(poster)
+                    .replace(
+                        /[.*+?^${}()|[\]\\]/g,
+                        "\\$&"
+                    );
+
+            result = result.replace(
+                new RegExp(
+                    "^\\s*!\\[[^\\]]*\\]\\(" +
+                    escaped +
+                    "\\)\\s*$",
+                    "gim"
+                ),
+                ""
+            );
+        }
+
+        result = result.replace(
+            /^\s*!\[[^\]]*\]\([^\n]*\)\s*$/gim,
+            ""
+        );
+
+        result = result.replace(
+            /^\s*(---|\*\*\*|___)\s*$/gm,
+            ""
+        );
+
+        result = result.replace(
+            /^\s*\^[A-Za-z0-9_-]+\s*$/gm,
+            ""
+        );
+
+        return result.trim();
+    }
+
+    function viewingPath(
+        mediaFile,
+        number,
+        date
+    ) {
+        return normalizePath(
+            `${VIEWINGS_FOLDER}/` +
+            `${safeName(mediaFile.basename)}` +
+            ` - просмотр ${number}` +
+            ` - ${date}.md`
+        );
+    }
+
     function buildViewingContent({
         mediaFile,
+        number,
         date,
-        viewingNumber,
         rating,
         comment
     }) {
-        const year = Number(date.slice(0, 4));
-
         let content = "---\n";
-        content += `Фильм: ${yamlString(buildMovieLink(mediaFile))}\n`;
+        content +=
+            `Фильм: ${yamlString(makeMediaLink(mediaFile))}\n`;
         content += `Дата: ${date}\n`;
-        content += `Год: ${year}\n`;
-        content += `Просмотр: ${viewingNumber}\n`;
+        content +=
+            `Год: ${Number(date.slice(0, 4))}\n`;
+        content +=
+            `Просмотр: ${number}\n`;
 
         if (rating !== null) {
-            content += `Оценка: ${rating}\n`;
+            content +=
+                `Оценка: ${rating}\n`;
         } else {
             content += "Оценка:\n";
         }
 
+        content += "Последний просмотр: false\n";
         content += "tags:\n";
         content += "  - viewing\n";
-        content += `Комментарий: ${yamlString(comment)}\n`;
+        content += yamlMultiline(comment);
         content += "---\n";
 
         return content;
     }
 
-    function makeViewingPath(
-        mediaFile,
-        viewingNumber,
-        date,
-        suffix = ""
-    ) {
-        const safeName = mediaFile.basename.replace(
-            /[\\/:*?"<>|]/g,
-            "-"
+    async function createViewingFile(args) {
+        let path = viewingPath(
+            args.mediaFile,
+            args.number,
+            args.date
         );
 
-        const suffixText = suffix ? ` ${suffix}` : "";
-
-        return normalizePath(
-            `${VIEWINGS_FOLDER}/${safeName}` +
-            ` - просмотр ${viewingNumber}` +
-            ` - ${date}${suffixText}.md`
-        );
-    }
-
-    async function createUniqueViewingFile({
-        mediaFile,
-        date,
-        viewingNumber,
-        rating,
-        comment
-    }) {
-        let path = makeViewingPath(
-            mediaFile,
-            viewingNumber,
-            date
-        );
-
-        if (app.vault.getAbstractFileByPath(path)) {
-            let index = 2;
+        if (
+            app.vault
+                .getAbstractFileByPath(path)
+        ) {
+            let suffix = 2;
 
             while (
-                app.vault.getAbstractFileByPath(
-                    makeViewingPath(
-                        mediaFile,
-                        viewingNumber,
-                        date,
-                        `(${index})`
+                app.vault
+                    .getAbstractFileByPath(
+                        path.replace(
+                            /\.md$/i,
+                            ` (${suffix}).md`
+                        )
                     )
-                )
             ) {
-                index++;
+                suffix++;
             }
 
-            path = makeViewingPath(
-                mediaFile,
-                viewingNumber,
-                date,
-                `(${index})`
+            path = path.replace(
+                /\.md$/i,
+                ` (${suffix}).md`
             );
         }
 
-        const content = buildViewingContent({
-            mediaFile,
-            date,
-            viewingNumber,
-            rating,
-            comment
-        });
-
-        return await app.vault.create(path, content);
-    }
-
-    async function replaceOriginalBodyWithHistory(mediaFile) {
-        const frontmatter = getFrontmatter(mediaFile);
-        const poster = String(frontmatter?.poster ?? "").trim();
-
-        const text = await app.vault.read(mediaFile);
-        const parts = splitFrontmatter(text);
-
-        if (!parts.frontmatterText) {
-            throw new Error(
-                "Не удалось найти YAML frontmatter в исходном файле."
-            );
-        }
-
-        let newBody = "\n\n" + HISTORY_BLOCK + "\n";
-
-        if (poster) {
-            newBody += `\n![](${poster})\n`;
-        }
-
-        await app.vault.modify(
-            mediaFile,
-            parts.frontmatterText + newBody
+        return await app.vault.create(
+            path,
+            buildViewingContent(args)
         );
     }
 
-    // 1. Если открыт фильм/сериал, используем его.
-    // 2. Иначе предлагаем выбрать.
-    let mediaFile = app.workspace.getActiveFile();
+    let mediaFile =
+        app.workspace.getActiveFile();
 
     if (!isMedia(mediaFile)) {
-        const mediaFiles = app.vault
-            .getMarkdownFiles()
-            .filter(isMedia)
-            .sort((a, b) =>
-                a.basename.localeCompare(b.basename, "ru")
-            );
+        const media =
+            app.vault
+                .getMarkdownFiles()
+                .filter(isMedia)
+                .sort(
+                    (a, b) =>
+                        a.basename
+                            .localeCompare(
+                                b.basename,
+                                "ru"
+                            )
+                );
 
-        if (mediaFiles.length === 0) {
+        if (media.length === 0) {
             new Notice(
-                "В папке Кино не найдено файлов с тегом movies или serial."
+                "В папке Кино не найдено фильмов/сериалов."
             );
             return;
         }
 
-        const labels = mediaFiles.map(file => {
-            const fm = getFrontmatter(file);
-            const tags = getTags(fm);
-            const icon = tags.includes("serial") ? "📺" : "🎬";
-            const originalTitle = fm["Название"];
+        mediaFile =
+            await quickAddApi.suggester(
+                media.map(file => {
+                    const tags =
+                        getTags(
+                            getCachedFm(file)
+                        );
 
-            if (
-                originalTitle &&
-                String(originalTitle).trim() !== file.basename
-            ) {
-                return (
-                    `${icon} ${file.basename}` +
-                    ` | ${originalTitle}`
-                );
-            }
+                    const icon =
+                        tags.includes("serial")
+                            ? "📺"
+                            : "🎬";
 
-            return `${icon} ${file.basename}`;
-        });
+                    const title =
+                        getCachedFm(file)[
+                            "Название"
+                        ];
 
-        mediaFile = await quickAddApi.suggester(
-            labels,
-            mediaFiles,
-            "Выбери фильм или сериал"
-        );
+                    return title
+                        ? `${icon} ${file.basename} | ${title}`
+                        : `${icon} ${file.basename}`;
+                }),
+                media,
+                "Выбери фильм или сериал"
+            );
 
         if (!mediaFile) return;
     }
 
-    const originalTextBeforeChanges =
-        await app.vault.read(mediaFile);
+    const originalFm =
+        await readFm(mediaFile);
 
-    const originalParts = splitFrontmatter(
-        originalTextBeforeChanges
-    );
+    const originalRaw =
+        await app.vault.read(
+            mediaFile
+        );
 
-    const originalFrontmatter = getFrontmatter(mediaFile);
-    const legacyReview = extractLegacyReview(
-        originalParts.body
-    );
+    const originalParts =
+        splitFrontmatter(
+            originalRaw
+        );
 
-    const oldWatchedDate = normalizeDate(
-        originalFrontmatter["Просмотрено"]
-    );
+    const oldDate =
+        normalizeDate(
+            originalFm[
+                "Просмотрено"
+            ]
+        );
 
-    const oldRating = toNumber(
-        originalFrontmatter["Оценка"]
-    );
+    const oldRating =
+        toNumber(
+            originalFm[
+                "Оценка"
+            ]
+        );
 
-    let viewingFiles = getViewingFiles(mediaFile);
+    const poster =
+        String(
+            originalFm.poster ?? ""
+        ).trim();
 
-    // Нормализуем уже существующие записи этого фильма.
+    let viewingFiles =
+        await getViewingFiles(
+            mediaFile
+        );
+
     for (const file of viewingFiles) {
-        await normalizeViewingFile(file);
+        await migrateViewingFile(
+            file
+        );
     }
 
-    viewingFiles = getViewingFiles(mediaFile);
+    viewingFiles =
+        await getViewingFiles(
+            mediaFile
+        );
 
-    const stats = getViewingStats(viewingFiles);
+    let migrated = false;
 
-    const explicitCount = toNumber(
-        originalFrontmatter["Количество просмотров"]
-    );
+    // Если просмотров еще нет, старый отзыв оригинального
+    // фильма превращаем в просмотр #1.
+    // Для сериала, который уже ведется через Кино/Сезоны,
+    // сезонный текст НЕ считаем отзывом полного просмотра.
+    if (viewingFiles.length === 0) {
+        const seasonFiles =
+            await getSeasonFiles(
+                mediaFile
+            );
 
-    // Старый файл без записей в Просмотры, но с Просмотрено,
-    // считаем одним уже состоявшимся просмотром.
-    const hasLegacyViewing =
-        viewingFiles.length === 0 &&
-        oldWatchedDate !== null;
+        const mayMigrateLegacy =
+            seasonFiles.length === 0 &&
+            oldDate !== null;
 
-    const currentCount = Math.max(
-        explicitCount !== null
-            ? Math.trunc(explicitCount)
-            : 0,
-        stats.count,
-        stats.maxViewing,
-        hasLegacyViewing ? 1 : 0
-    );
+        if (mayMigrateLegacy) {
+            const legacyReview =
+                extractLegacyReview(
+                    originalParts.body,
+                    poster
+                );
 
-    const nextCount = currentCount + 1;
+            await createViewingFile({
+                mediaFile,
+                number: 1,
+                date: oldDate,
+                rating: oldRating,
+                comment: legacyReview
+            });
 
-    const values = await quickAddApi.requestInputs([
-        {
-            id: "date",
-            label: "Дата нового просмотра",
-            type: "date",
-            dateFormat: "YYYY-MM-DD",
-            defaultValue: quickAddApi.date.now(
-                "YYYY-MM-DD"
-            )
-        },
-        {
-            id: "rating",
-            label: "Новая оценка",
-            type: "number",
-            defaultValue:
-                oldRating !== null
-                    ? String(oldRating)
-                    : "",
-            optional: true,
-            numericConfig: {
-                min: 1,
-                max: 10,
-                step: 1
-            }
-        },
-        {
-            id: "comment",
-            label: "Новый отзыв",
-            type: "textarea",
-            optional: true,
-            placeholder: "Мысль после нового просмотра..."
+            migrated = true;
         }
-    ]);
+    }
+
+    let rows =
+        await getViewingRows(
+            mediaFile,
+            true
+        );
+
+    const nextNumber =
+        rows.length > 0
+            ? Math.max(
+                ...rows.map(
+                    r => r.number
+                )
+            ) + 1
+            : 1;
+
+    const values =
+        await quickAddApi.requestInputs([
+            {
+                id: "date",
+                label: "Дата нового просмотра",
+                type: "date",
+                dateFormat: "YYYY-MM-DD",
+                defaultValue:
+                    quickAddApi.date.now(
+                        "YYYY-MM-DD"
+                    )
+            },
+            {
+                id: "rating",
+                label: "Новая оценка",
+                type: "number",
+                optional: true,
+                numericConfig: {
+                    min: 1,
+                    max: 10,
+                    step: 1
+                }
+            },
+            {
+                id: "comment",
+                label: "Новый отзыв",
+                type: "textarea",
+                optional: true,
+                placeholder:
+                    "Мысль после просмотра..."
+            }
+        ]);
 
     if (!values) return;
 
-    const viewingDate = normalizeDate(values.date);
+    const newDate =
+        normalizeDate(
+            values.date
+        );
 
-    if (!viewingDate) {
+    if (!newDate) {
         new Notice(
-            `Некорректная дата нового просмотра: ${values.date}`
+            "Некорректная дата."
         );
         return;
     }
 
     let newRating = null;
 
-    if (String(values.rating ?? "").trim() !== "") {
-        newRating = toNumber(values.rating);
+    if (
+        String(
+            values.rating ?? ""
+        ).trim() !== ""
+    ) {
+        newRating =
+            toNumber(
+                values.rating
+            );
 
         if (
             newRating === null ||
@@ -775,109 +1297,49 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             newRating > 10
         ) {
             new Notice(
-                "Оценка должна быть числом от 1 до 10."
+                "Оценка должна быть от 1 до 10."
             );
             return;
         }
     }
 
-    const newComment = String(
-        values.comment ?? ""
-    ).trim();
+    const newComment =
+        String(
+            values.comment ?? ""
+        ).trim();
 
-    if (
-        hasLegacyViewing &&
-        oldWatchedDate === null
-    ) {
-        new Notice(
-            "У старого просмотра нет корректной даты. " +
-            "Сначала исправь поле Просмотрено."
-        );
-        return;
-    }
-
-    if (
-        !app.vault.getAbstractFileByPath(
-            VIEWINGS_FOLDER
-        )
-    ) {
-        await app.vault.createFolder(
-            VIEWINGS_FOLDER
-        );
-    }
-
-    let migratedLegacy = false;
-
-    // Первый запуск на старой заметке:
-    // переносим существующий отзыв и старую дату в просмотр #1.
-    if (hasLegacyViewing) {
-        await createUniqueViewingFile({
+    const created =
+        await createViewingFile({
             mediaFile,
-            date: oldWatchedDate,
-            viewingNumber: 1,
-            rating: oldRating,
-            comment: legacyReview
-        });
-
-        migratedLegacy = true;
-    }
-
-    // Создаем новый просмотр в том же запуске.
-    const newViewingFile =
-        await createUniqueViewingFile({
-            mediaFile,
-            date: viewingDate,
-            viewingNumber: nextCount,
+            number: nextNumber,
+            date: newDate,
             rating: newRating,
             comment: newComment
         });
 
-    // Еще раз получаем записи уже после создания,
-    // чтобы счетчик был основан на фактической истории.
-    viewingFiles = getViewingFiles(mediaFile);
-
-    for (const file of viewingFiles) {
-        await normalizeViewingFile(file);
-    }
-
-    await updateRatingComparison(mediaFile);
-
-    const finalStats = getViewingStats(
-        getViewingFiles(mediaFile)
+    await migrateViewingFile(
+        created
     );
 
-    const finalCount = Math.max(
-        nextCount,
-        finalStats.count,
-        finalStats.maxViewing
-    );
-
-    // Приводим YAML оригинальной карточки к нормальным типам
-    // и ставим данные последнего просмотра.
-    await normalizeOriginalFrontmatter(
-        mediaFile,
-        viewingDate,
-        finalCount,
-        newRating
-    );
-
-    // Вместо старого текста оставляем только историю + постер.
-    await replaceOriginalBodyWithHistory(
+    await rebuildViewingDeltas(
         mediaFile
     );
 
-    if (migratedLegacy) {
-        new Notice(
-            `${mediaFile.basename}: старый отзыв перенесен ` +
-            `в просмотр #1, добавлен просмотр #${nextCount}`
-        );
-    } else {
-        new Notice(
-            `${mediaFile.basename}: добавлен просмотр #${nextCount}`
-        );
-    }
+    await updateMediaSummary(
+        mediaFile
+    );
+
+    await rebuildOriginalNative(
+        mediaFile
+    );
+
+    new Notice(
+        migrated
+            ? `${mediaFile.basename}: старый отзыв перенесен в просмотр #1; добавлен просмотр #${nextNumber}.`
+            : `${mediaFile.basename}: добавлен просмотр #${nextNumber}.`
+    );
 
     await app.workspace
         .getLeaf(false)
-        .openFile(newViewingFile);
+        .openFile(created);
 };

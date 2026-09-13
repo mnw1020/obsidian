@@ -4,8 +4,11 @@ module.exports = async (params) => {
 
     const MEDIA_FOLDER = "Кино";
     const SEASONS_FOLDER = "Кино/Сезоны";
+    const VIEWINGS_FOLDER = "Кино/Просмотры";
 
     const SEASONS_START = "<!-- SEASONS:START -->";
+    const VIEWINGS_START = "<!-- VIEWINGS:START -->";
+    const VIEWINGS_END = "<!-- VIEWINGS:END -->";
     const SEASONS_END = "<!-- SEASONS:END -->";
 
     function getFrontmatter(file) {
@@ -813,20 +816,154 @@ module.exports = async (params) => {
         }
     }
 
+
+    function viewingBelongsToSerial(frontmatter, serialFile) {
+        const target =
+            getLinkTarget(
+                frontmatter?.["Фильм"]
+            );
+
+        if (!target) return false;
+
+        const serialPath =
+            serialFile.path
+                .replace(/\.md$/i, "");
+
+        return (
+            target === serialPath ||
+            target === serialFile.basename ||
+            target.endsWith(
+                "/" + serialFile.basename
+            )
+        );
+    }
+
+    function getViewingFilesForSerial(serialFile) {
+        return app.vault
+            .getMarkdownFiles()
+            .filter(file => {
+                if (
+                    !file.path.startsWith(
+                        VIEWINGS_FOLDER + "/"
+                    )
+                ) {
+                    return false;
+                }
+
+                return viewingBelongsToSerial(
+                    getFrontmatter(file),
+                    serialFile
+                );
+            });
+    }
+
+    async function readViewingYaml(file) {
+        const raw =
+            await app.vault.read(file);
+
+        const parts =
+            splitFrontmatter(raw);
+
+        if (!parts.frontmatterText) {
+            return {};
+        }
+
+        const yamlText =
+            parts.frontmatterText
+                .replace(
+                    /^---\s*\r?\n/,
+                    ""
+                )
+                .replace(
+                    /\r?\n---\s*$/,
+                    ""
+                );
+
+        return parseYaml(yamlText) ?? {};
+    }
+
+    async function getViewingRowsForSerial(serialFile) {
+        const rows = [];
+
+        for (
+            const file of
+            getViewingFilesForSerial(serialFile)
+        ) {
+            const fm =
+                await readViewingYaml(
+                    file
+                );
+
+            const number =
+                toNumber(
+                    fm["Просмотр"]
+                );
+
+            if (number === null) {
+                continue;
+            }
+
+            rows.push({
+                number:
+                    Math.trunc(number),
+                date:
+                    normalizeDate(
+                        fm["Дата"]
+                    ),
+                rating:
+                    toNumber(
+                        fm["Оценка"]
+                    ),
+                comment:
+                    String(
+                        fm["Комментарий"] ??
+                        ""
+                    ).trim()
+            });
+        }
+
+        rows.sort(
+            (a, b) =>
+                a.number -
+                b.number
+        );
+
+        return rows;
+    }
+
+    function displayViewingDate(value) {
+        const date =
+            normalizeDate(value);
+
+        if (!date) return "";
+
+        const [y, m, d] =
+            date.split("-");
+
+        return `${d}.${m}.${y}`;
+    }
+
     async function rebuildOriginalMarkdown(serialFile) {
         const seasonFiles = sortSeasonFiles(
             getSeasonFiles(serialFile)
         );
 
+        const viewingRows =
+            await getViewingRowsForSerial(
+                serialFile
+            );
+
         const fm = getFrontmatter(serialFile);
-        const poster = String(fm.poster ?? "").trim();
+        const poster =
+            String(fm.poster ?? "").trim();
 
         const originalText =
             await app.vault.read(serialFile);
 
-        const parts = splitFrontmatter(
-            originalText
-        );
+        const parts =
+            splitFrontmatter(
+                originalText
+            );
 
         if (!parts.frontmatterText) {
             throw new Error(
@@ -836,38 +973,78 @@ module.exports = async (params) => {
 
         const chunks = [];
 
-        chunks.push(SEASONS_START);
+        if (seasonFiles.length > 0) {
+            chunks.push(SEASONS_START);
 
-        for (const file of seasonFiles) {
-            const season = getSeasonNumber(file);
-            const seasonFm = getFrontmatter(file);
-            const rating = toNumber(
-                seasonFm["Оценка"]
-            );
+            for (const file of seasonFiles) {
+                const season =
+                    getSeasonNumber(file);
 
-            const heading =
-                rating !== null
-                    ? `# Сезон ${season} (${formatNumber(rating)}/10)`
-                    : `# Сезон ${season} (без оценки)`;
+                const seasonFm =
+                    getFrontmatter(file);
 
-            const comment =
-                await readSeasonComment(file);
+                const rating =
+                    toNumber(
+                        seasonFm["Оценка"]
+                    );
 
-            chunks.push(heading);
+                const heading =
+                    rating !== null
+                        ? `# Сезон ${season} (${formatNumber(rating)}/10)`
+                        : `# Сезон ${season} (без оценки)`;
 
-            if (comment) {
-                chunks.push(comment);
+                const comment =
+                    await readSeasonComment(file);
+
+                chunks.push(heading);
+
+                if (comment) {
+                    chunks.push(comment);
+                }
             }
+
+            chunks.push(SEASONS_END);
         }
 
-        chunks.push(SEASONS_END);
+        if (viewingRows.length > 0) {
+            chunks.push(VIEWINGS_START);
+
+            for (
+                const row of
+                viewingRows
+            ) {
+                const rating =
+                    row.rating !== null
+                        ? `${formatNumber(row.rating)}/10`
+                        : "без оценки";
+
+                chunks.push(
+                    `# Просмотр ${row.number} (${rating})`
+                );
+
+                if (row.date) {
+                    chunks.push(
+                        `*${displayViewingDate(row.date)}*`
+                    );
+                }
+
+                if (row.comment) {
+                    chunks.push(
+                        row.comment
+                    );
+                }
+            }
+
+            chunks.push(VIEWINGS_END);
+        }
 
         let body =
-            "\n\n" +
-            chunks.join("\n\n") +
-            "\n";
+            chunks.length > 0
+                ? "\n\n" +
+                  chunks.join("\n\n") +
+                  "\n"
+                : "\n";
 
-        // Постер всегда в самом низу оригинального файла.
         if (poster) {
             body +=
                 "\n---\n" +
@@ -876,7 +1053,8 @@ module.exports = async (params) => {
 
         await app.vault.modify(
             serialFile,
-            parts.frontmatterText + body
+            parts.frontmatterText +
+            body
         );
     }
 
