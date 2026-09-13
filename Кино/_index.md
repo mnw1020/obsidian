@@ -64,6 +64,12 @@ type command
 action QuickAdd: Редактировать сезон
 color blue
 ```
+```button
+name ✏️ Редактировать просмотр
+type command
+action QuickAdd: Редактировать просмотр
+color blue
+```
 
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
