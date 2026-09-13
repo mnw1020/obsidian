@@ -58,19 +58,7 @@ for (const [icon, label, value] of stats) {
 ```
 `button-add-movie` `button-add-viewing` `button-add-season`
 
-```button
-name ✏️ Редактировать сезон
-type command
-action QuickAdd: Редактировать сезон
-color blue
-```
-```button
-name ✏️ Редактировать просмотр
-type command
-action QuickAdd: Редактировать просмотр
-color blue
-```
-
+`^button-edit-season` `^button-edit-viewing`
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
 ## 🔁 Перепросмотры
@@ -103,3 +91,19 @@ action QuickAdd: Добавить сезон
 color gray
 ```
 ^button-add-season
+
+```button
+name ✏️ Редактировать сезон
+type command
+action QuickAdd: Редактировать сезон
+color blue
+```
+^button-edit-season
+
+```button
+name ✏️ Редактировать просмотр
+type command
+action QuickAdd: Редактировать просмотр
+color blue
+```
+^button-edit-viewing

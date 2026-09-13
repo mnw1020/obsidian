@@ -96,6 +96,7 @@ views:
     showFileImages: never
     minimumColumns: one
     displaySecondAsSubtitle: false
+    posterDisplayMode: fade
   - type: table
     name: Все
     order:
