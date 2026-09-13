@@ -178,7 +178,7 @@ module.exports = async (params) => {
     function seasonPath(serialFile, season) {
         return normalizePath(
             `${SEASONS_FOLDER}/${safeName(serialFile.basename)}` +
-            ` - сезон ${String(season).padStart(2, "0")}.md`
+            ` - s${String(season).padStart(2, "0")}.md`
         );
     }
 
