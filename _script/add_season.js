@@ -486,7 +486,7 @@ module.exports = async (params) => {
 
         return normalizePath(
             `${SEASONS_FOLDER}/` +
-            `${safeName(serialFile.basename)} - сезон ${padded}.md`
+            `${safeName(serialFile.basename)} - s${padded}.md`
         );
     }
 
