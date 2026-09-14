@@ -1,0 +1,137 @@
+filters:
+  and:
+    - 'file.inFolder("Книги/Карточки")'
+    - 'kind == "book"'
+properties:
+  title:
+    displayName: Название
+  authors:
+    displayName: Автор
+  category:
+    displayName: Тип
+  status:
+    displayName: Статус
+  rating:
+    displayName: Оценка
+  last_read:
+    displayName: Последнее чтение
+  read_count:
+    displayName: Чтений
+  series:
+    displayName: Серия
+  series_index:
+    displayName: №
+  file.name:
+    displayName: Файл
+views:
+  - type: table
+    name: Все
+    order:
+      - title
+      - authors
+      - category
+      - status
+      - rating
+      - last_read
+      - read_count
+      - series
+      - series_index
+    sort:
+      - property: last_read
+        direction: DESC
+  - type: table
+    name: Последние
+    limit: 40
+    order:
+      - title
+      - authors
+      - rating
+      - last_read
+      - read_count
+    sort:
+      - property: last_read
+        direction: DESC
+  - type: table
+    name: Лучшие
+    filters:
+      and:
+        - 'rating >= 8'
+    order:
+      - title
+      - authors
+      - rating
+      - last_read
+    sort:
+      - property: rating
+        direction: DESC
+      - property: last_read
+        direction: DESC
+  - type: table
+    name: Художественные
+    filters:
+      and:
+        - 'category == "fiction"'
+    order:
+      - title
+      - authors
+      - rating
+      - last_read
+      - series
+    sort:
+      - property: last_read
+        direction: DESC
+  - type: table
+    name: Non-fiction
+    filters:
+      and:
+        - 'category == "nonfiction"'
+    order:
+      - title
+      - authors
+      - rating
+      - last_read
+    sort:
+      - property: last_read
+        direction: DESC
+  - type: table
+    name: Читаю
+    filters:
+      and:
+        - 'status == "reading"'
+    order:
+      - title
+      - authors
+      - series
+      - series_index
+  - type: table
+    name: Хочу прочитать
+    filters:
+      and:
+        - 'status == "want"'
+    order:
+      - title
+      - authors
+      - series
+      - series_index
+  - type: table
+    name: Без оценки
+    filters:
+      and:
+        - '!rating'
+    order:
+      - title
+      - authors
+      - last_read
+  - type: table
+    name: Книги серии
+    filters:
+      and:
+        - 'series == this.file'
+    order:
+      - series_index
+      - title
+      - rating
+      - last_read
+    sort:
+      - property: series_index
+        direction: ASC
