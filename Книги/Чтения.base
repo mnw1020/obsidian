@@ -1,0 +1,37 @@
+filters:
+  and:
+    - 'file.inFolder("Книги/Чтения")'
+    - 'kind == "reading"'
+properties:
+  book:
+    displayName: Книга
+  read_date:
+    displayName: Дата чтения
+  rating:
+    displayName: Оценка
+  source:
+    displayName: Источник
+  file.name:
+    displayName: Запись
+views:
+  - type: table
+    name: Все чтения
+    order:
+      - read_date
+      - book
+      - rating
+    sort:
+      - property: read_date
+        direction: DESC
+  - type: table
+    name: История книги
+    filters:
+      and:
+        - 'book == this.file'
+    order:
+      - read_date
+      - rating
+      - file.name
+    sort:
+      - property: read_date
+        direction: DESC
