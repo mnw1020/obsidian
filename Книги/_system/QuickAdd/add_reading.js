@@ -2,10 +2,7 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath } = obsidian;
 
-    const BOOKS_ROOT = "Книги";
     const READINGS_FOLDER = "Книги/Чтения";
-    const AUTHORS_FOLDER = "Книги/Авторы";
-    const SYSTEM_FOLDER = "Книги/_system";
 
     const yamlString = value => JSON.stringify(String(value ?? ""));
     const safeName = value => String(value ?? "").replace(/[\\/:*?"<>|]/g, "-").trim();
@@ -16,11 +13,12 @@ module.exports = async (params) => {
 
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
-        if (!file.path.startsWith(BOOKS_ROOT + "/")) return false;
-        if (file.path.startsWith(READINGS_FOLDER + "/")) return false;
-        if (file.path.startsWith(AUTHORS_FOLDER + "/")) return false;
-        if (file.path.startsWith(SYSTEM_FOLDER + "/")) return false;
-        return getFrontmatter(file).kind === "book";
+        const inBooksFolder =
+            file.path.startsWith("Книги/Художественные/") ||
+            file.path.startsWith("Книги/Non-fiction/");
+        if (!inBooksFolder || file.basename === "_index") return false;
+        const fm = getFrontmatter(file);
+        return Boolean(fm.title) && Boolean(fm.authors);
     }
 
     function linkPath(value) {
@@ -65,13 +63,14 @@ module.exports = async (params) => {
 
         const latest = records.length ? records[records.length - 1] : null;
         const latestRated = [...records].reverse().find(r => r.rating !== null) || null;
+        const isFiction = bookFile.path.startsWith("Книги/Художественные/");
 
         await app.fileManager.processFrontMatter(bookFile, frontmatter => {
             frontmatter["read_count"] = records.length;
             if (latest?.date) frontmatter["date"] = latest.date;
             else delete frontmatter["date"];
 
-            if (latestRated) frontmatter["rating"] = latestRated.rating;
+            if (isFiction && latestRated) frontmatter["rating"] = latestRated.rating;
             else delete frontmatter["rating"];
         });
     }
@@ -95,8 +94,7 @@ module.exports = async (params) => {
             const fm = getFrontmatter(file);
             const title = String(fm.title || file.basename);
             const authors = Array.isArray(fm.authors) ? fm.authors.join(", ") : String(fm.authors || "");
-            const cleanAuthors = authors.replace(/\[\[.*?\|/g, "").replace(/\]\]/g, "");
-            return cleanAuthors ? `${title} | ${cleanAuthors}` : title;
+            return authors ? `${title} | ${authors}` : title;
         });
 
         bookFile = await quickAddApi.suggester(labels, books, "Выбери книгу");
@@ -109,29 +107,36 @@ module.exports = async (params) => {
     const maxNumber = existing.reduce((max, r) => Math.max(max, r.number), 0);
     const nextNumber = maxNumber + 1;
 
-    const values = await quickAddApi.requestInputs([
+    const isFiction = bookFile.path.startsWith("Книги/Художественные/");
+    const inputs = [
         {
             id: "date",
             label: `Дата чтения #${nextNumber}`,
             type: "date",
             dateFormat: "YYYY-MM-DD",
             defaultValue: quickAddApi.date.now("YYYY-MM-DD")
-        },
-        {
+        }
+    ];
+
+    if (isFiction) {
+        inputs.push({
             id: "rating",
             label: "Оценка",
             type: "number",
             optional: true,
             numericConfig: { min: 1, max: 10, step: 1 }
-        },
-        {
-            id: "comment",
-            label: "Комментарий",
-            type: "textarea",
-            optional: true,
-            placeholder: "Что изменилось при этом чтении?"
-        }
-    ]);
+        });
+    }
+
+    inputs.push({
+        id: "comment",
+        label: "Комментарий",
+        type: "textarea",
+        optional: true,
+        placeholder: "Что изменилось при этом чтении?"
+    });
+
+    const values = await quickAddApi.requestInputs(inputs);
 
     if (!values) return;
 
@@ -142,7 +147,7 @@ module.exports = async (params) => {
     }
 
     const ratingRaw = Number(values.rating);
-    const rating = Number.isFinite(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 10
+    const rating = isFiction && Number.isFinite(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 10
         ? ratingRaw
         : null;
     const comment = String(values.comment ?? "").trim();
@@ -161,12 +166,11 @@ module.exports = async (params) => {
     }
 
     let content = "---\n";
-    content += "kind: reading\n";
     content += `Книга: ${yamlString(bookLink)}\n`;
     content += `Дата: ${yamlString(date)}\n`;
     content += `Год: ${year}\n`;
     content += `Чтение: ${nextNumber}\n`;
-    content += rating !== null ? `Оценка: ${rating}\n` : "Оценка:\n";
+    if (rating !== null) content += `Оценка: ${rating}\n`;
     content += `Комментарий: ${yamlString(comment)}\n`;
     content += "tags:\n  - reading\n";
     content += "---\n\n";

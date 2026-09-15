@@ -3,8 +3,9 @@ module.exports = async (params) => {
     const { Notice, normalizePath } = obsidian;
 
     const BOOKS_ROOT = "Книги";
-    const AUTHORS_FOLDER = "Книги/Авторы";
     const READINGS_FOLDER = "Книги/Чтения";
+    const AUTHOR_PAGE = "Книги/_system/Автор.md";
+    const SERIES_PAGE = "Книги/_system/Серия.md";
 
     const yamlString = value => JSON.stringify(String(value ?? ""));
     const safeName = value => String(value ?? "").replace(/[\\/:*?"<>|]/g, "-").trim();
@@ -18,26 +19,6 @@ module.exports = async (params) => {
         if (!app.vault.getAbstractFileByPath(normalized)) {
             await app.vault.createFolder(normalized);
         }
-    }
-
-    function authorLink(name) {
-        return `[[${AUTHORS_FOLDER}/${safeName(name)}|${name}]]`;
-    }
-
-    async function ensureAuthorPage(name) {
-        await ensureFolder(AUTHORS_FOLDER);
-        const path = normalizePath(`${AUTHORS_FOLDER}/${safeName(name)}.md`);
-        if (app.vault.getAbstractFileByPath(path)) return;
-
-        const content =
-            `---\n` +
-            `kind: book_author\n` +
-            `name: ${yamlString(name)}\n` +
-            `---\n` +
-            `# ${name}\n\n` +
-            `![[Книги/Книги.base#Автор]]\n`;
-
-        await app.vault.create(path, content);
     }
 
     function historyBlock() {
@@ -54,7 +35,7 @@ module.exports = async (params) => {
             "type command\n" +
             "action QuickAdd: Книги - Редактировать чтение\n" +
             "```\n\n" +
-            `![[Книги/Чтения.base#История книги]]\n`
+            `![[Книги/Чтения.base#История книги|no-new]]\n`
         );
     }
 
@@ -74,12 +55,11 @@ module.exports = async (params) => {
         }
 
         let content = "---\n";
-        content += "kind: reading\n";
         content += `Книга: ${yamlString(bookLink)}\n`;
         content += date ? `Дата: ${yamlString(date)}\n` : "Дата:\n";
         content += year ? `Год: ${year}\n` : "Год:\n";
         content += `Чтение: ${number}\n`;
-        content += rating !== null ? `Оценка: ${rating}\n` : "Оценка:\n";
+        if (rating !== null) content += `Оценка: ${rating}\n`;
         content += `Комментарий: ${yamlString(comment)}\n`;
         content += "tags:\n  - reading\n";
         content += "---\n\n";
@@ -90,11 +70,13 @@ module.exports = async (params) => {
 
     const active = app.workspace.getActiveFile();
     let defaultAuthor = "";
-    if (active && active.path.startsWith(AUTHORS_FOLDER + "/")) {
-        const fm = getFrontmatter(active);
-        if (fm.kind === "book_author") {
-            defaultAuthor = String(fm.name || active.basename);
-        }
+    let defaultSeries = "";
+
+    if (active?.path === AUTHOR_PAGE) {
+        defaultAuthor = String(getFrontmatter(active).selected_author ?? "").trim();
+    }
+    if (active?.path === SERIES_PAGE) {
+        defaultSeries = String(getFrontmatter(active).selected_series ?? "").trim();
     }
 
     const section = await quickAddApi.suggester(
@@ -104,7 +86,7 @@ module.exports = async (params) => {
     );
     if (!section) return;
 
-    const values = await quickAddApi.requestInputs([
+    const inputs = [
         {
             id: "title",
             label: "Название книги",
@@ -120,7 +102,8 @@ module.exports = async (params) => {
             id: "series",
             label: "Серия",
             type: "text",
-            optional: true
+            optional: true,
+            defaultValue: defaultSeries
         },
         {
             id: "seriesIndex",
@@ -135,22 +118,27 @@ module.exports = async (params) => {
             type: "date",
             dateFormat: "YYYY-MM-DD",
             defaultValue: quickAddApi.date.now("YYYY-MM-DD")
-        },
-        {
+        }
+    ];
+
+    if (section === "Художественные") {
+        inputs.push({
             id: "rating",
             label: "Оценка",
             type: "number",
             optional: true,
             numericConfig: { min: 1, max: 10, step: 1 }
-        },
-        {
-            id: "comment",
-            label: "Комментарий к чтению",
-            type: "textarea",
-            optional: true
-        }
-    ]);
+        });
+    }
 
+    inputs.push({
+        id: "comment",
+        label: "Комментарий к чтению",
+        type: "textarea",
+        optional: true
+    });
+
+    const values = await quickAddApi.requestInputs(inputs);
     if (!values) return;
 
     const title = String(values.title ?? "").trim();
@@ -175,25 +163,21 @@ module.exports = async (params) => {
         : null;
     const date = String(values.date ?? "").trim().replace(/^@date:/, "");
     const ratingRaw = Number(values.rating);
-    const rating = Number.isFinite(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 10
+    const rating = section === "Художественные" && Number.isFinite(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 10
         ? ratingRaw
         : null;
     const comment = String(values.comment ?? "").trim();
 
-    for (const author of authors) {
-        await ensureAuthorPage(author);
-    }
-
     const sectionFolder = normalizePath(`${BOOKS_ROOT}/${section}`);
     await ensureFolder(sectionFolder);
 
+    // Сохраняем твою физическую структуру: если подпапка автора уже существует,
+    // новая книга идет туда. Новые папки авторов автоматически не создаются.
     const authorFolder = normalizePath(`${sectionFolder}/${safeName(authors[0])}`);
     const hasAuthorFolder = !!app.vault.getAbstractFileByPath(authorFolder);
     const destinationFolder = hasAuthorFolder ? authorFolder : sectionFolder;
 
-    const rawFileName = hasAuthorFolder
-        ? title
-        : `${authors[0]}. ${title}`;
+    const rawFileName = hasAuthorFolder ? title : `${authors[0]}. ${title}`;
     const filePath = normalizePath(`${destinationFolder}/${safeName(rawFileName)}.md`);
 
     if (app.vault.getAbstractFileByPath(filePath)) {
@@ -202,14 +186,13 @@ module.exports = async (params) => {
     }
 
     let content = "---\n";
-    content += "kind: book\n";
     content += `title: ${yamlString(title)}\n`;
     content += "authors:\n";
     for (const author of authors) {
-        content += `  - ${yamlString(authorLink(author))}\n`;
+        content += `  - ${yamlString(author)}\n`;
     }
     content += date ? `date: ${yamlString(date)}\n` : "date:\n";
-    content += rating !== null ? `rating: ${rating}\n` : "rating:\n";
+    if (rating !== null) content += `rating: ${rating}\n`;
     content += `read_count: ${date ? 1 : 0}\n`;
     content += series ? `series: ${yamlString(series)}\n` : "series:\n";
     content += seriesIndex !== null ? `series_index: ${seriesIndex}\n` : "series_index:\n";
