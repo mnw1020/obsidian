@@ -32,7 +32,7 @@
  */
 
 const API_KEY_OPTION = "OMDb API Key";
-const KP_KEY_OPTION = "Kinopoisk API Key";
+const KP_KEY_OPTION = "18560e74-f0bf-4ca5-9efc-5a9ebb547268";
 const API_URL = "https://www.omdbapi.com/";
 const KP_URL = "https://kinopoiskapiunofficial.tech/api/v2.2/films";
 const CACHE_KEY = "quickadd-movie-script-cache-v2";
