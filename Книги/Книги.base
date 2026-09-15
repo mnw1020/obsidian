@@ -1,6 +1,7 @@
 filters:
   and:
-    - kind == "book"
+    - authors
+    - file.path.startsWith("Книги/")
 formulas:
   book_link: file.asLink(title)
   series_group: if(series, series, "Без серии")
@@ -31,12 +32,8 @@ views:
       - series
       - series_index
     sort:
-      - property: formula.book_link
-        direction: ASC
       - property: date
         direction: DESC
-    columnSize:
-      note.authors: 197
   - type: table
     name: Последние
     order:
@@ -89,7 +86,6 @@ views:
     order:
       - formula.book_link
       - authors
-      - rating
       - date
       - read_count
       - series
@@ -97,12 +93,11 @@ views:
     sort:
       - property: date
         direction: DESC
-    columnSize:
-      note.authors: 186
   - type: table
     name: Без оценки
     filters:
       and:
+        - file.inFolder("Книги/Художественные")
         - "!rating"
     order:
       - formula.book_link
