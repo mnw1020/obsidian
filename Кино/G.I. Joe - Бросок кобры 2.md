@@ -23,6 +23,7 @@ tags:
 Описание: Во второй части отряд «G.I. Joe» вновь объявит вызов группировке «Кобра» и вступит в противостояние с правительством.
 imdb Id: tt1583421
 poster: https://m.media-amazon.com/images/M/MV5BNzk5ODM0OTQ0N15BMl5BanBnXkFtZTcwODg2ODE4OA@@._V1_.jpg
+Франшиза: "[[Кино/Франшизы/G.I. Joe]]"
 ---
 
 ---
