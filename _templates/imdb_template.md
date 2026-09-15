@@ -1,8 +1,11 @@
 ---
 Название: "{{VALUE:Title}}"
 Просмотрено: {{DATE:gggg-MM-DD}} 
-Оценка: "{{VALUE:Оценка}}"
-"Оценка Imdb": "{{VALUE:imdbRating}}"
+Оценка: {{VALUE:Оценка}}
+Оценка Imdb: {{VALUE:imdbRating}}
+Оценка Кинопоиск: {{VALUE:kinopoiskRating}}
+Количество голосов Кинопоиск: {{VALUE:kinopoiskVotes}}
+Количество голосов Imdb: {{VALUE:imdbVotesNumber}}
 tags:
   - movies
   - serial
