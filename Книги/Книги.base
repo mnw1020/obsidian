@@ -37,6 +37,8 @@ views:
       - series
       - series_index
     sort:
+      - property: category
+        direction: DESC
       - property: last_read
         direction: DESC
   - type: table
