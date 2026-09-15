@@ -1,9 +1,9 @@
 filters:
   and:
-    - kind == "book"
+    - 'kind == "book"'
 formulas:
-  book_link: file.asLink(title)
-  series_group: if(series, series, "Без серии")
+  book_link: 'file.asLink(title)'
+  series_group: 'if(series, series, "Без серии")'
 properties:
   formula.book_link:
     displayName: Книга
@@ -12,7 +12,9 @@ properties:
   rating:
     displayName: Оценка
   date:
-    displayName: Дата
+    displayName: Последнее чтение
+  read_count:
+    displayName: Чтений
   series:
     displayName: Серия
   series_index:
@@ -25,6 +27,7 @@ views:
       - authors
       - rating
       - date
+      - read_count
       - series
       - series_index
     sort:
@@ -32,25 +35,27 @@ views:
         direction: DESC
   - type: table
     name: Последние
+    limit: 40
     order:
       - formula.book_link
       - authors
       - rating
       - date
+      - read_count
     sort:
       - property: date
         direction: DESC
-    limit: 40
   - type: table
     name: Лучшие
     filters:
       and:
-        - rating >= 8
+        - 'rating >= 8'
     order:
       - formula.book_link
       - authors
       - rating
       - date
+      - read_count
     sort:
       - property: rating
         direction: DESC
@@ -60,12 +65,13 @@ views:
     name: Художественные
     filters:
       and:
-        - file.inFolder("Книги/Художественные")
+        - 'file.inFolder("Книги/Художественные")'
     order:
       - formula.book_link
       - authors
       - rating
       - date
+      - read_count
       - series
       - series_index
     sort:
@@ -75,12 +81,13 @@ views:
     name: Non-fiction
     filters:
       and:
-        - file.inFolder("Книги/Non-fiction")
+        - 'file.inFolder("Книги/Non-fiction")'
     order:
       - formula.book_link
       - authors
       - rating
       - date
+      - read_count
       - series
       - series_index
     sort:
@@ -90,11 +97,12 @@ views:
     name: Без оценки
     filters:
       and:
-        - "!rating"
+        - '!rating'
     order:
       - formula.book_link
       - authors
       - date
+      - read_count
       - series
       - series_index
     sort:
@@ -104,7 +112,7 @@ views:
     name: Автор
     filters:
       and:
-        - authors.contains(this)
+        - 'authors.contains(this)'
     groupBy:
       property: formula.series_group
       direction: ASC
@@ -113,6 +121,7 @@ views:
       - series_index
       - rating
       - date
+      - read_count
     sort:
       - property: series_index
         direction: ASC
