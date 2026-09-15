@@ -58,7 +58,7 @@ for (const [icon, label, value] of stats) {
 ```
 `button-add-movie` `button-add-viewing` `button-add-season`
 
-`^button-edit-season` `^button-edit-viewing`
+`^button-edit-season` `^button-edit-viewing` `^button-rebuild-card`
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
 ## 🔁 Перепросмотры
@@ -107,3 +107,11 @@ action QuickAdd: Редактировать просмотр
 color blue
 ```
 ^button-edit-viewing
+
+```button
+name 🔄 Обновить
+type command
+action QuickAdd: Пересобрать карточку
+color blue
+```
+^button-rebuild-card
