@@ -1,17 +1,17 @@
 filters:
   and:
-    - file.inFolder("Книги/Чтения")
-    - kind == "reading"
+    - 'kind == "reading"'
+    - 'file.inFolder("Книги/Чтения")'
+formulas:
+  entry_link: 'file.asLink("Открыть")'
 properties:
   book:
     displayName: Книга
   read_date:
-    displayName: Дата чтения
+    displayName: Дата
   rating:
     displayName: Оценка
-  source:
-    displayName: Источник
-  file.name:
+  formula.entry_link:
     displayName: Запись
 views:
   - type: table
@@ -20,6 +20,7 @@ views:
       - read_date
       - book
       - rating
+      - formula.entry_link
     sort:
       - property: read_date
         direction: DESC
@@ -27,11 +28,11 @@ views:
     name: История книги
     filters:
       and:
-        - book == this.file
+        - 'book == this.file'
     order:
       - read_date
       - rating
-      - file.name
+      - formula.entry_link
     sort:
       - property: read_date
         direction: DESC

@@ -1,56 +1,44 @@
 filters:
   and:
-    - file.inFolder("Книги/Карточки")
     - kind == "book"
+formulas:
+  book_link: file.asLink(title)
+  series_group: if(series, series, "Без серии")
 properties:
-  title:
-    displayName: Название
+  formula.book_link:
+    displayName: Книга
   authors:
     displayName: Автор
-  category:
-    displayName: Тип
-  status:
-    displayName: Статус
   rating:
     displayName: Оценка
-  last_read:
-    displayName: Последнее чтение
-  read_count:
-    displayName: Чтений
+  date:
+    displayName: Дата
   series:
     displayName: Серия
   series_index:
     displayName: №
-  file.name:
-    displayName: Файл
 views:
   - type: table
     name: Все
     order:
-      - title
+      - formula.book_link
       - authors
-      - category
-      - status
       - rating
-      - last_read
-      - read_count
+      - date
       - series
       - series_index
     sort:
-      - property: category
-        direction: DESC
-      - property: last_read
+      - property: date
         direction: DESC
   - type: table
     name: Последние
     order:
-      - title
+      - formula.book_link
       - authors
       - rating
-      - last_read
-      - read_count
+      - date
     sort:
-      - property: last_read
+      - property: date
         direction: DESC
     limit: 40
   - type: table
@@ -59,81 +47,74 @@ views:
       and:
         - rating >= 8
     order:
-      - title
+      - formula.book_link
       - authors
       - rating
-      - last_read
+      - date
     sort:
       - property: rating
         direction: DESC
-      - property: last_read
+      - property: date
         direction: DESC
   - type: table
     name: Художественные
     filters:
       and:
-        - category == "fiction"
+        - file.inFolder("Книги/Художественные")
     order:
-      - title
+      - formula.book_link
       - authors
       - rating
-      - last_read
+      - date
       - series
+      - series_index
     sort:
-      - property: last_read
+      - property: date
         direction: DESC
   - type: table
     name: Non-fiction
     filters:
       and:
-        - category == "nonfiction"
+        - file.inFolder("Книги/Non-fiction")
     order:
-      - title
+      - formula.book_link
       - authors
       - rating
-      - last_read
+      - date
+      - series
+      - series_index
     sort:
-      - property: last_read
+      - property: date
         direction: DESC
-  - type: table
-    name: Читаю
-    filters:
-      and:
-        - status == "reading"
-    order:
-      - title
-      - authors
-      - series
-      - series_index
-  - type: table
-    name: Хочу прочитать
-    filters:
-      and:
-        - status == "want"
-    order:
-      - title
-      - authors
-      - series
-      - series_index
   - type: table
     name: Без оценки
     filters:
       and:
         - "!rating"
     order:
-      - title
+      - formula.book_link
       - authors
-      - last_read
+      - date
+      - series
+      - series_index
+    sort:
+      - property: date
+        direction: DESC
   - type: table
-    name: Книги серии
+    name: Автор
     filters:
       and:
-        - series == this.file
+        - authors.contains(this)
+    groupBy:
+      property: formula.series_group
+      direction: ASC
     order:
+      - formula.book_link
       - series_index
-      - title
       - rating
-      - last_read
+      - date
     sort:
       - property: series_index
         direction: ASC
+      - property: date
+        direction: DESC
