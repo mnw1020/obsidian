@@ -1,9 +1,9 @@
 filters:
   and:
-    - 'kind == "book"'
+    - kind == "book"
 formulas:
-  book_link: 'file.asLink(title)'
-  series_group: 'if(series, series, "Без серии")'
+  book_link: file.asLink(title)
+  series_group: if(series, series, "Без серии")
 properties:
   formula.book_link:
     displayName: Книга
@@ -31,11 +31,14 @@ views:
       - series
       - series_index
     sort:
+      - property: formula.book_link
+        direction: ASC
       - property: date
         direction: DESC
+    columnSize:
+      note.authors: 197
   - type: table
     name: Последние
-    limit: 40
     order:
       - formula.book_link
       - authors
@@ -45,11 +48,12 @@ views:
     sort:
       - property: date
         direction: DESC
+    limit: 40
   - type: table
     name: Лучшие
     filters:
       and:
-        - 'rating >= 8'
+        - rating >= 8
     order:
       - formula.book_link
       - authors
@@ -65,7 +69,7 @@ views:
     name: Художественные
     filters:
       and:
-        - 'file.inFolder("Книги/Художественные")'
+        - file.inFolder("Книги/Художественные")
     order:
       - formula.book_link
       - authors
@@ -81,7 +85,7 @@ views:
     name: Non-fiction
     filters:
       and:
-        - 'file.inFolder("Книги/Non-fiction")'
+        - file.inFolder("Книги/Non-fiction")
     order:
       - formula.book_link
       - authors
@@ -97,7 +101,7 @@ views:
     name: Без оценки
     filters:
       and:
-        - '!rating'
+        - "!rating"
     order:
       - formula.book_link
       - authors
@@ -112,7 +116,7 @@ views:
     name: Автор
     filters:
       and:
-        - 'authors.contains(this)'
+        - authors.contains(this)
     groupBy:
       property: formula.series_group
       direction: ASC
