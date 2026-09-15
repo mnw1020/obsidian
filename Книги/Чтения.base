@@ -1,7 +1,7 @@
 filters:
   and:
-    - 'file.inFolder("Книги/Чтения")'
-    - 'kind == "reading"'
+    - file.inFolder("Книги/Чтения")
+    - kind == "reading"
 properties:
   book:
     displayName: Книга
@@ -27,7 +27,7 @@ views:
     name: История книги
     filters:
       and:
-        - 'book == this.file'
+        - book == this.file
     order:
       - read_date
       - rating
