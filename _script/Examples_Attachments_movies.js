@@ -76,8 +76,7 @@ async function addMovie(params, settings) {
     }
     const title = safeName(russianTitle);
     if (!title) return;
-    const franchise = await chooseFranchise(app, ob, qa, movie, wiki);
-    if (franchise === null) return;
+    const franchise = {};
     const yamlNumber = value => number(value) === null ? "null" : String(number(value));
     const linkList = value => links(value).map(x => "\n  - " + JSON.stringify(x)).join("");
     params.variables = {
@@ -207,7 +206,7 @@ async function wikidata(get, id) {
       OPTIONAL { ?item wdt:P2603 ?kp . }
       OPTIONAL { ?item rdfs:label ?ru . FILTER(LANG(?ru)="ru") }
       OPTIONAL { ?article schema:about ?item; schema:isPartOf <https://ru.wikipedia.org/> . }
-      OPTIONAL { ?item wdt:P179 ?series . }
+
       SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" . }
     } LIMIT 100`;
     return parseWikidata(await get("https://query.wikidata.org/sparql",{format:"json",query}));
@@ -272,7 +271,7 @@ async function ensureFranchise(app, ob, choice, id) {
         const tags = Array.isArray(fm.tags) ? fm.tags : [fm.tags];
         if (fm["imdb Id"] || fm["Фильм"] || fm["Сериал"] || tags.some(x=>["movies","serial","season","viewing"].includes(String(x).replace(/^#/,"")))) throw new Error("Выбранная страница не является франшизой.");
     } else {
-        await ensureFolder(app,SERIES);
+        await ensureFolder(app,choice.path.split("/").slice(0,-1).join("/"));
         file = await app.vault.create(choice.path,"---\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table);
     }
     await app.vault.process(file,raw=>{
@@ -4986,6 +4985,7 @@ function watchTemplate(params, movie, title, description, franchise) {
                 }
             }
             cleanup();
+            queueFranchise(params,movie,file);
         } catch (error) {
             // Карточка уже создана шаблоном. Не запускаем бесконечные записи.
             cleanup();
@@ -5033,76 +5033,6 @@ function patchTemplate(raw, ob, id, description, franchise) {
     return match[1]+yaml+match[3]+raw.slice(match[0].length);
 }
 
-async function existingFirst(app,ob,suggestions) {
-    const files=app.vault.getMarkdownFiles();
-    const pages=[];
-    const media=[];
-    for(const file of files) {
-        if(!file.path.startsWith(ROOT+'/'))continue;
-        const fm=await frontmatter(app,ob,file);
-        const tags=Array.isArray(fm.tags)?fm.tags:[fm.tags];
-        if(file.path.startsWith(SERIES+'/') || tags.includes('franchise')) pages.push({file,fm});
-        else if(fm['imdb Id'] && fm['Франшиза']) media.push({file,fm});
-    }
-    const proposals=[];
-    for(const suggestion of suggestions) {
-        const names=new Set([suggestion.name,...(SERIES_ALIASES[suggestion.name]||[])].map(normalized));
-        const matches=[];
-        for(const {file,fm} of pages) {
-            const aliases=Array.isArray(fm.aliases)?fm.aliases:[fm.aliases];
-            const named=[file.basename,...aliases.filter(Boolean)].some(x=>names.has(normalized(x)));
-            // Находим переименованную страницу по уже привязанным фильмам той же серии.
-            const members=media.filter(x=>(CATALOG[x.fm['imdb Id']]||[]).some(s=>names.has(normalized(s.name))));
-            const linked=members.some(x=>{
-                const refs=Array.isArray(x.fm['Франшиза'])?x.fm['Франшиза']:[x.fm['Франшиза']];
-                return refs.some(ref=>{
-                    const path=String(ref).replace(/^\[\[/,'').replace(/\]\]$/,'').split('|')[0].replace(/\.md$/,'');
-                    return app.metadataCache.getFirstLinkpathDest(path,x.file.path)?.path===file.path;
-                });
-            });
-            if(named||linked) matches.push({...suggestion,name:file.basename,path:file.path,score:linked?3:2});
-        }
-        if(matches.length) proposals.push(...matches);
-        else proposals.push({...suggestion,create:true,score:0});
-    }
-    const unique=new Map();
-    for(const p of proposals) {
-        const key=p.path||p.name;
-        if(!unique.has(key)||unique.get(key).score<p.score)unique.set(key,p);
-    }
-    return {proposals:[...unique.values()].sort((a,b)=>b.score-a.score),pages:pages.map(x=>x.file)};
-}
-
-async function chooseFranchise(app,ob,qa,movie,wiki) {
-    const suggestions=CATALOG[movie.imdbID]||wiki.series;
-    const {proposals,pages}=await existingFirst(app,ob,suggestions);
-    const recommended=proposals.filter(x=>x.path);
-    const newSeries=proposals.filter(x=>!x.path);
-    const choices=[...recommended,...newSeries,
-        ...pages.filter(x=>!recommended.some(p=>p.path===x.path)).map(x=>({name:x.basename,path:x.path,manual:true})),
-        {name:'+ Новая франшиза',create:true,manual:true},{name:'Без франшизы',skip:true}];
-    const labels=choices.map(x=>x.skip||x.manual?x.name:x.path?`Подходит: ${x.name}`:`Создать: ${x.name}`);
-    let choice=await qa.suggester(labels,choices,`Франшиза: ${movie.Title}`);
-    if(!choice)return null;
-    if(choice.skip)return {};
-    choice={...choice};
-    if(!choice.path) {
-        const name=await qa.inputPrompt('Название новой франшизы','',choice.manual?'':choice.name);
-        if(!name?.trim()||!safeName(name))return null;
-        choice.name=safeName(name);
-        const path=`${SERIES}/${choice.name}.md`;
-        choice.path=pages.find(x=>x.path.toLowerCase()===path.toLowerCase())?.path||path;
-    }
-    while(true) {
-        const text=await qa.inputPrompt('Номер части','Пусто - без номера');
-        if(text==null)return null;
-        if(!text.trim()){choice.part=null;break;}
-        const n=Number(text.replace(',','.'));
-        if(Number.isFinite(n)&&n>0){choice.part=n;break;}
-    }
-    return choice;
-}
-
 const SERIES_ALIASES = {
   "Друзья Оушена": [
     "Оушен",
@@ -5139,3 +5069,167 @@ const SERIES_ALIASES = {
     "Юрский период"
   ]
 };
+
+
+const franchiseJobs = new WeakMap();
+function queueFranchise(params,movie,file) {
+    const previous=franchiseJobs.get(params.app)||Promise.resolve();
+    const job=previous.catch(()=>{}).then(()=>afterTemplateFranchise(params,movie,file)).catch(()=>{
+        new params.obsidian.Notice('Карточка сохранена. Франшизу можно назначить отдельной командой.');
+    });
+    franchiseJobs.set(params.app,job);
+    return job;
+}
+
+async function afterTemplateFranchise(params,movie,file) {
+    const {app,obsidian:ob,quickAddApi:qa}=params;
+    if(app.vault.getAbstractFileByPath(file.path)!==file)return;
+    const before=await frontmatter(app,ob,file);
+    if(before['imdb Id']!==movie.imdbID || before['Франшиза'])return;
+    await app.workspace.getLeaf(false).openFile(file);
+    const notice=new ob.Notice('Карточка создана. Проверяю франшизу…',0);
+    let result;
+    try { result=await lookupFranchise(ob,movie.imdbID); }
+    finally { notice.hide?.(); }
+    const {pages,proposals}=await franchiseInventory(app,ob,result.suggestions);
+    const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status);
+    if(!choice)return;
+    let part;
+    while(true) {
+        const value=await qa.inputPrompt('Номер части','Пусто - без номера');
+        if(value==null)return;
+        if(!value.trim()){part=null;break;}
+        const n=Number(value.replace(',','.'));
+        if(Number.isFinite(n)&&n>0){part=n;break;}
+    }
+    // Пока открыт диалог, пользователь может поменять карточку вручную.
+    const current=await frontmatter(app,ob,file);
+    if(current['imdb Id']!==movie.imdbID || current['Франшиза'])return;
+    choice.part=part;
+    await ensureFranchise(app,ob,choice,movie.imdbID);
+    await app.fileManager.processFrontMatter(file,fm=>{
+        if(fm['imdb Id']!==movie.imdbID || fm['Франшиза'])return;
+        fm['Франшиза']=`[[${choice.path.replace(/\.md$/,'')}]]`;
+        if(part!=null && fm['Часть']==null)fm['Часть']=part;
+    });
+}
+
+async function lookupFranchise(ob,id) {
+    // Отдельный запрос ПОСЛЕ создания карточки. Старый каталог его не отменяет.
+    const query=`SELECT DISTINCT ?item ?series ?seriesLabel WHERE {
+      ?item wdt:P345 "${id}" .
+      OPTIONAL {
+        { ?item wdt:P179 ?series } UNION { ?item wdt:P8345 ?series }
+        FILTER NOT EXISTS { ?series wdt:P31 wd:Q13406463 }
+      }
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "ru,en" . }
+    } LIMIT 100`;
+    const data=await getJson(ob,'https://query.wikidata.org/sparql',{format:'json',query});
+    const parsed=parseWikidata(data);
+    const direct=parsed.series.filter(s=>! /^(список |перечень |list of |filmography)/i.test(s.name)).map(s=>({...s,url:s.url.replace("#P179", "")}));
+    // Локально проверенные связи показываются с отдельной пометкой, не как ответ интернета.
+    const known=CATALOG[id]||[];
+    const suggestions=[...direct,...known.filter(k=>!direct.some(d=>normalized(d.name)===normalized(k.name)))];
+    return {suggestions,status:direct.length?'В интернете найдены связи с сериями. Выбери нужную.':
+        known.length?'В интернете явная связь не найдена. Есть подсказки из ранее проверенного каталога.':
+        'Принадлежность к франшизе не подтверждена. Это не означает, что продолжений нет. Можно выбрать вручную или пропустить.'};
+}
+
+function franchiseRef(value) {
+    return String(value?.path||value||'').trim().replace(/^\[\[/,'').replace(/\]\]$/,'').split('|')[0].split('#')[0].replace(/\.md$/,'').trim();
+}
+function alphabetical(a,b) {
+    return a.name.localeCompare(b.name,'ru',{sensitivity:'base',numeric:true})||a.path.localeCompare(b.path,'ru');
+}
+async function franchiseInventory(app,ob,suggestions) {
+    const entries=[];
+    for(const file of app.vault.getMarkdownFiles())entries.push({file,fm:await frontmatter(app,ob,file)});
+    const pages=new Map();
+    const add=(file,fm={},missing=false)=>{
+        if(fm['imdb Id']||fm['Фильм']||fm['Сериал'])return;
+        if(!pages.has(file.path))pages.set(file.path,{name:file.basename,path:file.path,fm,missing});
+    };
+    for(const {file,fm} of entries) {
+        const tags=(Array.isArray(fm.tags)?fm.tags:[fm.tags]).map(x=>String(x||'').replace(/^#/,''));
+        // Каталог франшиз может находиться вне Кино/ и иметь вложенные папки.
+        if(file.path.split('/').slice(0,-1).some(x=>/^(франшизы|franchises)$/i.test(x)) || tags.includes('franchise'))add(file,fm);
+    }
+    const memberships=[];
+    for(const {file,fm} of entries) {
+        const refs=Array.isArray(fm['Франшиза'])?fm['Франшиза']:[fm['Франшиза']];
+        for(const ref of refs.filter(Boolean)) {
+            const path=franchiseRef(ref);
+            if(!path)continue;
+            const target=app.metadataCache.getFirstLinkpathDest(path,file.path);
+            if(target?.extension==='md') {
+                add(target,entries.find(x=>x.file.path===target.path)?.fm||{});
+                memberships.push({id:fm['imdb Id'],path:target.path});
+            } else {
+                const dest=(path.includes('/')?path:`${SERIES}/${safeName(path)}`)+'.md';
+                add({path:dest,basename:path.split('/').pop()},{},true);
+                memberships.push({id:fm['imdb Id'],path:dest});
+            }
+        }
+    }
+    const list=[...pages.values()].sort(alphabetical);
+    const proposals=[];
+    for(const suggestion of suggestions) {
+        const names=new Set([suggestion.name,...(SERIES_ALIASES[suggestion.name]||[])].map(normalized));
+        const matches=list.filter(p=>{
+            const aliases=Array.isArray(p.fm.aliases)?p.fm.aliases:[p.fm.aliases];
+            return [p.name,...aliases.filter(Boolean)].some(x=>names.has(normalized(x))) ||
+                memberships.some(m=>m.path===p.path&&(CATALOG[m.id]||[]).some(x=>names.has(normalized(x.name))));
+        });
+        if(matches.length)proposals.push(...matches.map(p=>({...suggestion,name:p.name,path:p.path})));
+        else proposals.push({...suggestion,create:true});
+    }
+    return {pages:list,proposals};
+}
+
+function franchiseDialog(app,ob,title,pages,proposals,status) {
+    return new Promise(resolve=>{
+        class Picker extends ob.Modal {
+            constructor(){super(app);this.result=null;}
+            onOpen(){
+                const el=this.contentEl;
+                el.createEl('h2',{text:`Франшиза: ${title}`});
+                el.createEl('p',{text:status});
+                for(const p of proposals) {
+                    const line=el.createEl('div');
+                    line.createEl('span',{text:p.path?`Подходит существующая: ${p.name} `:`Предложенное название: ${p.name} `});
+                    if(p.url)line.createEl('a',{text:'Источник',href:p.url,attr:{target:'_blank',rel:'noopener'}});
+                }
+                el.createEl('p',{text:'Название новой франшизы (можно изменить):'});
+                const name=el.createEl('input',{type:'text'});
+                name.style.width='100%';name.value=proposals.find(x=>!x.path)?.name||proposals[0]?.name||'';
+                const create=el.createEl('button',{text:'Создать с этим названием'});
+                create.onclick=()=>{
+                    const value=safeName(name.value);
+                    if(!value){name.focus();return;}
+                    const existing=pages.filter(p=>normalized(p.name)===normalized(value));
+                    if(existing.length===1){this.select(existing[0]);return;}
+                    if(existing.length>1){search.value=value;render();return;}
+                    const proposed=proposals.find(p=>normalized(p.name)===normalized(value));
+                    this.select({...proposed,name:value,path:`${SERIES}/${value}.md`});
+                };
+                el.createEl('h3',{text:`Все существующие франшизы (${pages.length}), А–Я`});
+                const search=el.createEl('input',{type:'search',placeholder:'Поиск по списку'});search.style.width='100%';
+                const list=el.createEl('div');Object.assign(list.style,{maxHeight:'35vh',overflowY:'auto',display:'flex',flexDirection:'column',gap:'4px',marginTop:'8px'});
+                const render=()=>{
+                    list.empty();
+                    for(const page of pages.filter(p=>normalized(p.name+' '+p.path).includes(normalized(search.value)))) {
+                        const proposal=proposals.find(p=>p.path===page.path);
+                        const row=list.createEl('button',{text:`${page.name}${proposal?' ✓':''}${page.missing?' (создать страницу)':''}`});
+                        row.title=page.path;row.style.textAlign='left';
+                        row.onclick=()=>this.select({...page,...proposal,name:page.name,path:page.path});
+                    }
+                };
+                search.oninput=render;render();
+                const skip=el.createEl('button',{text:'Оставить без франшизы'});skip.style.marginTop='12px';skip.onclick=()=>this.close();
+            }
+            select(choice){this.result=choice;this.close();}
+            onClose(){this.contentEl.empty();resolve(this.result);}
+        }
+        new Picker().open();
+    });
+}
