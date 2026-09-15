@@ -1,6 +1,7 @@
 /*
  * QuickAdd: фильмы и сериалы из OMDb + рейтинг Кинопоиска без ключа КП.
  * Plot: русское описание из Movie Planner, иначе прежнее описание OMDb.
+ * fileName: название из карточки КП, иначе название OMDb; только для новых файлов.
  * Для безопасной вставки описания в YAML шаблона:
  * Описание: >-
  *   {{VALUE:Plot}}
@@ -71,7 +72,8 @@ async function start(params, settings) {
         actorLinks: linkifyList(selectedShow.Actors),
         genreLinks: linkifyList(selectedShow.Genre),
         directorLink: linkifyList(selectedShow.Director),
-        fileName: replaceIllegalFileNameCharactersInString(selectedShow.Title),
+        fileName: replaceIllegalFileNameCharactersInString(kp?.title) ||
+            replaceIllegalFileNameCharactersInString(selectedShow.Title),
         typeLink: `[[${selectedShow.Type === "movie" ? "Movies" : "Series"}]]`,
         languageLower: clean(selectedShow.Language).toLowerCase(),
         kinopoiskRating: yamlNumber(kp?.rating_kp),
