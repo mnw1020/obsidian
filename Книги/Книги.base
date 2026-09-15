@@ -1,7 +1,7 @@
 filters:
   and:
-    - 'file.inFolder("Книги/Карточки")'
-    - 'kind == "book"'
+    - file.inFolder("Книги/Карточки")
+    - kind == "book"
 properties:
   title:
     displayName: Название
@@ -41,7 +41,6 @@ views:
         direction: DESC
   - type: table
     name: Последние
-    limit: 40
     order:
       - title
       - authors
@@ -51,11 +50,12 @@ views:
     sort:
       - property: last_read
         direction: DESC
+    limit: 40
   - type: table
     name: Лучшие
     filters:
       and:
-        - 'rating >= 8'
+        - rating >= 8
     order:
       - title
       - authors
@@ -70,7 +70,7 @@ views:
     name: Художественные
     filters:
       and:
-        - 'category == "fiction"'
+        - category == "fiction"
     order:
       - title
       - authors
@@ -84,7 +84,7 @@ views:
     name: Non-fiction
     filters:
       and:
-        - 'category == "nonfiction"'
+        - category == "nonfiction"
     order:
       - title
       - authors
@@ -97,7 +97,7 @@ views:
     name: Читаю
     filters:
       and:
-        - 'status == "reading"'
+        - status == "reading"
     order:
       - title
       - authors
@@ -107,7 +107,7 @@ views:
     name: Хочу прочитать
     filters:
       and:
-        - 'status == "want"'
+        - status == "want"
     order:
       - title
       - authors
@@ -117,7 +117,7 @@ views:
     name: Без оценки
     filters:
       and:
-        - '!rating'
+        - "!rating"
     order:
       - title
       - authors
@@ -126,7 +126,7 @@ views:
     name: Книги серии
     filters:
       and:
-        - 'series == this.file'
+        - series == this.file
     order:
       - series_index
       - title
