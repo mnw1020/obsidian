@@ -1,12 +1,12 @@
 filters:
   and:
-    - 'authors'
-    - 'file.path.startsWith("Книги/")'
+    - authors
+    - file.path.startsWith("Книги/")
 formulas:
-  book_link: 'file.asLink(title)'
-  series_group: 'if(series, series, "Без серии")'
-  author_links: 'authors.map(link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0&value-author=" + value.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), value))'
-  series_link: 'if(series, link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E&value-series=" + series.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), series), "")'
+  book_link: file.asLink(title)
+  series_group: if(series, series, "Без серии")
+  author_links: authors.map(link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0&value-author=" + value.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), value))
+  series_link: if(series, link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E&value-series=" + series.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), series), "")
 properties:
   formula.book_link:
     displayName: Книга
@@ -38,7 +38,6 @@ views:
         direction: DESC
   - type: table
     name: Последние
-    limit: 40
     order:
       - formula.book_link
       - formula.author_links
@@ -48,11 +47,12 @@ views:
     sort:
       - property: date
         direction: DESC
+    limit: 40
   - type: table
     name: Лучшие
     filters:
       and:
-        - 'rating >= 8'
+        - rating >= 8
     order:
       - formula.book_link
       - formula.author_links
@@ -69,7 +69,7 @@ views:
     name: Художественные
     filters:
       and:
-        - 'file.inFolder("Книги/Художественные")'
+        - file.inFolder("Книги/Художественные")
     order:
       - formula.book_link
       - formula.author_links
@@ -85,7 +85,7 @@ views:
     name: Non-fiction
     filters:
       and:
-        - 'file.inFolder("Книги/Non-fiction")'
+        - file.inFolder("Книги/Non-fiction")
     order:
       - formula.book_link
       - formula.author_links
@@ -100,8 +100,8 @@ views:
     name: Без оценки
     filters:
       and:
-        - 'file.inFolder("Книги/Художественные")'
-        - '!rating'
+        - file.inFolder("Книги/Художественные")
+        - "!rating"
     order:
       - formula.book_link
       - formula.author_links
@@ -116,7 +116,7 @@ views:
     name: Автор
     filters:
       and:
-        - 'authors.contains(this.selected_author)'
+        - authors.contains(this.selected_author)
     groupBy:
       property: formula.series_group
       direction: ASC
@@ -136,7 +136,7 @@ views:
     name: Серия
     filters:
       and:
-        - 'series == this.selected_series'
+        - series == this.selected_series
     order:
       - series_index
       - formula.book_link
