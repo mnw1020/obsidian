@@ -1,5 +1,9 @@
 /*
  * QuickAdd: фильмы и сериалы из OMDb + рейтинг Кинопоиска без ключа КП.
+ * Plot: русское описание из Movie Planner, иначе прежнее описание OMDb.
+ * Для безопасной вставки описания в YAML шаблона:
+ * Описание: >-
+ *   {{VALUE:Plot}}
  *
  * В шаблоне должны быть строки:
  * Оценка Кинопоиск: {{VALUE:kinopoiskRating}}
@@ -57,9 +61,13 @@ async function start(params, settings) {
     }
 
     const kp = await getKinopoisk(selectedShow, params.quickAddApi);
+    const russianPlot = [kp?.description, kp?.overview_ru].find(text =>
+        typeof text === "string" && /[а-яё]/i.test(text)
+    );
 
     params.variables = {
         ...selectedShow,
+        Plot: (russianPlot || selectedShow.Plot || "").replace(/\s+/g, " ").trim(),
         actorLinks: linkifyList(selectedShow.Actors),
         genreLinks: linkifyList(selectedShow.Genre),
         directorLink: linkifyList(selectedShow.Director),
