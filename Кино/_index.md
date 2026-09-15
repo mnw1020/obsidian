@@ -115,3 +115,10 @@ action QuickAdd: Пересобрать карточку
 color blue
 ```
 ^button-rebuild-card
+
+```button
+name Франшиза
+type command
+action QuickAdd: Франшиза
+color blue
+```
