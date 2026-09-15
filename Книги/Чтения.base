@@ -1,38 +1,68 @@
 filters:
   and:
-    - 'kind == "reading"'
     - 'file.inFolder("Книги/Чтения")'
+    - 'file.hasTag("reading")'
 formulas:
+  reading_label: 'if(Чтение, "Чтение #" + number(Чтение).toString(), "")'
   entry_link: 'file.asLink("Открыть")'
 properties:
-  book:
+  Книга:
     displayName: Книга
-  read_date:
-    displayName: Дата
-  rating:
+  Чтение:
+    displayName: №
+  formula.reading_label:
+    displayName: Чтение
+  Дата:
+    displayName: Когда
+  Оценка:
     displayName: Оценка
+  Комментарий:
+    displayName: Комментарий
   formula.entry_link:
-    displayName: Запись
+    displayName: Версия
 views:
   - type: table
     name: Все чтения
     order:
-      - read_date
-      - book
-      - rating
+      - Книга
+      - formula.reading_label
+      - Дата
+      - Оценка
+      - Комментарий
       - formula.entry_link
     sort:
-      - property: read_date
+      - property: Дата
+        direction: DESC
+      - property: Чтение
+        direction: DESC
+  - type: table
+    name: Повторные чтения
+    filters:
+      and:
+        - 'Чтение > 1'
+    order:
+      - Книга
+      - formula.reading_label
+      - Дата
+      - Оценка
+      - Комментарий
+      - formula.entry_link
+    sort:
+      - property: Дата
+        direction: DESC
+      - property: Чтение
         direction: DESC
   - type: table
     name: История книги
     filters:
       and:
-        - 'book == this.file'
+        - 'Книга == this.file'
     order:
-      - read_date
-      - rating
+      - formula.reading_label
+      - Дата
+      - Оценка
+      - Комментарий
       - formula.entry_link
     sort:
-      - property: read_date
+      - property: Чтение
         direction: DESC
