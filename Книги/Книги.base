@@ -97,6 +97,8 @@ views:
     sort:
       - property: date
         direction: DESC
+    columnSize:
+      note.authors: 186
   - type: table
     name: Без оценки
     filters:
