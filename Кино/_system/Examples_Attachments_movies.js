@@ -5,6 +5,7 @@
 const API_KEY_OPTION = "OMDb API Key";
 const ROOT = "Кино";
 const SERIES = "Кино/Франшизы";
+const ENTITY_LINKS_BLOCK = "<!-- KINO:ENTITY:LINKS:V2 -->\n```dataviewjs\nconst KINO_GENRE_ALIASES = {\"Боевик\":[\"Action\",\"Боевик\"],\"Приключения\":[\"Adventure\",\"Приключения\"],\"Анимация\":[\"Animation\",\"Анимация\",\"Мультфильм\"],\"Биография\":[\"Biography\",\"Биография\"],\"Комедия\":[\"Comedy\",\"Комедия\"],\"Криминал\":[\"Crime\",\"Криминал\"],\"Документальный\":[\"Documentary\",\"Документальный\",\"Документальное\"],\"Драма\":[\"Drama\",\"Драма\"],\"Семейный\":[\"Family\",\"Семейный\"],\"Фэнтези\":[\"Fantasy\",\"Фэнтези\"],\"История\":[\"History\",\"История\"],\"Ужасы\":[\"Horror\",\"Ужасы\"],\"Музыка\":[\"Music\",\"Музыка\"],\"Мюзикл\":[\"Musical\",\"Мюзикл\"],\"Мистика\":[\"Mystery\",\"Мистика\"],\"Мелодрама\":[\"Romance\",\"Мелодрама\"],\"Фантастика\":[\"Sci-Fi\",\"Science Fiction\",\"Фантастика\"],\"Короткометражка\":[\"Short\",\"Short Film\",\"Короткометражка\"],\"Спорт\":[\"Sport\",\"Sports\",\"Спорт\"],\"Триллер\":[\"Thriller\",\"Триллер\"],\"Военный\":[\"War\",\"Военный\"],\"Реалити-шоу\":[\"Reality-TV\",\"Reality TV\",\"Реалити-шоу\"],\"Вестерн\":[\"Western\",\"Вестерн\"]};\nconst KINO_ENTITY_FIELDS = [\n    [\"Режисер\", \"Режиссер\", \"Кино - Открыть режиссера\"],\n    [\"Актеры\", \"Актеры\", \"Кино - Открыть актера\"],\n    [\"Жанр\", \"Жанры\", \"Кино - Открыть жанр\"]\n];\n\nfunction kinoEntityText(value) {\n    return String(value ?? \"\").trim().normalize(\"NFC\");\n}\n\nfunction kinoEntityKey(value) {\n    return kinoEntityText(value).toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\");\n}\n\nfunction kinoCanonicalGenre(value) {\n    const text = kinoEntityText(value);\n    const key = kinoEntityKey(text);\n    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {\n        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;\n    }\n    return text;\n}\n\nfunction kinoValues(value) {\n    return [...new Set((Array.isArray(value) ? value : [value])\n        .map(kinoEntityText).filter(Boolean))];\n}\n\nfunction kinoCanonical(field, value) {\n    return field === \"Жанр\" ? kinoCanonicalGenre(value) : kinoEntityText(value);\n}\n\nfunction kinoUri(choice, value) {\n    return \"obsidian://quickadd?vault=\" + encodeURIComponent(app.vault.getName())\n        + \"&choice=\" + encodeURIComponent(choice)\n        + \"&value-entity=\" + encodeURIComponent(value);\n}\n\nconst kinoRoot = dv.container.createDiv({ cls: \"kino-entity-links\" });\nfor (const [field, label, choice] of KINO_ENTITY_FIELDS) {\n    const groups = new Map();\n    for (const original of kinoValues(dv.current()[field])) {\n        const canonical = kinoCanonical(field, original);\n        const key = kinoEntityKey(canonical);\n        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });\n        groups.get(key).originals.push(original);\n    }\n    const row = kinoRoot.createDiv({ cls: \"kino-entity-links-row\" });\n    row.createEl(\"strong\", { text: label + \": \" });\n    if (!groups.size) {\n        row.appendText(\"Не указано\");\n        continue;\n    }\n    [...groups.values()].forEach((group, index) => {\n        if (index) row.appendText(\" · \");\n        const link = row.createEl(\"a\");\n        link.textContent = group.label;\n        link.href = kinoUri(choice, group.label);\n        if (group.originals.some(original => original !== group.label)) {\n            link.title = \"В YAML: \" + group.originals.join(\" / \");\n        }\n    });\n}\n```";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cache = new Map();
 const cooldown = new Map();
@@ -5034,7 +5035,7 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate) {
         set('Франшиза',`[[${franchise.path.replace(/\.md$/,'')}]]`);
         if (franchise.part != null && fm['Часть'] == null) set('Часть',franchise.part);
     }
-    return migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob);
+    return ensureEntityLinksBlock(migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob));
 }
 
 const SERIES_ALIASES = {
@@ -5318,4 +5319,13 @@ function normalizeRelease(value) {
     const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
     if (day > [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]) return "";
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function ensureEntityLinksBlock(raw) {
+    const match = raw.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
+    if (!match) return raw;
+    const newline = raw.includes("\r\n") ? "\r\n" : "\n";
+    const pattern = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V2 -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const body = raw.slice(match[0].length).replace(pattern, "");
+    return match[0] + ENTITY_LINKS_BLOCK.replace(/\n/g, newline) + newline + body;
 }

@@ -53,28 +53,6 @@ properties:
   formula.entity_genre:
     displayName: Жанр
 views:
-  - type: table
-    name: Все
-    order:
-      - file.name
-      - Название
-      - formula.type
-      - formula.watched
-      - formula.rating
-      - formula.imdb_rating
-      - formula.release_display
-      - formula.entity_genre
-      - formula.entity_director
-      - formula.entity_actor
-    sort:
-      - property: formula.entity_actor
-        direction: DESC
-      - property: formula.type
-        direction: DESC
-      - property: Просмотрено
-        direction: DESC
-      - property: formula.rating
-        direction: DESC
   - type: dynamic-views-grid
     name: Последние
     order:
@@ -127,6 +105,28 @@ views:
     showFileImages: never
     minimumColumns: one
     displaySecondAsSubtitle: false
+  - type: table
+    name: Все
+    order:
+      - file.name
+      - Название
+      - formula.type
+      - formula.watched
+      - formula.rating
+      - formula.imdb_rating
+      - formula.release_display
+      - formula.entity_genre
+      - formula.entity_director
+      - formula.entity_actor
+    sort:
+      - property: formula.entity_actor
+        direction: DESC
+      - property: formula.type
+        direction: DESC
+      - property: Просмотрено
+        direction: DESC
+      - property: formula.rating
+        direction: DESC
   - type: table
     name: Фильмы
     filters:
