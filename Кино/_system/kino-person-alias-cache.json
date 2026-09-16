@@ -9338,7 +9338,737 @@
     "heweiyu": "Hewei Yu (Hewei Yu (Юй Хэвэй))",
     "heweiyuheweiyuюихэвэи": "Hewei Yu (Hewei Yu (Юй Хэвэй))",
     "yongjianlin": "Yongjian Lin (Yongjian Lin (Линь Юнцзянь))",
-    "yongjianlinyongjianlinлиньюнцзянь": "Yongjian Lin (Yongjian Lin (Линь Юнцзянь))"
+    "yongjianlinyongjianlinлиньюнцзянь": "Yongjian Lin (Yongjian Lin (Линь Юнцзянь))",
+    "andyallo": "Andy Allo (Andy Allo (Энди Алло))",
+    "andyalloandyalloэндиалло": "Andy Allo (Andy Allo (Энди Алло))",
+    "allegraedwards": "Allegra Edwards (Allegra Edwards (Аллегра Эдвардс))",
+    "allegraedwardsallegraedwardsаллеграэдвардс": "Allegra Edwards (Allegra Edwards (Аллегра Эдвардс))",
+    "terihatcherterihatcherтерихэтчер": "Teri Hatcher (Teri Hatcher (Тери Хэтчер))",
+    "rickyjayrickyjayрикиджеи": "Ricky Jay (Ricky Jay (Рики Джей))",
+    "andreysmolyakovandreysmolyakovандреиигоревичсмоляков": "Andrey Smolyakov (Andrey Smolyakov (Андрей Игоревич Смоляков))",
+    "владиславабашин": "Vladislav Abashin (Владислав Абашин)",
+    "vladislavabashin": "Vladislav Abashin (Владислав Абашин)",
+    "aleksandrbukharovaleksandrbukharovалександрсергеевичбухаров": "Aleksandr Bukharov (Aleksandr Bukharov (Александр Сергеевич Бухаров))",
+    "andysambergandysambergэндисэмберг": "Andy Samberg (Andy Samberg (Энди Сэмберг))",
+    "meredithhagnermeredithhagnerмередитхагнер": "Meredith Hagner (Meredith Hagner (Мередит Хагнер))",
+    "александрпанкратовчерныи": "Aleksandr Pankratov-Chyornyy (Александр Панкратов-Чёрный)",
+    "aleksandrpankratovchyornyy": "Aleksandr Pankratov-Chyornyy (Александр Панкратов-Чёрный)",
+    "aleksandrabdulovaleksandrabdulovалександргавриловичабдулов": "Aleksandr Abdulov (Aleksandr Abdulov (Александр Гаврилович Абдулов))",
+    "elenatsyplakovayelenatsyplakovaцыплаковаеленаоктябревна": "Elena Tsyplakova (Yelena Tsyplakova (Цыплакова, Елена Октябревна))",
+    "иринашмелева": "Irina Shmelyova (Ирина Шмелева)",
+    "irinashmelyova": "Irina Shmelyova (Ирина Шмелева)",
+    "irinarozanovairinarozanovaиринарозанова": "Irina Rozanova (Irina Rozanova (Ирина Розанова))",
+    "lyubovaksyonovalyubovaksyonovaлюбовьпавловнааксенова": "Lyubov Aksyonova (Lyubov Aksyonova (Любовь Павловна Аксёнова))",
+    "yuriychursinyuriychursinюриичурсин": "Yuriy Chursin (Yuriy Chursin (Юрий Чурсин))",
+    "eugenioderbezeugenioderbezэухениодербес": "Eugenio Derbez (Eugenio Derbez (Эухенио Дербес))",
+    "evalongoriaevalongoriaевалонгория": "Eva Longoria (Eva Longoria (Ева Лонгория))",
+    "джонханна": "John Hannah (Джон Ханна)",
+    "johnhannah": "John Hannah (Джон Ханна)",
+    "swoosiekurtzswoosiekurtzсвусикерц": "Swoosie Kurtz (Swoosie Kurtz (Свуси Кёрц))",
+    "голдихоун": "Goldie Hawn (Голди Хоун)",
+    "goldiehawn": "Goldie Hawn (Голди Хоун)",
+    "jaredrushtonjaredrushtonджэредраштон": "Jared Rushton (Jared Rushton (Джэред Раштон))",
+    "джэмиваилд": "Jamie Wild (Джэми Вайлд)",
+    "jamiewild": "Jamie Wild (Джэми Вайлд)",
+    "джеимслури": "James Lurie (Джеймс Лури)",
+    "jameslurie": "James Lurie (Джеймс Лури)",
+    "стивенсросс": "Steven S. Ross (Стивен С. Росс)",
+    "stevensross": "Steven S. Ross (Стивен С. Росс)",
+    "danriskindanielkriskinдэнрискин": "Dan Riskin (Daniel K. Riskin (Дэн Рискин))",
+    "эндрюпатрикнельсон": "Andrew Patrick Nelson (Эндрю Патрик Нельсон)",
+    "andrewpatricknelson": "Andrew Patrick Nelson (Эндрю Патрик Нельсон)",
+    "paulsutterpaulmsutterполсаттер": "Paul Sutter (Paul M. Sutter (Пол Саттер))",
+    "tabutabuтабу": "Tabu (Tabu (Табу))",
+    "адильхуссэин": "Adil Hussain (Адиль Хуссэйн)",
+    "adilhussain": "Adil Hussain (Адиль Хуссэйн)",
+    "dakotagoyodakotagoyoдакотагоио": "Dakota Goyo (Dakota Goyo (Дакота Гойо))",
+    "tatianamaslanytatianamaslanyтатьянамаслани": "Tatiana Maslany (Tatiana Maslany (Татьяна Маслани))",
+    "jameelajamiljameelajamilджамиладжамил": "Jameela Jamil (Jameela Jamil (Джамила Джамил))",
+    "gingergonzagagingergonzagaджинджергонзага": "Ginger Gonzaga (Ginger Gonzaga (Джинджер Гонзага))",
+    "алексеианищенко": "Aleksey Anishchenko (Алексей Анищенко)",
+    "alekseyanishchenko": "Aleksey Anishchenko (Алексей Анищенко)",
+    "алексеигришин": "Aleksey Grishin (Алексей Гришин)",
+    "alekseygrishin": "Aleksey Grishin (Алексей Гришин)",
+    "spyrosfokasspirosfocasспиросфокас": "Spyros Fokas (Spiros Focás (Спирос Фокас))",
+    "juliadietzejuliadietzeюлиядитце": "Julia Dietze (Julia Dietze (Юлия Дитце))",
+    "christopherkirbychristopherkirbyкристоферкирби": "Christopher Kirby (Christopher Kirby (Кристофер Кирби))",
+    "гецотто": "Götz Otto (Гёц Отто)",
+    "gotzotto": "Götz Otto (Гёц Отто)",
+    "petasergeantpetasergeantпетасержант": "Peta Sergeant (Peta Sergeant (Пета Сержант))",
+    "mickeyrourkemickeyrourkeмиккирурк": "Mickey Rourke (Mickey Rourke (Микки Рурк))",
+    "mollyshannonmollyshannonмоллишеннон": "Molly Shannon (Molly Shannon (Молли Шеннон))",
+    "cherylhinescherylhinesшерилхаинс": "Cheryl Hines (Cheryl Hines (Шерил Хайнс))",
+    "chloeeastchloeeastхлояист": "Chloe East (Chloe East (Хлоя Ист))",
+    "elleyoungelleyoungэльянг": "Elle Young (Elle Young (Эль Янг))",
+    "дэнахилл": "Dana Hill (Дэна Хилл)",
+    "danahill": "Dana Hill (Дэна Хилл)",
+    "jasonlivelyjasonlivelyджеисонлаивли": "Jason Lively (Jason Lively (Джейсон Лайвли))",
+    "johnastinjohnastinджонэстин": "John Astin (John Astin (Джон Эстин))",
+    "anamariamarincaanamariamarincaанамариямаринка": "Anamaria Marinca (Anamaria Marinca (Анамария Маринка))",
+    "дэниэлву": "Daniel Wu (Дэниэл Ву)",
+    "danielwu": "Daniel Wu (Дэниэл Ву)",
+    "аилинэссел": "Eileen Essell (Айлин Эссел)",
+    "eileenessell": "Eileen Essell (Айлин Эссел)",
+    "harveyfiersteinharveyfiersteinхарвифаиерстин": "Harvey Fierstein (Harvey Fierstein (Харви Файерстин))",
+    "morenabaccarin": "Morena Baccarin (Morena Baccarin (Морена Баккарин))",
+    "morenabaccarinmorenabaccarinморенабаккарин": "Morena Baccarin (Morena Baccarin (Морена Баккарин))",
+    "ginacaranoginacaranoджинакарано": "Gina Carano (Gina Carano (Джина Карано))",
+    "emmacorrinemmacorrinэммакоррин": "Emma Corrin (Emma Corrin (Эмма Коррин))",
+    "мэттьюмакфэдиен": "Matthew Macfadyen (Мэттью Макфэдиен)",
+    "matthewmacfadyen": "Matthew Macfadyen (Мэттью Макфэдиен)",
+    "juliandennisonjuliandennisonджулианденнисон": "Julian Dennison (Julian Dennison (Джулиан Деннисон))",
+    "zaziebeetzzaziebeetzзазибитц": "Zazie Beetz (Zazie Beetz (Зази Битц))",
+    "braddourifbraddourifбрэддуриф": "Brad Dourif (Brad Dourif (Брэд Дуриф))",
+    "adriangrenier": "Adrian Grenier (Adrian Grenier (Эдриан Гренье))",
+    "adriangrenieradriangrenierэдриангренье": "Adrian Grenier (Adrian Grenier (Эдриан Гренье))",
+    "адамбоусдукс": "Adam Bousdoukos (Адам Боусдукс)",
+    "adambousdoukos": "Adam Bousdoukos (Адам Боусдукс)",
+    "phelinerogganphelinerogganфелинарогган": "Pheline Roggan (Pheline Roggan (Фелина Рогган))",
+    "annabederkeannabederkeаннабедерке": "Anna Bederke (Anna Bederke (Анна Бедерке))",
+    "birolunelbirolunelбиролунел": "Birol Ünel (Birol Ünel (Бирол Унел))",
+    "марияандреева": "Mariya Andreeva (Мария Андреева)",
+    "mariyaandreeva": "Mariya Andreeva (Мария Андреева)",
+    "artyommikhalkovartemmikhalkovартемникитичмихалков": "Artyom Mikhalkov (Artem Mikhalkov (Артём Никитич Михалков))",
+    "nikitapanfilovnikitapanfilovникитавладиславовичпанфилов": "Nikita Panfilov (Nikita Panfilov (Никита Владиславович Панфилов))",
+    "natalyasurkovanatalyasurkovaнатальясуркова": "Natalya Surkova (Natalya Surkova (Наталья Суркова))",
+    "yuriytsuriloyuriytsuriloюрииалексеевичцурило": "Yuriy Tsurilo (Yuriy Tsurilo (Юрий Алексеевич Цурило))",
+    "borisnevzorovborisnevzorovборисневзоров": "Boris Nevzorov (Boris Nevzorov (Борис Невзоров))",
+    "lindsaylohanlindsaylohanлиндсилохан": "Lindsay Lohan (Lindsay Lohan (Линдси Лохан))",
+    "lizzycaplanlizzycaplanлиззикаплан": "Lizzy Caplan (Lizzy Caplan (Лиззи Каплан))",
+    "siancliffordsiancliffordшанклиффорд": "Sian Clifford (Sian Clifford (Шан Клиффорд))",
+    "биллпатерсон": "Bill Paterson (Билл Патерсон)",
+    "billpaterson": "Bill Paterson (Билл Патерсон)",
+    "brettgelmanbrettgelmanбреттгельман": "Brett Gelman (Brett Gelman (Бретт Гельман))",
+    "меганиеттемартин": "Meaghan Martin (Меган Йётте Мартин)",
+    "meaghanmartin": "Meaghan Martin (Меган Йётте Мартин)",
+    "доннламкин": "Donn Lamkin (Донн Ламкин)",
+    "donnlamkin": "Donn Lamkin (Донн Ламкин)",
+    "lindenashbylindenashbyлинденэшби": "Linden Ashby (Linden Ashby (Линден Эшби))",
+    "дэнкоулмэн": "Dan Coleman (Дэн Коулмэн)",
+    "dancoleman": "Dan Coleman (Дэн Коулмэн)",
+    "claireholtclaireholtклэрхолт": "Claire Holt (Claire Holt (Клэр Холт))",
+    "jessebradfordjessebradfordджессибрэдфорд": "Jesse Bradford (Jesse Bradford (Джесси Брэдфорд))",
+    "elishacuthbertelishacuthbertэлишакатберт": "Elisha Cuthbert (Elisha Cuthbert (Элиша Катберт))",
+    "joannagleasonjoannagleasonджоаннаглисон": "Joanna Gleason (Joanna Gleason (Джоанна Глисон))",
+    "williamabadiewilliamabadieуильямабади": "William Abadie (William Abadie (Уильям Абади))",
+    "чхатхэхен": "Cha Tae-hyun (Чха Тхэ-хён)",
+    "chataehyun": "Cha Tae-hyun (Чха Тхэ-хён)",
+    "янгымсок": "Yang Geum-seok (Ян Гым-сок)",
+    "yanggeumseok": "Yang Geum-seok (Ян Гым-сок)",
+    "соноксук": "Song Ok-sook (Сон Ок-сук)",
+    "songoksook": "Song Ok-sook (Сон Ок-сук)",
+    "zoekazanzoekazanзоиказан": "Zoe Kazan (Zoe Kazan (Зои Казан))",
+    "meganparkmeganparkмеганпарк": "Megan Park (Megan Park (Меган Парк))",
+    "сьюзэнмэипрэтт": "Susan May Pratt (Сьюзэн Мэй Прэтт)",
+    "susanmaypratt": "Susan May Pratt (Сьюзэн Мэй Прэтт)",
+    "niklauslangeniklauslangeниклаусланж": "Niklaus Lange (Niklaus Lange (Никлаус Ланж))",
+    "alihillisalihillisалихиллис": "Ali Hillis (Ali Hillis (Али Хиллис))",
+    "кэмеронричардсон": "Cameron Richardson (Кэмерон Ричардсон)",
+    "cameronrichardson": "Cameron Richardson (Кэмерон Ричардсон)",
+    "janjosefliefersjanjosefliefersяниозефлиферс": "Jan Josef Liefers (Jan Josef Liefers (Ян Йозеф Лиферс))",
+    "тьерриванвервеке": "Thierry van Werveke (Тьерри Ван Вервеке)",
+    "thierryvanwerveke": "Thierry van Werveke (Тьерри Ван Вервеке)",
+    "huubstapelhuubstapelхубстапель": "Huub Stapel (Huub Stapel (Хуб Стапель))",
+    "леинсмит": "Lane Smith (Лейн Смит)",
+    "lanesmith": "Lane Smith (Лейн Смит)",
+    "sherylleeralphsherylleeralphшериллиральф": "Sheryl Lee Ralph (Sheryl Lee Ralph (Шерил Ли Ральф))",
+    "victoriarowellvictoriarowellвикторияроуэлл": "Victoria Rowell (Victoria Rowell (Виктория Роуэлл))",
+    "карлпилкингтон": "Karl Pilkington (Карл Пилкингтон)",
+    "karlpilkington": "Karl Pilkington (Карл Пилкингтон)",
+    "sondrajamessondrajamesсондраджеимс": "Sondra James (Sondra James (Сондра Джеймс))",
+    "maramacorlettmaramacorlettмарамакорлетт": "Marama Corlett (Marama Corlett (Марама Корлетт))",
+    "edwardmacliamedwardmacliamэдвардмаклиэм": "Edward MacLiam (Edward MacLiam (Эдвард МакЛиэм))",
+    "кокеифалкоу": "Cokey Falkow (Кокей Фалкоу)",
+    "cokeyfalkow": "Cokey Falkow (Кокей Фалкоу)",
+    "паолокостанзо": "Paulo Costanzo (Паоло Костанзо)",
+    "paulocostanzo": "Paulo Costanzo (Паоло Костанзо)",
+    "djquallsdjquallsдональдджозефкуоллс": "DJ Qualls (DJ Qualls (Дональд Джозеф Куоллс))",
+    "мэрикобб": "Mary Cobb (Мэри Кобб)",
+    "marycobb": "Mary Cobb (Мэри Кобб)",
+    "rhodagriffisrhodagriffisродагриффис": "Rhoda Griffis (Rhoda Griffis (Рода Гриффис))",
+    "prestonjonesprestonjonesпрестонджонс": "Preston Jones (Preston Jones (Престон Джонс))",
+    "маиклтроттер": "Michael Trotter (Майкл Троттер)",
+    "michaeltrotter": "Michael Trotter (Майкл Троттер)",
+    "rickmoranisrickmoranisрикморанис": "Rick Moranis (Rick Moranis (Рик Моранис))",
+    "marciastrassmanmarciastrassmanмаршастрэссмен": "Marcia Strassman (Marcia Strassman (Марша Стрэссмен))",
+    "robertoliverirobertoliveriробертоливери": "Robert Oliveri (Robert Oliveri (Роберт Оливери))",
+    "danielshalikardanielshalikarдэниэлшэликар": "Daniel Shalikar (Daniel Shalikar (Дэниэл Шэликар))",
+    "joshuashalikarjoshuashalikarджошуашэликар": "Joshua Shalikar (Joshua Shalikar (Джошуа Шэликар))",
+    "mattfrewermattfrewerмэттфрюэр": "Matt Frewer (Matt Frewer (Мэтт Фрюэр))",
+    "kristinesutherlandkristinesutherlandкристинсазерленд": "Kristine Sutherland (Kristine Sutherland (Кристин Сазерленд))",
+    "thomaswilsonbrownthomaswilsonbrownтомасуилсонбраун": "Thomas Wilson Brown (Thomas Wilson Brown (Томас Уилсон Браун))",
+    "ивгордон": "Eve Gordon (Ив Гордон)",
+    "evegordon": "Eve Gordon (Ив Гордон)",
+    "bughallbughallбагхолл": "Bug Hall (Bug Hall (Баг Холл))",
+    "robinbartlettrobinbartlettробинбартлетт": "Robin Bartlett (Robin Bartlett (Робин Бартлетт))",
+    "stuartpankinstuartpankinстюартпэнкин": "Stuart Pankin (Stuart Pankin (Стюарт Пэнкин))",
+    "александраполитик": "Aleksandra Politik (Александра Политик)",
+    "aleksandrapolitik": "Aleksandra Politik (Александра Политик)",
+    "ольгаостроумовагутшмидт": "Olga Ostroumova-Gutshmidt (Ольга Остроумова-Гутшмидт)",
+    "olgaostroumovagutshmidt": "Olga Ostroumova-Gutshmidt (Ольга Остроумова-Гутшмидт)",
+    "яннартюсбертран": "Yann Arthus-Bertrand (Янн Артюс-Бертран)",
+    "yannarthusbertrand": "Yann Arthus-Bertrand (Янн Артюс-Бертран)",
+    "jacquesgamblinjacquesgamblinжакгамблен": "Jacques Gamblin (Jacques Gamblin (Жак Гамблен))",
+    "ричардэгрант": "Richard E. Grant (Ричард Э. Грант)",
+    "richardegrant": "Richard E. Grant (Ричард Э. Грант)",
+    "джумэинхантер": "Jumayn Hunter (Джумэйн Хантер)",
+    "jumaynhunter": "Jumayn Hunter (Джумэйн Хантер)",
+    "laurenambroselaurenambroseлоренэмброуз": "Lauren Ambrose (Lauren Ambrose (Лорен Эмброуз))",
+    "nelltigerfreenelltigerfreeнеллтаигерфри": "Nell Tiger Free (Nell Tiger Free (Нелл Тайгер Фри))",
+    "rupertgrintrupertgrintрупертгринт": "Rupert Grint (Rupert Grint (Руперт Гринт))",
+    "nialongnialongниалонг": "Nia Long (Nia Long (Ниа Лонг))",
+    "jaschawashingtonjaschawashingtonяшавашингтон": "Jascha Washington (Jascha Washington (Яша Вашингтон))",
+    "emilyprocteremilyprocterэмилипроктер": "Emily Procter (Emily Procter (Эмили Проктер))",
+    "markmosesmarkmosesмаркмозес": "Mark Moses (Mark Moses (Марк Мозес))",
+    "talulahrileytalulahrileyталулараили": "Talulah Riley (Talulah Riley (Талула Райли))",
+    "petermullanpetermullanпитермаллан": "Peter Mullan (Peter Mullan (Питер Маллан))",
+    "кирстонвэрэинг": "Kierston Wareing (Кирстон Вэрэйнг)",
+    "kierstonwareing": "Kierston Wareing (Кирстон Вэрэйнг)",
+    "ааронпол": "Aaron Paul (Аарон Пол)",
+    "aaronpaul": "Aaron Paul (Аарон Пол)",
+    "ossiedavisossiedavisоссидэвис": "Ossie Davis (Ossie Davis (Осси Дэвис))",
+    "питербоил": "Peter Boyle (Питер Бойл)",
+    "peterboyle": "Peter Boyle (Питер Бойл)",
+    "richardschiffrichardschiffричардшифф": "Richard Schiff (Richard Schiff (Ричард Шифф))",
+    "сочигомес": "Xochitl Gomez (Сочи Гомес)",
+    "xochitlgomez": "Xochitl Gomez (Сочи Гомес)",
+    "kristenwilsonkristenwilsonкристенуилсон": "Kristen Wilson (Kristen Wilson (Кристен Уилсон))",
+    "kylaprattkylaprattкаилапрэтт": "Kyla Pratt (Kyla Pratt (Кайла Прэтт))",
+    "лилзеин": "Lil' Zane (Лил Зейн)",
+    "lilzane": "Lil' Zane (Лил Зейн)",
+    "elizabethdebickielizabethdebickiэлизабетдебики": "Elizabeth Debicki (Elizabeth Debicki (Элизабет Дебики))",
+    "kennethbranaghkennethbranaghкеннетбрана": "Kenneth Branagh (Kenneth Branagh (Кеннет Брана))",
+    "ashleyscottashleyscottэшлискотт": "Ashley Scott (Ashley Scott (Эшли Скотт))",
+    "yuriytarasovyurytarasovюриигермановичтарасов": "Yuriy Tarasov (Yury Tarasov (Юрий Германович Тарасов))",
+    "andreytolubeevandreitolubeyevтолубеевандреиюрьевич": "Andrey Tolubeev (Andrei Tolubeyev (Толубеев, Андрей Юрьевич))",
+    "chriscarmackchriscarmackкрискармак": "Chris Carmack (Chris Carmack (Крис Кармак))",
+    "лоравандервурт": "Laura Vandervoort (Лора Вандервурт)",
+    "lauravandervoort": "Laura Vandervoort (Лора Вандервурт)",
+    "michaelgraziadeimichaelgraziadeiмаиклграциадеи": "Michael Graziadei (Michael Graziadei (Майкл Грациадей))",
+    "мирсеямонро": "Mircea Monroe (Мирсея Монро)",
+    "mirceamonroe": "Mircea Monroe (Мирсея Монро)",
+    "robhuebelrobhuebelробхюбель": "Rob Huebel (Rob Huebel (Роб Хюбель))",
+    "genarowlands": "Gena Rowlands (Gena Rowlands (Джина Роулендс))",
+    "genarowlandsgenarowlandsджинароулендс": "Gena Rowlands (Gena Rowlands (Джина Роулендс))",
+    "jamesgarner": "James Garner (James Garner (Джеймс Гарнер))",
+    "jamesgarnerjamesgarnerджеимсгарнер": "James Garner (James Garner (Джеймс Гарнер))",
+    "reneezellwegerreneezellwegerренезеллвегер": "Renée Zellweger (Renée Zellweger (Рене Зеллвегер))",
+    "gemmajonesgemmajonesджеммаджонс": "Gemma Jones (Gemma Jones (Джемма Джонс))",
+    "clarehopeashiteyclarehopeashiteyклэрхоупэшити": "Clare-Hope Ashitey (Clare-Hope Ashitey (Клэр-Хоуп Эшити))",
+    "стивенмэнгэн": "Stephen Mangan (Стивен Мэнгэн)",
+    "stephenmangan": "Stephen Mangan (Стивен Мэнгэн)",
+    "лизаджексон": "Lisa Jackson (Лиза Джексон)",
+    "lisajackson": "Lisa Jackson (Лиза Джексон)",
+    "джеисонуоткинс": "Jason Watkins (Джейсон Уоткинс)",
+    "jasonwatkins": "Jason Watkins (Джейсон Уоткинс)",
+    "хеленбексендеил": "Helen Baxendale (Хелен Бексендейл)",
+    "helenbaxendale": "Helen Baxendale (Хелен Бексендейл)",
+    "джеисонманцукас": "Jason Mantzoukas (Джейсон Манцукас)",
+    "jasonmantzoukas": "Jason Mantzoukas (Джейсон Манцукас)",
+    "боббили": "Bobby Lee (Бобби Ли)",
+    "bobbylee": "Bobby Lee (Бобби Ли)",
+    "thomassadoskithomassadoskiтомассадоски": "Thomas Sadoski (Thomas Sadoski (Томас Садоски))",
+    "кинмакреи": "Keene McRae (Кин МакРей)",
+    "keenemcrae": "Keene McRae (Кин МакРей)",
+    "michielhuisman": "Michiel Huisman (Michiel Huisman (Михил Хёйсман))",
+    "michielhuismanmichielhuismanмихилхеисман": "Michiel Huisman (Michiel Huisman (Михил Хёйсман))",
+    "олденэренраик": "Alden Ehrenreich (Олден Эренрайк)",
+    "aldenehrenreich": "Alden Ehrenreich (Олден Эренрайк)",
+    "джессикабраунфиндли": "Jessica Brown Findlay (Джессика Браун-Финдли)",
+    "jessicabrownfindlay": "Jessica Brown Findlay (Джессика Браун-Финдли)",
+    "harrylloydharrylloydгарриллоид": "Harry Lloyd (Harry Lloyd (Гарри Ллойд))",
+    "ninasosanyaninasosanyaнинасосанья": "Nina Sosanya (Nina Sosanya (Нина Сосанья))",
+    "josephmorganjosephmorganджозефморган": "Joseph Morgan (Joseph Morgan (Джозеф Морган))",
+    "aleksandrlykovaleksandrlykovлыковалександранатольевич": "Aleksandr Lykov (Aleksandr Lykov (Лыков, Александр Анатольевич))",
+    "виллехаапасало": "Ville Haapasalo (Вилле Хаапасало)",
+    "villehaapasalo": "Ville Haapasalo (Вилле Хаапасало)",
+    "philippereinhardtphilippereinhardtфилиппреинхардт": "Philippe Reinhardt (Philippe Reinhardt (Филипп Рейнхардт))",
+    "sergeykoltakovsergeykoltakovсергеимихаиловичколтаков": "Sergey Koltakov (Sergey Koltakov (Сергей Михайлович Колтаков))",
+    "артемалексеев": "Artyom Alekseev (Артем Алексеев)",
+    "artyomalekseev": "Artyom Alekseev (Артем Алексеев)",
+    "диркмартенс": "Dirk Martens (Дирк Мартенс)",
+    "dirkmartens": "Dirk Martens (Дирк Мартенс)",
+    "shailenewoodleyshailenewoodleyшеилинвудли": "Shailene Woodley (Shailene Woodley (Шейлин Вудли))",
+    "michaelcera": "Michael Cera (Michael Cera (Майкл Сера))",
+    "michaelceramichaelceraмаиклсера": "Michael Cera (Michael Cera (Майкл Сера))",
+    "jacekkomanjacekkomanяцеккоман": "Jacek Koman (Jacek Koman (Яцек Коман))",
+    "yasminkassimyasminkassimясминкассим": "Yasmin Kassim (Yasmin Kassim (Ясмин Кассим))",
+    "jameldebbouzejameldebbouzeжамельдеббуз": "Jamel Debbouze (Jamel Debbouze (Жамель Деббуз))",
+    "фредтесто": "Fred Testot (Фред Тесто)",
+    "fredtestot": "Fred Testot (Фред Тесто)",
+    "lambertwilsonlambertwilsonламбервильсон": "Lambert Wilson (Lambert Wilson (Ламбер Вильсон))",
+    "geraldinenakachegeraldinenakacheжеральдиннакаш": "Géraldine Nakache (Géraldine Nakache (Жеральдин Накаш))",
+    "nickjonasnickjonasникджонас": "Nick Jonas (Nick Jonas (Ник Джонас))",
+    "риздэрби": "Rhys Darby (Риз Дэрби)",
+    "rhysdarby": "Rhys Darby (Риз Дэрби)",
+    "крисмессина": "Chris Messina (Крис Мессина)",
+    "chrismessina": "Chris Messina (Крис Мессина)",
+    "lindaemondlindaemondлиндаэмонд": "Linda Emond (Linda Emond (Линда Эмонд))",
+    "jamespurefoyjamespurefoyджеимспьюрфои": "James Purefoy (James Purefoy (Джеймс Пьюрфой))",
+    "jaynebrookjaynebrookджеинбрук": "Jayne Brook (Jayne Brook (Джейн Брук))",
+    "уильямфорсаит": "William Forsythe (Уильям Форсайт)",
+    "williamforsythe": "William Forsythe (Уильям Форсайт)",
+    "спрэггрэиден": "Sprague Grayden (Спрэг Грэйден)",
+    "spraguegrayden": "Sprague Grayden (Спрэг Грэйден)",
+    "ginaphilipsginaphilipsджинафилипс": "Gina Philips (Gina Philips (Джина Филипс))",
+    "джастинлонг": "Justin Long (Джастин Лонг)",
+    "justinlong": "Justin Long (Джастин Лонг)",
+    "jonathanbreckjonathanbreckджонатанбрек": "Jonathan Breck (Jonathan Breck (Джонатан Брек))",
+    "патришабелчер": "Patricia Belcher (Патриша Белчер)",
+    "patriciabelcher": "Patricia Belcher (Патриша Белчер)",
+    "брэндонсмит": "Brandon Smith (Брэндон Смит)",
+    "brandonsmith": "Brandon Smith (Брэндон Смит)",
+    "stanshawstanshawстэншоу": "Stan Shaw (Stan Shaw (Стэн Шоу))",
+    "gabriellehaughgabriellehaughгабриэльхоф": "Gabrielle Haugh (Gabrielle Haugh (Габриэль Хоф))",
+    "джордансэллоум": "Jordan Salloum (Джордан Сэллоум)",
+    "jordansalloum": "Jordan Salloum (Джордан Сэллоум)",
+    "raywiseraywiseрэиуаиз": "Ray Wise (Ray Wise (Рэй Уайз))",
+    "garikayimutambirwagarikayimutambirwaгарикаиимутамбирва": "Garikayi Mutambirwa (Garikayi Mutambirwa (Гарикайи Мутамбирва))",
+    "ericnenningerericnenningerэрикненнингер": "Eric Nenninger (Eric Nenninger (Эрик Неннингер))",
+    "nickiaycoxnickiaycoxниккиэикокс": "Nicki Aycox (Nicki Aycox (Никки Эйкокс))",
+    "сидникреивен": "Sydney Craven (Сидни Крейвен)",
+    "sydneycraven": "Sydney Craven (Сидни Крейвен)",
+    "имранадамс": "Imran Adams (Имран Адамс)",
+    "imranadams": "Imran Adams (Имран Адамс)",
+    "питербрук": "Peter Brooke (Питер Брук)",
+    "peterbrooke": "Peter Brooke (Питер Брук)",
+    "oceannavarrooceannavarroоушеннаварро": "Ocean Navarro (Ocean Navarro (Оушен Наварро))",
+    "мэттбаркли": "Matt Barkley (Мэтт Баркли)",
+    "mattbarkley": "Matt Barkley (Мэтт Баркли)",
+    "henrygoldinghenrygoldingгенриголдинг": "Henry Golding (Henry Golding (Генри Голдинг))",
+    "datobakhtadzedatobakhtadzeдатобахтадзе": "Dato Bakhtadze (Dato Bakhtadze (Дато Бахтадзе))",
+    "evgeniyleonovyevgenyleonovевгениипавловичлеонов": "Evgeniy Leonov (Yevgeny Leonov (Евгений Павлович Леонов))",
+    "radnermuratovradnermuratovраднэрзинятовичмуратов": "Radner Muratov (Radner Muratov (Раднэр Зинятович Муратов))",
+    "erastgarinerastgarinэрастпавловичгарин": "Erast Garin (Erast Garin (Эраст Павлович Гарин))",
+    "шеинкаррут": "Shane Carruth (Шейн Каррут)",
+    "shanecarruth": "Shane Carruth (Шейн Каррут)",
+    "дэвидсалливан": "David Sullivan (Дэвид Салливан)",
+    "davidsullivan": "David Sullivan (Дэвид Салливан)",
+    "кэисигуден": "Casey Gooden (Кэйси Гуден)",
+    "caseygooden": "Casey Gooden (Кэйси Гуден)",
+    "анандупадхаиая": "Anand Upadhyaya (Ананд Упадхайая)",
+    "anandupadhyaya": "Anand Upadhyaya (Ананд Упадхайая)",
+    "кэррикроуфорд": "Carrie Crawford (Кэрри Кроуфорд)",
+    "carriecrawford": "Carrie Crawford (Кэрри Кроуфорд)",
+    "алексапенавега": "Alexa PenaVega (Алекса ПенаВега)",
+    "alexapenavega": "Alexa PenaVega (Алекса ПенаВега)",
+    "alancummingalancummingаланкамминг": "Alan Cumming (Alan Cumming (Алан Камминг))",
+    "rowanblanchardrowanblanchardроуэнбланчард": "Rowan Blanchard (Rowan Blanchard (Роуэн Бланчард))",
+    "masoncookmasoncookмэисонкук": "Mason Cook (Mason Cook (Мэйсон Кук))",
+    "рикардомонтальбан": "Ricardo Montalban (Рикардо Монтальбан)",
+    "ricardomontalban": "Ricardo Montalban (Рикардо Монтальбан)",
+    "ryanpinkstonryanpinkstonраианпинкстон": "Ryan Pinkston (Ryan Pinkston (Райан Пинкстон))",
+    "dyllanchristopherdyllanchristopherдилланкристофер": "Dyllan Christopher (Dyllan Christopher (Диллан Кристофер))",
+    "tylerjameswilliamstylerjameswilliamsтаилерджеимсуильямс": "Tyler James Williams (Tyler James Williams (Тайлер Джеймс Уильямс))",
+    "giamantegnagiamantegnaджинамантенья": "Gia Mantegna (Gia Mantegna (Джина Мантенья))",
+    "quinnshephardquinnshephardкуинншепард": "Quinn Shephard (Quinn Shephard (Куинн Шепард))",
+    "aleksandrkaydanovskiyalexanderkaidanovskyалександрлеонидовичкаидановскии": "Aleksandr Kaydanovskiy (Alexander Kaidanovsky (Александр Леонидович Кайдановский))",
+    "tatyanadrubichtatyanadrubichтатьяналюсьеновнадрубич": "Tatyana Drubich (Tatyana Drubich (Татьяна Люсьеновна Друбич))",
+    "lyudmilamaksakovalyudmilamaksakovaлюдмилавасильевнамаксакова": "Lyudmila Maksakova (Lyudmila Maksakova (Людмила Васильевна Максакова))",
+    "anatoliyromashinanatoliyromashinанатолиивладимировичромашин": "Anatoliy Romashin (Anatoliy Romashin (Анатолий Владимирович Ромашин))",
+    "vladimirzeldinvladimirzeldinвладимирмихаиловичзельдин": "Vladimir Zeldin (Vladimir Zeldin (Владимир Михайлович Зельдин))",
+    "eleanormatsuura": "Eleanor Matsuura (Eleanor Matsuura (Элинор Мацуура))",
+    "eleanormatsuuraeleanormatsuuraэлинормацуура": "Eleanor Matsuura (Eleanor Matsuura (Элинор Мацуура))",
+    "andiemacdowellandiemacdowellэндимакдауэлл": "Andie MacDowell (Andie MacDowell (Энди Макдауэлл))",
+    "крисэллиот": "Chris Elliott (Крис Эллиот)",
+    "chriselliott": "Chris Elliott (Крис Эллиот)",
+    "briandoylemurraybriandoylemurrayбраиандоилмюрреи": "Brian Doyle-Murray (Brian Doyle-Murray (Брайан Дойл-Мюррей))",
+    "мэримакдоннелл": "Mary McDonnell (Мэри Макдоннелл)",
+    "marymcdonnell": "Mary McDonnell (Мэри Макдоннелл)",
+    "джаддхерш": "Judd Hirsch (Джадд Хёрш)",
+    "juddhirsch": "Judd Hirsch (Джадд Хёрш)",
+    "jessietusherjessietusherджесситашер": "Jessie T. Usher (Jessie T. Usher (Джесси Т. Ашер))",
+    "maikamonroemaikamonroeмаикамонро": "Maika Monroe (Maika Monroe (Майка Монро))",
+    "нэнсимаккеон": "Nancy McKeon (Нэнси МакКеон)",
+    "nancymckeon": "Nancy McKeon (Нэнси МакКеон)",
+    "chandrawestchandrawestчандрауэст": "Chandra West (Chandra West (Чандра Уэст))",
+    "brianmarkinsonbrianmarkinsonбраианмаркинсон": "Brian Markinson (Brian Markinson (Брайан Маркинсон))",
+    "nancyannesakovichnancyannesakovichнэнсиэннсакович": "Nancy Anne Sakovich (Nancy Anne Sakovich (Нэнси Энн Сакович))",
+    "camerondaddocamerondaddoкемерондеидду": "Cameron Daddo (Cameron Daddo (Кемерон Дейдду))",
+    "ginagershonginagershonджинагершон": "Gina Gershon (Gina Gershon (Джина Гершон))",
+    "shannendohertyshannendohertyшеннендоэрти": "Shannen Doherty (Shannen Doherty (Шеннен Доэрти))",
+    "робертвагнер": "Robert Wagner (Роберт Вагнер)",
+    "robertwagner": "Robert Wagner (Роберт Вагнер)",
+    "maxwellperrycottonmaxwellperrycottonмаксвеллперрикоттон": "Maxwell Perry Cotton (Maxwell Perry Cotton (Максвелл Перри Коттон))",
+    "исаакдернфорд": "Isaac Durnford (Исаак Дернфорд)",
+    "isaacdurnford": "Isaac Durnford (Исаак Дернфорд)",
+    "georgenewberngeorgenewbernджорджньюберн": "George Newbern (George Newbern (Джордж Ньюберн))",
+    "робертблеик": "Robert Blake (Роберт Блейк)",
+    "robertblake": "Robert Blake (Роберт Блейк)",
+    "leejunho": "Lee Jun-ho (Lee Jun-ho (Ли Джун-хо))",
+    "leejunholeejunhoлиджунхо": "Lee Jun-ho (Lee Jun-ho (Ли Джун-хо))",
+    "kimhyejun": "Kim Hye-jun (Kim Hye-jun (Ким Хе-джун))",
+    "kimhyejunkimhyejunкимхеджун": "Kim Hye-jun (Kim Hye-jun (Ким Хе-джун))",
+    "kimbyeongcheol": "Kim Byeong-cheol (Kim Byeong-cheol (Ким Бён-чхоль))",
+    "kimbyeongcheolkimbyeongcheolкимбенчхоль": "Kim Byeong-cheol (Kim Byeong-cheol (Ким Бён-чхоль))",
+    "джеимсримар": "James Remar (Джеймс Римар)",
+    "jamesremar": "James Remar (Джеймс Римар)",
+    "ксли": "C.S. Lee (К.С. Ли)",
+    "cslee": "C.S. Lee (К.С. Ли)",
+    "umathurman": "Uma Thurman (Uma Thurman (Ума Турман))",
+    "umathurmanumathurmanуматурман": "Uma Thurman (Uma Thurman (Ума Турман))",
+    "jackalcott": "Jack Alcott (Jack Alcott (Джек Элкотт))",
+    "jackalcottjackalcottджекэлкотт": "Jack Alcott (Jack Alcott (Джек Элкотт))",
+    "johnnysequoyahjohnnysequoyahджоннисеквоия": "Johnny Sequoyah (Johnny Sequoyah (Джонни Секвойя))",
+    "alanomilleralanomillerаланомиллер": "Alano Miller (Alano Miller (Алано Миллер))",
+    "conchacuetosconchacuetosкончакуэтос": "Concha Cuetos (Concha Cuetos (Конча Куэтос))",
+    "carloslarranagacarloslarranagaкарлосларраньяга": "Carlos Larrañaga (Carlos Larrañaga (Карлос Ларраньяга))",
+    "хулиангонсалес": "Julián González (Хулиан Гонсалес)",
+    "juliangonzalez": "Julián González (Хулиан Гонсалес)",
+    "мигельанхельгарсон": "Miguel Ángel Garzón (Мигель Анхель Гарсон)",
+    "miguelangelgarzon": "Miguel Ángel Garzón (Мигель Анхель Гарсон)",
+    "сесареоэстебанес": "Cesáreo Estébanez (Сесарео Эстебанес)",
+    "cesareoestebanez": "Cesáreo Estébanez (Сесарео Эстебанес)",
+    "адамголдберг": "Adam Goldberg (Адам Голдберг)",
+    "adamgoldberg": "Adam Goldberg (Адам Голдберг)",
+    "алевтинатукан": "Alevtina Tukan (Алевтина Тукан)",
+    "alevtinatukan": "Alevtina Tukan (Алевтина Тукан)",
+    "valeriyaastapovavaleriyaastapovaвалерияпавловнаастапова": "Valeriya Astapova (Valeriya Astapova (Валерия Павловна Астапова))",
+    "владиславаермолаева": "Vlada Ermolaeva (Владислава Ермолаева)",
+    "vladaermolaeva": "Vlada Ermolaeva (Владислава Ермолаева)",
+    "еленаполянская": "Elena Polyanskaya (Елена Полянская)",
+    "elenapolyanskaya": "Elena Polyanskaya (Елена Полянская)",
+    "rooneymararooneymaraрунимара": "Rooney Mara (Rooney Mara (Руни Мара))",
+    "jerrystillerjerrystillerджерристиллер": "Jerry Stiller (Jerry Stiller (Джерри Стиллер))",
+    "robcorddryrobcorddryробкордри": "Rob Corddry (Rob Corddry (Роб Кордри))",
+    "danecookdanecookдеинкук": "Dane Cook (Dane Cook (Дейн Кук))",
+    "jasonbiggsjasonbiggsджеисонбиггс": "Jason Biggs (Jason Biggs (Джейсон Биггс))",
+    "alecbaldwinalecbaldwinалекболдуин": "Alec Baldwin (Alec Baldwin (Алек Болдуин))",
+    "diorabairddiorabairdдиорабэрд": "Diora Baird (Diora Baird (Диора Бэрд))",
+    "jessicaszohrjessicaszohrджессиказор": "Jessica Szohr (Jessica Szohr (Джессика Зор))",
+    "эдспелирс": "Ed Speleers (Эд Спелирс)",
+    "edspeleers": "Ed Speleers (Эд Спелирс)",
+    "lucapasqualinolukepasqualinoлюкпаскуалино": "Luca Pasqualino (Luke Pasqualino (Люк Паскуалино))",
+    "adamleeseadamleeseадамлиз": "Adam Leese (Adam Leese (Адам Лиз))",
+    "нана": "Tony Sano (Нана)",
+    "tonysano": "Tony Sano (Нана)",
+    "лиханбель": "Lee Han-byeol (Ли Хан-бёль)",
+    "leehanbyeol": "Lee Han-byeol (Ли Хан-бёль)",
+    "kimminseokimminseoкимминсо": "Kim Min-Seo (Kim Min-seo (Ким Мин-со))",
+    "embethdavidtzembethdavidtzэмбетдэвидц": "Embeth Davidtz (Embeth Davidtz (Эмбет Дэвидц))",
+    "kierstenwarrenkierstenwarrenкирстенуоррен": "Kiersten Warren (Kiersten Warren (Кирстен Уоррен))",
+    "трэисиморган": "Tracy Morgan (Трэйси Морган)",
+    "tracymorgan": "Tracy Morgan (Трэйси Морган)",
+    "kevinpollakkevinpollakкевинполлак": "Kevin Pollak (Kevin Pollak (Кевин Поллак))",
+    "гильермодиас": "Guillermo Diaz (Гильермо Диас)",
+    "guillermodiaz": "Guillermo Diaz (Гильермо Диас)",
+    "margaritalevievamargaritalevievaмаргариталевиева": "Margarita Levieva (Margarita Levieva (Маргарита Левиева))",
+    "emilymeadeemilymeadeэмилимид": "Emily Meade (Emily Meade (Эмили Мид))",
+    "aaronyooaaronyooаароню": "Aaron Yoo (Aaron Yoo (Аарон Ю))",
+    "sophiewildesophiewildeсофиуаилд": "Sophie Wilde (Sophie Wilde (Софи Уайлд))",
+    "александрадженсен": "Alexandra Jensen (Александра Дженсен)",
+    "alexandrajensen": "Alexandra Jensen (Александра Дженсен)",
+    "mirandaottomirandaottoмирандаотто": "Miranda Otto (Miranda Otto (Миранда Отто))",
+    "otisdhanjiotisdhanjiотисдханджи": "Otis Dhanji (Otis Dhanji (Отис Дханджи))",
+    "pelageyanevzorova": "Pelageya Nevzorova (Pelageya Nevzorova (Пелагея Невзорова))",
+    "pelageyanevzorovapelageyanevzorovaпелагеяневзорова": "Pelageya Nevzorova (Pelageya Nevzorova (Пелагея Невзорова))",
+    "andreyskorokhod": "Andrey Skorokhod (Andrey Skorokhod (Андрей Скороход))",
+    "andreyskorokhodandreyskorokhodандреискороход": "Andrey Skorokhod (Andrey Skorokhod (Андрей Скороход))",
+    "zhannaepple": "Zhanna Epple (Zhanna Epple (Жанна Эппле))",
+    "zhannaepplezhannaeppleжаннаэппле": "Zhanna Epple (Zhanna Epple (Жанна Эппле))",
+    "billpaxtonbillpaxtonбиллпэкстон": "Bill Paxton (Bill Paxton (Билл Пэкстон))",
+    "edwardjamesolmosedwardjamesolmosэдвардджеимсолмос": "Edward James Olmos (Edward James Olmos (Эдвард Джеймс Олмос))",
+    "натальяегорова": "Natalya Egorova (Наталья Егорова)",
+    "natalyaegorova": "Natalya Egorova (Наталья Егорова)",
+    "vadimyatsukvadimyatsukвадимяцук": "Vadim Yatsuk (Vadim Yatsuk (Вадим Яцук))",
+    "viktoryatsukviktoryatsukвикторяцук": "Viktor Yatsuk (Viktor Yatsuk (Виктор Яцук))",
+    "shamierandersonshamierandersonшамирандерсон": "Shamier Anderson (Shamier Anderson (Шамир Андерсон))",
+    "дэнбэрри": "Dan Barry (Дэн Бэрри)",
+    "danbarry": "Dan Barry (Дэн Бэрри)",
+    "claudiablackclaudiablackклаудиялиблэк": "Claudia Black (Claudia Black (Клаудия Ли Блэк))",
+    "anthonysimcoeanthonysimcoeэнтонисимко": "Anthony Simcoe (Anthony Simcoe (Энтони Симко))",
+    "ланиджонтупу": "Lani John Tupu (Лани Джон Тупу)",
+    "lanijohntupu": "Lani John Tupu (Лани Джон Тупу)",
+    "jonathanhardyjonathanhardyджонатанхарди": "Jonathan Hardy (Jonathan Hardy (Джонатан Харди))",
+    "daniilbelykhdaniilbelykhданиилбелых": "Daniil Belykh (Daniil Belykh (Даниил Белых))",
+    "ekaterinavarnavayekaterinavarnavaекатеринавладимировнаварнава": "Ekaterina Varnava (Yekaterina Varnava (Екатерина Владимировна Варнава))",
+    "валериякуликова": "Valeriya Kulikova (Валерия Куликова)",
+    "valeriyakulikova": "Valeriya Kulikova (Валерия Куликова)",
+    "julialouisdreyfus": "Julia Louis-Dreyfus (Julia Louis-Dreyfus (Джулия Луис-Дрейфус))",
+    "julialouisdreyfusjulialouisdreyfusджулиялуисдреифус": "Julia Louis-Dreyfus (Julia Louis-Dreyfus (Джулия Луис-Дрейфус))",
+    "anastasiyaukolovaanastasiyaukolovaуколоваанастасиявладимировна": "Anastasiya Ukolova (Anastasiya Ukolova (Уколова, Анастасия Владимировна))",
+    "rogerdalefloyd": "Roger Dale Floyd (Roger Dale Floyd (Роджер Дейл Флойд))",
+    "rogerdalefloydrogerdalefloydроджердеилфлоид": "Roger Dale Floyd (Roger Dale Floyd (Роджер Дейл Флойд))",
+    "zachgalliganzachgalliganзакгэллиган": "Zach Galligan (Zach Galligan (Зак Гэллиган))",
+    "phoebecatesphoebecatesфибикеитс": "Phoebe Cates (Phoebe Cates (Фиби Кейтс))",
+    "hoytaxtonhoytaxtonхоитэкстон": "Hoyt Axton (Hoyt Axton (Хойт Экстон))",
+    "pollyhollidaypollyhollidayполлихоллидеи": "Polly Holliday (Polly Holliday (Полли Холлидей))",
+    "francesleemccainfrancesleemccainфрэнсислимаккеин": "Frances Lee McCain (Frances Lee McCain (Фрэнсис Ли МакКейн))",
+    "howiemandelhowiemandelхоуимэндел": "Howie Mandel (Howie Mandel (Хоуи Мэндел))",
+    "tonyrandalltonyrandallтонирэндалл": "Tony Randall (Tony Randall (Тони Рэндалл))",
+    "douglasboothdouglasboothдугласбут": "Douglas Booth (Douglas Booth (Дуглас Бут))",
+    "кристианнэирн": "Kristian Nairn (Кристиан Нэйрн)",
+    "kristiannairn": "Kristian Nairn (Кристиан Нэйрн)",
+    "chriswalleychriswalleyкрисуолли": "Chris Walley (Chris Walley (Крис Уолли))",
+    "annatorvannatorvаннаторв": "Anna Torv (Anna Torv (Анна Торв))",
+    "joshuajacksonjoshuajacksonджошуаджексон": "Joshua Jackson (Joshua Jackson (Джошуа Джексон))",
+    "джонноубл": "John Noble (Джон Ноубл)",
+    "johnnoble": "John Noble (Джон Ноубл)",
+    "jasikanicolejasikanicoleджесиканиколь": "Jasika Nicole (Jasika Nicole (Джесика Николь))",
+    "lancereddicklancereddickлэнсреддик": "Lance Reddick (Lance Reddick (Лэнс Реддик))",
+    "beevangbeevangбиванг": "Bee Vang (Bee Vang (Би Ванг))",
+    "christophercarleychristophercarleyкристоферкарли": "Christopher Carley (Christopher Carley (Кристофер Карли))",
+    "энихи": "Julia Ho (Эни Хи)",
+    "juliaho": "Julia Ho (Эни Хи)",
+    "brianhaleybrianhaleyбраианхеили": "Brian Haley (Brian Haley (Брайан Хейли))",
+    "ortoignatiussenortoignatiussenортоигнатиуссен": "Orto Ignatiussen (Orto Ignatiussen (Орто Игнатиуссен))",
+    "phaldutsharmapaulsharmaфалдутшарма": "Phaldut Sharma (Paul Sharma (Фалдут Шарма))",
+    "yuriystoyanovyuristoyanovюрииниколаевичстоянов": "Yuriy Stoyanov (Yuri Stoyanov (Юрий Николаевич Стоянов))",
+    "алексеимакаров": "Aleksey Makarov (Алексей Макаров)",
+    "alekseymakarov": "Aleksey Makarov (Алексей Макаров)",
+    "mikhailtrukhinmikhailtrukhinтрухинмихаилниколаевич": "Mikhail Trukhin (Mikhail Trukhin (Трухин, Михаил Николаевич))",
+    "annanevskayaannanevskayaаннавикторовнаневская": "Anna Nevskaya (Anna Nevskaya (Анна Викторовна Невская))",
+    "евгениимихеев": "Evgeniy Mikheev (Евгений Михеев)",
+    "evgeniymikheev": "Evgeniy Mikheev (Евгений Михеев)",
+    "linhdanphamlinhdanphamфамлиньдан": "Linh-Dan Pham (Linh Dan Pham (Фам Линь Дан))",
+    "bojananovakovicbojananovakovicбоянановакович": "Bojana Novakovic (Bojana Novaković (Бояна Новакович))",
+    "essiedavisessiedavisэссидэвис": "Essie Davis (Essie Davis (Эсси Дэвис))",
+    "kerryfoxkerryfoxкеррифокс": "Kerry Fox (Kerry Fox (Керри Фокс))",
+    "rachelgriffithsrachelgriffithsрэичелгриффитс": "Rachel Griffiths (Rachel Griffiths (Рэйчел Гриффитс))",
+    "michaelwincottmichaelwincottмаиклуинкотт": "Michael Wincott (Michael Wincott (Майкл Уинкотт))",
+    "michaelrapaportmichaelrapaportмаиклрапапорт": "Michael Rapaport (Michael Rapaport (Майкл Рапапорт))",
+    "paulbenvictorpaulbenvictorполбенвиктор": "Paul Ben-Victor (Paul Ben-Victor (Пол Бен-Виктор))",
+    "blakelively": "Blake Lively (Blake Lively (Блейк Лайвли))",
+    "blakelivelyblakelivelyблеиклаивли": "Blake Lively (Blake Lively (Блейк Лайвли))",
+    "joegilgunjoegilgunджозефгилган": "Joe Gilgun (Joe Gilgun (Джозеф Гилган))",
+    "мишелькигэн": "Michelle Keegan (Мишель Кигэн)",
+    "michellekeegan": "Michelle Keegan (Мишель Кигэн)",
+    "томхэнсон": "Tom Hanson (Том Хэнсон)",
+    "tomhanson": "Tom Hanson (Том Хэнсон)",
+    "aaronheffernanaaronheffernanааронхеффернан": "Aaron Heffernan (Aaron Heffernan (Аарон Хеффернан))",
+    "ryansampsonryansampsonраиансэмпсон": "Ryan Sampson (Ryan Sampson (Райан Сэмпсон))",
+    "indianaevansindianaevansиндианаэванс": "Indiana Evans (Indiana Evans (Индиана Эванс))",
+    "patrickstespritpatrickstespritпатрикстэсприт": "Patrick St. Esprit (Patrick St. Esprit (Патрик Ст. Эсприт))",
+    "frankjohnhughesfrankjohnhughesфрэнкджонхьюз": "Frank John Hughes (Frank John Hughes (Фрэнк Джон Хьюз))",
+    "brookeshieldsbrookeshieldsбрукшилдс": "Brooke Shields (Brooke Shields (Брук Шилдс))",
+    "christopheratkinschristopheratkinsкристофераткинс": "Christopher Atkins (Christopher Atkins (Кристофер Аткинс))",
+    "леомаккерн": "Leo McKern (Лео МакКерн)",
+    "leomckern": "Leo McKern (Лео МакКерн)",
+    "уильямдэниелс": "William Daniels (Уильям Дэниелс)",
+    "williamdaniels": "William Daniels (Уильям Дэниелс)",
+    "элваджозефсон": "Elva Josephson (Элва Джозефсон)",
+    "elvajosephson": "Elva Josephson (Элва Джозефсон)",
+    "breeturnerbreeturnerбритернер": "Bree Turner (Bree Turner (Бри Тёрнер))",
+    "ericwinterericwinterэриквинтер": "Eric Winter (Eric Winter (Эрик Винтер))",
+    "adambeachadambeachадамбич": "Adam Beach (Adam Beach (Адам Бич))",
+    "холтмаккэллани": "Holt McCallany (Холт Маккэллани)",
+    "holtmccallany": "Holt McCallany (Холт Маккэллани)",
+    "jeffreydonovanjeffreydonovanджеффридонован": "Jeffrey Donovan (Jeffrey Donovan (Джеффри Донован))",
+    "joaquinphoenixjoaquinphoenixхоакинфеникс": "Joaquin Phoenix (Joaquin Phoenix (Хоакин Феникс))",
+    "oliverreedoliverreedоливеррид": "Oliver Reed (Oliver Reed (Оливер Рид))",
+    "ричардхаррис": "Richard Harris (Ричард Харрис)",
+    "richardharris": "Richard Harris (Ричард Харрис)",
+    "priyankachoprajonas": "Priyanka Chopra Jonas (Priyanka Chopra Jonas (Приянка Чопра Джонас))",
+    "priyankachoprajonaspriyankachoprajonasприянкачопраджонас": "Priyanka Chopra Jonas (Priyanka Chopra Jonas (Приянка Чопра Джонас))",
+    "jodiecomerjodiecomerджодикомер": "Jodie Comer (Jodie Comer (Джоди Комер))",
+    "joekeeryjoekeeryджокири": "Joe Keery (Joe Keery (Джо Кири))",
+    "лилрелховери": "Lil Rel Howery (Лил Рел Ховери)",
+    "lilrelhowery": "Lil Rel Howery (Лил Рел Ховери)",
+    "джеккоулман": "Jack Coleman (Джек Коулман)",
+    "jackcoleman": "Jack Coleman (Джек Коулман)",
+    "masiokamasiokaмасиока": "Masi Oka (Masi Oka (Маси Ока))",
+    "sendhilramamurthysendhilramamurthyсендхилрамамурти": "Sendhil Ramamurthy (Sendhil Ramamurthy (Сендхил Рамамурти))",
+    "роббикеи": "Robbie Kay (Робби Кей)",
+    "robbiekay": "Robbie Kay (Робби Кей)",
+    "kikisukezanekikisukezaneкикисукэдзанэ": "Kiki Sukezane (Kiki Sukezane (Кики Сукэдзанэ))",
+    "ryanguzmanryanguzmanраиангузман": "Ryan Guzman (Ryan Guzman (Райан Гузман))",
+    "aleksandrrobakaleksandrrobakалександрробак": "Aleksandr Robak (Aleksandr Robak (Александр Робак))",
+    "yevgeniyaokulovskayaeugeniahirivskayaевгениябрик": "Yevgeniya Okulovskaya (Eugenia Hirivskaya (Евгения Брик))",
+    "ральфбраун": "Ralph Brown (Ральф Браун)",
+    "ralphbrown": "Ralph Brown (Ральф Браун)",
+    "kyrasedgwickkyrasedgwickкираседжвик": "Kyra Sedgwick (Kyra Sedgwick (Кира Седжвик))",
+    "ginoanthonypesi": "Gino Anthony Pesi (Gino Anthony Pesi (Джино Энтони Пези))",
+    "ginoanthonypesiginoanthonypesiджиноэнтонипези": "Gino Anthony Pesi (Gino Anthony Pesi (Джино Энтони Пези))",
+    "brinnakelly": "Brinna Kelly (Brinna Kelly (Бринна Келли))",
+    "brinnakellybrinnakellyбриннакелли": "Brinna Kelly (Brinna Kelly (Бринна Келли))",
+    "jasonstuart": "Jason Stuart (Jason Stuart (Джейсон Стюарт))",
+    "jasonstuartjasonstuartджеисонстюарт": "Jason Stuart (Jason Stuart (Джейсон Стюарт))",
+    "tomfeltontomfeltonтомфелтон": "Tom Felton (Tom Felton (Том Фелтон))",
+    "eddiekayethomaseddiekayethomasэддикэитомас": "Eddie Kaye Thomas (Eddie Kaye Thomas (Эдди Кэй Томас))",
+    "danneelacklesdanneelacklesдэннилэклс": "Danneel Ackles (Danneel Ackles (Дэннил Эклс))",
+    "seanpennseanpennшонпенн": "Sean Penn (Sean Penn (Шон Пенн))",
+    "жазминтринка": "Jasmine Trinca (Жазмин Тринка)",
+    "jasminetrinca": "Jasmine Trinca (Жазмин Тринка)",
+    "ninaariandaninaariandaнинаарианда": "Nina Arianda (Nina Arianda (Нина Арианда))",
+    "griffindunnegriffindunneгриффинданн": "Griffin Dunne (Griffin Dunne (Гриффин Данн))",
+    "gigiedgleygigiedgleyджиджиэджли": "Gigi Edgley (Gigi Edgley (Джиджи Эджли))",
+    "waynepygramwaynepigramуэинпиграм": "Wayne Pygram (Wayne Pigram (Уэйн Пиграм))",
+    "расселлбрэнд": "Russell Brand (Расселл Брэнд)",
+    "russellbrand": "Russell Brand (Расселл Брэнд)",
+    "мирандакосгров": "Miranda Cosgrove (Миранда Косгров)",
+    "mirandacosgrove": "Miranda Cosgrove (Миранда Косгров)",
+    "леамюрен": "Lea Myren (Леа Мюрен)",
+    "leamyren": "Lea Myren (Леа Мюрен)",
+    "anedahltorpanedahltorpанедальторп": "Ane Dahl Torp (Ane Dahl Torp (Ане Даль Торп))",
+    "флофагерли": "Flo Fagerli (Фло Фагерли)",
+    "flofagerli": "Flo Fagerli (Фло Фагерли)",
+    "исаккалмрот": "Isac Calmroth (Исак Калмрот)",
+    "isaccalmroth": "Isac Calmroth (Исак Калмрот)",
+    "jaybarucheljaybaruchelджеибарушель": "Jay Baruchel (Jay Baruchel (Джей Барушель))",
+    "alisonpillalisonpillэлисонпилл": "Alison Pill (Alison Pill (Элисон Пилл))",
+    "marcandregrondinmarcandregrondinмаркандрегронден": "Marc-André Grondin (Marc-André Grondin (Марк-Андре Гронден))",
+    "kadmeradkadmeradкадмерад": "Kad Merad (Kad Merad (Кад Мерад))",
+    "меланидуте": "Mélanie Doutey (Мелани Дуте)",
+    "melaniedoutey": "Mélanie Doutey (Мелани Дуте)",
+    "manupayetmanupayetманюпаие": "Manu Payet (Manu Payet (Маню Пайе))",
+    "франсисрено": "Francis Renaud (Франсис Рено)",
+    "francisrenaud": "Francis Renaud (Франсис Рено)",
+    "pierrelaplacepierrelaplaceпьерлапляс": "Pierre Laplace (Pierre Laplace (Пьер ЛаПляс))",
+    "pyotrdubrovpyotrdubrovпетрвалерьевичдубров": "Pyotr Dubrov (Pyotr Dubrov (Пётр Валерьевич Дубров))",
+    "антоншкаплеров": "Anton Shkaplerov (Антон Шкаплеров)",
+    "antonshkaplerov": "Anton Shkaplerov (Антон Шкаплеров)",
+    "davidcubittdavidcubittдэвидкабитт": "David Cubitt (David Cubitt (Дэвид Кабитт))",
+    "lauraharrislauraharrisлорахаррис": "Laura Harris (Laura Harris (Лора Харрис))",
+    "dylanmatzkedylanmatzkeдиланмацке": "Dylan Matzke (Dylan Matzke (Дилан Мацке))",
+    "jeffreyballardjeffreyballardджеффрибаллард": "Jeffrey Ballard (Jeffrey Ballard (Джеффри Баллард))",
+    "forrestgoodluckforrestgoodluckфоррестгудлак": "Forrest Goodluck (Forrest Goodluck (Форрест Гудлак))",
+    "pazdelahuertapazdelahuertaпасделауэрта": "Paz de la Huerta (Paz de la Huerta (Пас де ла Уэрта))",
+    "натаниельбраун": "Nathaniel Brown (Натаниель Браун)",
+    "nathanielbrown": "Nathaniel Brown (Натаниель Браун)",
+    "сирилрои": "Cyril Roy (Сирил Рой)",
+    "cyrilroy": "Cyril Roy (Сирил Рой)",
+    "оллиалександр": "Olly Alexander (Олли Александр)",
+    "ollyalexander": "Olly Alexander (Олли Александр)",
+    "masatotannomasatotannoмасатотанно": "Masato Tanno (Masato Tanno (Масато Танно))",
+    "gabyhoffmanngabyhoffmannгабихоффманн": "Gaby Hoffmann (Gaby Hoffmann (Габи Хоффманн))",
+    "jacquelinekimjacquelinekimжаклинким": "Jacqueline Kim (Jacqueline Kim (Жаклин Ким))",
+    "bokeemwoodbine": "Bokeem Woodbine (Bokeem Woodbine (Боким Вудбайн))",
+    "bokeemwoodbinebokeemwoodbineбокимвудбаин": "Bokeem Woodbine (Bokeem Woodbine (Боким Вудбайн))",
+    "sharonstone": "Sharon Stone (Sharon Stone (Шэрон Стоун))",
+    "sharonstonesharonstoneшэронстоун": "Sharon Stone (Sharon Stone (Шэрон Стоун))",
+    "michaelironside": "Michael Ironside (Michael Ironside (Майкл Айронсайд))",
+    "michaelironsidemichaelironsideмаиклаиронсаид": "Michael Ironside (Michael Ironside (Майкл Айронсайд))",
+    "josephfiennesjosephfiennesджозеффаинс": "Joseph Fiennes (Joseph Fiennes (Джозеф Файнс))",
+    "zacharyknightonzacharyknightonзахаринаитон": "Zachary Knighton (Zachary Knighton (Захари Найтон))",
+    "dominicmonaghandominicmonaghanдоминикмонаган": "Dominic Monaghan (Dominic Monaghan (Доминик Монаган))",
+    "мэттэллис": "Matt Ellis (Мэтт Эллис)",
+    "mattellis": "Matt Ellis (Мэтт Эллис)",
+    "jordanalargyjordanalargyджорданаларги": "Jordana Largy (Jordana Largy (Джордана Ларги))",
+    "мартиндонован": "Martin Donovan (Мартин Донован)",
+    "martindonovan": "Martin Donovan (Мартин Донован)",
+    "evelynebrochuevelynebrochuэвелинброшу": "Evelyne Brochu (Evelyne Brochu (Эвелин Брошу))",
+    "зоидешанель": "Zooey Deschanel (Зои Дешанель)",
+    "zooeydeschanel": "Zooey Deschanel (Зои Дешанель)",
+    "джонмаиклхиггинс": "John Michael Higgins (Джон Майкл Хиггинс)",
+    "johnmichaelhiggins": "John Michael Higgins (Джон Майкл Хиггинс)",
+    "deanlennoxkellydeanlennoxkellyдинленнокскелли": "Dean Lennox Kelly (Dean Lennox Kelly (Дин Леннокс Келли))",
+    "мередитмакнил": "Meredith MacNeill (Мередит Макнил)",
+    "meredithmacneill": "Meredith MacNeill (Мередит Макнил)",
+    "розалимаиклс": "Rosalie Michaels (Розали Майклс)",
+    "rosaliemichaels": "Rosalie Michaels (Розали Майклс)",
+    "сандживбхаскар": "Sanjeev Bhaskar (Санджив Бхаскар)",
+    "sanjeevbhaskar": "Sanjeev Bhaskar (Санджив Бхаскар)",
+    "robertbathurstrobertandrewbathurstробертбаферст": "Robert Bathurst (Robert Andrew Bathurst (Роберт Баферст))",
+    "aleksandrpalaleksandrpalалександрпаль": "Aleksandr Pal (Aleksandr Pal (Александр Паль))",
+    "антоншурцов": "Anton Shurtsov (Антон Шурцов)",
+    "antonshurtsov": "Anton Shurtsov (Антон Шурцов)",
+    "никитаост": "Nikita Ost (Никита Ост)",
+    "nikitaost": "Nikita Ost (Никита Ост)",
+    "yuliyakhlyninayuliakhlyninaюлияолеговнахлынина": "Yuliya Khlynina (Yulia Khlynina (Юлия Олеговна Хлынина))",
+    "артемкостюнев": "Artyom Kostyunev (Артем Костюнёв)",
+    "artyomkostyunev": "Artyom Kostyunev (Артем Костюнёв)",
+    "mikhailbespalovmikhailbespalovмихаиливановичбеспалов": "Mikhail Bespalov (Mikhail Bespalov (Михаил Иванович Беспалов))",
+    "marinaaleksandrovamarinaaleksandrovaмаринаалександрова": "Marina Aleksandrova (Marina Aleksandrova (Марина Александрова))",
+    "stephaniehsustephaniehsuстефанисюи": "Stephanie Hsu (Stephanie Hsu (Стефани Сюй))",
+    "кехюикуан": "Ke Huy Quan (Ке Хюи Куан)",
+    "kehuyquan": "Ke Huy Quan (Ке Хюи Куан)",
+    "vickykriepsvickykriepsвикикрипс": "Vicky Krieps (Vicky Krieps (Вики Крипс))",
+    "thomasinmckenziethomasinmckenzieтомасинмаккензи": "Thomasin McKenzie (Thomasin McKenzie (Томасин Маккензи))",
+    "алексвулф": "Alex Wolff (Алекс Вулф)",
+    "alexwolff": "Alex Wolff (Алекс Вулф)",
+    "rufussewellrufussewellруфуссьюэлл": "Rufus Sewell (Rufus Sewell (Руфус Сьюэлл))",
+    "evgeniymironovyevgenymironovевгениивитальевичмиронов": "Evgeniy Mironov (Yevgeny Mironov (Евгений Витальевич Миронов))",
+    "anatoliykotenyovanatoliykotenyovкотеневанатолиивладимирович": "Anatoliy Kotenyov (Anatoliy Kotenyov (Котенёв, Анатолий Владимирович))",
+    "aleksandraursulyakaleksandraursulyakурсулякалександрасергеевна": "Aleksandra Ursulyak (Aleksandra Ursulyak (Урсуляк, Александра Сергеевна))",
+    "genehackmangenehackmanджинхэкмен": "Gene Hackman (Gene Hackman (Джин Хэкмен))",
+    "reginakingreginakingреджинакинг": "Regina King (Regina King (Реджина Кинг))",
+    "lorendeanlorendeanлорендин": "Loren Dean (Loren Dean (Лорен Дин))",
+    "kevinmckiddkevinmckiddкевинмаккидд": "Kevin McKidd (Kevin McKidd (Кевин Маккидд))",
+    "gretchenegolfgretchenegolfгретченэголф": "Gretchen Egolf (Gretchen Egolf (Гретчен Эголф))",
+    "reeddiamondreeddiamondриддаимонд": "Reed Diamond (Reed Diamond (Рид Даймонд))",
+    "baedoona": "Bae Doona (Bae Doona (Пэ Ду-на))",
+    "baedoonabaedoonaпэдуна": "Bae Doona (Bae Doona (Пэ Ду-на))",
+    "jamieclayton": "Jamie Clayton (Jamie Clayton (Джейми Клейтон))",
+    "jamieclaytonjamieclaytonджеимиклеитон": "Jamie Clayton (Jamie Clayton (Джейми Клейтон))",
+    "tinadesai": "Tina Desai (Tina Desai (Тина Десай))",
+    "tinadesaitinadesaiтинадесаи": "Tina Desai (Tina Desai (Тина Десай))",
+    "hannabinkehannabinkeханнабинке": "Hanna Binke (Hanna Binke (Ханна Бинке))",
+    "marvinlinkemarvinlinkeмарвинлинке": "Marvin Linke (Marvin Linke (Марвин Линке))",
+    "corneliafroboesscorneliafroboessкорнелияфробесс": "Cornelia Froboess (Cornelia Froboess (Корнелия Фробёсс))",
+    "tiloprucknertiloprucknerтилопрюкнер": "Tilo Prückner (Tilo Prückner (Тило Прюкнер))",
+    "нинакронягер": "Nina Kronjäger (Нина Кронягер)",
+    "ninakronjager": "Nina Kronjäger (Нина Кронягер)",
+    "lunapaianolunapaianoлунапаияно": "Luna Paiano (Luna Paiano (Луна Пайяно))",
+    "amberbongardamberbongardамбербонгард": "Amber Bongard (Amber Bongard (Амбер Бонгард))",
+    "leavanackenleavanackenлеаванакен": "Lea van Acken (Lea van Acken (Леа ван Акен))",
+    "atilaatilaатила": "Atila (Atila (Атила))",
+    "кенцидисли": "Kenzie Dysli (Кенци Дисли)",
+    "kenziedysli": "Kenzie Dysli (Кенци Дисли)",
+    "евасмирнова": "Eva Smirnova (Ева Смирнова)",
+    "evasmirnova": "Eva Smirnova (Ева Смирнова)",
+    "филиппянковскии": "Filipp Yankovskiy (Филипп Янковский)",
+    "filippyankovskiy": "Filipp Yankovskiy (Филипп Янковский)",
+    "ceciledefrancececiledefranceсесильдефранс": "Cécile de France (Cécile de France (Сесиль де Франс))",
+    "adampallyadampallyадампалли": "Adam Pally (Adam Pally (Адам Палли))",
+    "leightonmeesterleightonmeesterлеитонмистер": "Leighton Meester (Leighton Meester (Лейтон Мистер))",
+    "yassirlesteryassirlesterяссерлестер": "Yassir Lester (Yassir Lester (Яссер Лестер))",
+    "johngemberlingjohngemberlingджонгемберлинг": "John Gemberling (John Gemberling (Джон Гемберлинг))",
+    "нилкеиси": "Neil Casey (Нил Кейси)",
+    "neilcasey": "Neil Casey (Нил Кейси)",
+    "devonaokidevonaokiдевонаоки": "Devon Aoki (Devon Aoki (Девон Аоки))",
+    "justinchatwinjustinchatwinджастинчэтвинджастинчатвин": "Justin Chatwin (Justin Chatwin (Джастин Чэтвин/Джастин Чатвин))",
+    "sterlingjerinssterlingjerinsстерлингджеринс": "Sterling Jerins (Sterling Jerins (Стерлинг Джеринс))",
+    "эбигеилхаргров": "Abigail Hargrove (Эбигейл Харгров)",
+    "abigailhargrove": "Abigail Hargrove (Эбигейл Харгров)",
+    "даниэлакартес": "Daniella Kertesz (Даниэла Картес)",
+    "daniellakertesz": "Daniella Kertesz (Даниэла Картес)",
+    "nateparkernateparkerнэитпаркер": "Nate Parker (Nate Parker (Нэйт Паркер))",
+    "ursulacorberoursulacorberoурсулакорберо": "Úrsula Corberó (Úrsula Corberó (Урсула Корберо))",
+    "mykeltiwilliamsonmykeltiwilliamsonмаикелтиуильямсон": "Mykelti Williamson (Mykelti Williamson (Майкелти Уильямсон))",
+    "jacindabarrett": "Jacinda Barrett (Jacinda Barrett (Джасинда Барретт))",
+    "jacindabarrettjacindabarrettджасиндабарретт": "Jacinda Barrett (Jacinda Barrett (Джасинда Барретт))",
+    "lisapelikanlisapelikanлизапеликан": "Lisa Pelikan (Lisa Pelikan (Лиза Пеликан))",
+    "кортнибарилла": "Courtney Barilla (Кортни Барилла)",
+    "courtneybarilla": "Courtney Barilla (Кортни Барилла)",
+    "garetteratliffhensongaretteratliffhensonгэреттрэтлифхенсон": "Garette Ratliff Henson (Garette Ratliff Henson (Гэретт Рэтлиф Хенсон))",
+    "seanbiggerstaffseanbiggerstaffшонбиггерстафф": "Sean Biggerstaff (Sean Biggerstaff (Шон Биггерстафф))",
+    "emiliafoxemiliafoxэмилияфокс": "Emilia Fox (Emilia Fox (Эмилия Фокс))",
+    "шонэванс": "Shaun Evans (Шон Эванс)",
+    "shaunevans": "Shaun Evans (Шон Эванс)",
+    "стюартгудвин": "Stuart Goodwin (Стюарт Гудвин)",
+    "stuartgoodwin": "Stuart Goodwin (Стюарт Гудвин)",
+    "маикллэмбурн": "Michael Lambourne (Майкл Лэмбурн)",
+    "michaellambourne": "Michael Lambourne (Майкл Лэмбурн)",
+    "grigoriysiyatvindagrigorysiyatvindaгригориидэвидовичсиятвинда": "Grigoriy Siyatvinda (Grigory Siyatvinda (Григорий Дэвидович Сиятвинда))",
+    "никитаиванов": "Nikita Ivanov (Никита Иванов)",
+    "nikitaivanov": "Nikita Ivanov (Никита Иванов)",
+    "kevincostnerkevincostnerкевинкостнер": "Kevin Costner (Kevin Costner (Кевин Костнер))",
+    "jeannetripplehornjeannetripplehornджиннтрипплхорн": "Jeanne Tripplehorn (Jeanne Tripplehorn (Джинн Трипплхорн))",
+    "tinamajorinotinamajorinoтинамажорино": "Tina Majorino (Tina Majorino (Тина Мажорино))",
+    "викториябруно": "Victoria Bruno (Виктория Бруно)",
+    "victoriabruno": "Victoria Bruno (Виктория Бруно)",
+    "эллериспреиберри": "Ellery Sprayberry (Эллери Спрейберри)",
+    "ellerysprayberry": "Ellery Sprayberry (Эллери Спрейберри)",
+    "моникалосон": "Monica Lawson (Моника Лосон)",
+    "monicalawson": "Monica Lawson (Моника Лосон)",
+    "annagunnannagunnаннаганн": "Anna Gunn (Anna Gunn (Анна Ганн))",
+    "betsybrandtbetsybrandtбетсибрандт": "Betsy Brandt (Betsy Brandt (Бетси Брандт))",
+    "розмаридеуитт": "Rosemarie DeWitt (Розмари ДеУитт)",
+    "rosemariedewitt": "Rosemarie DeWitt (Розмари ДеУитт)",
+    "odessayoungodessayoungодессаянг": "Odessa Young (Odessa Young (Одесса Янг))",
+    "samclaflinsamclaflinсэмклафлин": "Sam Claflin (Sam Claflin (Сэм Клафлин))",
+    "elizabethhawthorneelizabethhawthorneэлизабетхоторн": "Elizabeth Hawthorne (Elizabeth Hawthorne (Элизабет Хоторн))",
+    "gracepalmergracepalmerгрэиспалмер": "Grace Palmer (Grace Palmer (Грэйс Палмер))",
+    "teohalmteohalmтеохальм": "Teo Halm (Teo Halm (Тео Хальм))",
+    "astrostroастро": "Astro (Stro (Астро))",
+    "reesehartwigreesehartwigризхартвиг": "Reese Hartwig (Reese Hartwig (Риз Хартвиг))",
+    "ellawahlestedtellawahlestedtэллавалестедт": "Ella Wahlestedt (Ella Wahlestedt (Элла Валестедт))",
+    "джеисонгреистенфорд": "Jason Gray-Stanford (Джейсон Грей-Стенфорд)",
+    "jasongraystanford": "Jason Gray-Stanford (Джейсон Грей-Стенфорд)",
+    "abigailspencerabigailspencerэбигеилспенсер": "Abigail Spencer (Abigail Spencer (Эбигейл Спенсер))",
+    "mattlantermattlanterмэттлантер": "Matt Lanter (Matt Lanter (Мэтт Лантер))",
+    "malcolmbarrettmalcolmbarrettмалкольмбаррет": "Malcolm Barrett (Malcolm Barrett (Малкольм Баррет))",
+    "sakinajaffreysakinajaffreyсакинаджэффри": "Sakina Jaffrey (Sakina Jaffrey (Сакина Джэффри))"
   },
   "Режисер": {
     "алекспроиас": "Alex Proyas (Алекс Пройас)",
@@ -12094,7 +12824,204 @@
     "трэвисфорт": "Travis Fort (Трэвис Форт)",
     "travisfort": "Travis Fort (Трэвис Форт)",
     "адамгрин": "Adam Green (Адам Грин)",
-    "adamgreen": "Adam Green (Адам Грин)"
+    "adamgreen": "Adam Green (Адам Грин)",
+    "rogerspottiswoode": "Roger Spottiswoode (Roger Spottiswoode (Роджер Споттисвуд))",
+    "rogerspottiswooderogerspottiswoodeроджерспоттисвуд": "Roger Spottiswoode (Roger Spottiswoode (Роджер Споттисвуд))",
+    "maxbarbakowmaxbarbakowмаксбарбаков": "Max Barbakow (Max Barbakow (Макс Барбаков))",
+    "anatolyeyramdzhananatolyeiramdzhanанатолииэирамджан": "Anatoly Eyramdzhan (Anatoly Eiramdzhan (Анатолий Эйрамджан))",
+    "александрбогуславскии": "Aleksandr Boguslavskiy (Александр Богуславский)",
+    "aleksandrboguslavskiy": "Aleksandr Boguslavskiy (Александр Богуславский)",
+    "франческочинквемани": "Francesco Cinquemani (Франческо Чинквемани)",
+    "francescocinquemani": "Francesco Cinquemani (Франческо Чинквемани)",
+    "robgreenbergrobgreenbergробгринберг": "Rob Greenberg (Rob Greenberg (Роб Гринберг))",
+    "джоффмаршалл": "Geoff Marshall (Джофф Маршалл)",
+    "geoffmarshall": "Geoff Marshall (Джофф Маршалл)",
+    "джимхенс": "Jim Hense (Джим Хенс)",
+    "jimhense": "Jim Hense (Джим Хенс)",
+    "дугласкоэн": "Douglas Cohen (Дуглас Коэн)",
+    "douglascohen": "Douglas Cohen (Дуглас Коэн)",
+    "фрэнккоза": "Frank Kosa (Фрэнк Коза)",
+    "frankkosa": "Frank Kosa (Фрэнк Коза)",
+    "луистарантино": "Louis Tarantino (Луис Тарантино)",
+    "louistarantino": "Louis Tarantino (Луис Тарантино)",
+    "angleeangleeэнгли": "Ang Lee (Ang Lee (Энг Ли))",
+    "katcoirokatcoiroкэткоиро": "Kat Coiro (Kat Coiro (Кэт Койро))",
+    "anuvaliaanuvaliaанувалиа": "Anu Valia (Anu Valia (Ану Валиа))",
+    "дмитриионищенко": "Dmitriy Onishchenko (Дмитрий Онищенко)",
+    "dmitriyonishchenko": "Dmitriy Onishchenko (Дмитрий Онищенко)",
+    "льюистиг": "Lewis Teague (Льюис Тиг)",
+    "lewisteague": "Lewis Teague (Льюис Тиг)",
+    "timovuorensolatimovuorensolaтимовуоренсола": "Timo Vuorensola (Timo Vuorensola (Тимо Вуоренсола))",
+    "джеффбаэна": "Jeff Baena (Джефф Баэна)",
+    "jeffbaena": "Jeff Baena (Джефф Баэна)",
+    "scottbeckscottbeckскоттбек": "Scott Beck (Scott Beck (Скотт Бек))",
+    "браианвудс": "Bryan Woods (Брайан Вудс)",
+    "bryanwoods": "Bryan Woods (Брайан Вудс)",
+    "sebastiancorderosebastiancorderoсебастьянкордеро": "Sebastián Cordero (Sebastián Cordero (Себастьян Кордеро))",
+    "дэннидевито": "Danny DeVito (Дэнни ДеВито)",
+    "dannydevito": "Danny DeVito (Дэнни ДеВито)",
+    "fatihakinfatihakinфатихакин": "Fatih Akin (Fatih Akin (Фатих Акин))",
+    "гаррибрэдбир": "Harry Bradbeer (Гарри Брэдбир)",
+    "harrybradbeer": "Harry Bradbeer (Гарри Брэдбир)",
+    "меланимеирон": "Melanie Mayron (Мелани Мейрон)",
+    "melaniemayron": "Melanie Mayron (Мелани Мейрон)",
+    "yannsamuellyannsamuellянсамюэль": "Yann Samuell (Yann Samuell (Ян Самюэль))",
+    "квакчэен": "Kwak Jae-young (Квак Чэ-ён)",
+    "kwakjaeyoung": "Kwak Jae-young (Квак Чэ-ён)",
+    "michaeldowsemichaeldowseмаиклдаус": "Michael Dowse (Michael Dowse (Майкл Даус))",
+    "hanshornhanshornгансхорн": "Hans Horn (Hans Horn (Ганс Хорн))",
+    "томасян": "Thomas Jahn (Томас Ян)",
+    "thomasjahn": "Thomas Jahn (Томас Ян)",
+    "jonathanlynnjonathanlynnджонатанлинн": "Jonathan Lynn (Jonathan Lynn (Джонатан Линн))",
+    "ричардии": "Richard Yee (Ричард Йи)",
+    "richardyee": "Richard Yee (Ричард Йи)",
+    "steverashsteverashстиврэш": "Steve Rash (Steve Rash (Стив Рэш))",
+    "randalkleiserrandalkleiserрэндалклаизер": "Randal Kleiser (Randal Kleiser (Рэндал Клайзер))",
+    "deancundeydeancundeyдинканди": "Dean Cundey (Dean Cundey (Дин Канди))",
+    "яннартюсбертран": "Yann Arthus-Bertrand (Янн Артюс-Бертран)",
+    "yannarthusbertrand": "Yann Arthus-Bertrand (Янн Артюс-Бертран)",
+    "richardshepardrichardshepardричардшепард": "Richard Shepard (Richard Shepard (Ричард Шепард))",
+    "rajagosnellrajagosnellраджагоснелл": "Raja Gosnell (Raja Gosnell (Раджа Госнелл))",
+    "johnwhiteselljohnwhitesellджонуаитселл": "John Whitesell (John Whitesell (Джон Уайтселл))",
+    "craigviveiroscraigviveirosкрэигвивеирос": "Craig Viveiros (Craig Viveiros (Крэйг Вивейрос))",
+    "паскальшомель": "Pascal Chaumeil (Паскаль Шомель)",
+    "pascalchaumeil": "Pascal Chaumeil (Паскаль Шомель)",
+    "scottderricksonscottderricksonскоттдерриксон": "Scott Derrickson (Scott Derrickson (Скотт Дерриксон))",
+    "samraimisamraimiсэмрэими": "Sam Raimi (Sam Raimi (Сэм Рэйми))",
+    "johnstockwelljohnstockwellджонстокуэлл": "John Stockwell (John Stockwell (Джон Стокуэлл))",
+    "ильямаксимов": "Ilya Maksimov (Илья Максимов)",
+    "ilyamaksimov": "Ilya Maksimov (Илья Максимов)",
+    "robmeltzerrobmeltzerробмелцер": "Rob Meltzer (Rob Meltzer (Роб Мелцер))",
+    "nickcassavetes": "Nick Cassavetes (Nick Cassavetes (Ник Кассаветис))",
+    "nickcassavetesnickcassavetesниккассаветис": "Nick Cassavetes (Nick Cassavetes (Ник Кассаветис))",
+    "sharonmaguiresharonmaguireшэронмагуаир": "Sharon Maguire (Sharon Maguire (Шэрон Магуайр))",
+    "alfonsocuaronalfonsocuaronальфонсокуарон": "Alfonso Cuarón (Alfonso Cuarón (Альфонсо Куарон))",
+    "томшенкленд": "Tom Shankland (Том Шенкленд)",
+    "tomshankland": "Tom Shankland (Том Шенкленд)",
+    "дэимонтомас": "Damon Thomas (Дэймон Томас)",
+    "damonthomas": "Damon Thomas (Дэймон Томас)",
+    "larrycharles": "Larry Charles (Larry Charles (Ларри Чарльз))",
+    "larrycharleslarrycharlesларричарльз": "Larry Charles (Larry Charles (Ларри Чарльз))",
+    "jeanmarcvalleejeanmarcvalleeжанмарквалле": "Jean-Marc Vallée (Jean-Marc Vallée (Жан-Марк Валле))",
+    "оуэнхаррис": "Owen Harris (Оуэн Харрис)",
+    "owenharris": "Owen Harris (Оуэн Харрис)",
+    "андриипарекх": "Andrij Parekh (Андрий Парекх)",
+    "andrijparekh": "Andrij Parekh (Андрий Парекх)",
+    "креигзиск": "Craig Zisk (Крейг Зиск)",
+    "craigzisk": "Craig Zisk (Крейг Зиск)",
+    "элленкерас": "Ellen Kuras (Эллен Кёрас)",
+    "ellenkuras": "Ellen Kuras (Эллен Кёрас)",
+    "тимуралпатов": "Timur Alpatov (Тимур Алпатов)",
+    "timuralpatov": "Timur Alpatov (Тимур Алпатов)",
+    "янушпетельски": "Janusz Petelski (Януш Петельски)",
+    "januszpetelski": "Janusz Petelski (Януш Петельски)",
+    "ирадапольских": "Irada Polskikh (Ирада Польских)",
+    "iradapolskikh": "Irada Polskikh (Ирада Польских)",
+    "dmitriyiosifovdmitriiosifovдмитриивладимировичиосифов": "Dmitriy Iosifov (Dmitri Iosifov (Дмитрий Владимирович Иосифов))",
+    "gregmcleangregmcleanгрегмаклин": "Greg McLean (Greg McLean (Грег Маклин))",
+    "alainchabatalainchabatаленшаба": "Alain Chabat (Alain Chabat (Ален Шаба))",
+    "noraephronnoraephronнораэфрон": "Nora Ephron (Nora Ephron (Нора Эфрон))",
+    "andrewstantonandrewstantonэндрюстэнтон": "Andrew Stanton (Andrew Stanton (Эндрю Стэнтон))",
+    "victorsalvavictorsalvaвикторсальва": "Victor Salva (Victor Salva (Виктор Сальва))",
+    "дмитриикиселев": "Dmitriy Kiselev (Дмитрий Киселёв)",
+    "dmitriykiselev": "Dmitriy Kiselev (Дмитрий Киселёв)",
+    "александрсерыи": "Aleksandr Seryy (Александр Серый)",
+    "aleksandrseryy": "Aleksandr Seryy (Александр Серый)",
+    "шеинкаррут": "Shane Carruth (Шейн Каррут)",
+    "shanecarruth": "Shane Carruth (Шейн Каррут)",
+    "stanislavgovorukhinstanislavgovorukhinстаниславсергеевичговорухин": "Stanislav Govorukhin (Stanislav Govorukhin (Станислав Сергеевич Говорухин))",
+    "диклоури": "Dick Lowry (Дик Лоури)",
+    "dicklowry": "Dick Lowry (Дик Лоури)",
+    "ronoliverronoliverроноливер": "Ron Oliver (Ron Oliver (Рон Оливер))",
+    "josephrubenjosephrubenджозефрубин": "Joseph Ruben (Joseph Ruben (Джозеф Рубин))",
+    "маркоссига": "Marcos Siega (Маркос Сига)",
+    "marcossiega": "Marcos Siega (Маркос Сига)",
+    "sanfordbookstaversanfordbookstaverсэнфордбукставер": "Sanford Bookstaver (Sanford Bookstaver (Сэнфорд Букставер))",
+    "danmazerdanmazerдэнмазер": "Dan Mazer (Dan Mazer (Дэн Мазер))",
+    "сергеиарутюнян": "Sergey Arutynyan (Сергей Арутюнян)",
+    "sergeyarutynyan": "Sergey Arutynyan (Сергей Арутюнян)",
+    "howarddeutchhowarddeutchховарддоич": "Howard Deutch (Howard Deutch (Ховард Дойч))",
+    "andydeemmonyandydeemmonyэндидеэммони": "Andy De Emmony (Andy De Emmony (Энди де Эммони))",
+    "kimyonghoonkimyonghoonкименхун": "Kim Yong-hoon (Kim Yong-hoon (Ким Ён-хун))",
+    "кевинсмит": "Kevin Smith (Кевин Смит)",
+    "kevinsmith": "Kevin Smith (Кевин Смит)",
+    "dannyphilippoudannyphilippouдэннифилиппу": "Danny Philippou (Danny Philippou (Дэнни Филиппу))",
+    "michaelphilippoumichaelphilippouмаиклфилиппу": "Michael Philippou (Michael Philippou (Майкл Филиппу))",
+    "yurikuzmenkoyurykuzmenkoюриикузьменко": "Yuri Kuzmenko (Yury Kuzmenko (Юрий Кузьменко))",
+    "eduardoganesyaneduardohanesyanэдуардоганесян": "Eduard Oganesyan (Eduard Ohanesyan (Эдуард Оганесян))",
+    "джонсбеирд": "Jon S. Baird (Джон С. Бейрд)",
+    "jonsbaird": "Jon S. Baird (Джон С. Бейрд)",
+    "этьенсаурет": "Étienne Sauret (Этьен Саурет)",
+    "etiennesauret": "Étienne Sauret (Этьен Саурет)",
+    "jakeschreier": "Jake Schreier (Jake Schreier (Джейк Шрейер))",
+    "jakeschreierjakeschreierджеикшреиер": "Jake Schreier (Jake Schreier (Джейк Шрейер))",
+    "joedantejoedanteджоданте": "Joe Dante (Joe Dante (Джо Данте))",
+    "владимирвиноградов": "Vladimir Vinogradov (Владимир Виноградов)",
+    "vladimirvinogradov": "Vladimir Vinogradov (Владимир Виноградов)",
+    "мариякравченко": "Mariya Kravchenko (Мария Кравченко)",
+    "mariyakravchenko": "Mariya Kravchenko (Мария Кравченко)",
+    "жаковандормель": "Jaco Van Dormael (Жако ван Дормель)",
+    "jacovandormael": "Jaco Van Dormael (Жако ван Дормель)",
+    "jonathanteplitzkyjonathanteplitzkyджонатантеплицки": "Jonathan Teplitzky (Jonathan Teplitzky (Джонатан Теплицки))",
+    "benaffleckbenaffleckбенаффлек": "Ben Affleck (Ben Affleck (Бен Аффлек))",
+    "ericbrossericbrossэрикбросс": "Eric Bross (Eric Bross (Эрик Бросс))",
+    "mikaelsalomonmikaelsalomonмикаэлсаломон": "Mikael Salomon (Mikael Salomon (Микаэл Саломон))",
+    "garyross": "Gary Ross (Gary Ross (Гэри Росс))",
+    "garyrossgaryrossгэриросс": "Gary Ross (Gary Ross (Гэри Росс))",
+    "джонмаиклмакдона": "John Michael McDonagh (Джон Майкл Макдона)",
+    "johnmichaelmcdonagh": "John Michael McDonagh (Джон Майкл Макдона)",
+    "гаретэдвардс": "Gareth Edwards (Гарет Эдвардс)",
+    "garethedwards": "Gareth Edwards (Гарет Эдвардс)",
+    "ilyanaishuller": "Ilya Naishuller (Ilya Naishuller (Илья Найшуллер))",
+    "ilyanaishullerilyanaishullerильянаишуллер": "Ilya Naishuller (Ilya Naishuller (Илья Найшуллер))",
+    "deandevlindeandevlinдиндевлин": "Dean Devlin (Dean Devlin (Дин Девлин))",
+    "aleksandrveledinskiyalexanderveledinskiалександралексеевичвелединскии": "Aleksandr Veledinskiy (Alexander Veledinski (Александр Алексеевич Велединский))",
+    "dchamilton": "D.C. Hamilton (D.C. Hamilton (Д. С. Хэмилтон))",
+    "dchamiltondchamiltonдсхэмилтон": "D.C. Hamilton (D.C. Hamilton (Д. С. Хэмилтон))",
+    "маикньюэлл": "Mike Newell (Майк Ньюэлл)",
+    "mikenewell": "Mike Newell (Майк Ньюэлл)",
+    "dannyleinerdannyleinerдэннилеинер": "Danny Leiner (Danny Leiner (Дэнни Лейнер))",
+    "jonhurwitzjonhurwitzджонхарвитц": "Jon Hurwitz (Jon Hurwitz (Джон Харвитц))",
+    "haydenschlossberghaydenschlossbergхеиденшлоссберг": "Hayden Schlossberg (Hayden Schlossberg (Хейден Шлоссберг))",
+    "raymonddefelittaraymonddefelittaрэимонддефелитта": "Raymond De Felitta (Raymond De Felitta (Рэймонд Де Фелитта))",
+    "brianhensonbrianhensonбраианхенсон": "Brian Henson (Brian Henson (Брайан Хенсон))",
+    "эмилиблихфельдт": "Emilie Blichfeldt (Эмили Блихфельдт)",
+    "emilieblichfeldt": "Emilie Blichfeldt (Эмили Блихфельдт)",
+    "фредерикберт": "Frédéric Berthe (Фредерик Берт)",
+    "fredericberthe": "Frédéric Berthe (Фредерик Берт)",
+    "sheldonwilsonsheldonwilsonшелдонуилсон": "Sheldon Wilson (Sheldon Wilson (Шелдон Уилсон))",
+    "alejandroginarritualejandrogonzalezinarrituалехандрогонсалесиньярриту": "Alejandro G. Iñárritu (Alejandro González Iñárritu (Алехандро Гонсалес Иньярриту))",
+    "gasparnoegasparnoeгаспарноэ": "Gaspar Noé (Gaspar Noé (Гаспар Ноэ))",
+    "lenwiseman": "Len Wiseman (Len Wiseman (Лен Уайзман))",
+    "lenwisemanlenwisemanленуаизман": "Len Wiseman (Len Wiseman (Лен Уайзман))",
+    "markpalanskymarkpalanskyмаркпалански": "Mark Palansky (Mark Palansky (Марк Палански))",
+    "ronsheltonronsheltonроншелтон": "Ron Shelton (Ron Shelton (Рон Шелтон))",
+    "гареткарривик": "Gareth Carrivick (Гарет Карривик)",
+    "garethcarrivick": "Gareth Carrivick (Гарет Карривик)",
+    "дэнраш": "Dan Rush (Дэн Раш)",
+    "danrush": "Dan Rush (Дэн Раш)",
+    "romankarimovromankarimovкаримовроманлеонидович": "Roman Karimov (Roman Karimov (Каримов, Роман Леонидович))",
+    "eduardradzyukevicheduardradzyukevichэдуардрадзюкевич": "Eduard Radzyukevich (Eduard Radzyukevich (Эдуард Радзюкевич))",
+    "andrewniccolandrewniccolэндрюниккол": "Andrew Niccol (Andrew Niccol (Эндрю Никкол))",
+    "katjavongarnierkatjavongarnierкатяфонгарнье": "Katja von Garnier (Katja von Garnier (Катя фон Гарнье))",
+    "theresavoneltztheresavoneltzтерезафонэльц": "Theresa von Eltz (Theresa von Eltz (Тереза фон Эльц))",
+    "leaschmidbauerleaschmidbauerлеашмидбауэр": "Lea Schmidbauer (Lea Schmidbauer (Леа Шмидбауэр))",
+    "rupertwyattrupertwyattрупертуаиатт": "Rupert Wyatt (Rupert Wyatt (Руперт Уайатт))",
+    "степангордеев": "Stepan Gordeev (Степан Гордеев)",
+    "stepangordeev": "Stepan Gordeev (Степан Гордеев)",
+    "филлипджэтвелл": "Philip G. Atwell (Филлип Дж. Этвелл)",
+    "philipgatwell": "Philip G. Atwell (Филлип Дж. Этвелл)",
+    "уильямагрэм": "William A. Graham (Уильям А. Грэм)",
+    "williamagraham": "William A. Graham (Уильям А. Грэм)",
+    "шонэллис": "Sean Ellis (Шон Эллис)",
+    "seanellis": "Sean Ellis (Шон Эллис)",
+    "egoranashkinyegoranashkinегоранашкин": "Egor Anashkin (Yegor Anashkin (Егор Анашкин))",
+    "кевинреинольдс": "Kevin Reynolds (Кевин Рейнольдс)",
+    "kevinreynolds": "Kevin Reynolds (Кевин Рейнольдс)",
+    "робинсуикорд": "Robin Swicord (Робин Суикорд)",
+    "robinswicord": "Robin Swicord (Робин Суикорд)",
+    "уэинробертс": "Wayne Roberts (Уэйн Робертс)",
+    "wayneroberts": "Wayne Roberts (Уэйн Робертс)"
   },
   "Проверено": {
     "Актеры": {
@@ -24511,6 +25438,1014 @@
     },
     "tt20242042": {
       "at": 1789575072087,
+      "version": 1
+    },
+    "tt13016388": {
+      "at": 1789575073514,
+      "version": 1
+    },
+    "tt7826376": {
+      "at": 1789575074774,
+      "version": 1
+    },
+    "tt0421715": {
+      "at": 1789575075682,
+      "version": 1
+    },
+    "tt0120347": {
+      "at": 1789575076850,
+      "version": 1
+    },
+    "tt5966602": {
+      "at": 1789575078257,
+      "version": 1
+    },
+    "tt9484998": {
+      "at": 1789575079461,
+      "version": 1
+    },
+    "tt0098700": {
+      "at": 1789575080637,
+      "version": 1
+    },
+    "tt5629524": {
+      "at": 1789575081649,
+      "version": 1
+    },
+    "tt1563742": {
+      "at": 1789575083081,
+      "version": 1
+    },
+    "tt0093693": {
+      "at": 1789575084071,
+      "version": 1
+    },
+    "tt0382077": {
+      "at": 1789575085276,
+      "version": 1
+    },
+    "tt1352765": {
+      "at": 1789575086511,
+      "version": 1
+    },
+    "tt1433058": {
+      "at": 1789575087997,
+      "version": 1
+    },
+    "tt0454876": {
+      "at": 1789575089131,
+      "version": 1
+    },
+    "tt0433035": {
+      "at": 1789575090215,
+      "version": 1
+    },
+    "tt10857160": {
+      "at": 1789575091577,
+      "version": 1
+    },
+    "tt12560148": {
+      "at": 1789575092689,
+      "version": 1
+    },
+    "tt0089370": {
+      "at": 1789575093935,
+      "version": 1
+    },
+    "tt0371746": {
+      "at": 1789575095165,
+      "version": 1
+    },
+    "tt1300854": {
+      "at": 1789575096538,
+      "version": 1
+    },
+    "tt1034314": {
+      "at": 1789575097369,
+      "version": 1
+    },
+    "tt1228705": {
+      "at": 1789575098875,
+      "version": 1
+    },
+    "tt2581244": {
+      "at": 1789575099734,
+      "version": 1
+    },
+    "tt28015403": {
+      "at": 1789575101121,
+      "version": 1
+    },
+    "tt0089670": {
+      "at": 1789575102142,
+      "version": 1
+    },
+    "tt2051879": {
+      "at": 1789575103307,
+      "version": 1
+    },
+    "tt0266489": {
+      "at": 1789575104576,
+      "version": 1
+    },
+    "tt1431045": {
+      "at": 1789575105990,
+      "version": 1
+    },
+    "tt6263850": {
+      "at": 1789575107205,
+      "version": 1
+    },
+    "tt5463162": {
+      "at": 1789575108225,
+      "version": 1
+    },
+    "tt0348914": {
+      "at": 1789575109687,
+      "version": 1
+    },
+    "tt0458352": {
+      "at": 1789575110583,
+      "version": 1
+    },
+    "tt1244668": {
+      "at": 1789575111991,
+      "version": 1
+    },
+    "tt1826660": {
+      "at": 1789575113015,
+      "version": 1
+    },
+    "tt3560686": {
+      "at": 1789575114168,
+      "version": 1
+    },
+    "tt0377092": {
+      "at": 1789575115791,
+      "version": 1
+    },
+    "tt5687612": {
+      "at": 1789575116621,
+      "version": 1
+    },
+    "tt1679235": {
+      "at": 1789575118014,
+      "version": 1
+    },
+    "tt0404254": {
+      "at": 1789575119018,
+      "version": 1
+    },
+    "tt0293715": {
+      "at": 1789575120433,
+      "version": 1
+    },
+    "tt1486834": {
+      "at": 1789575121433,
+      "version": 1
+    },
+    "tt0470055": {
+      "at": 1789575122601,
+      "version": 1
+    },
+    "tt0270980": {
+      "at": 1789575124042,
+      "version": 1
+    },
+    "tt0119472": {
+      "at": 1789575125318,
+      "version": 1
+    },
+    "tt0104114": {
+      "at": 1789575126312,
+      "version": 1
+    },
+    "tt7604446": {
+      "at": 1789575127456,
+      "version": 1
+    },
+    "tt0215129": {
+      "at": 1789575128911,
+      "version": 1
+    },
+    "tt1319733": {
+      "at": 1789575130088,
+      "version": 1
+    },
+    "tt0104437": {
+      "at": 1789575131302,
+      "version": 1
+    },
+    "tt0097523": {
+      "at": 1789575132253,
+      "version": 1
+    },
+    "tt0119310": {
+      "at": 1789575133665,
+      "version": 1
+    },
+    "tt9875852": {
+      "at": 1789575134652,
+      "version": 1
+    },
+    "tt1014762": {
+      "at": 1789575135838,
+      "version": 1
+    },
+    "tt2402105": {
+      "at": 1789575137298,
+      "version": 1
+    },
+    "tt8068860": {
+      "at": 1789575138584,
+      "version": 1
+    },
+    "tt0208003": {
+      "at": 1789575139492,
+      "version": 1
+    },
+    "tt0421729": {
+      "at": 1789575141068,
+      "version": 1
+    },
+    "tt2081437": {
+      "at": 1789575142090,
+      "version": 1
+    },
+    "tt0458413": {
+      "at": 1789575143096,
+      "version": 1
+    },
+    "tt1211837": {
+      "at": 1789575144572,
+      "version": 1
+    },
+    "tt0118998": {
+      "at": 1789575145727,
+      "version": 1
+    },
+    "tt9419884": {
+      "at": 1789575146773,
+      "version": 1
+    },
+    "tt0240462": {
+      "at": 1789575148157,
+      "version": 1
+    },
+    "tt6723592": {
+      "at": 1789575149392,
+      "version": 1
+    },
+    "tt0378109": {
+      "at": 1789575150326,
+      "version": 1
+    },
+    "tt0465967": {
+      "at": 1789575151548,
+      "version": 1
+    },
+    "tt0865907": {
+      "at": 1789575152945,
+      "version": 1
+    },
+    "tt2193265": {
+      "at": 1789575154155,
+      "version": 1
+    },
+    "tt1156398": {
+      "at": 1789575155457,
+      "version": 1
+    },
+    "tt0332280": {
+      "at": 1789575156601,
+      "version": 1
+    },
+    "tt0243155": {
+      "at": 1789575157575,
+      "version": 1
+    },
+    "tt0206634": {
+      "at": 1789575159031,
+      "version": 1
+    },
+    "tt2303367": {
+      "at": 1789575159979,
+      "version": 1
+    },
+    "tt1645170": {
+      "at": 1789575161331,
+      "version": 1
+    },
+    "tt2305051": {
+      "at": 1789575162445,
+      "version": 1
+    },
+    "tt9814116": {
+      "at": 1789575163892,
+      "version": 1
+    },
+    "tt0439358": {
+      "at": 1789575165084,
+      "version": 1
+    },
+    "tt28511577": {
+      "at": 1789575166199,
+      "version": 1
+    },
+    "tt0835007": {
+      "at": 1789575167368,
+      "version": 1
+    },
+    "tt12274782": {
+      "at": 1789575168621,
+      "version": 1
+    },
+    "tt1840309": {
+      "at": 1789575169934,
+      "version": 1
+    },
+    "tt3410834": {
+      "at": 1789575170983,
+      "version": 1
+    },
+    "tt0467406": {
+      "at": 1789575172055,
+      "version": 1
+    },
+    "tt2908446": {
+      "at": 1789575173595,
+      "version": 1
+    },
+    "tt3758172": {
+      "at": 1789575174704,
+      "version": 1
+    },
+    "tt1723642": {
+      "at": 1789575175705,
+      "version": 1
+    },
+    "tt7975244": {
+      "at": 1789575176878,
+      "version": 1
+    },
+    "tt2283362": {
+      "at": 1789575178107,
+      "version": 1
+    },
+    "tt1135503": {
+      "at": 1789575179320,
+      "version": 1
+    },
+    "tt0401729": {
+      "at": 1789575180812,
+      "version": 1
+    },
+    "tt0320038": {
+      "at": 1789575181743,
+      "version": 1
+    },
+    "tt0263488": {
+      "at": 1789575183102,
+      "version": 1
+    },
+    "tt1139592": {
+      "at": 1789575184087,
+      "version": 1
+    },
+    "tt0301470": {
+      "at": 1789575185502,
+      "version": 1
+    },
+    "tt14121726": {
+      "at": 1789575186511,
+      "version": 1
+    },
+    "tt8367814": {
+      "at": 1789575187964,
+      "version": 1
+    },
+    "tt2592464": {
+      "at": 1789575189107,
+      "version": 1
+    },
+    "tt0068519": {
+      "at": 1789575190112,
+      "version": 1
+    },
+    "tt4196776": {
+      "at": 1789575191631,
+      "version": 1
+    },
+    "tt0390384": {
+      "at": 1789575192519,
+      "version": 1
+    },
+    "tt0227538": {
+      "at": 1789575193955,
+      "version": 1
+    },
+    "tt1517489": {
+      "at": 1789575195158,
+      "version": 1
+    },
+    "tt0338459": {
+      "at": 1789575196135,
+      "version": 1
+    },
+    "tt0287717": {
+      "at": 1789575197360,
+      "version": 1
+    },
+    "tt0488658": {
+      "at": 1789575198790,
+      "version": 1
+    },
+    "tt0092879": {
+      "at": 1789575199736,
+      "version": 1
+    },
+    "tt0970416": {
+      "at": 1789575201232,
+      "version": 1
+    },
+    "tt24053860": {
+      "at": 1789575202300,
+      "version": 1
+    },
+    "tt0107048": {
+      "at": 1789575203397,
+      "version": 1
+    },
+    "tt0116629": {
+      "at": 1789575204888,
+      "version": 1
+    },
+    "tt1628841": {
+      "at": 1789575206089,
+      "version": 1
+    },
+    "tt7638348": {
+      "at": 1789575207217,
+      "version": 1
+    },
+    "tt0428144": {
+      "at": 1789575208441,
+      "version": 1
+    },
+    "tt0468988": {
+      "at": 1789575209413,
+      "version": 1
+    },
+    "tt0918511": {
+      "at": 1789575210601,
+      "version": 1
+    },
+    "tt0113845": {
+      "at": 1789575211818,
+      "version": 1
+    },
+    "tt30413044": {
+      "at": 1789575213245,
+      "version": 1
+    },
+    "tt0773262": {
+      "at": 1789575214601,
+      "version": 1
+    },
+    "tt33043892": {
+      "at": 1789575215736,
+      "version": 1
+    },
+    "tt14164730": {
+      "at": 1789575216689,
+      "version": 1
+    },
+    "tt0098794": {
+      "at": 1789575218205,
+      "version": 1
+    },
+    "tt0453467": {
+      "at": 1789575219342,
+      "version": 1
+    },
+    "tt1860213": {
+      "at": 1789575220528,
+      "version": 1
+    },
+    "tt14283008": {
+      "at": 1789575221500,
+      "version": 1
+    },
+    "tt1568346": {
+      "at": 1789575222750,
+      "version": 1
+    },
+    "tt0408839": {
+      "at": 1789575224022,
+      "version": 1
+    },
+    "tt1046163": {
+      "at": 1789575225341,
+      "version": 1
+    },
+    "tt2027154": {
+      "at": 1789575226529,
+      "version": 1
+    },
+    "tt26258200": {
+      "at": 1789575227558,
+      "version": 1
+    },
+    "tt0182789": {
+      "at": 1789575228727,
+      "version": 1
+    },
+    "tt1385867": {
+      "at": 1789575230142,
+      "version": 1
+    },
+    "tt4998350": {
+      "at": 1789575231497,
+      "version": 1
+    },
+    "tt0478087": {
+      "at": 1789575232594,
+      "version": 1
+    },
+    "tt10638522": {
+      "at": 1789575233786,
+      "version": 1
+    },
+    "tt15474794": {
+      "at": 1789575234940,
+      "version": 1
+    },
+    "tt1272878": {
+      "at": 1789575235973,
+      "version": 1
+    },
+    "tt0313055": {
+      "at": 1789575237439,
+      "version": 1
+    },
+    "tt9203694": {
+      "at": 1789575238300,
+      "version": 1
+    },
+    "tt0187636": {
+      "at": 1789575239878,
+      "version": 1
+    },
+    "tt4253328": {
+      "at": 1789575240728,
+      "version": 1
+    },
+    "tt1450321": {
+      "at": 1789575241979,
+      "version": 1
+    },
+    "tt1592855": {
+      "at": 1789575243104,
+      "version": 1
+    },
+    "tt20969586": {
+      "at": 1789575244573,
+      "version": 1
+    },
+    "tt9624470": {
+      "at": 1789575245521,
+      "version": 1
+    },
+    "tt7737786": {
+      "at": 1789575247004,
+      "version": 1
+    },
+    "tt14850054": {
+      "at": 1789575248180,
+      "version": 1
+    },
+    "tt0087363": {
+      "at": 1789575249164,
+      "version": 1
+    },
+    "tt0099700": {
+      "at": 1789575250434,
+      "version": 1
+    },
+    "tt12447796": {
+      "at": 1789575251833,
+      "version": 1
+    },
+    "tt1119644": {
+      "at": 1789575253107,
+      "version": 1
+    },
+    "tt1631867": {
+      "at": 1789575254035,
+      "version": 1
+    },
+    "tt1205489": {
+      "at": 1789575255192,
+      "version": 1
+    },
+    "tt1454468": {
+      "at": 1789575256597,
+      "version": 1
+    },
+    "tt14904678": {
+      "at": 1789575257570,
+      "version": 1
+    },
+    "tt0485947": {
+      "at": 1789575258846,
+      "version": 1
+    },
+    "tt1570559": {
+      "at": 1789575260220,
+      "version": 1
+    },
+    "tt0119664": {
+      "at": 1789575261195,
+      "version": 1
+    },
+    "tt0840361": {
+      "at": 1789575262748,
+      "version": 1
+    },
+    "tt1979320": {
+      "at": 1789575264007,
+      "version": 1
+    },
+    "tt6820960": {
+      "at": 1789575265024,
+      "version": 1
+    },
+    "tt9174582": {
+      "at": 1789575266122,
+      "version": 1
+    },
+    "tt2287663": {
+      "at": 1789575267220,
+      "version": 1
+    },
+    "tt0080453": {
+      "at": 1789575268618,
+      "version": 1
+    },
+    "tt1392170": {
+      "at": 1789575269918,
+      "version": 1
+    },
+    "tt2234003": {
+      "at": 1789575271041,
+      "version": 1
+    },
+    "tt1142988": {
+      "at": 1789575272121,
+      "version": 1
+    },
+    "tt0831387": {
+      "at": 1789575273566,
+      "version": 1
+    },
+    "tt0245562": {
+      "at": 1789575274519,
+      "version": 1
+    },
+    "tt11083552": {
+      "at": 1789575275713,
+      "version": 1
+    },
+    "tt1646987": {
+      "at": 1789575277099,
+      "version": 1
+    },
+    "tt0172495": {
+      "at": 1789575278095,
+      "version": 1
+    },
+    "tt13357520": {
+      "at": 1789575279308,
+      "version": 1
+    },
+    "tt6264654": {
+      "at": 1789575280524,
+      "version": 1
+    },
+    "tt8080204": {
+      "at": 1789575281901,
+      "version": 1
+    },
+    "tt0813715": {
+      "at": 1789575282971,
+      "version": 1
+    },
+    "tt3556944": {
+      "at": 1789575284416,
+      "version": 1
+    },
+    "tt1981128": {
+      "at": 1789575285363,
+      "version": 1
+    },
+    "tt3155604": {
+      "at": 1789575286480,
+      "version": 1
+    },
+    "tt1025100": {
+      "at": 1789575287962,
+      "version": 1
+    },
+    "tt4216630": {
+      "at": 1789575288863,
+      "version": 1
+    },
+    "tt1034032": {
+      "at": 1789575290351,
+      "version": 1
+    },
+    "tt7293920": {
+      "at": 1789575291294,
+      "version": 1
+    },
+    "tt0241527": {
+      "at": 1789575292670,
+      "version": 1
+    },
+    "tt0304141": {
+      "at": 1789575293761,
+      "version": 1
+    },
+    "tt0295297": {
+      "at": 1789575295237,
+      "version": 1
+    },
+    "tt0417741": {
+      "at": 1789575296388,
+      "version": 1
+    },
+    "tt0373889": {
+      "at": 1789575297689,
+      "version": 1
+    },
+    "tt0330373": {
+      "at": 1789575298629,
+      "version": 1
+    },
+    "tt1201607": {
+      "at": 1789575299909,
+      "version": 1
+    },
+    "tt0926084": {
+      "at": 1789575301286,
+      "version": 1
+    },
+    "tt0366551": {
+      "at": 1789575302142,
+      "version": 1
+    },
+    "tt0481536": {
+      "at": 1789575303381,
+      "version": 1
+    },
+    "tt2515034": {
+      "at": 1789575304604,
+      "version": 1
+    },
+    "tt2481480": {
+      "at": 1789575305991,
+      "version": 1
+    },
+    "tt0387736": {
+      "at": 1789575307202,
+      "version": 1
+    },
+    "tt1323594": {
+      "at": 1789575308171,
+      "version": 1
+    },
+    "tt1690953": {
+      "at": 1789575309592,
+      "version": 1
+    },
+    "tt29344903": {
+      "at": 1789575310816,
+      "version": 1
+    },
+    "tt1456635": {
+      "at": 1789575312042,
+      "version": 1
+    },
+    "tt1345507": {
+      "at": 1789575313011,
+      "version": 1
+    },
+    "tt14812496": {
+      "at": 1789575314438,
+      "version": 1
+    },
+    "tt1876446": {
+      "at": 1789575315614,
+      "version": 1
+    },
+    "tt1663202": {
+      "at": 1789575316858,
+      "version": 1
+    },
+    "tt1191111": {
+      "at": 1789575318017,
+      "version": 1
+    },
+    "tt0120461": {
+      "at": 1789575319064,
+      "version": 1
+    },
+    "tt6284064": {
+      "at": 1789575320425,
+      "version": 1
+    },
+    "tt1386703": {
+      "at": 1789575321484,
+      "version": 1
+    },
+    "tt0100802": {
+      "at": 1789575322681,
+      "version": 1
+    },
+    "tt1441135": {
+      "at": 1789575323922,
+      "version": 1
+    },
+    "tt2331047": {
+      "at": 1789575325280,
+      "version": 1
+    },
+    "tt1068680": {
+      "at": 1789575326353,
+      "version": 1
+    },
+    "tt5721088": {
+      "at": 1789575327741,
+      "version": 1
+    },
+    "tt0910554": {
+      "at": 1789575328668,
+      "version": 1
+    },
+    "tt1531663": {
+      "at": 1789575330110,
+      "version": 1
+    },
+    "tt1727770": {
+      "at": 1789575331103,
+      "version": 1
+    },
+    "tt3805180": {
+      "at": 1789575332537,
+      "version": 1
+    },
+    "tt3194426": {
+      "at": 1789575333702,
+      "version": 1
+    },
+    "tt6710474": {
+      "at": 1789575334961,
+      "version": 1
+    },
+    "tt10954652": {
+      "at": 1789575335922,
+      "version": 1
+    },
+    "tt6673840": {
+      "at": 1789575337162,
+      "version": 1
+    },
+    "tt1637688": {
+      "at": 1789575338609,
+      "version": 1
+    },
+    "tt0120660": {
+      "at": 1789575339862,
+      "version": 1
+    },
+    "tt0948538": {
+      "at": 1789575340905,
+      "version": 1
+    },
+    "tt1231583": {
+      "at": 1789575341988,
+      "version": 1
+    },
+    "tt2431438": {
+      "at": 1789575343532,
+      "version": 1
+    },
+    "tt1617661": {
+      "at": 1789575344622,
+      "version": 1
+    },
+    "tt2356464": {
+      "at": 1789575345784,
+      "version": 1
+    },
+    "tt9182284": {
+      "at": 1789575346747,
+      "version": 1
+    },
+    "tt5311972": {
+      "at": 1789575347975,
+      "version": 1
+    },
+    "tt3849938": {
+      "at": 1789575349397,
+      "version": 1
+    },
+    "tt11560730": {
+      "at": 1789575350595,
+      "version": 1
+    },
+    "tt1318514": {
+      "at": 1789575351647,
+      "version": 1
+    },
+    "tt28236082": {
+      "at": 1789575352861,
+      "version": 1
+    },
+    "tt0327437": {
+      "at": 1789575354032,
+      "version": 1
+    },
+    "tt5515410": {
+      "at": 1789575355289,
+      "version": 1
+    },
+    "tt0499556": {
+      "at": 1789575356438,
+      "version": 1
+    },
+    "tt0407304": {
+      "at": 1789575358012,
+      "version": 1
+    },
+    "tt0816711": {
+      "at": 1789575359122,
+      "version": 1
+    },
+    "tt2024469": {
+      "at": 1789575360039,
+      "version": 1
+    },
+    "tt14371878": {
+      "at": 1789575361242,
+      "version": 1
+    },
+    "tt0118880": {
+      "at": 1789575362708,
+      "version": 1
+    },
+    "tt0219171": {
+      "at": 1789575363855,
+      "version": 1
+    },
+    "tt0102782": {
+      "at": 1789575364837,
+      "version": 1
+    },
+    "tt0460740": {
+      "at": 1789575366102,
+      "version": 1
+    },
+    "tt2284824": {
+      "at": 1789575367463,
+      "version": 1
+    },
+    "tt0114898": {
+      "at": 1789575368495,
+      "version": 1
+    },
+    "tt5195412": {
+      "at": 1789575369668,
+      "version": 1
+    },
+    "tt0903747": {
+      "at": 1789575371040,
+      "version": 1
+    },
+    "tt6865690": {
+      "at": 1789575372301,
+      "version": 1
+    },
+    "tt6306064": {
+      "at": 1789575373496,
+      "version": 1
+    },
+    "tt2183034": {
+      "at": 1789575374508,
+      "version": 1
+    },
+    "tt5511582": {
+      "at": 1789575375812,
       "version": 1
     }
   }
