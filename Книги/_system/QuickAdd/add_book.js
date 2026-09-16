@@ -16,6 +16,25 @@ module.exports = async (params) => {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     }
 
+    function isBook(file) {
+        if (!file || file.extension !== "md") return false;
+        if (file.basename === "_index") return false;
+        if (!(
+            file.path.startsWith("Книги/Художественные/") ||
+            file.path.startsWith("Книги/Non-fiction/")
+        )) return false;
+        const fm = getFrontmatter(file);
+        return Boolean(fm.title) && Boolean(fm.authors);
+    }
+
+    function authorList(frontmatter) {
+        const raw = frontmatter?.authors;
+        if (!raw) return [];
+        return (Array.isArray(raw) ? raw : [raw])
+            .map(v => String(v).trim())
+            .filter(Boolean);
+    }
+
     async function ensureFolder(path) {
         const normalized = normalizePath(path);
         if (!app.vault.getAbstractFileByPath(normalized)) {
@@ -99,6 +118,15 @@ module.exports = async (params) => {
     }
     if (active?.path === SERIES_PAGE) {
         defaultSeries = String(getFrontmatter(active).selected_series ?? "").trim();
+
+        // Если в серии сейчас только один автор, подставляем его автоматически.
+        const seriesAuthors = [...new Set(
+            app.vault.getMarkdownFiles()
+                .filter(isBook)
+                .filter(file => String(getFrontmatter(file).series ?? "").trim() === defaultSeries)
+                .flatMap(file => authorList(getFrontmatter(file)))
+        )];
+        if (seriesAuthors.length === 1) defaultAuthor = seriesAuthors[0];
     }
 
     const section = await quickAddApi.suggester(
@@ -115,20 +143,6 @@ module.exports = async (params) => {
             label: "Автор(ы), через запятую",
             type: "text",
             defaultValue: defaultAuthor
-        },
-        {
-            id: "series",
-            label: "Серия",
-            type: "text",
-            optional: true,
-            defaultValue: defaultSeries
-        },
-        {
-            id: "seriesIndex",
-            label: "Номер в серии",
-            type: "number",
-            optional: true,
-            numericConfig: { min: 1, step: 1 }
         },
         {
             id: "date",
@@ -174,11 +188,6 @@ module.exports = async (params) => {
         return;
     }
 
-    const series = String(values.series ?? "").trim();
-    const seriesIndexRaw = Number(values.seriesIndex);
-    const seriesIndex = Number.isFinite(seriesIndexRaw) && seriesIndexRaw > 0
-        ? Math.floor(seriesIndexRaw)
-        : null;
     const date = String(values.date ?? "").trim().replace(/^@date:/, "");
     if (!isValidDate(date)) {
         new Notice("Некорректная дата. Используй YYYY-MM-DD, YYYY-MM или YYYY.");
@@ -190,6 +199,67 @@ module.exports = async (params) => {
         ? ratingRaw
         : null;
     const comment = String(values.comment ?? "").trim();
+
+    // Серия выбирается ПОСЛЕ автора. Так нет опечаток и дубликатов названий серий.
+    let series = defaultSeries;
+    if (!series) {
+        const authorSeries = [...new Set(
+            app.vault.getMarkdownFiles()
+                .filter(isBook)
+                .filter(file => authorList(getFrontmatter(file)).includes(authors[0]))
+                .map(file => String(getFrontmatter(file).series ?? "").trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "ru"));
+
+        const labels = ["Без серии", ...authorSeries, "➕ Новая серия"];
+        const valuesForChoice = ["", ...authorSeries, "__NEW__"];
+
+        const seriesChoice = await quickAddApi.suggester(
+            labels,
+            valuesForChoice,
+            "Серия"
+        );
+        if (seriesChoice === undefined || seriesChoice === null) return;
+
+        if (seriesChoice === "__NEW__") {
+            series = String(await quickAddApi.inputPrompt("Название новой серии") ?? "").trim();
+            if (!series) return;
+        } else {
+            series = String(seriesChoice).trim();
+        }
+    }
+
+    let seriesIndex = null;
+    if (series) {
+        const existingIndexes = app.vault.getMarkdownFiles()
+            .filter(isBook)
+            .map(file => getFrontmatter(file))
+            .filter(fm => String(fm.series ?? "").trim() === series)
+            .map(fm => Number(fm.series_index))
+            .filter(v => Number.isFinite(v) && v > 0);
+
+        const suggestedIndex = existingIndexes.length
+            ? Math.max(...existingIndexes) + 1
+            : 1;
+
+        const indexValues = await quickAddApi.requestInputs([
+            {
+                id: "seriesIndex",
+                label: `Номер в серии "${series}"`,
+                type: "number",
+                defaultValue: String(suggestedIndex),
+                numericConfig: { min: 1, step: 1 }
+            }
+        ]);
+        if (!indexValues) return;
+
+        const raw = Number(indexValues.seriesIndex);
+        if (!Number.isFinite(raw) || raw < 1) {
+            new Notice("Некорректный номер в серии.");
+            return;
+        }
+        seriesIndex = Math.floor(raw);
+    }
 
     const sectionFolder = normalizePath(`${BOOKS_ROOT}/${section}`);
     await ensureFolder(sectionFolder);
@@ -215,8 +285,10 @@ module.exports = async (params) => {
     content += `date: ${yamlString(date)}\n`;
     if (rating !== null) content += `rating: ${rating}\n`;
     content += "read_count: 1\n";
-    content += series ? `series: ${yamlString(series)}\n` : "series:\n";
-    content += seriesIndex !== null ? `series_index: ${seriesIndex}\n` : "series_index:\n";
+    if (series) {
+        content += `series: ${yamlString(series)}\n`;
+        content += `series_index: ${seriesIndex}\n`;
+    }
     content += "---\n";
     content += `# ${title}\n\n`;
     content += "## Заметки\n\n";

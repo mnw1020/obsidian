@@ -70,6 +70,24 @@ views:
       - property: date
         direction: DESC
   - type: table
+    name: Серии
+    filters:
+      and:
+        - series
+    groupBy:
+      property: series
+      direction: ASC
+    order:
+      - series_index
+      - formula.book_link
+      - formula.author_links
+      - rating
+      - date
+      - read_count
+    sort:
+      - property: date
+        direction: DESC
+  - type: table
     name: Перечитанные
     filters:
       and:
@@ -89,7 +107,7 @@ views:
     name: Автор
     filters:
       and:
-        - 'authors.contains(this.selected_author)'
+        - authors.contains(this.selected_author)
     groupBy:
       property: formula.series_group
       direction: ASC
@@ -104,7 +122,7 @@ views:
       - property: series_index
         direction: ASC
       - property: date
-        direction: DESC		
+        direction: DESC
   - type: table
     name: Серия
     filters:
