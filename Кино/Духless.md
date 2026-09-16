@@ -17,7 +17,7 @@ tags:
   - "Roman Prygunov (Роман Львович Прыгунов)"
 Актеры:
   - "Danila Kozlovsky (Данила Козловский)"
-  - "Мария Андреева"
+  - "Mariya Andreeva (Мария Андреева)"
   - "Artem Mikhalkov (Артём Никитич Михалков)"
   - "Nikita Panfilov (Никита Владиславович Панфилов)"
   - "Artur Smolyaninov (Артур Сергеевич Смольянинов)"

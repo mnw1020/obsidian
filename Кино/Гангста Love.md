@@ -15,7 +15,7 @@ tags:
 Режисер:
   - "Raymond De Felitta (Рэймонд Де Фелитта)"
 Актеры:
-  - "Майкл Питт"
+  - "Michael Pitt (Майкл Питт)"
   - "Nina Arianda (Нина Арианда)"
   - "Andy Garcia (Энди Гарсиа)"
   - "Ray Romano (Рэй Романо)"
