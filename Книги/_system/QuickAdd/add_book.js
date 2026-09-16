@@ -271,27 +271,7 @@ module.exports = async (params) => {
         return content;
     }
 
-    function buttonKeyForPath(path) {
-        // Stable per-book key. Button block IDs in Buttons must be unique across the vault.
-        const text = String(path ?? "");
-        let hash = 2166136261;
-        for (let i = 0; i < text.length; i++) {
-            hash ^= text.charCodeAt(i);
-            hash = Math.imul(hash, 16777619);
-        }
-        return (hash >>> 0).toString(36);
-    }
-
-    function buttonIdsForPath(path) {
-        const key = buttonKeyForPath(path);
-        return {
-            read: `bk-${key}-read`,
-            edit: `bk-${key}-edit`,
-            cinema: `bk-${key}-cinema`
-        };
-    }
-
-    function cardPanel(hasSeries, filePath) {
+    function cardPanel(hasSeries) {
         let nav =
             "[[Книги/_index|← Книги]] · " +
             "[Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
@@ -300,57 +280,20 @@ module.exports = async (params) => {
         }
         nav += " · [Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
 
+        const actions =
+            "[＋ Чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
+            "[✎ Изменить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
+            "[🎬 Кино](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B2%D1%8F%D0%B7%D0%B0%D1%82%D1%8C%20%D1%81%20%D0%BA%D0%B8%D0%BD%D0%BE)";
+
         return [
             "<!-- BOOK-CARD-UI:START -->",
             nav,
             "",
-            `\`button-${buttonIdsForPath(filePath).read}\` \`button-${buttonIdsForPath(filePath).edit}\` \`button-${buttonIdsForPath(filePath).cinema}\``,
+            actions,
             "<!-- BOOK-CARD-UI:END -->",
             ""
         ].join("\n");
     }
-
-    function buttonDefinitions(filePath) {
-        const ids = buttonIdsForPath(filePath);
-        return [
-            "<!-- BOOK-BUTTONS:START -->",
-            "```button",
-            "name ＋ Чтение",
-            "type link",
-            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5",
-            "width 5.4",
-            "height 1.1",
-            "align center middle",
-            "hidden true",
-            "```",
-            `^button-${ids.read}`,
-            "",
-            "```button",
-            "name ✎ Изменить",
-            "type link",
-            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5",
-            "width 5.6",
-            "height 1.1",
-            "align center middle",
-            "hidden true",
-            "```",
-            `^button-${ids.edit}`,
-            "",
-            "```button",
-            "name 🎬 Кино",
-            "type link",
-            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B2%D1%8F%D0%B7%D0%B0%D1%82%D1%8C%20%D1%81%20%D0%BA%D0%B8%D0%BD%D0%BE",
-            "width 4.8",
-            "height 1.1",
-            "align center middle",
-            "hidden true",
-            "```",
-            `^button-${ids.cinema}`,
-            "<!-- BOOK-BUTTONS:END -->",
-            ""
-        ].join("\n");
-    }
-
 
     async function lightCheckBook(bookFile, entries) {
         let fm = getFrontmatter(bookFile);
@@ -632,11 +575,10 @@ module.exports = async (params) => {
         content += `series_index: ${seriesIndex}\n`;
     }
     content += "---\n\n";
-    content += cardPanel(Boolean(series), filePath) + "\n";
+    content += cardPanel(Boolean(series)) + "\n";
     content += `# ${title}\n\n`;
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);
-    content += "\n" + buttonDefinitions(filePath);
 
     const bookFile = await app.vault.create(filePath, content);
     try {
