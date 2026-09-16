@@ -26,6 +26,12 @@ action QuickAdd: Книги - Найти книгу
 ```
 
 ```button
+name 👥 Авторы
+type command
+action QuickAdd: Книги - Авторы
+```
+
+```button
 name 🔎 Проверить библиотеку
 type command
 action QuickAdd: Книги - Проверить библиотеку
