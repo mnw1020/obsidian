@@ -19,6 +19,12 @@ type command
 action QuickAdd: Книги - Редактировать чтение
 ```
 
+```button
+name 🔎 Проверить библиотеку
+type command
+action QuickAdd: Книги - Проверить библиотеку
+```
+
 ## Все книги
 
 ![[Книги/Книги.base#Все]]
