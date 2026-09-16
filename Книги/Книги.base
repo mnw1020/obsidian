@@ -86,7 +86,7 @@ views:
       - read_count
     sort:
       - property: date
-        direction: DESC
+        direction: ASC
   - type: table
     name: Перечитанные
     filters:
