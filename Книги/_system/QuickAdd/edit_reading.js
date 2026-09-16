@@ -24,6 +24,40 @@ module.exports = async (params) => {
         return file.path.startsWith("Книги/Художественные/");
     }
 
+
+    async function updateHomeStats() {
+        const home = app.vault.getAbstractFileByPath("Книги/_index.md");
+        if (!home) return;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const allBooks = app.vault.getMarkdownFiles().filter(isBook);
+        const authors = new Set();
+        const series = new Set();
+        let rated = 0;
+        let reread = 0;
+        for (const file of allBooks) {
+            const fm = getFrontmatter(file);
+            const rawAuthors = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
+            for (const author of rawAuthors) {
+                const value = String(author ?? "").trim();
+                if (value) authors.add(value);
+            }
+            const seriesName = String(fm.series ?? "").trim();
+            if (seriesName) series.add(seriesName);
+            if (file.path.startsWith("Книги/Художественные/")) {
+                const value = Number(fm.rating);
+                if (Number.isFinite(value) && value >= 1 && value <= 10) rated++;
+            }
+            const count = Number(fm.read_count);
+            if (Number.isInteger(count) && count > 1) reread++;
+        }
+        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${allBooks.length} книг** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const current = await app.vault.read(home);
+        const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
+            ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
+            : current;
+        if (updated !== current) await app.vault.modify(home, updated);
+    }
+
     function displayDate(value) {
         const text = String(value ?? "").trim();
         let m = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -311,6 +345,7 @@ module.exports = async (params) => {
     const updated = replaceEntries(text, entries);
     await app.vault.modify(bookFile, updated);
     await rebuildBook(bookFile, entries);
+    await updateHomeStats();
 
     const title = String(getFrontmatter(bookFile).title || bookFile.basename);
     const issues = await lightCheckBook(bookFile, entries);
