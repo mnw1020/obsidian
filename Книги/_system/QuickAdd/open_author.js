@@ -54,7 +54,7 @@ module.exports = async (params) => {
         "type command\n" +
         "action QuickAdd: Книги - Авторы\n" +
         "```\n\n" +
-        `![[Книги/Книги.base#Автор|no-new]]\n`;
+        `![[Книги/Книги.base#Автор]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
     if (page) {
