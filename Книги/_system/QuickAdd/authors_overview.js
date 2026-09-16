@@ -15,7 +15,6 @@ module.exports = async (params) => {
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
         if (!BOOK_ROOTS.some(root => file.path.startsWith(root))) return false;
-
         const fm = getFrontmatter(file);
         return Boolean(fm.title) && Boolean(fm.authors);
     }
@@ -23,7 +22,6 @@ module.exports = async (params) => {
     function authorsOf(frontmatter) {
         const raw = frontmatter.authors;
         const values = Array.isArray(raw) ? raw : [raw];
-
         return [...new Set(
             values
                 .map(value => String(value ?? "").trim())
@@ -49,10 +47,8 @@ module.exports = async (params) => {
         const text = String(value ?? "").trim();
         let match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
         if (match) return `${match[3]}.${match[2]}.${match[1]}`;
-
         match = text.match(/^(\d{4})-(\d{2})$/);
         if (match) return `${match[2]}.${match[1]}`;
-
         return text || "—";
     }
 
@@ -64,28 +60,31 @@ module.exports = async (params) => {
             .trim();
     }
 
+    function commandLink(label, choice) {
+        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice);
+        return `[${label}](${uri})`;
+    }
+
     function authorLink(author) {
         const uri =
             "obsidian://quickadd?choice=" +
             encodeURIComponent("Книги - Открыть автора") +
             "&value-author=" +
             encodeURIComponent(author);
-
         return `[${escapeMarkdownTable(author)}](${uri})`;
     }
 
     function bookLink(file, title, date) {
         const target = file.path.replace(/\.md$/i, "");
-        const label = date
-            ? `${title} · ${displayDate(date)}`
-            : title;
-
+        const label = date ? `${title} · ${displayDate(date)}` : title;
         return `[[${target}\\|${escapeMarkdownTable(label)}]]`;
     }
 
+    const books = app.vault.getMarkdownFiles().filter(isBook);
+    const ratedBooks = books.filter(file => numericRating(getFrontmatter(file).rating) !== null).length;
     const aggregates = new Map();
 
-    for (const file of app.vault.getMarkdownFiles().filter(isBook)) {
+    for (const file of books) {
         const fm = getFrontmatter(file);
         const title = String(fm.title ?? file.basename).trim() || file.basename;
         const rating = numericRating(fm.rating);
@@ -139,42 +138,36 @@ module.exports = async (params) => {
         const average = item.ratingCount > 0
             ? (item.ratingSum / item.ratingCount).toFixed(1)
             : "—";
-
         const latest = item.latest
-            ? bookLink(
-                item.latest.file,
-                item.latest.title,
-                item.latest.date
-            )
+            ? bookLink(item.latest.file, item.latest.title, item.latest.date)
             : "—";
-
         return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${latest} |`;
     });
+
+    const nav = [
+        "[[Книги/_index|← Книги]]",
+        commandLink("🧩 Серии", "Книги - Серии"),
+        commandLink("🎬 Экранизации", "Книги - Экранизации"),
+        commandLink("↻ Обновить", "Книги - Авторы")
+    ].join(" · ");
 
     const content =
         `---\n` +
         `obsidianUIMode: preview\n` +
         `---\n\n` +
         `# 👥 Авторы\n\n` +
-        `[[Книги/_index|← Книги]]\n\n` +
-        "```button\n" +
-        "name 🔄 Обновить обзор авторов\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Авторы\n" +
-        "```\n\n" +
-        `Всего авторов: **${authors.length}**\n\n` +
-        `Средняя оценка считается только по книгам, где оценка указана.\n\n` +
-        `| Автор | Книг | Средняя оценка | Последняя прочитанная |\n` +
+        `${nav}\n\n` +
+        `> [!info] Обзор\n` +
+        `> **Авторов:** ${authors.length} · **Книг:** ${books.length} · **С оценкой:** ${ratedBooks}\n\n` +
+        `Средняя оценка — только по книгам, где она указана.\n\n` +
+        `| Автор | Книг | ⭐ ср. | Последняя книга |\n` +
         `| --- | ---: | ---: | --- |\n` +
         rows.join("\n") +
         `\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) {
-        await app.vault.modify(page, content);
-    } else {
-        page = await app.vault.create(PAGE_PATH, content);
-    }
+    if (page) await app.vault.modify(page, content);
+    else page = await app.vault.create(PAGE_PATH, content);
 
     await app.workspace.getLeaf(false).openFile(page);
 };

@@ -1,28 +1,25 @@
 # 📚 Книги
 
-### Действия
-
+## Действия
 `button-books-add` `button-books-reading` `button-books-edit-reading`
 
-### Обзоры
+## Обзоры
 
 `button-books-authors` `button-books-series` `button-books-adaptations`
 
-### Коллекции
+## Коллекции
 
 [[Книги/Стихи|✒ Стихи]] · [[Книги/Цитата|💬 Цитаты]]
 
 ---
 
-## 📖 Все книги
+# 📖 Все книги
 
 ![[Книги/Книги.base#Все]]
 
-> [!abstract]- 🔁 Перечитанные
-> ![[Книги/Книги.base#Перечитанные]]
+# 🔁 Перечитанные
+ ![[Книги/Книги.base#Перечитанные]]
 
-> [!abstract]- 🧩 Книги по сериям
-> ![[Книги/Книги.base#Серии]]
 
 <!-- BUTTON DEFINITIONS -->
 
@@ -63,7 +60,7 @@ hidden true
 name 👥 Авторы
 type command
 action QuickAdd: Книги - Авторы
-width 7
+width 8
 height 1.4
 align center middle
 hidden true
@@ -74,7 +71,7 @@ hidden true
 name 🧩 Серии
 type command
 action QuickAdd: Книги - Серии
-width 7
+width 8
 height 1.4
 align center middle
 hidden true
@@ -85,7 +82,7 @@ hidden true
 name 🎬 Экранизации
 type command
 action QuickAdd: Книги - Экранизации
-width 10
+width 8
 height 1.4
 align center middle
 hidden true

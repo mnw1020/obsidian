@@ -72,26 +72,6 @@ views:
       - property: date
         direction: DESC
   - type: table
-    name: Серии
-    filters:
-      and:
-        - note.series
-    groupBy:
-      property: series
-      direction: ASC
-    order:
-      - series_index
-      - formula.book_link
-      - formula.author_links
-      - rating
-      - date
-      - read_count
-    sort:
-      - property: series_index
-        direction: ASC
-      - property: date
-        direction: DESC
-  - type: table
     name: Перечитанные
     filters:
       and:
