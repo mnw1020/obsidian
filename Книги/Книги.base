@@ -109,7 +109,7 @@ views:
     name: Автор
     filters:
       and:
-        - 'authors.contains(this.selected_author)'
+        - authors.contains(this.selected_author)
     groupBy:
       property: formula.series_group
       direction: ASC
@@ -124,7 +124,7 @@ views:
       - property: series_index
         direction: ASC
       - property: date
-        direction: DESC		
+        direction: DESC
   - type: table
     name: Серия
     filters:
