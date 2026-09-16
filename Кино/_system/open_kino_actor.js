@@ -82,6 +82,17 @@ module.exports=async function openEntity(params) {
     let file=app.vault.getAbstractFileByPath(PAGE);
     if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT);}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
-    await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
-    await app.workspace.getLeaf(false).openFile(file);
+    await app.fileManager.processFrontMatter(file, fm => {
+    fm["Выбрано"] = selected;
+});
+
+await new Promise(resolve => setTimeout(resolve, 400));
+
+const leaf = app.workspace.getLeaf(false);
+await leaf.openFile(file);
+
+const view = leaf.view;
+if (view?.getViewType?.() === "markdown" && view.previewMode) {
+    await view.previewMode.rerender(true);
+}
 };
