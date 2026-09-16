@@ -271,7 +271,27 @@ module.exports = async (params) => {
         return content;
     }
 
-    function cardPanel(hasSeries) {
+    function buttonKeyForPath(path) {
+        // Stable per-book key. Button block IDs in Buttons must be unique across the vault.
+        const text = String(path ?? "");
+        let hash = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+            hash ^= text.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36);
+    }
+
+    function buttonIdsForPath(path) {
+        const key = buttonKeyForPath(path);
+        return {
+            read: `bk-${key}-read`,
+            edit: `bk-${key}-edit`,
+            cinema: `bk-${key}-cinema`
+        };
+    }
+
+    function cardPanel(hasSeries, filePath) {
         let nav =
             "[[Книги/_index|← Книги]] · " +
             "[Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
@@ -284,13 +304,14 @@ module.exports = async (params) => {
             "<!-- BOOK-CARD-UI:START -->",
             nav,
             "",
-            "`button-book-add-reading` `button-book-edit-reading` `button-book-link-cinema`",
+            `\`button-${buttonIdsForPath(filePath).read}\` \`button-${buttonIdsForPath(filePath).edit}\` \`button-${buttonIdsForPath(filePath).cinema}\``,
             "<!-- BOOK-CARD-UI:END -->",
             ""
         ].join("\n");
     }
 
-    function buttonDefinitions() {
+    function buttonDefinitions(filePath) {
+        const ids = buttonIdsForPath(filePath);
         return [
             "<!-- BOOK-BUTTONS:START -->",
             "```button",
@@ -302,7 +323,7 @@ module.exports = async (params) => {
             "align center middle",
             "hidden true",
             "```",
-            "^button-book-add-reading",
+            `^button-${ids.read}`,
             "",
             "```button",
             "name ✎ Изменить",
@@ -313,7 +334,7 @@ module.exports = async (params) => {
             "align center middle",
             "hidden true",
             "```",
-            "^button-book-edit-reading",
+            `^button-${ids.edit}`,
             "",
             "```button",
             "name 🎬 Кино",
@@ -324,7 +345,7 @@ module.exports = async (params) => {
             "align center middle",
             "hidden true",
             "```",
-            "^button-book-link-cinema",
+            `^button-${ids.cinema}`,
             "<!-- BOOK-BUTTONS:END -->",
             ""
         ].join("\n");
@@ -611,11 +632,11 @@ module.exports = async (params) => {
         content += `series_index: ${seriesIndex}\n`;
     }
     content += "---\n\n";
-    content += cardPanel(Boolean(series)) + "\n";
+    content += cardPanel(Boolean(series), filePath) + "\n";
     content += `# ${title}\n\n`;
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);
-    content += "\n" + buttonDefinitions();
+    content += "\n" + buttonDefinitions(filePath);
 
     const bookFile = await app.vault.create(filePath, content);
     try {
