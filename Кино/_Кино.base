@@ -217,7 +217,7 @@ views:
       - formula.entity_genre
     sort:
       - property: formula.rating_delta
-        direction: ASC
+        direction: DESC
       - property: formula.rating
         direction: DESC
   - type: dynamic-views-grid
