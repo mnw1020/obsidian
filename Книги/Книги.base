@@ -1,26 +1,28 @@
 filters:
   and:
-    - authors
-    - file.path.startsWith("Книги/")
+    - note.authors
+    - or:
+        - file.inFolder("Книги/Художественные")
+        - file.inFolder("Книги/Non-fiction")
 formulas:
-  book_link: file.asLink(title)
-  series_group: if(series, series, "Без серии")
-  author_links: authors.map(link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0&value-author=" + value.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), value))
-  series_link: if(series, link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E&value-series=" + series.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), series), "")
+  book_link: file.asLink(note.title)
+  series_group: if(note.series, note.series, "Без серии")
+  author_links: note.authors.map(link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0&value-author=" + value.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), value))
+  series_link: if(note.series, link("obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E&value-series=" + note.series.replace("%", "%25").replace(" ", "%20").replace("&", "%26").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace("+", "%2B").replace("/", "%2F"), note.series), "")
 properties:
   formula.book_link:
     displayName: Книга
   formula.author_links:
     displayName: Автор
-  rating:
+  note.rating:
     displayName: Оценка
-  date:
+  note.date:
     displayName: Последнее чтение
-  read_count:
+  note.read_count:
     displayName: Чтений
   formula.series_link:
     displayName: Серия
-  series_index:
+  note.series_index:
     displayName: №
 views:
   - type: table
@@ -73,7 +75,7 @@ views:
     name: Серии
     filters:
       and:
-        - series
+        - note.series
     groupBy:
       property: series
       direction: ASC
@@ -93,7 +95,7 @@ views:
     name: Перечитанные
     filters:
       and:
-        - read_count > 1
+        - note.read_count > 1
     order:
       - formula.book_link
       - formula.author_links
@@ -109,7 +111,7 @@ views:
     name: Автор
     filters:
       and:
-        - authors.contains(this.selected_author)
+        - note.authors.contains(this.selected_author)
     groupBy:
       property: formula.series_group
       direction: ASC
@@ -129,7 +131,7 @@ views:
     name: Серия
     filters:
       and:
-        - series == this.selected_series
+        - note.series == this.selected_series
     order:
       - series_index
       - formula.book_link

@@ -50,6 +50,11 @@ module.exports = async (params) => {
         "action QuickAdd: Книги - Добавить книгу\n" +
         "color green\n" +
         "```\n\n" +
+        "```button\n" +
+        "name 🔍 Найти книгу в серии\n" +
+        "type command\n" +
+        "action QuickAdd: Книги - Найти книгу\n" +
+        "```\n\n" +
         `![[Книги/Книги.base#Серия|no-new]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);

@@ -20,6 +20,12 @@ action QuickAdd: Книги - Редактировать чтение
 ```
 
 ```button
+name 🔍 Найти книгу
+type command
+action QuickAdd: Книги - Найти книгу
+```
+
+```button
 name 🔎 Проверить библиотеку
 type command
 action QuickAdd: Книги - Проверить библиотеку
@@ -27,7 +33,7 @@ action QuickAdd: Книги - Проверить библиотеку
 
 ## Все книги
 
-![[Книги/Книги.base#Все]]
+![[Книги/Книги.base#Все|no-new]]
 
 ## Перечитанные
 
