@@ -5,6 +5,7 @@ module.exports = async (params) => {
     const BOOK_PREFIXES = ["Книги/Художественные/", "Книги/Non-fiction/"];
     const MEDIA_ROOT = "Кино/";
     const MEDIA_EXCLUDED = ["Кино/Просмотры/", "Кино/Сезоны/", "Кино/_system/"];
+    const CHANGELOG_PATH = "Книги/_system/Журнал изменений.md";
 
     function getFrontmatter(file) {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
@@ -57,6 +58,23 @@ module.exports = async (params) => {
         if (current.some(value => linkTarget(value) === target)) return false;
         frontmatter[key] = [...current, wikiLink(file)];
         return true;
+    }
+
+    async function appendJournal(line) {
+        const now = new Date();
+        const pad = value => String(value).padStart(2, "0");
+        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="false" structure="true" -->\n`;
+        block += `## ${stamp}\n\n- ${line}\n\n`;
+        const path = obsidian.normalizePath(CHANGELOG_PATH);
+        let file = app.vault.getAbstractFileByPath(path);
+        if (!file) {
+            file = await app.vault.create(path, "# Журнал изменений\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
+            return;
+        }
+        const current = await app.vault.read(file);
+        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
     }
 
     let bookFile = app.workspace.getActiveFile();
@@ -153,5 +171,11 @@ module.exports = async (params) => {
         return;
     }
 
-    new Notice(`Связано: ${String(getFrontmatter(bookFile).title ?? bookFile.basename)} ↔ ${mediaFile.basename}`);
+    const bookTitle = String(getFrontmatter(bookFile).title ?? bookFile.basename);
+    try {
+        await appendJournal(`Связь с кино: **${bookTitle}** ↔ **${mediaFile.basename}**.`);
+    } catch (error) {
+        new Notice(`Связь создана, но журнал не обновлен: ${error?.message || error}`, 7000);
+    }
+    new Notice(`Связано: ${bookTitle} ↔ ${mediaFile.basename}`);
 };
