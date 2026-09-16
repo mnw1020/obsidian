@@ -27,6 +27,10 @@ module.exports = async (params) => {
         return Boolean(fm.title) && Boolean(fm.authors);
     }
 
+    function isFiction(file) {
+        return file.path.startsWith("Книги/Художественные/");
+    }
+
     function authorList(frontmatter) {
         const raw = frontmatter?.authors;
         if (!raw) return [];
@@ -107,6 +111,83 @@ module.exports = async (params) => {
 
         content += HISTORY_END + "\n";
         return content;
+    }
+
+
+    async function lightCheckBook(bookFile, entries) {
+        let fm = getFrontmatter(bookFile);
+        for (let attempt = 0; attempt < 6 && !fm.title; attempt++) {
+            await new Promise(resolve => setTimeout(resolve, 60));
+            fm = getFrontmatter(bookFile);
+        }
+        const issues = [];
+        const title = String(fm.title ?? "").trim();
+        const authorsRaw = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
+        const authors = authorsRaw.map(v => String(v ?? "").trim()).filter(Boolean);
+        const series = String(fm.series ?? "").trim();
+        const hasSeriesIndex = fm.series_index !== undefined && String(fm.series_index ?? "").trim() !== "";
+        const seriesIndex = Number(fm.series_index);
+
+        if (!title) issues.push("нет title");
+        if (!authors.length) issues.push("нет authors");
+        if (series && !hasSeriesIndex) issues.push("у серии нет series_index");
+        if (!series && hasSeriesIndex) issues.push("series_index есть без series");
+        if (series && hasSeriesIndex && (!Number.isInteger(seriesIndex) || seriesIndex < 1)) {
+            issues.push("некорректный series_index");
+        }
+
+        const readCount = Number(fm.read_count);
+        if (!Number.isInteger(readCount) || readCount !== entries.length) {
+            issues.push(`read_count=${String(fm.read_count ?? "пусто")}, записей=${entries.length}`);
+        }
+
+        for (const entry of entries) {
+            if (!isValidDate(String(entry.date ?? ""))) issues.push(`ошибка даты чтения #${entry.number}`);
+        }
+
+        const chronological = [...entries].sort((a, b) => {
+            const byDate = String(a.date ?? "").localeCompare(String(b.date ?? ""));
+            return byDate !== 0 ? byDate : Number(a.number) - Number(b.number);
+        });
+        const latest = chronological.length ? chronological[chronological.length - 1] : null;
+        const latestRated = [...chronological].reverse().find(entry => entry.rating !== null && entry.rating !== undefined) || null;
+
+        if (latest && String(fm.date ?? "").trim() !== String(latest.date ?? "").trim()) {
+            issues.push("date не совпадает с последним чтением");
+        }
+        if (isFiction(bookFile)) {
+            const fmRating = fm.rating === undefined || fm.rating === "" ? null : Number(fm.rating);
+            const expectedRating = latestRated ? Number(latestRated.rating) : null;
+            if (fmRating !== expectedRating) issues.push("rating не совпадает с последней оценкой");
+        } else if (Object.prototype.hasOwnProperty.call(fm, "rating")) {
+            issues.push("rating у Non-fiction");
+        }
+
+        let text = "";
+        try {
+            text = await app.vault.read(bookFile);
+        } catch (error) {
+            issues.push("файл не читается");
+        }
+        if (text) {
+            const starts = (text.match(/<!-- BOOK-READING:START /g) || []).length;
+            const ends = (text.match(/<!-- BOOK-READING:END -->/g) || []).length;
+            if (!text.includes(HISTORY_START) || !text.includes(HISTORY_END)) issues.push("нет блока BOOK-READINGS");
+            if (starts !== entries.length || ends !== entries.length) issues.push("маркеры чтений не совпадают с историей");
+        }
+
+        if (series && Number.isInteger(seriesIndex) && seriesIndex > 0) {
+            const conflicts = app.vault.getMarkdownFiles()
+                .filter(isBook)
+                .filter(file => file.path !== bookFile.path)
+                .filter(file => {
+                    const other = getFrontmatter(file);
+                    return String(other.series ?? "").trim() === series && Number(other.series_index) === seriesIndex;
+                });
+            if (conflicts.length) issues.push(`номер ${seriesIndex} уже есть в серии «${series}»`);
+        }
+
+        return [...new Set(issues)];
     }
 
     const active = app.workspace.getActiveFile();
@@ -295,6 +376,12 @@ module.exports = async (params) => {
     content += historyBlock(date, rating, comment);
 
     const bookFile = await app.vault.create(filePath, content);
-    new Notice(`${title}: книга добавлена`);
+    const entries = [{ number: 1, date, rating }];
+    const issues = await lightCheckBook(bookFile, entries);
+    if (issues.length) {
+        new Notice(`${title}: книга добавлена. ⚠️ ${issues.join("; ")}. Запусти «Проверить библиотеку».`, 9000);
+    } else {
+        new Notice(`${title}: книга добавлена`);
+    }
     await app.workspace.getLeaf(false).openFile(bookFile);
 };

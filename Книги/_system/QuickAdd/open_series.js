@@ -45,15 +45,15 @@ module.exports = async (params) => {
         `---\n\n` +
         `# ${series}\n\n` +
         "```button\n" +
+        "name 📚 Все серии\n" +
+        "type command\n" +
+        "action QuickAdd: Книги - Серии\n" +
+        "```\n\n" +
+        "```button\n" +
         "name ➕ Добавить книгу в серию\n" +
         "type command\n" +
         "action QuickAdd: Книги - Добавить книгу\n" +
         "color green\n" +
-        "```\n\n" +
-        "```button\n" +
-        "name 🔍 Найти книгу в серии\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Найти книгу\n" +
         "```\n\n" +
         `![[Книги/Книги.base#Серия|no-new]]\n`;
 

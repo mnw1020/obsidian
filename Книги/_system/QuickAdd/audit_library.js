@@ -1,5 +1,5 @@
 module.exports = async (params) => {
-    const { app, obsidian } = params;
+    const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath } = obsidian;
 
     const REPORT_PATH = "Книги/_system/Проверка библиотеки.md";
@@ -162,6 +162,302 @@ module.exports = async (params) => {
     const books = app.vault.getMarkdownFiles()
         .filter(isCandidateBook)
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
+
+    // Нормализация авторов встроена в эту же проверку.
+    // Ничего не меняется без явного выбора пользователя.
+    function authorTokenSignature(value) {
+        return normalizeEntity(value)
+            .split(" ")
+            .map(part => part.trim())
+            .filter(Boolean)
+            .sort((a, b) => a.localeCompare(b, "ru"))
+            .join(" ");
+    }
+
+    function collectAuthorVariantStats() {
+        const stats = new Map();
+        for (const file of books) {
+            const authors = listValues(getFrontmatter(file).authors);
+            for (const author of authors) {
+                if (!stats.has(author)) {
+                    stats.set(author, { name: author, count: 0, files: new Set() });
+                }
+                const item = stats.get(author);
+                item.count++;
+                item.files.add(file.path);
+            }
+        }
+        return stats;
+    }
+
+    function buildAuthorNormalizationGroups(stats) {
+        const names = [...stats.keys()];
+        const edges = new Map(names.map(name => [name, new Set()]));
+
+        function connect(a, b) {
+            edges.get(a).add(b);
+            edges.get(b).add(a);
+        }
+
+        for (let i = 0; i < names.length; i++) {
+            for (let j = i + 1; j < names.length; j++) {
+                const a = names[i];
+                const b = names[j];
+                const normA = normalizeEntity(a);
+                const normB = normalizeEntity(b);
+                const tokensA = authorTokenSignature(a);
+                const tokensB = authorTokenSignature(b);
+
+                // Самые надежные случаи: пунктуация/регистр и перестановка слов.
+                if (normA === normB || (tokensA && tokensA === tokensB)) {
+                    connect(a, b);
+                    continue;
+                }
+
+                // Небольшая опечатка: только как предложение, никогда не автообъединение.
+                if (Math.abs(normA.length - normB.length) > 2) continue;
+                if (Math.min(normA.length, normB.length) < 7) continue;
+                const distance = levenshtein(normA, normB);
+                if (distance > 0 && distance <= 2) connect(a, b);
+            }
+        }
+
+        const visited = new Set();
+        const groups = [];
+        for (const name of names) {
+            if (visited.has(name) || !edges.get(name).size) continue;
+            const stack = [name];
+            const members = [];
+            visited.add(name);
+            while (stack.length) {
+                const current = stack.pop();
+                members.push(current);
+                for (const next of edges.get(current)) {
+                    if (visited.has(next)) continue;
+                    visited.add(next);
+                    stack.push(next);
+                }
+            }
+            if (members.length > 1) {
+                members.sort((a, b) => {
+                    const countDiff = stats.get(b).count - stats.get(a).count;
+                    return countDiff !== 0 ? countDiff : a.localeCompare(b, "ru");
+                });
+                groups.push(members);
+            }
+        }
+        return groups;
+    }
+
+    async function applyAuthorMerge(members, canonical) {
+        const memberSet = new Set(members);
+        let changedFiles = 0;
+        let replacements = 0;
+
+        for (const file of books) {
+            const rawAuthors = getFrontmatter(file).authors;
+            if (rawAuthors === null || rawAuthors === undefined || rawAuthors === "") continue;
+            const source = Array.isArray(rawAuthors) ? rawAuthors : [rawAuthors];
+            let touched = false;
+
+            const updated = source.map(raw => {
+                const plain = stripWiki(raw);
+                if (!memberSet.has(plain)) return raw;
+                if (plain !== canonical || asText(raw) !== canonical) replacements++;
+                touched = true;
+                return canonical;
+            });
+
+            if (!touched) continue;
+
+            // После объединения в одной карточке не должны остаться дубли автора.
+            const deduped = [];
+            const seen = new Set();
+            for (const value of updated) {
+                const key = normalizeEntity(stripWiki(value));
+                if (seen.has(key)) continue;
+                seen.add(key);
+                deduped.push(value);
+            }
+
+            await app.fileManager.processFrontMatter(file, frontmatter => {
+                frontmatter.authors = deduped;
+            });
+            changedFiles++;
+        }
+
+        return { changedFiles, replacements };
+    }
+
+    const normalizationLog = [];
+    const seriesNormalizationLog = [];
+    const authorVariantStatsBefore = collectAuthorVariantStats();
+    const authorNormalizationGroups = buildAuthorNormalizationGroups(authorVariantStatsBefore);
+
+    if (authorNormalizationGroups.length && quickAddApi) {
+        const mode = await quickAddApi.suggester(
+            [
+                `🔧 Проверить варианты авторов (${authorNormalizationGroups.length})`,
+                "⏭ Только проверить библиотеку"
+            ],
+            ["normalize", "skip"],
+            "Найдены похожие написания авторов"
+        );
+
+        if (mode === "normalize") {
+            for (let i = 0; i < authorNormalizationGroups.length; i++) {
+                const members = authorNormalizationGroups[i];
+                const labels = members.map(name => {
+                    const stat = authorVariantStatsBefore.get(name);
+                    return `${name}  ·  ${stat.count} книг`;
+                });
+                labels.push("⏭ Не объединять эту группу");
+
+                const values = [...members, "__SKIP__"];
+                const canonical = await quickAddApi.suggester(
+                    labels,
+                    values,
+                    `Авторы ${i + 1}/${authorNormalizationGroups.length}: выбери правильное написание`
+                );
+
+                if (!canonical || canonical === "__SKIP__") continue;
+
+                const result = await applyAuthorMerge(members, canonical);
+                normalizationLog.push(
+                    `**${members.join(" / ")}** → **${canonical}**; изменено файлов: ${result.changedFiles}.`
+                );
+            }
+
+            if (normalizationLog.length) {
+                // Даем metadata cache перечитать измененный YAML до основной проверки.
+                await new Promise(resolve => setTimeout(resolve, 250));
+            }
+        }
+    }
+
+    function collectSeriesVariantStats() {
+        const stats = new Map();
+        for (const file of books) {
+            const series = asText(getFrontmatter(file).series);
+            if (!series) continue;
+            if (!stats.has(series)) stats.set(series, { name: series, count: 0, files: new Set() });
+            const item = stats.get(series);
+            item.count++;
+            item.files.add(file.path);
+        }
+        return stats;
+    }
+
+    function buildSeriesNormalizationGroups(stats) {
+        const names = [...stats.keys()];
+        const edges = new Map(names.map(name => [name, new Set()]));
+
+        function connect(a, b) {
+            edges.get(a).add(b);
+            edges.get(b).add(a);
+        }
+
+        for (let i = 0; i < names.length; i++) {
+            for (let j = i + 1; j < names.length; j++) {
+                const a = names[i];
+                const b = names[j];
+                const normA = normalizeEntity(a);
+                const normB = normalizeEntity(b);
+
+                if (normA === normB) {
+                    connect(a, b);
+                    continue;
+                }
+
+                if (Math.abs(normA.length - normB.length) > 2) continue;
+                if (Math.min(normA.length, normB.length) < 6) continue;
+                const distance = levenshtein(normA, normB);
+                if (distance > 0 && distance <= 2) connect(a, b);
+            }
+        }
+
+        const visited = new Set();
+        const groups = [];
+        for (const name of names) {
+            if (visited.has(name) || !edges.get(name).size) continue;
+            const stack = [name];
+            const members = [];
+            visited.add(name);
+            while (stack.length) {
+                const current = stack.pop();
+                members.push(current);
+                for (const next of edges.get(current)) {
+                    if (visited.has(next)) continue;
+                    visited.add(next);
+                    stack.push(next);
+                }
+            }
+            if (members.length > 1) {
+                members.sort((a, b) => {
+                    const countDiff = stats.get(b).count - stats.get(a).count;
+                    return countDiff !== 0 ? countDiff : a.localeCompare(b, "ru");
+                });
+                groups.push(members);
+            }
+        }
+        return groups;
+    }
+
+    async function applySeriesMerge(members, canonical) {
+        const memberSet = new Set(members);
+        let changedFiles = 0;
+
+        for (const file of books) {
+            const current = asText(getFrontmatter(file).series);
+            if (!memberSet.has(current) || current === canonical) continue;
+            await app.fileManager.processFrontMatter(file, frontmatter => {
+                frontmatter.series = canonical;
+            });
+            changedFiles++;
+        }
+        return changedFiles;
+    }
+
+    const seriesVariantStatsBefore = collectSeriesVariantStats();
+    const seriesNormalizationGroups = buildSeriesNormalizationGroups(seriesVariantStatsBefore);
+
+    if (seriesNormalizationGroups.length && quickAddApi) {
+        const mode = await quickAddApi.suggester(
+            [
+                `🔧 Проверить варианты серий (${seriesNormalizationGroups.length})`,
+                "⏭ Продолжить без нормализации серий"
+            ],
+            ["normalize", "skip"],
+            "Найдены похожие названия серий"
+        );
+
+        if (mode === "normalize") {
+            for (let i = 0; i < seriesNormalizationGroups.length; i++) {
+                const members = seriesNormalizationGroups[i];
+                const labels = members.map(name => {
+                    const stat = seriesVariantStatsBefore.get(name);
+                    return `${name}  ·  ${stat.count} книг`;
+                });
+                labels.push("⏭ Не объединять эту группу");
+
+                const canonical = await quickAddApi.suggester(
+                    labels,
+                    [...members, "__SKIP__"],
+                    `Серии ${i + 1}/${seriesNormalizationGroups.length}: выбери правильное название`
+                );
+
+                if (!canonical || canonical === "__SKIP__") continue;
+                const changedFiles = await applySeriesMerge(members, canonical);
+                seriesNormalizationLog.push(
+                    `**${members.join(" / ")}** → **${canonical}**; изменено файлов: ${changedFiles}.`
+                );
+            }
+
+            if (seriesNormalizationLog.length) {
+                await new Promise(resolve => setTimeout(resolve, 250));
+            }
+        }
+    }
 
     const errors = [];
     const warnings = [];
@@ -467,7 +763,7 @@ module.exports = async (params) => {
 
     let report = `# Проверка библиотеки\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
-    report += `> Скрипт только анализирует библиотеку и **ничего не исправляет автоматически**.\n\n`;
+    report += `> Основная проверка ничего не исправляет автоматически. Нормализация авторов и серий выполняется только после твоего явного выбора.\n\n`;
     report += "```button\n";
     report += "name 🔎 Проверить еще раз\n";
     report += "type command\n";
@@ -477,6 +773,8 @@ module.exports = async (params) => {
     report += `- Ошибок: **${errors.length}**.\n`;
     report += `- Предупреждений: **${warnings.length}**.\n`;
     report += info.map(item => `- ${item}`).join("\n") + "\n\n";
+    report += renderSection("🔧 Нормализация авторов", normalizationLog, "Изменений авторов в этом запуске не было.");
+    report += renderSection("🔧 Нормализация серий", seriesNormalizationLog, "Изменений серий в этом запуске не было.");
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
     report += "## Что проверяется\n\n";
@@ -486,7 +784,8 @@ module.exports = async (params) => {
     report += "- целостность блока `BOOK-READINGS` и каждой записи чтения;\n";
     report += "- совпадение агрегатов YAML с историей чтений;\n";
     report += "- дубли книг по названию + автору;\n";
-    report += "- варианты и похожие написания авторов/серий;\n";
+    report += "- варианты и похожие написания авторов с предложением объединить их;\n";
+    report += "- варианты и похожие написания серий с предложением объединить их;\n";
     report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
