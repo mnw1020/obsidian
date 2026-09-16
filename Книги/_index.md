@@ -20,15 +20,15 @@ action QuickAdd: Книги - Редактировать чтение
 ```
 
 ```button
-name 🔍 Найти книгу
-type command
-action QuickAdd: Книги - Найти книгу
-```
-
-```button
 name 👥 Авторы
 type command
 action QuickAdd: Книги - Авторы
+```
+
+```button
+name 📚 Серии
+type command
+action QuickAdd: Книги - Серии
 ```
 
 ```button
