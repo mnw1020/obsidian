@@ -131,6 +131,11 @@ module.exports = async (params) => {
             "type command\n" +
             "action QuickAdd: Книги - Редактировать чтение\n" +
             "```\n\n" +
+            "```button\n" +
+            "name 🎬 Связать с кино\n" +
+            "type command\n" +
+            "action QuickAdd: Книги - Связать с кино\n" +
+            "```\n\n" +
             HISTORY_START + rendered + HISTORY_END + "\n";
         return text.trimEnd() + block;
     }

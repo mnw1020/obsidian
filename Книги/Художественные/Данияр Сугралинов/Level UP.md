@@ -45,6 +45,12 @@ type command
 action QuickAdd: Книги - Редактировать чтение
 ```
 
+```button
+name 🎬 Связать с кино
+type command
+action QuickAdd: Книги - Связать с кино
+```
+
 <!-- BOOK-READINGS:START -->
 
 <!-- BOOK-READING:START number="1" date="2021-02" rating="8" -->
