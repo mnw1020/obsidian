@@ -9,16 +9,16 @@
 tags:
   - movies
 Жанр:
-  - "[[Comedy]]"
-  - "[[Drama]]"
+  - "Comedy"
+  - "Drama"
 Релиз: 30 Jun 2006
 Время: 109 min
 Режисер:
-  - "[[David Frankel]]"
+  - "David Frankel"
 Актеры:
-  - "[[Anne Hathaway]]"
-  - "[[Meryl Streep]]"
-  - "[[Adrian Grenier]]"
+  - "Anne Hathaway"
+  - "Meryl Streep"
+  - "Adrian Grenier"
 Описание: Мечтающая стать журналисткой провинциальная девушка Энди по окончании университета получает должность помощницы всесильной Миранды Пристли, деспотичного редактора одного из крупнейших нью-йоркских журналов мод. Энди всегда мечтала о такой работе, не зная, с каким нервным напряжением это будет связано...
 imdb Id: tt0458352
 poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg
