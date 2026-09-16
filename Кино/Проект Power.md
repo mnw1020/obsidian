@@ -15,7 +15,7 @@ tags:
 Время: 112 min
 Режисер:
   - "Henry Joost (Генри Джуст)"
-  - "Эриель Шульман"
+  - "Ariel Schulman (Эриель Шульман)"
 Актеры:
   - "Jamie Foxx (Джейми Фокс)"
   - "Joseph Gordon-Levitt (Джозеф Гордон-Левитт)"

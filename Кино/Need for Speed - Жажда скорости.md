@@ -15,8 +15,8 @@ tags:
 Режисер:
   - "Scott Waugh (Скотт Во)"
 Актеры:
-  - "Аарон Пол"
-  - "Доминик Купер"
+  - "Aaron Paul (Аарон Пол)"
+  - "Dominic Cooper (Доминик Купер)"
   - "Imogen Poots (Имоджен Путс)"
   - "Dakota Johnson (Дакота Джонсон)"
   - "Michael Keaton (Майкл Китон)"

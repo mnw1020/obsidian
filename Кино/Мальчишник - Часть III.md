@@ -14,13 +14,13 @@ tags:
 Релиз: 2013-05-23
 Время: 100 min
 Режисер:
-  - "Тодд Филлипс"
+  - "Todd Phillips (Тодд Филлипс)"
 Актеры:
   - "Bradley Cooper (Брэдли Купер)"
   - "Ed Helms (Эд Хелмс)"
   - "Zach Galifianakis (Зак Галифианакис)"
   - "Ken Jeong (Кен Джонг)"
-  - "Джон Гудман"
+  - "John Goodman (Джон Гудман)"
 Описание: В этот раз никакой свадьбы. Никакого мальчишника. Казалось бы, что могло пойти не так? Но когда Волчья стая оказывается на дороге, все ставки снимаются.
 imdb Id: tt1951261
 poster: https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3MDY4MTQ3Mzk@._V1_.jpg

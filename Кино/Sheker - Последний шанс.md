@@ -16,11 +16,11 @@ tags:
 Режисер:
   - "Дархан Тулегенов"
 Актеры:
-  - "Азат Жумадил"
-  - "Ансар Ильясов"
-  - "Ержан Тусупов"
+  - "Azat Zhumadil (Азат Жумадил)"
+  - "Ansar Ilyasov (Ансар Ильясов)"
+  - "Yerzhan Tusupov (Ержан Тусупов)"
   - "Шугыла Ешенова"
-  - "Берик Айтжанов"
+  - "Berik Aytzhanov (Берик Айтжанов)"
 Описание: Алдик и Кана снова в центре рискованного бизнеса. Экшен-продолжение культового сериала. Смотрите онлайн фильм SHEKER. Последний шанс на Кинопоиске.
 imdb Id: tt37660303
 poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg

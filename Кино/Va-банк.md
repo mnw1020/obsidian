@@ -16,7 +16,7 @@ tags:
 Режисер:
   - "Brad Furman (Брэд Фурман)"
 Актеры:
-  - "Джастин Тимберлейк"
+  - "Justin Timberlake (Джастин Тимберлейк)"
   - "Ben Affleck (Бен Аффлек)"
   - "Gemma Arterton (Джемма Артертон)"
   - "Anthony Mackie (Энтони Маки)"
