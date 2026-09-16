@@ -44,6 +44,12 @@ module.exports = async (params) => {
         `obsidianUIMode: preview\n` +
         `---\n\n` +
         `# ${series}\n\n` +
+        "```button\n" +
+        "name ➕ Добавить книгу в серию\n" +
+        "type command\n" +
+        "action QuickAdd: Книги - Добавить книгу\n" +
+        "color green\n" +
+        "```\n\n" +
         `![[Книги/Книги.base#Серия|no-new]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
