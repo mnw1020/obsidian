@@ -81,6 +81,7 @@ async function addMovie(params, settings) {
     const linkList = value => links(value).map(x => "\n  - " + JSON.stringify(x)).join("");
     params.variables = {
         ...params.variables, ...movie,
+        Released: normalizeRelease(movie.Released),
         Plot: description.replace(/\s+/g," ").trim(),
         actorLinks: linkList(movie.Actors),
         genreLinks: linkList(movie.Genre),
@@ -4959,7 +4960,7 @@ function watchTemplate(params, movie, title, description, franchise) {
         processing = true;
         try {
             const original = await app.vault.read(file);
-            const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise);
+            const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise, normalizeRelease(movie.Released));
             if (replacement === null) return;
             // Перепроверяем путь: исходный файл обязан находиться среди созданных этим ожиданием.
             if (app.vault.getAbstractFileByPath(file.path) !== file) return;
@@ -5009,7 +5010,7 @@ function watchTemplate(params, movie, title, description, franchise) {
     return cleanup;
 }
 
-function patchTemplate(raw, ob, id, description, franchise) {
+function patchTemplate(raw, ob, id, description, franchise, releaseDate) {
     const match = raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return null;
     let yaml = match[2];
@@ -5026,6 +5027,9 @@ function patchTemplate(raw, ob, id, description, franchise) {
     let fm;
     try { fm=ob.parseYaml(yaml); } catch { return null; }
     if (String(fm?.['imdb Id']) !== id) return null;
+    if (releaseDate !== undefined || Object.prototype.hasOwnProperty.call(fm, 'Релиз')) {
+        set('Релиз', normalizeRelease(fm['Релиз']) || normalizeRelease(releaseDate));
+    }
     if (franchise.path && !fm['Франшиза']) {
         set('Франшиза',`[[${franchise.path.replace(/\.md$/,'')}]]`);
         if (franchise.part != null && fm['Часть'] == null) set('Часть',franchise.part);
@@ -5290,4 +5294,28 @@ async function makeFolders(app,path) {
         current=current?current+'/'+part:part;
         if(!app.vault.getAbstractFileByPath(current))await app.vault.createFolder(current);
     }
+}
+
+// Полные даты приводятся к ISO без Date.parse и зависимости от часового пояса.
+function normalizeRelease(value) {
+    if (value instanceof Date) {
+        if (!Number.isFinite(value.getTime())) return "";
+        value = value.toISOString().slice(0, 10);
+    }
+    const text = String(value ?? "").trim();
+    let year, month, day;
+    let match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (match) [, year, month, day] = match;
+    else if ((match = text.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/))) {
+        [, day, month, year] = match;
+    } else if ((match = text.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/))) {
+        day = match[1]; year = match[3];
+        month = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+            .indexOf(match[2].slice(0, 3).toLowerCase()) + 1;
+    } else return "";
+    year = Number(year); month = Number(month); day = Number(day);
+    if (year < 1000 || year > 9999 || month < 1 || month > 12 || day < 1) return "";
+    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    if (day > [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1]) return "";
+    return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
