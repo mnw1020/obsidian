@@ -105,7 +105,7 @@ function number(value) {
     const text = clean(value).replace(/[,\s]/g, "");
     return text && Number.isFinite(Number(text)) ? Number(text) : null;
 }
-function links(value) { return clean(value).split(",").map(x => x.trim()).filter(Boolean).map(x => `[[${x.replace(/[\[\]\r\n]/g, "")}]]`); }
+function links(value) { return clean(value).split(",").map(x => entityName(x)).filter(Boolean); }
 function safeName(value) {
     let name = clean(value).replace(/[\\/:*?"<>|\[\]#^\x00-\x1f]/g, " ").replace(/\s+/g, " ").trim().replace(/[. ]+$/g, "").slice(0, 160).trim();
     if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) name = "_" + name;
@@ -5030,7 +5030,7 @@ function patchTemplate(raw, ob, id, description, franchise) {
         set('Франшиза',`[[${franchise.path.replace(/\.md$/,'')}]]`);
         if (franchise.part != null && fm['Часть'] == null) set('Часть',franchise.part);
     }
-    return match[1]+yaml+match[3]+raw.slice(match[0].length);
+    return migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob);
 }
 
 const SERIES_ALIASES = {
@@ -5232,4 +5232,62 @@ function franchiseDialog(app,ob,title,pages,proposals,status) {
         }
         new Picker().open();
     });
+}
+
+// Строковые сущности: общая нормализация без создания страниц людей/жанров.
+const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
+function entityName(value) {
+    if (typeof value !== 'string') throw new Error('Ожидалась строка имени сущности');
+    const text=value.trim();
+    const link=text.match(/^\[\[([\s\S]+?)\]\]$/);
+    if(!link)return text.normalize('NFC');
+    if(link[1]==='N/A')return 'N/A';
+    const parts=link[1].split('|');
+    return (parts.length>1?parts.slice(1).join('|'):parts[0].split('#')[0].replace(/\.md$/i,'').split('/').pop()).trim().normalize('NFC');
+}
+function normalizeEntityField(value) {
+    if(value==null)return value;
+    return Array.isArray(value)?value.map(entityName):entityName(value);
+}
+function yamlParts(raw) {
+    const m=raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
+    return m?{prefix:m[1],yaml:m[2],end:m[3],body:raw.slice(m[0].length)}:null;
+}
+function propertyBlock(yaml,key) {
+    const exp=new RegExp('^(?:'+key+'|"'+key+'"|\''+key+'\'):[^\\r\\n]*(?:\\r?\\n(?![^ \\t\\r\\n#][^\\r\\n]*:)[^\\r\\n]*)*','m');
+    return yaml.match(exp);
+}
+function migrateEntities(raw,ob) {
+    const parts=yamlParts(raw);
+    if(!parts)return raw;
+    let yaml=parts.yaml;
+    const newline=raw.includes('\r\n')?'\r\n':'\n';
+    for(const key of ENTITY_FIELDS) {
+        const block=propertyBlock(yaml,key);
+        if(!block)continue;
+        const value=ob.parseYaml(block[0])?.[key];
+        const result=normalizeEntityField(value);
+        if(JSON.stringify(value)===JSON.stringify(result))continue;
+        const replacement=Array.isArray(result)?key+':'+(result.length?newline+result.map(x=>'  - '+JSON.stringify(x)).join(newline):' []'):key+': '+JSON.stringify(result);
+        yaml=yaml.slice(0,block.index)+replacement+yaml.slice(block.index+block[0].length);
+    }
+    return parts.prefix+yaml+parts.end+parts.body;
+}
+function originalMediaPath(path) {
+    return path.startsWith('Кино/') && path.endsWith('.md') && !/^Кино\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(path);
+}
+function isMediaRaw(path,raw,ob) {
+    if(!originalMediaPath(path))return false;
+    const parts=yamlParts(raw);
+    if(!parts)return false;
+    const block=propertyBlock(parts.yaml,'tags');
+    const tags=block?ob.parseYaml(block[0])?.tags:[];
+    return (Array.isArray(tags)?tags:[tags]).some(x=>['movies','serial'].includes(String(x).replace(/^#/,'')));
+}
+async function makeFolders(app,path) {
+    let current='';
+    for(const part of path.split('/').slice(0,-1)) {
+        current=current?current+'/'+part:part;
+        if(!app.vault.getAbstractFileByPath(current))await app.vault.createFolder(current);
+    }
 }
