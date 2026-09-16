@@ -39,6 +39,144 @@ module.exports = async (params) => {
             .filter(Boolean);
     }
 
+    function normalizeEntity(value) {
+        return String(value ?? "")
+            .trim()
+            .toLocaleLowerCase("ru")
+            .replace(/ё/g, "е")
+            .replace(/[‐‑‒–—―]/g, "-")
+            .replace(/[“”„«»'’`]/g, "")
+            .replace(/[.,:;!?]+$/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function authorTokenSignature(value) {
+        return normalizeEntity(value)
+            .split(" ")
+            .map(part => part.trim())
+            .filter(Boolean)
+            .sort((a, b) => a.localeCompare(b, "ru"))
+            .join(" ");
+    }
+
+    function levenshtein(a, b) {
+        const left = String(a ?? "");
+        const right = String(b ?? "");
+        if (left === right) return 0;
+        if (!left.length) return right.length;
+        if (!right.length) return left.length;
+        const prev = Array.from({ length: right.length + 1 }, (_, i) => i);
+        const curr = new Array(right.length + 1);
+        for (let i = 1; i <= left.length; i++) {
+            curr[0] = i;
+            for (let j = 1; j <= right.length; j++) {
+                const cost = left[i - 1] === right[j - 1] ? 0 : 1;
+                curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost);
+            }
+            for (let j = 0; j <= right.length; j++) prev[j] = curr[j];
+        }
+        return prev[right.length];
+    }
+
+    function existingAuthorNames() {
+        return [...new Set(
+            app.vault.getMarkdownFiles()
+                .filter(isBook)
+                .flatMap(file => authorList(getFrontmatter(file)))
+        )].sort((a, b) => a.localeCompare(b, "ru"));
+    }
+
+    function existingSeriesNames() {
+        return [...new Set(
+            app.vault.getMarkdownFiles()
+                .filter(isBook)
+                .map(file => String(getFrontmatter(file).series ?? "").trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b, "ru"));
+    }
+
+    function similarAuthors(input, knownNames) {
+        const norm = normalizeEntity(input);
+        const tokens = authorTokenSignature(input);
+        return knownNames
+            .filter(name => name !== input)
+            .map(name => {
+                const otherNorm = normalizeEntity(name);
+                const exactish = norm === otherNorm || (tokens && tokens === authorTokenSignature(name));
+                const distance = Math.abs(norm.length - otherNorm.length) <= 2 && Math.min(norm.length, otherNorm.length) >= 7
+                    ? levenshtein(norm, otherNorm)
+                    : 99;
+                return { name, exactish, distance };
+            })
+            .filter(item => item.exactish || (item.distance > 0 && item.distance <= 2))
+            .sort((a, b) => Number(b.exactish) - Number(a.exactish) || a.distance - b.distance || a.name.localeCompare(b.name, "ru"))
+            .map(item => item.name);
+    }
+
+    function similarSeries(input, knownNames) {
+        const norm = normalizeEntity(input);
+        return knownNames
+            .filter(name => name !== input)
+            .map(name => {
+                const otherNorm = normalizeEntity(name);
+                const exactish = norm === otherNorm;
+                const distance = Math.abs(norm.length - otherNorm.length) <= 2 && Math.min(norm.length, otherNorm.length) >= 6
+                    ? levenshtein(norm, otherNorm)
+                    : 99;
+                return { name, exactish, distance };
+            })
+            .filter(item => item.exactish || (item.distance > 0 && item.distance <= 2))
+            .sort((a, b) => Number(b.exactish) - Number(a.exactish) || a.distance - b.distance || a.name.localeCompare(b.name, "ru"))
+            .map(item => item.name);
+    }
+
+    async function confirmAuthors(authors) {
+        const known = existingAuthorNames();
+        const result = [];
+        for (const author of authors) {
+            if (known.includes(author)) {
+                result.push(author);
+                continue;
+            }
+            const matches = similarAuthors(author, known);
+            if (!matches.length) {
+                result.push(author);
+                continue;
+            }
+            const labels = [
+                ...matches.map(name => `✓ Использовать существующего: ${name}`),
+                `➕ Оставить новым: ${author}`
+            ];
+            const values = [...matches, author];
+            const chosen = await quickAddApi.suggester(
+                labels,
+                values,
+                `Похожий автор уже существует: ${author}`
+            );
+            if (!chosen) return null;
+            result.push(String(chosen));
+        }
+        return [...new Set(result)];
+    }
+
+    async function confirmNewSeries(series) {
+        const known = existingSeriesNames();
+        if (!series || known.includes(series)) return series;
+        const matches = similarSeries(series, known);
+        if (!matches.length) return series;
+        const labels = [
+            ...matches.map(name => `✓ Использовать существующую: ${name}`),
+            `➕ Оставить новой: ${series}`
+        ];
+        const chosen = await quickAddApi.suggester(
+            labels,
+            [...matches, series],
+            `Похожая серия уже существует: ${series}`
+        );
+        return chosen ? String(chosen) : null;
+    }
+
     async function ensureFolder(path) {
         const normalized = normalizePath(path);
         if (!app.vault.getAbstractFileByPath(normalized)) {
@@ -103,6 +241,11 @@ module.exports = async (params) => {
             "name ✏️ Редактировать чтение\n" +
             "type command\n" +
             "action QuickAdd: Книги - Редактировать чтение\n" +
+            "```\n\n" +
+            "```button\n" +
+            "name 🎬 Связать с кино\n" +
+            "type command\n" +
+            "action QuickAdd: Книги - Связать с кино\n" +
             "```\n\n" +
             HISTORY_START + "\n\n";
 
@@ -255,7 +398,7 @@ module.exports = async (params) => {
     if (!values) return;
 
     const title = String(values.title ?? "").trim();
-    const authors = String(values.authors ?? "")
+    let authors = String(values.authors ?? "")
         .split(/[,;]+/)
         .map(v => v.trim())
         .filter(Boolean);
@@ -268,6 +411,10 @@ module.exports = async (params) => {
         new Notice("Не указан автор.");
         return;
     }
+
+    const confirmedAuthors = await confirmAuthors(authors);
+    if (!confirmedAuthors) return;
+    authors = confirmedAuthors;
 
     const date = String(values.date ?? "").trim().replace(/^@date:/, "");
     if (!isValidDate(date)) {
@@ -304,6 +451,8 @@ module.exports = async (params) => {
 
         if (seriesChoice === "__NEW__") {
             series = String(await quickAddApi.inputPrompt("Название новой серии") ?? "").trim();
+            if (!series) return;
+            series = await confirmNewSeries(series);
             if (!series) return;
         } else {
             series = String(seriesChoice).trim();
