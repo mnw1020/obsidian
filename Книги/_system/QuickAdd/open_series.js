@@ -19,6 +19,17 @@ module.exports = async (params) => {
     let series = String(variables.series ?? "").trim();
 
     if (!series) {
+        const active = app.workspace.getActiveFile();
+        if (isBook(active)) {
+            series = String(getFrontmatter(active).series ?? "").trim();
+            if (!series) {
+                new Notice("У этой книги серия не указана.");
+                return;
+            }
+        }
+    }
+
+    if (!series) {
         const allSeries = [...new Set(
             app.vault.getMarkdownFiles()
                 .filter(isBook)
