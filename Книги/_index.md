@@ -1,12 +1,16 @@
 # 📚 Книги
 
-### Быстрые действия
+### Действия
 
 `button-books-add` `button-books-reading` `button-books-edit-reading`
 
 ### Обзоры
 
 `button-books-authors` `button-books-series` `button-books-adaptations`
+
+### Коллекции
+
+[[Книги/Стихи|✒ Стихи]] · [[Книги/Цитата|💬 Цитаты]]
 
 ---
 
@@ -23,36 +27,33 @@
 <!-- BUTTON DEFINITIONS -->
 
 ```button
-name ➕ Новая книга
+name ➕ Книга
 type command
 action QuickAdd: Книги - Добавить книгу
-color green
-width 12
-height 2
+width 6.5
+height 1.4
 align center middle
 hidden true
 ```
 ^button-books-add
 
 ```button
-name 📖 Добавить чтение
+name 📖 Чтение
 type command
 action QuickAdd: Книги - Добавить чтение
-color blue
-width 13
-height 2
+width 7.5
+height 1.4
 align center middle
 hidden true
 ```
 ^button-books-reading
 
 ```button
-name ✏️ Редактировать чтение
+name ✏️ Изменить
 type command
 action QuickAdd: Книги - Редактировать чтение
-color yellow
-width 15
-height 2
+width 8
+height 1.4
 align center middle
 hidden true
 ```
@@ -62,9 +63,8 @@ hidden true
 name 👥 Авторы
 type command
 action QuickAdd: Книги - Авторы
-color purple
-width 12
-height 2
+width 7
+height 1.4
 align center middle
 hidden true
 ```
@@ -74,9 +74,8 @@ hidden true
 name 🧩 Серии
 type command
 action QuickAdd: Книги - Серии
-color blue
-width 12
-height 2
+width 7
+height 1.4
 align center middle
 hidden true
 ```
@@ -86,9 +85,8 @@ hidden true
 name 🎬 Экранизации
 type command
 action QuickAdd: Книги - Экранизации
-color red
-width 13
-height 1
+width 10
+height 1.4
 align center middle
 hidden true
 ```
