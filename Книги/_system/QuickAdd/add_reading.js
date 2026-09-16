@@ -156,10 +156,6 @@ module.exports = async (params) => {
             `\n\n## История чтений\n` +
             HISTORY_START + rendered + HISTORY_END + "\n";
 
-        const buttonDefsStart = text.indexOf("<!-- BOOK-BUTTONS:START -->");
-        if (buttonDefsStart >= 0) {
-            return text.slice(0, buttonDefsStart).trimEnd() + block + "\n\n" + text.slice(buttonDefsStart);
-        }
         return text.trimEnd() + block;
     }
 
