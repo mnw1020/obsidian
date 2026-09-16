@@ -110,7 +110,7 @@ module.exports = async function updateKinoPersons(params) {
                             if (personDisplay(field, source, aliases) !== source) continue;
                             const hit = matchImdbCredit(source, result.credits, field, valueIndex);
                             if (!hit) continue;
-                            const display = `${hit.name} (${source})`;
+                            const display = personCreditDisplay(hit.name, source);
                             if (addAlias(cache, field, source, display)) {
                                 newPairs.add(field + ":" + personKey(source));
                             }
@@ -170,7 +170,7 @@ async function loadCache(app) {
     if (!file) return empty;
     try {
         const data = JSON.parse(await app.vault.read(file));
-        return {
+        return sanitizePersonCache({
             Актеры: data?.Актеры && typeof data.Актеры === "object" ? data.Актеры : {},
             Режисер: data?.Режисер && typeof data.Режисер === "object" ? data.Режисер : {},
             Проверено: {
@@ -178,8 +178,23 @@ async function loadCache(app) {
                 Режисер: data?.Проверено?.Режисер && typeof data.Проверено.Режисер === "object" ? data.Проверено.Режисер : {}
             },
             ПровереноIMDb: data?.ПровереноIMDb && typeof data.ПровереноIMDb === "object" ? data.ПровереноIMDb : {}
-        };
+        });
     } catch (_) { return empty; }
+}
+
+function sanitizePersonCache(cache) {
+    for (const field of PERSON_FIELDS) {
+        const clean = {};
+        for (const [key, value] of Object.entries(cache[field] || {})) {
+            const display = normalizePersonDisplay(value);
+            const base = personKey(display);
+            const nested = /\([^)]*\([^)]*\)/.test(String(value));
+            if (nested && key.startsWith(base) && key.length > base.length + 4) continue;
+            clean[key] = display;
+        }
+        cache[field] = clean;
+    }
+    return cache;
 }
 
 async function saveCache(app, data) {
@@ -198,7 +213,7 @@ function mergeAliases(cache) {
     };
     for (const field of PERSON_FIELDS) {
         for (const [key, value] of Object.entries(cache[field] || {})) {
-            if (!result[field][key]) result[field][key] = value;
+            if (!result[field][key]) result[field][key] = normalizePersonDisplay(value);
         }
     }
     return result;
@@ -218,24 +233,53 @@ function recentlyCheckedImdb(cache, imdbId) {
 
 function addAlias(cache, field, source, display) {
     if (!cache[field] || !display) return false;
+    const canonical = normalizePersonDisplay(display);
     let changed = false;
-    for (const value of [source, display]) {
+    for (const value of [source, canonical]) {
         const key = personKey(value);
         if (!key) continue;
-        if (!cache[field][key]) {
-            cache[field][key] = display;
+        if (cache[field][key] !== canonical) {
+            cache[field][key] = canonical;
             changed = true;
         }
     }
     return changed;
 }
 
-function personKey(value) {
+function personBaseKey(value) {
     let text = String(value ?? "").trim().normalize("NFC");
     text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    text = text.replace(/\s*\([^)]*\)\s*$/, "");
+    text = text.replace(/\s*\([^()]*\)\s*$/, "");
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
+}
+
+function normalizePersonDisplay(value) {
+    let text = String(value ?? "").trim().normalize("NFC");
+    for (let i = 0; i < 5; i++) {
+        const match = text.match(/^(.+?)\s*\((.*)\)$/);
+        if (!match || !match[2].includes("(")) break;
+        const inner = match[2].replace(/^.*\(([^()]*)\)$/, "$1").trim();
+        if (!inner || inner === match[2]) break;
+        text = `${match[1].trim()} (${inner})`;
+    }
+    const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
+    if (pair && personBaseKey(pair[1]) === personBaseKey(pair[2])) return pair[1].trim();
+    return text;
+}
+
+function personKey(value) {
+    return personBaseKey(normalizePersonDisplay(value));
+}
+
+function personCreditDisplay(name, source) {
+    const english = String(name ?? "").trim();
+    if (!english) return normalizePersonDisplay(source);
+    const normalized = normalizePersonDisplay(source);
+    const pair = normalized.match(/^(.+?)\s*\(([^()]*)\)$/);
+    const localized = pair && /[А-Яа-яЁё]/.test(pair[2]) ? pair[2].trim() :
+        (/^[А-Яа-яЁё\s.-]+$/.test(normalized) ? normalized : "");
+    return localized ? `${english} (${localized})` : english;
 }
 
 function entityName(value) {
@@ -251,7 +295,7 @@ function entityName(value) {
 
 function personDisplay(field, value, aliases) {
     const text = String(value ?? "").trim().normalize("NFC");
-    return aliases[field]?.[personKey(text)] || text;
+    return normalizePersonDisplay(aliases[field]?.[personKey(text)] || text);
 }
 
 function asArray(value) { return Array.isArray(value) ? value : [value]; }
