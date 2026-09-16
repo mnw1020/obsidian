@@ -25,6 +25,18 @@ module.exports = async (params) => {
     let author = String(variables.author ?? "").trim();
 
     if (!author) {
+        const active = app.workspace.getActiveFile();
+        if (isBook(active)) {
+            const currentAuthors = authorsOf(active);
+            if (currentAuthors.length === 1) author = currentAuthors[0];
+            else if (currentAuthors.length > 1) {
+                author = await quickAddApi.suggester(currentAuthors, currentAuthors, "Выбери автора этой книги");
+                if (!author) return;
+            }
+        }
+    }
+
+    if (!author) {
         const authors = [...new Set(app.vault.getMarkdownFiles().filter(isBook).flatMap(authorsOf))]
             .sort((a, b) => a.localeCompare(b, "ru"));
         if (!authors.length) {

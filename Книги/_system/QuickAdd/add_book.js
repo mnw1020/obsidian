@@ -264,31 +264,64 @@ module.exports = async (params) => {
     }
 
     function historyBlock(date, rating, comment) {
-        let content =
-            `## История чтений\n\n` +
-            "```button\n" +
-            "name 📖 Добавить чтение\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Добавить чтение\n" +
-            "color green\n" +
-            "```\n\n" +
-            "```button\n" +
-            "name ✏️ Редактировать чтение\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Редактировать чтение\n" +
-            "```\n\n" +
-            "```button\n" +
-            "name 🎬 Связать с кино\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Связать с кино\n" +
-            "```\n\n" +
-            HISTORY_START + "\n\n";
-
+        let content = `## История чтений\n\n${HISTORY_START}\n\n`;
         if (date) content += renderEntry(1, date, rating, comment) + "\n\n";
         else content += "_История пока пуста._\n\n";
-
         content += HISTORY_END + "\n";
         return content;
+    }
+
+    function cardPanel(hasSeries) {
+        let nav =
+            "[[Книги/_index|← Книги]] · " +
+            "[👤 Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
+        if (hasSeries) {
+            nav += " · [🧩 Серия](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E)";
+        }
+        nav += " · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
+
+        return [
+            "<!-- BOOK-CARD-UI:START -->",
+            "> [!abstract] Навигация",
+            `> ${nav}`,
+            "",
+            "`button-book-add-reading` `button-book-edit-reading` `button-book-link-cinema`",
+            "",
+            "```button",
+            "name 📖 Чтение",
+            "type command",
+            "action QuickAdd: Книги - Добавить чтение",
+            "width 6.5",
+            "height 1.3",
+            "align center middle",
+            "hidden true",
+            "```",
+            "^button-book-add-reading",
+            "",
+            "```button",
+            "name ✏️ Изменить",
+            "type command",
+            "action QuickAdd: Книги - Редактировать чтение",
+            "width 7",
+            "height 1.3",
+            "align center middle",
+            "hidden true",
+            "```",
+            "^button-book-edit-reading",
+            "",
+            "```button",
+            "name 🎬 Кино",
+            "type command",
+            "action QuickAdd: Книги - Связать с кино",
+            "width 6.5",
+            "height 1.3",
+            "align center middle",
+            "hidden true",
+            "```",
+            "^button-book-link-cinema",
+            "<!-- BOOK-CARD-UI:END -->",
+            ""
+        ].join("\n");
     }
 
 
@@ -571,7 +604,8 @@ module.exports = async (params) => {
         content += `series: ${yamlString(series)}\n`;
         content += `series_index: ${seriesIndex}\n`;
     }
-    content += "---\n";
+    content += "---\n\n";
+    content += cardPanel(Boolean(series)) + "\n";
     content += `# ${title}\n\n`;
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);

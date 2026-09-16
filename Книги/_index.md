@@ -88,7 +88,7 @@ hidden true
 name 🎬 Экранизации
 type command
 action QuickAdd: Книги - Экранизации
-width 10
+width 8
 height 1.4
 align center middle
 hidden true
