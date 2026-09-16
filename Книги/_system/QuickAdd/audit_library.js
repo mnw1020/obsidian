@@ -119,6 +119,24 @@ module.exports = async (params) => {
             .trim();
     }
 
+    function duplicateTitleKey(value) {
+        return normalizeTitle(value)
+            .replace(/[^0-9a-zа-я]+/gi, "")
+            .trim();
+    }
+
+    function titleNumbers(value) {
+        return normalizeTitle(value).match(/\d+/g) ?? [];
+    }
+
+    function obviousNumberedPair(a, b) {
+        const na = titleNumbers(a);
+        const nb = titleNumbers(b);
+        if (!na.length || !nb.length || na.join(",") === nb.join(",")) return false;
+        const strip = value => normalizeTitle(value).replace(/\d+/g, "#").replace(/[^a-zа-я#]+/gi, "");
+        return strip(a) === strip(b);
+    }
+
     function levenshtein(a, b) {
         const s = String(a ?? "");
         const t = String(b ?? "");
@@ -618,7 +636,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            const header = "# Журнал изменений\n\n> Автоматическая история обслуживания книжной базы.\n\n";
+            const header = "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n";
             file = await app.vault.create(path, header + block);
             return;
         }
@@ -657,6 +675,7 @@ module.exports = async (params) => {
     const cinemaErrors = [];
     const mutualErrors = [];
     const adaptationSuggestions = [];
+    const duplicateSuggestions = [];
     const info = [];
     const authorsMap = new Map();
     const seriesMap = new Map();
@@ -720,7 +739,7 @@ module.exports = async (params) => {
         }
 
         if (title && authors.length) {
-            const key = `${normalizeTitle(title)}|||${authors.map(normalizeEntity).sort().join("|")}`;
+            const key = `${duplicateTitleKey(title)}|||${authors.map(normalizeEntity).sort().join("|")}`;
             if (!titleAuthorMap.has(key)) titleAuthorMap.set(key, []);
             titleAuthorMap.get(key).push(file);
         }
@@ -1102,10 +1121,43 @@ module.exports = async (params) => {
         }
     }
 
-    // Дубли книг по нормализованному title + набору авторов.
+    // Дубли книг: сначала одинаковое название после удаления пунктуации, затем очень близкие названия.
+    // Сравниваем только книги с одинаковым набором авторов и не считаем дублями очевидные разные номера/части.
+    const duplicatePairKeys = new Set();
     for (const files of titleAuthorMap.values()) {
         if (files.length > 1) {
-            warnings.push(`Возможный дубль книги: ${files.map(file => wikiLink(file, asText(getFrontmatter(file).title) || file.basename)).join("; ")}.`);
+            duplicateSuggestions.push(`Одинаковое название + автор: ${files.map(file => wikiLink(file, asText(getFrontmatter(file).title) || file.basename)).join("; ")}.`);
+            for (let i = 0; i < files.length; i++) {
+                for (let j = i + 1; j < files.length; j++) {
+                    duplicatePairKeys.add([files[i].path, files[j].path].sort().join("|||"));
+                }
+            }
+        }
+    }
+
+    const duplicateCandidates = books.map(file => {
+        const fm = getFrontmatter(file);
+        const title = asText(fm.title);
+        const authors = listValues(fm.authors).map(normalizeEntity).sort();
+        return { file, title, key: duplicateTitleKey(title), authorsKey: authors.join("|") };
+    }).filter(item => item.title && item.key && item.authorsKey);
+
+    for (let i = 0; i < duplicateCandidates.length; i++) {
+        for (let j = i + 1; j < duplicateCandidates.length; j++) {
+            const a = duplicateCandidates[i];
+            const b = duplicateCandidates[j];
+            if (a.authorsKey !== b.authorsKey) continue;
+            const pairKey = [a.file.path, b.file.path].sort().join("|||");
+            if (duplicatePairKeys.has(pairKey)) continue;
+            if (obviousNumberedPair(a.title, b.title)) continue;
+            if (Math.abs(a.key.length - b.key.length) > 3) continue;
+            if (Math.min(a.key.length, b.key.length) < 6) continue;
+            const distance = levenshtein(a.key, b.key);
+            const similarity = 1 - distance / Math.max(a.key.length, b.key.length);
+            if (distance > 0 && distance <= 2 && similarity >= 0.88) {
+                duplicatePairKeys.add(pairKey);
+                duplicateSuggestions.push(`Похожие названия у одного автора: ${wikiLink(a.file, a.title)} ↔ ${wikiLink(b.file, b.title)} (проверь вручную).`);
+            }
         }
     }
 
@@ -1148,6 +1200,7 @@ module.exports = async (params) => {
     info.push(`Ссылок на отсутствующие локальные вложения: **${missingAttachmentCount}**.`);
     info.push(`Карточек кино/сериалов найдено: **${mediaFiles.length}**; связей книга ↔ кино: **${cinemaRelationCount}**; полностью взаимных: **${completeCinemaRelationCount}**.`);
     info.push(`Прочих взаимных связей: **${mutualRelationCount}**; полностью взаимных: **${completeMutualRelationCount}**.`);
+    info.push(`Подсказок возможных дублей книг: **${duplicateSuggestions.length}**.`);
     info.push(`Подсказок возможных экранизаций: **${adaptationSuggestions.length}**.`);
 
     const now = new Date();
@@ -1162,6 +1215,7 @@ module.exports = async (params) => {
     }
 
     let report = `# Проверка библиотеки\n\n`;
+    report += `[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит сам не исправляет ошибки, кроме подтвержденной тобой нормализации авторов/серий. Для однозначных исправлений используй кнопку «Исправить безопасное».\n\n`;
     report += "```button\n";
@@ -1190,6 +1244,7 @@ module.exports = async (params) => {
     report += renderSection("🔧 Нормализация серий", seriesNormalizationLog, "Изменений серий в этом запуске не было.");
     report += renderSection("🎬 Связи с кино", cinemaErrors, "Ошибок двусторонних связей книга ↔ кино не найдено.");
     report += renderSection("🔗 Прочие взаимные связи", mutualErrors, "Ошибок прочих взаимных связей не найдено.");
+    report += renderSection("📚 Возможные дубли книг", duplicateSuggestions, "Похожих дублей книг не найдено.");
     report += renderSection("🎬 Возможные экранизации", adaptationSuggestions, "Подходящих неподтвержденных совпадений названий не найдено.");
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
@@ -1199,7 +1254,7 @@ module.exports = async (params) => {
     report += "- даты, `read_count`, рейтинг fiction и отсутствие рейтинга у Non-fiction;\n";
     report += "- целостность блока `BOOK-READINGS` и каждой записи чтения;\n";
     report += "- совпадение агрегатов YAML с историей чтений;\n";
-    report += "- дубли книг по названию + автору;\n";
+    report += "- точные и потенциальные дубли книг: одинаковый автор + название с учетом пунктуации, пробелов, тире и небольших опечаток; очевидные разные номера/части исключаются;\n";
     report += "- варианты и похожие написания авторов с предложением объединить их;\n";
     report += "- варианты и похожие написания серий с предложением объединить их;\n";
     report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях;\n";
@@ -1208,6 +1263,16 @@ module.exports = async (params) => {
     report += "- двусторонность `adaptations` ↔ `Первоисточники`, битые ссылки, дубли и типы целей;\n";
     report += "- взаимность `related` ↔ `related` и `continued_by` ↔ `continues`; новые пары добавляются явно в `RELATION_RULES`;\n";
     report += "- книги без `adaptations`, у которых найден фильм/сериал с очень похожим названием — только как подсказка, без автосвязи.\n";
+
+    // Обновляем компактную статистику на главной теми же проверенными счетчиками.
+    const homeFile = app.vault.getAbstractFileByPath(normalizePath("Книги/_index.md"));
+    if (homeFile) {
+        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${books.length} книг** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const homeText = await app.vault.read(homeFile);
+        if (/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(homeText)) {
+            await app.vault.modify(homeFile, homeText.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, homeBlock));
+        }
+    }
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);

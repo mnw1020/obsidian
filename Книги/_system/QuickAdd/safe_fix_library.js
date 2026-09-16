@@ -69,6 +69,40 @@ module.exports = async (params) => {
         return fileTags.includes("movies") || fileTags.includes("serial");
     }
 
+
+    async function updateHomeStats() {
+        const home = app.vault.getAbstractFileByPath("Книги/_index.md");
+        if (!home) return;
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const allBooks = app.vault.getMarkdownFiles().filter(isBook);
+        const authors = new Set();
+        const series = new Set();
+        let rated = 0;
+        let reread = 0;
+        for (const file of allBooks) {
+            const fm = getFrontmatter(file);
+            const rawAuthors = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
+            for (const author of rawAuthors) {
+                const value = String(author ?? "").trim();
+                if (value) authors.add(value);
+            }
+            const seriesName = String(fm.series ?? "").trim();
+            if (seriesName) series.add(seriesName);
+            if (file.path.startsWith("Книги/Художественные/")) {
+                const value = Number(fm.rating);
+                if (Number.isFinite(value) && value >= 1 && value <= 10) rated++;
+            }
+            const count = Number(fm.read_count);
+            if (Number.isInteger(count) && count > 1) reread++;
+        }
+        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${allBooks.length} книг** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const current = await app.vault.read(home);
+        const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
+            ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
+            : current;
+        if (updated !== current) await app.vault.modify(home, updated);
+    }
+
     function matchesType(file, type) {
         if (type === "book") return isBook(file);
         if (type === "media") return isMedia(file);
@@ -142,7 +176,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            file = await app.vault.create(path, "# Журнал изменений\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
+            file = await app.vault.create(path, "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
             return;
         }
         const current = await app.vault.read(file);
@@ -318,6 +352,8 @@ module.exports = async (params) => {
             }
         }
     }
+
+    await updateHomeStats();
 
     try {
         await appendJournal(journal, structuralChanged);
