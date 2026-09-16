@@ -153,24 +153,13 @@ module.exports = async (params) => {
         }
 
         const block =
-            `\n\n## История чтений\n\n` +
-            "```button\n" +
-            "name 📖 Добавить чтение\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Добавить чтение\n" +
-            "color green\n" +
-            "```\n\n" +
-            "```button\n" +
-            "name ✏️ Редактировать чтение\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Редактировать чтение\n" +
-            "```\n\n" +
-            "```button\n" +
-            "name 🎬 Связать с кино\n" +
-            "type command\n" +
-            "action QuickAdd: Книги - Связать с кино\n" +
-            "```\n\n" +
+            `\n\n## История чтений\n` +
             HISTORY_START + rendered + HISTORY_END + "\n";
+
+        const buttonDefsStart = text.indexOf("<!-- BOOK-BUTTONS:START -->");
+        if (buttonDefsStart >= 0) {
+            return text.slice(0, buttonDefsStart).trimEnd() + block + "\n\n" + text.slice(buttonDefsStart);
+        }
         return text.trimEnd() + block;
     }
 

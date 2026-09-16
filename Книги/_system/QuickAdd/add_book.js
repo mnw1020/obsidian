@@ -274,36 +274,42 @@ module.exports = async (params) => {
     function cardPanel(hasSeries) {
         let nav =
             "[[Книги/_index|← Книги]] · " +
-            "[👤 Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
+            "[Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
         if (hasSeries) {
-            nav += " · [🧩 Серия](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E)";
+            nav += " · [Серия](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E)";
         }
-        nav += " · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
+        nav += " · [Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
 
         return [
             "<!-- BOOK-CARD-UI:START -->",
-            "> [!abstract] Навигация",
-            `> ${nav}`,
+            nav,
             "",
             "`button-book-add-reading` `button-book-edit-reading` `button-book-link-cinema`",
-            "",
+            "<!-- BOOK-CARD-UI:END -->",
+            ""
+        ].join("\n");
+    }
+
+    function buttonDefinitions() {
+        return [
+            "<!-- BOOK-BUTTONS:START -->",
             "```button",
-            "name 📖 Чтение",
-            "type command",
-            "action QuickAdd: Книги - Добавить чтение",
-            "width 6.5",
-            "height 1.3",
+            "name ＋ Чтение",
+            "type link",
+            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5",
+            "width 5.4",
+            "height 1.1",
             "align center middle",
             "hidden true",
             "```",
             "^button-book-add-reading",
             "",
             "```button",
-            "name ✏️ Изменить",
-            "type command",
-            "action QuickAdd: Книги - Редактировать чтение",
-            "width 7",
-            "height 1.3",
+            "name ✎ Изменить",
+            "type link",
+            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5",
+            "width 5.6",
+            "height 1.1",
             "align center middle",
             "hidden true",
             "```",
@@ -311,15 +317,15 @@ module.exports = async (params) => {
             "",
             "```button",
             "name 🎬 Кино",
-            "type command",
-            "action QuickAdd: Книги - Связать с кино",
-            "width 6.5",
-            "height 1.3",
+            "type link",
+            "action obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B2%D1%8F%D0%B7%D0%B0%D1%82%D1%8C%20%D1%81%20%D0%BA%D0%B8%D0%BD%D0%BE",
+            "width 4.8",
+            "height 1.1",
             "align center middle",
             "hidden true",
             "```",
             "^button-book-link-cinema",
-            "<!-- BOOK-CARD-UI:END -->",
+            "<!-- BOOK-BUTTONS:END -->",
             ""
         ].join("\n");
     }
@@ -609,6 +615,7 @@ module.exports = async (params) => {
     content += `# ${title}\n\n`;
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);
+    content += "\n" + buttonDefinitions();
 
     const bookFile = await app.vault.create(filePath, content);
     try {
