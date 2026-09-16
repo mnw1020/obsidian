@@ -80,7 +80,7 @@ module.exports = async (params) => {
             ? `${title} · ${displayDate(date)}`
             : title;
 
-        return `[[${target}|${escapeMarkdownTable(label)}]]`;
+        return `[[${target}\\|${escapeMarkdownTable(label)}]]`;
     }
 
     const aggregates = new Map();

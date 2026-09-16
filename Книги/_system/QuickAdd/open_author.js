@@ -50,6 +50,11 @@ module.exports = async (params) => {
         `---\n\n` +
         `# ${author}\n\n` +
         "```button\n" +
+        "name 👥 Все авторы\n" +
+        "type command\n" +
+        "action QuickAdd: Книги - Авторы\n" +
+        "```\n\n" +
+        "```button\n" +
         "name 🔍 Найти книгу автора\n" +
         "type command\n" +
         "action QuickAdd: Книги - Найти книгу\n" +
