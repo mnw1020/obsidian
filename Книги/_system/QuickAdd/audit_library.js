@@ -159,6 +159,76 @@ module.exports = async (params) => {
         return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
     }
 
+    const IMAGE_EXTENSIONS = new Set([
+        "png", "jpg", "jpeg", "gif", "webp", "bmp", "svg",
+        "avif", "heic", "heif", "tif", "tiff"
+    ]);
+    const ATTACHMENT_EXTENSIONS = new Set([
+        ...IMAGE_EXTENSIONS,
+        "pdf", "epub", "djvu", "doc", "docx", "xls", "xlsx",
+        "ppt", "pptx", "rtf", "txt", "csv", "zip", "7z", "rar",
+        "mp3", "m4a", "wav", "ogg", "flac", "mp4", "mov", "mkv", "webm"
+    ]);
+
+    function cleanLocalTarget(value) {
+        let text = asText(value);
+        if (!text) return "";
+        if (/^(?:https?:|data:|mailto:|obsidian:|file:)/i.test(text)) return "";
+        text = text.replace(/^<|>$/g, "");
+        text = text.split("#", 1)[0].split("?", 1)[0].trim();
+        try {
+            text = decodeURIComponent(text);
+        } catch (_) {
+            // Оставляем исходный текст, если URI поврежден.
+        }
+        return text.trim();
+    }
+
+    function extensionOfLink(value) {
+        const target = cleanLocalTarget(value);
+        if (!target) return "";
+        const name = target.split("/").pop() || "";
+        const dot = name.lastIndexOf(".");
+        return dot >= 0 ? name.slice(dot + 1).toLocaleLowerCase("en") : "";
+    }
+
+    function resolveLocalLink(link, sourcePath) {
+        const raw = asText(link);
+        const clean = cleanLocalTarget(raw);
+        if (!clean) return null;
+
+        const candidates = [...new Set([raw, clean].filter(Boolean))];
+        for (const candidate of candidates) {
+            try {
+                const resolved = app.metadataCache.getFirstLinkpathDest(candidate, sourcePath);
+                if (resolved) return resolved;
+            } catch (_) {
+                // Переходим к следующему варианту.
+            }
+        }
+
+        // Fallback для явного vault-relative пути вроде Книги/Non-fiction/_attach/x.png.
+        if (clean.startsWith("Книги/")) {
+            const exact = app.vault.getAbstractFileByPath(normalizePath(clean));
+            if (exact) return exact;
+        }
+        return null;
+    }
+
+    function markdownReferences(file) {
+        const cache = app.metadataCache.getFileCache(file);
+        const refs = [];
+        for (const item of [...(cache?.embeds ?? []), ...(cache?.links ?? [])]) {
+            const link = asText(item?.link);
+            if (!link) continue;
+            refs.push({
+                link,
+                line: Number(item?.position?.start?.line ?? 0) + 1
+            });
+        }
+        return refs;
+    }
+
     const books = app.vault.getMarkdownFiles()
         .filter(isCandidateBook)
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
@@ -471,6 +541,8 @@ module.exports = async (params) => {
     let nonfictionCount = 0;
     let readingEntriesCount = 0;
     let rereadBooksCount = 0;
+    let missingAttachmentCount = 0;
+    let orphanImageCount = 0;
 
     for (const file of books) {
         const fm = getFrontmatter(file);
@@ -651,6 +723,52 @@ module.exports = async (params) => {
         }
     }
 
+    // Вложения и изображения.
+    // Ссылки считаем по всему vault, чтобы картинка из Книги не считалась сиротой,
+    // если на нее ссылается заметка за пределами книжного раздела.
+    const allMarkdownFiles = app.vault.getMarkdownFiles()
+        .filter(file => file.path !== REPORT_PATH);
+    const referencedImages = new Set();
+    const reportedMissing = new Set();
+
+    for (const sourceFile of allMarkdownFiles) {
+        const sourceIsInBooks = sourceFile.path.startsWith("Книги/");
+        for (const ref of markdownReferences(sourceFile)) {
+            const ext = extensionOfLink(ref.link);
+            if (!ATTACHMENT_EXTENSIONS.has(ext)) continue;
+
+            const resolved = resolveLocalLink(ref.link, sourceFile.path);
+            if (resolved) {
+                const resolvedExt = asText(resolved.extension).toLocaleLowerCase("en");
+                if (IMAGE_EXTENSIONS.has(resolvedExt) && resolved.path.startsWith("Книги/")) {
+                    referencedImages.add(resolved.path);
+                }
+                continue;
+            }
+
+            // Полный аудит Книги сообщает о битых вложениях только внутри книжного раздела.
+            if (!sourceIsInBooks) continue;
+            const clean = cleanLocalTarget(ref.link);
+            const dedupeKey = `${sourceFile.path}|||${ref.line}|||${clean || ref.link}`;
+            if (reportedMissing.has(dedupeKey)) continue;
+            reportedMissing.add(dedupeKey);
+            missingAttachmentCount++;
+            const sourceLink = wikiLink(sourceFile, sourceFile.basename);
+            errors.push(`${sourceLink} - строка ${ref.line}: отсутствует локальное вложение \`${clean || ref.link}\`.`);
+        }
+    }
+
+    const imageFiles = app.vault.getFiles()
+        .filter(file => file.path.startsWith("Книги/"))
+        .filter(file => IMAGE_EXTENSIONS.has(asText(file.extension).toLocaleLowerCase("en")))
+        .sort((a, b) => a.path.localeCompare(b.path, "ru"));
+
+    for (const imageFile of imageFiles) {
+        if (referencedImages.has(imageFile.path)) continue;
+        orphanImageCount++;
+        warnings.push(`Картинка без ссылок: \`${imageFile.path}\`.`);
+    }
+
     // Точные варианты одного и того же имени после нормализации.
     for (const variants of authorsMap.values()) {
         if (variants.size > 1) {
@@ -750,6 +868,8 @@ module.exports = async (params) => {
     info.push(`Уникальных авторов: **${authorsMap.size}**.`);
     info.push(`Серий: **${seriesRecords.size}**.`);
     info.push(`Записей чтений: **${readingEntriesCount}**; перечитанных книг: **${rereadBooksCount}**.`);
+    info.push(`Картинок в \`Книги/\`: **${imageFiles.length}**; без ссылок: **${orphanImageCount}**.`);
+    info.push(`Ссылок на отсутствующие локальные вложения: **${missingAttachmentCount}**.`);
 
     const now = new Date();
     const pad = n => String(n).padStart(2, "0");
@@ -786,7 +906,9 @@ module.exports = async (params) => {
     report += "- дубли книг по названию + автору;\n";
     report += "- варианты и похожие написания авторов с предложением объединить их;\n";
     report += "- варианты и похожие написания серий с предложением объединить их;\n";
-    report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях.\n";
+    report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях;\n";
+    report += "- ссылки на отсутствующие локальные вложения в Markdown-файлах внутри `Книги/`;\n";
+    report += "- картинки внутри `Книги/`, на которые не ссылается ни один Markdown-файл vault.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);
