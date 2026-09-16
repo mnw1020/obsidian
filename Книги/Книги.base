@@ -37,35 +37,6 @@ views:
       - property: date
         direction: DESC
   - type: table
-    name: Последние
-    order:
-      - formula.book_link
-      - formula.author_links
-      - rating
-      - date
-      - read_count
-    sort:
-      - property: date
-        direction: DESC
-    limit: 40
-  - type: table
-    name: Лучшие
-    filters:
-      and:
-        - rating >= 8
-    order:
-      - formula.book_link
-      - formula.author_links
-      - rating
-      - date
-      - read_count
-      - formula.series_link
-    sort:
-      - property: rating
-        direction: DESC
-      - property: date
-        direction: DESC
-  - type: table
     name: Художественные
     filters:
       and:
@@ -79,6 +50,8 @@ views:
       - formula.series_link
       - series_index
     sort:
+      - property: formula.author_links
+        direction: DESC
       - property: date
         direction: DESC
   - type: table
@@ -110,42 +83,6 @@ views:
       - formula.series_link
       - series_index
     sort:
-      - property: date
-        direction: DESC
-  - type: table
-    name: Без оценки
-    filters:
-      and:
-        - file.inFolder("Книги/Художественные")
-        - "!rating"
-    order:
-      - formula.book_link
-      - formula.author_links
-      - date
-      - read_count
-      - formula.series_link
-      - series_index
-    sort:
-      - property: date
-        direction: DESC
-  - type: table
-    name: Автор
-    filters:
-      and:
-        - authors.contains(this.selected_author)
-    groupBy:
-      property: formula.series_group
-      direction: ASC
-    order:
-      - formula.book_link
-      - formula.series_link
-      - series_index
-      - rating
-      - date
-      - read_count
-    sort:
-      - property: series_index
-        direction: ASC
       - property: date
         direction: DESC
   - type: table
