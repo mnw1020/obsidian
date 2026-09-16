@@ -119,6 +119,8 @@ views:
       - formula.entity_director
       - formula.entity_actor
     sort:
+      - property: formula.entity_actor
+        direction: DESC
       - property: formula.type
         direction: DESC
       - property: Просмотрено
