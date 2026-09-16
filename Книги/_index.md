@@ -32,9 +32,9 @@ action QuickAdd: Книги - Серии
 ```
 
 ```button
-name 🔎 Проверить библиотеку
+name 🎬 Экранизации
 type command
-action QuickAdd: Книги - Проверить библиотеку
+action QuickAdd: Книги - Экранизации
 ```
 
 ## Все книги

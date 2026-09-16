@@ -5,6 +5,7 @@ module.exports = async (params) => {
     const BOOKS_ROOT = "Книги";
     const AUTHOR_PAGE = "Книги/_system/Автор.md";
     const SERIES_PAGE = "Книги/_system/Серия.md";
+    const CHANGELOG_PATH = "Книги/_system/Журнал изменений.md";
     const HISTORY_START = "<!-- BOOK-READINGS:START -->";
     const HISTORY_END = "<!-- BOOK-READINGS:END -->";
     const COMMENT_MARK = "<!-- BOOK-READING:COMMENT -->";
@@ -333,6 +334,23 @@ module.exports = async (params) => {
         return [...new Set(issues)];
     }
 
+    async function appendStructureJournal(line) {
+        const now = new Date();
+        const pad = value => String(value).padStart(2, "0");
+        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+        const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="false" structure="true" -->\n`;
+        block += `## ${stamp}\n\n- ${line}\n\n`;
+        const path = normalizePath(CHANGELOG_PATH);
+        let file = app.vault.getAbstractFileByPath(path);
+        if (!file) {
+            file = await app.vault.create(path, "# Журнал изменений\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
+            return;
+        }
+        const current = await app.vault.read(file);
+        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
+    }
+
     const active = app.workspace.getActiveFile();
     let defaultAuthor = "";
     let defaultSeries = "";
@@ -525,6 +543,11 @@ module.exports = async (params) => {
     content += historyBlock(date, rating, comment);
 
     const bookFile = await app.vault.create(filePath, content);
+    try {
+        await appendStructureJournal(`Добавлена книга: **${title}** (${authors.join(", ")}) — \`${bookFile.path}\`.`);
+    } catch (error) {
+        new Notice(`Книга добавлена, но журнал не обновлен: ${error?.message || error}`, 7000);
+    }
     const entries = [{ number: 1, date, rating }];
     const issues = await lightCheckBook(bookFile, entries);
     if (issues.length) {

@@ -13,6 +13,12 @@ module.exports = async (params) => {
     const ENTRY_START_PREFIX = "<!-- BOOK-READING:START ";
     const ENTRY_END = "<!-- BOOK-READING:END -->";
     const COMMENT_MARK = "<!-- BOOK-READING:COMMENT -->";
+    const RELATION_RULES = [
+        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники", section: "cinema" },
+        { name: "related", leftType: "book", leftProp: "related", rightType: "book", rightProp: "related", section: "general" },
+        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues", section: "general" },
+        { name: "adapted_from → adaptations", leftType: "media", leftProp: "adapted_from", rightType: "book", rightProp: "adaptations", section: "general", sourceOnly: true }
+    ];
 
     function getFrontmatter(file) {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
@@ -600,8 +606,10 @@ module.exports = async (params) => {
         if (!entries.length) return;
         const now = new Date();
         const pad = n => String(n).padStart(2, "0");
+        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        let block = `## ${stamp}\n\n`;
+        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="true" structure="true" -->\n`;
+        block += `## ${stamp}\n\n`;
         for (const entry of entries) {
             block += `- ${entry.type}: **${entry.from}** → **${entry.to}**, изменено книг: **${entry.count}**.\n`;
         }
@@ -610,7 +618,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            const header = "# Журнал изменений\n\n> Автоматическая история нормализации авторов и серий из `Книги - Проверить библиотеку`.\n\n";
+            const header = "# Журнал изменений\n\n> Автоматическая история обслуживания книжной базы.\n\n";
             file = await app.vault.create(path, header + block);
             return;
         }
@@ -618,11 +626,37 @@ module.exports = async (params) => {
         await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
     }
 
-    await appendNormalizationJournal(journalEntries);
+    try {
+        await appendNormalizationJournal(journalEntries);
+    } catch (error) {
+        new Notice(`Нормализация выполнена, но журнал не обновлен: ${error?.message || error}`, 7000);
+    }
+
+    async function journalState() {
+        const path = normalizePath(CHANGELOG_PATH);
+        const file = app.vault.getAbstractFileByPath(path);
+        if (!file) return { lastNormalization: "—", lastStructure: "—" };
+        const text = await app.vault.read(file);
+        const re = /<!-- BOOK-LIBRARY-EVENT at="([^"]+)" normalization="(true|false)" structure="(true|false)" -->/g;
+        let match;
+        let lastNormalization = "";
+        let lastStructure = "";
+        while ((match = re.exec(text)) !== null) {
+            if (match[2] === "true") lastNormalization = match[1];
+            if (match[3] === "true") lastStructure = match[1];
+        }
+        const display = value => value ? value.replace("T", " ") : "—";
+        return {
+            lastNormalization: display(lastNormalization),
+            lastStructure: display(lastStructure)
+        };
+    }
 
     const errors = [];
     const warnings = [];
     const cinemaErrors = [];
+    const mutualErrors = [];
+    const adaptationSuggestions = [];
     const info = [];
     const authorsMap = new Map();
     const seriesMap = new Map();
@@ -638,6 +672,8 @@ module.exports = async (params) => {
     let orphanImageCount = 0;
     let cinemaRelationCount = 0;
     let completeCinemaRelationCount = 0;
+    let mutualRelationCount = 0;
+    let completeMutualRelationCount = 0;
 
     for (const file of books) {
         const fm = getFrontmatter(file);
@@ -820,25 +856,26 @@ module.exports = async (params) => {
         }
     }
 
-    // Двусторонние связи книга <-> кино.
-    // Проверяем обе стороны независимо, чтобы обнаруживать односторонние связи,
-    // битые цели, дубли и ссылки не на реальные карточки movies/serial.
+    // Взаимные связи по явным правилам. Не угадываем семантику произвольных YAML-полей:
+    // новые пары добавляются в RELATION_RULES одной строкой.
     const mediaFiles = app.vault.getMarkdownFiles()
         .filter(isMedia)
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
+    const filesByType = { book: books, media: mediaFiles };
 
-    const validRelationPairs = new Set();
-    const completeRelationPairs = new Set();
-
-    function relationKey(bookFile, mediaFile) {
-        return `${noteTargetPath(bookFile)}|||${noteTargetPath(mediaFile)}`;
+    function matchesType(file, type) {
+        if (type === "book") return isCandidateBook(file);
+        if (type === "media") return isMedia(file);
+        return false;
     }
 
-    function relationLabel(file, propertyName) {
-        if (propertyName === "adaptations") {
-            return wikiLink(file, asText(getFrontmatter(file).title) || file.basename);
+    function relationKey(leftFile, rightFile, rule) {
+        const a = noteTargetPath(leftFile);
+        const b = noteTargetPath(rightFile);
+        if (rule.leftType === rule.rightType && rule.leftProp === rule.rightProp) {
+            return [a, b].sort().join("|||") + `|||${rule.leftProp}`;
         }
-        return wikiLink(file, file.basename);
+        return `${a}|||${rule.leftProp}|||${b}|||${rule.rightProp}`;
     }
 
     function canonicalRelationTarget(value, sourceFile) {
@@ -853,8 +890,7 @@ module.exports = async (params) => {
 
     function reverseContains(sourceFile, propertyName, expectedFile) {
         const expectedPath = noteTargetPath(expectedFile);
-        const values = rawListValues(getFrontmatter(sourceFile)[propertyName]);
-        return values.some(value => {
+        return rawListValues(getFrontmatter(sourceFile)[propertyName]).some(value => {
             const relation = canonicalRelationTarget(value, sourceFile);
             return relation.resolved
                 ? noteTargetPath(relation.resolved) === expectedPath
@@ -862,78 +898,106 @@ module.exports = async (params) => {
         });
     }
 
+    function relationFileLabel(file, type) {
+        if (type === "book") return wikiLink(file, asText(getFrontmatter(file).title) || file.basename);
+        return wikiLink(file, file.basename);
+    }
+
+    for (const rule of RELATION_RULES) {
+        const validPairs = new Set();
+        const completePairs = new Set();
+        const output = rule.section === "cinema" ? cinemaErrors : mutualErrors;
+
+        async function scanSide(files, prop, sourceType, targetType, reverseProp, isLeftSide) {
+            for (const sourceFile of files) {
+                const values = rawListValues(getFrontmatter(sourceFile)[prop]);
+                if (!values.length) continue;
+                const seen = new Set();
+                for (const value of values) {
+                    const relation = canonicalRelationTarget(value, sourceFile);
+                    const sourceLink = relationFileLabel(sourceFile, sourceType);
+                    const duplicateKey = relation.key || relation.raw;
+                    if (seen.has(duplicateKey)) {
+                        output.push(`${sourceLink} - в \`${prop}\` повторяется ссылка \`${relation.raw}\`.`);
+                        continue;
+                    }
+                    seen.add(duplicateKey);
+
+                    if (!relation.resolved) {
+                        output.push(`${sourceLink} - \`${prop}\` ведет на отсутствующий файл \`${relation.target || relation.raw}\`.`);
+                        continue;
+                    }
+                    if (!matchesType(relation.resolved, targetType)) {
+                        output.push(`${sourceLink} - \`${prop}\` ведет на объект неверного типа: ${wikiLink(relation.resolved, relation.resolved.basename)}.`);
+                        continue;
+                    }
+
+                    const leftFile = isLeftSide ? sourceFile : relation.resolved;
+                    const rightFile = isLeftSide ? relation.resolved : sourceFile;
+                    const pair = relationKey(leftFile, rightFile, rule);
+                    validPairs.add(pair);
+                    if (!reverseContains(relation.resolved, reverseProp, sourceFile)) {
+                        output.push(`${sourceLink} → ${relationFileLabel(relation.resolved, targetType)} - нет обратной ссылки в \`${reverseProp}\` (${rule.name}).`);
+                    } else {
+                        completePairs.add(pair);
+                    }
+                }
+            }
+        }
+
+        await scanSide(filesByType[rule.leftType], rule.leftProp, rule.leftType, rule.rightType, rule.rightProp, true);
+        if (!rule.sourceOnly && !(rule.leftType === rule.rightType && rule.leftProp === rule.rightProp)) {
+            await scanSide(filesByType[rule.rightType], rule.rightProp, rule.rightType, rule.leftType, rule.leftProp, false);
+        }
+
+        if (rule.section === "cinema") {
+            cinemaRelationCount += validPairs.size;
+            completeCinemaRelationCount += completePairs.size;
+        } else {
+            mutualRelationCount += validPairs.size;
+            completeMutualRelationCount += completePairs.size;
+        }
+    }
+
+    // Подсказки по потенциальным экранизациям. Ничего не связывается автоматически.
+    function comparableTitle(value) {
+        return normalizeTitle(value)
+            .replace(/\((?:19|20)\d{2}\)/g, "")
+            .replace(/\b(?:19|20)\d{2}\b/g, "")
+            .replace(/[^a-zа-я0-9]+/gi, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function titleSimilarity(a, b) {
+        const left = comparableTitle(a);
+        const right = comparableTitle(b);
+        if (!left || !right) return 0;
+        if (left === right) return 100;
+        if (Math.min(left.length, right.length) >= 6 && levenshtein(left, right) <= 2) return 90;
+        const leftTokens = new Set(left.split(" ").filter(Boolean));
+        const rightTokens = new Set(right.split(" ").filter(Boolean));
+        const intersection = [...leftTokens].filter(token => rightTokens.has(token)).length;
+        const union = new Set([...leftTokens, ...rightTokens]).size;
+        const jaccard = union ? intersection / union : 0;
+        return jaccard >= 0.8 && intersection >= 2 ? 80 : 0;
+    }
+
     for (const bookFile of books) {
-        const values = rawListValues(getFrontmatter(bookFile).adaptations);
-        if (!values.length) continue;
-
-        const seen = new Set();
-        for (const value of values) {
-            const relation = canonicalRelationTarget(value, bookFile);
-            const bookLink = relationLabel(bookFile, "adaptations");
-            const duplicateKey = relation.key || relation.raw;
-
-            if (seen.has(duplicateKey)) {
-                cinemaErrors.push(`${bookLink} - в \`adaptations\` повторяется ссылка \`${relation.raw}\`.`);
-                continue;
-            }
-            seen.add(duplicateKey);
-
-            if (!relation.resolved) {
-                cinemaErrors.push(`${bookLink} - \`adaptations\` ведет на отсутствующий файл \`${relation.target || relation.raw}\`.`);
-                continue;
-            }
-            if (!isMedia(relation.resolved)) {
-                cinemaErrors.push(`${bookLink} - \`adaptations\` ведет не на карточку фильма/сериала \`movies/serial\`: ${wikiLink(relation.resolved, relation.resolved.basename)}.`);
-                continue;
-            }
-
-            const pair = relationKey(bookFile, relation.resolved);
-            validRelationPairs.add(pair);
-            if (!reverseContains(relation.resolved, "Первоисточники", bookFile)) {
-                cinemaErrors.push(`${bookLink} → ${wikiLink(relation.resolved, relation.resolved.basename)} - у фильма/сериала нет обратной ссылки в \`Первоисточники\`.`);
-            } else {
-                completeRelationPairs.add(pair);
-            }
+        if (rawListValues(getFrontmatter(bookFile).adaptations).length) continue;
+        const bookTitle = asText(getFrontmatter(bookFile).title) || bookFile.basename;
+        const candidates = [];
+        for (const mediaFile of mediaFiles) {
+            const mediaFm = getFrontmatter(mediaFile);
+            const names = [mediaFile.basename, asText(mediaFm["Название"])].filter(Boolean);
+            const score = Math.max(...names.map(name => titleSimilarity(bookTitle, name)), 0);
+            if (score >= 80) candidates.push({ mediaFile, score });
+        }
+        candidates.sort((a, b) => b.score - a.score || a.mediaFile.basename.localeCompare(b.mediaFile.basename, "ru"));
+        for (const candidate of candidates.slice(0, 3)) {
+            adaptationSuggestions.push(`${wikiLink(bookFile, bookTitle)} ↔ ${wikiLink(candidate.mediaFile, candidate.mediaFile.basename)} — возможно, это экранизация.`);
         }
     }
-
-    for (const mediaFile of mediaFiles) {
-        const values = rawListValues(getFrontmatter(mediaFile)["Первоисточники"]);
-        if (!values.length) continue;
-
-        const seen = new Set();
-        for (const value of values) {
-            const relation = canonicalRelationTarget(value, mediaFile);
-            const mediaLink = relationLabel(mediaFile, "Первоисточники");
-            const duplicateKey = relation.key || relation.raw;
-
-            if (seen.has(duplicateKey)) {
-                cinemaErrors.push(`${mediaLink} - в \`Первоисточники\` повторяется ссылка \`${relation.raw}\`.`);
-                continue;
-            }
-            seen.add(duplicateKey);
-
-            if (!relation.resolved) {
-                cinemaErrors.push(`${mediaLink} - \`Первоисточники\` ведет на отсутствующий файл \`${relation.target || relation.raw}\`.`);
-                continue;
-            }
-            if (!isCandidateBook(relation.resolved)) {
-                cinemaErrors.push(`${mediaLink} - \`Первоисточники\` ведет не на карточку книги: ${wikiLink(relation.resolved, relation.resolved.basename)}.`);
-                continue;
-            }
-
-            const pair = relationKey(relation.resolved, mediaFile);
-            validRelationPairs.add(pair);
-            if (!reverseContains(relation.resolved, "adaptations", mediaFile)) {
-                cinemaErrors.push(`${mediaLink} → ${wikiLink(relation.resolved, asText(getFrontmatter(relation.resolved).title) || relation.resolved.basename)} - у книги нет обратной ссылки в \`adaptations\`.`);
-            } else {
-                completeRelationPairs.add(pair);
-            }
-        }
-    }
-
-    cinemaRelationCount = validRelationPairs.size;
-    completeCinemaRelationCount = completeRelationPairs.size;
 
     // Вложения и изображения.
     // Ссылки считаем по всему vault, чтобы картинка из Книги не считалась сиротой,
@@ -1083,10 +1147,13 @@ module.exports = async (params) => {
     info.push(`Картинок в \`Книги/\`: **${imageFiles.length}**; без ссылок: **${orphanImageCount}**.`);
     info.push(`Ссылок на отсутствующие локальные вложения: **${missingAttachmentCount}**.`);
     info.push(`Карточек кино/сериалов найдено: **${mediaFiles.length}**; связей книга ↔ кино: **${cinemaRelationCount}**; полностью взаимных: **${completeCinemaRelationCount}**.`);
+    info.push(`Прочих взаимных связей: **${mutualRelationCount}**; полностью взаимных: **${completeMutualRelationCount}**.`);
+    info.push(`Подсказок возможных экранизаций: **${adaptationSuggestions.length}**.`);
 
     const now = new Date();
     const pad = n => String(n).padStart(2, "0");
     const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const state = await journalState();
 
     function renderSection(title, items, emptyText) {
         let out = `## ${title}\n\n`;
@@ -1096,23 +1163,34 @@ module.exports = async (params) => {
 
     let report = `# Проверка библиотеки\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
-    report += `> Основная проверка ничего не исправляет автоматически. Нормализация авторов и серий выполняется только после твоего явного выбора.\n\n`;
+    report += `> Аудит сам не исправляет ошибки, кроме подтвержденной тобой нормализации авторов/серий. Для однозначных исправлений используй кнопку «Исправить безопасное».\n\n`;
     report += "```button\n";
     report += "name 🔎 Проверить еще раз\n";
     report += "type command\n";
     report += "action QuickAdd: Книги - Проверить библиотеку\n";
     report += "```\n\n";
+    report += "```button\n";
+    report += "name 🛠 Исправить безопасное\n";
+    report += "type command\n";
+    report += "action QuickAdd: Книги - Исправить безопасное\n";
+    report += "```\n\n";
     report += `## Состояние библиотеки\n\n`;
     report += `**${books.length} книг** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${imageFiles.length} изображений** · **${fictionCount} fiction** · **${nonfictionCount} non-fiction** · **${rereadBooksCount} перечитано** · **${ratedBooksCount} оценено**\n\n`;
+    report += `- Последняя проверка: **${timestamp}**.\n`;
+    report += `- Последняя нормализация: **${state.lastNormalization}**.\n`;
+    report += `- Последнее изменение структуры: **${state.lastStructure}**.\n`;
+    report += `- Текущее состояние: **${errors.length + cinemaErrors.length + mutualErrors.length} ошибок**, **${warnings.length} предупреждений**.\n\n`;
     report += `Журнал нормализаций: [[Книги/_system/Журнал изменений|открыть журнал]].\n\n`;
     report += `## Итог\n\n`;
-    const totalErrors = errors.length + cinemaErrors.length;
+    const totalErrors = errors.length + cinemaErrors.length + mutualErrors.length;
     report += `- Ошибок: **${totalErrors}**.\n`;
     report += `- Предупреждений: **${warnings.length}**.\n`;
     report += info.map(item => `- ${item}`).join("\n") + "\n\n";
     report += renderSection("🔧 Нормализация авторов", normalizationLog, "Изменений авторов в этом запуске не было.");
     report += renderSection("🔧 Нормализация серий", seriesNormalizationLog, "Изменений серий в этом запуске не было.");
     report += renderSection("🎬 Связи с кино", cinemaErrors, "Ошибок двусторонних связей книга ↔ кино не найдено.");
+    report += renderSection("🔗 Прочие взаимные связи", mutualErrors, "Ошибок прочих взаимных связей не найдено.");
+    report += renderSection("🎬 Возможные экранизации", adaptationSuggestions, "Подходящих неподтвержденных совпадений названий не найдено.");
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
     report += "## Что проверяется\n\n";
@@ -1127,7 +1205,9 @@ module.exports = async (params) => {
     report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях;\n";
     report += "- ссылки на отсутствующие локальные вложения в Markdown-файлах внутри `Книги/`;\n";
     report += "- картинки внутри `Книги/`, на которые не ссылается ни один Markdown-файл vault;\n";
-    report += "- двусторонность `adaptations` ↔ `Первоисточники`, битые ссылки, дубли и ссылки не на карточки `movies/serial`/книг.\n";
+    report += "- двусторонность `adaptations` ↔ `Первоисточники`, битые ссылки, дубли и типы целей;\n";
+    report += "- взаимность `related` ↔ `related` и `continued_by` ↔ `continues`; новые пары добавляются явно в `RELATION_RULES`;\n";
+    report += "- книги без `adaptations`, у которых найден фильм/сериал с очень похожим названием — только как подсказка, без автосвязи.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);
@@ -1137,6 +1217,6 @@ module.exports = async (params) => {
         reportFile = await app.vault.create(reportPath, report);
     }
 
-    new Notice(`Проверка завершена: ошибок ${errors.length + cinemaErrors.length}, предупреждений ${warnings.length}`);
+    new Notice(`Проверка завершена: ошибок ${errors.length + cinemaErrors.length + mutualErrors.length}, предупреждений ${warnings.length}`);
     await app.workspace.getLeaf(false).openFile(reportFile);
 };
