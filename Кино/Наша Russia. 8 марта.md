@@ -20,11 +20,11 @@ tags:
   - "Давид Кочаров"
   - "Иван Глубоков"
 Актеры:
-  - "Сергей Светлаков"
-  - "Михаил Галустян"
-  - "Люся Чеботина"
-  - "Григорий Лепс"
-  - "Любовь Успенская"
+  - "Sergey Svetlakov (Сергей Светлаков)"
+  - "Mikhail Galustyan (Михаил Сергеевич Галустян)"
+  - "Lusya Chebotina (Люся Чеботина)"
+  - "Grigory Leps (Григорий Лепс)"
+  - "Lyubov Uspenskaya (Любовь Успенская)"
 Описание: Бородач, честный гаишник и нечестные чиновники возвращаются. Комедия со звездными гостями. Смотрите онлайн фильм Наша Russia. 8 марта на Кинопоиске.
 imdb Id: tt33094176
 poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg
