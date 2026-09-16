@@ -13,6 +13,41 @@ function canonicalGenre(value) {
     }
     return text;
 }
+
+function waitForKinoSelection(app, file, expected) {
+    const read = () => String(app.metadataCache.getFileCache(file)?.frontmatter?.Выбрано ?? "") === String(expected);
+    if (read()) return Promise.resolve();
+    return new Promise(resolve => {
+        let finished = false;
+        let ref;
+        let timer;
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            if (timer) clearTimeout(timer);
+            if (ref) app.metadataCache.offref(ref);
+            resolve();
+        };
+        ref = app.metadataCache.on("changed", changedFile => {
+            if (!changedFile || changedFile.path === file.path) {
+                if (read()) finish();
+            }
+        });
+        timer = setTimeout(finish, 1200);
+    });
+}
+
+async function refreshKinoSelection(app, file, selected) {
+    await waitForKinoSelection(app, file, selected);
+    const leaf = app.workspace.getLeaf(false);
+    await leaf.openFile(file);
+    try {
+        if (leaf.view?.getViewType?.() === "markdown" && leaf.view.previewMode?.rerender) {
+            await leaf.view.previewMode.rerender(true);
+        }
+    } catch (_) {}
+}
+
 const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
 function entityName(value) {
     if (typeof value !== 'string') throw new Error('Ожидалась строка имени сущности');
@@ -79,11 +114,22 @@ module.exports=async function openEntity(params) {
         const values=new Set();
         for(const file of app.vault.getMarkdownFiles()) {
             if(!originalMediaPath(file.path))continue;
+            const cached=app.metadataCache.getFileCache(file)?.frontmatter;
+            if(cached && Object.prototype.hasOwnProperty.call(cached,"tags")) {
+                const tags=Array.isArray(cached.tags)?cached.tags:[cached.tags];
+                if(!tags.some(t=>["movies","serial"].includes(String(t).replace(/^#/,""))))continue;
+                const value=cached[FIELD];
+                for(const name of Array.isArray(value)?value:[value]) {
+                    const clean=entityName(name);
+                    if(clean)values.add(canonicalGenre(clean));
+                }
+                continue;
+            }
             const raw=await app.vault.read(file);
             if(!isMediaRaw(file.path,raw,ob))continue;
             const part=yamlParts(raw),block=propertyBlock(part.yaml,FIELD);
             const value=block?normalizeEntityField(ob.parseYaml(block[0])?.[FIELD]):null;
-            for(const name of Array.isArray(value)?value:[value])if(name)values.add(FIELD==="Жанр"?canonicalGenre(name):name);
+            for(const name of Array.isArray(value)?value:[value])if(name)values.add(canonicalGenre(name));
         }
         const names=[...values].sort((a,b)=>a.localeCompare(b,'ru',{sensitivity:'base'}));
         selected=await qa.suggester(names,names,'Выбери '+LABEL);
@@ -93,17 +139,6 @@ module.exports=async function openEntity(params) {
     let file=app.vault.getAbstractFileByPath(PAGE);
     if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT);}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
-    await app.fileManager.processFrontMatter(file, fm => {
-    fm["Выбрано"] = selected;
-});
-
-await new Promise(resolve => setTimeout(resolve, 400));
-
-const leaf = app.workspace.getLeaf(false);
-await leaf.openFile(file);
-
-const view = leaf.view;
-if (view?.getViewType?.() === "markdown" && view.previewMode) {
-    await view.previewMode.rerender(true);
-}
+    await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
+    await refreshKinoSelection(app, file, selected);
 };
