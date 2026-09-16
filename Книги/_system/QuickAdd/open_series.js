@@ -11,10 +11,7 @@ module.exports = async (params) => {
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
         if (file.basename === "_index") return false;
-        if (!(
-            file.path.startsWith("Книги/Художественные/") ||
-            file.path.startsWith("Книги/Non-fiction/")
-        )) return false;
+        if (!(file.path.startsWith("Книги/Художественные/") || file.path.startsWith("Книги/Non-fiction/"))) return false;
         const fm = getFrontmatter(file);
         return Boolean(fm.title) && Boolean(fm.authors);
     }
@@ -28,12 +25,10 @@ module.exports = async (params) => {
                 .map(file => String(getFrontmatter(file).series ?? "").trim())
                 .filter(Boolean)
         )].sort((a, b) => a.localeCompare(b, "ru"));
-
         if (!allSeries.length) {
             new Notice("Серии не найдены.");
             return;
         }
-
         series = await quickAddApi.suggester(allSeries, allSeries, "Выбери серию");
         if (!series) return;
     }
@@ -43,26 +38,13 @@ module.exports = async (params) => {
         `selected_series: ${JSON.stringify(series)}\n` +
         `obsidianUIMode: preview\n` +
         `---\n\n` +
-        `# ${series}\n\n` +
-        "```button\n" +
-        "name 📚 Все серии\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Серии\n" +
-        "```\n\n" +
-        "```button\n" +
-        "name ➕ Добавить книгу в серию\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Добавить книгу\n" +
-        "color green\n" +
-        "```\n\n" +
+        `# 🧩 ${series}\n\n` +
+        `[← Все серии](obsidian://quickadd?choice=${encodeURIComponent("Книги - Серии")}) · [[Книги/_index|Книги]] · [➕ Добавить книгу](obsidian://quickadd?choice=${encodeURIComponent("Книги - Добавить книгу")})\n\n` +
         `![[Книги/Книги.base#Серия]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) {
-        await app.vault.modify(page, content);
-    } else {
-        page = await app.vault.create(PAGE_PATH, content);
-    }
+    if (page) await app.vault.modify(page, content);
+    else page = await app.vault.create(PAGE_PATH, content);
 
     await new Promise(resolve => setTimeout(resolve, 80));
     await app.workspace.getLeaf(false).openFile(page);

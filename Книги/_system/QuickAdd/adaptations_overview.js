@@ -56,6 +56,11 @@ module.exports = async (params) => {
         return null;
     }
 
+    function commandLink(label, choice) {
+        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice);
+        return `[${label}](${uri})`;
+    }
+
     function tableLink(file, label) {
         const target = file.path.replace(/\.md$/i, "");
         const safeLabel = String(label ?? file.basename).replace(/\|/g, "¦");
@@ -78,6 +83,8 @@ module.exports = async (params) => {
 
     const books = app.vault.getMarkdownFiles().filter(isBook);
     const rows = [];
+    const linkedBooks = new Set();
+    const linkedMedia = new Set();
 
     for (const bookFile of books) {
         const bookFm = getFrontmatter(bookFile);
@@ -94,10 +101,12 @@ module.exports = async (params) => {
             if (!mediaFile || !isMedia(mediaFile)) continue;
             if (seen.has(mediaFile.path)) continue;
             seen.add(mediaFile.path);
+            linkedBooks.add(bookFile.path);
+            linkedMedia.add(mediaFile.path);
 
             const mediaFm = getFrontmatter(mediaFile);
             const mediaTags = tags(mediaFm);
-            const type = mediaTags.includes("serial") ? "Сериал" : "Фильм";
+            const type = mediaTags.includes("serial") ? "📺 Сериал" : "🎬 Фильм";
             const mediaRating = numberOrDash(mediaFm["Оценка"]);
             rows.push({
                 bookFile,
@@ -117,18 +126,23 @@ module.exports = async (params) => {
         return a.mediaFile.basename.localeCompare(b.mediaFile.basename, "ru");
     });
 
-    let text = "# Экранизации\n\n";
-    text += "```button\n";
-    text += "name 🔄 Обновить обзор экранизаций\n";
-    text += "type command\n";
-    text += "action QuickAdd: Книги - Экранизации\n";
-    text += "```\n\n";
-    text += `Связанных пар: **${rows.length}**.\n\n`;
+    const nav = [
+        "[[Книги/_index|← Книги]]",
+        commandLink("👥 Авторы", "Книги - Авторы"),
+        commandLink("🧩 Серии", "Книги - Серии"),
+        commandLink("↻ Обновить", "Книги - Экранизации")
+    ].join(" · ");
+
+    let text = "---\nobsidianUIMode: preview\n---\n\n";
+    text += "# 🎬 Экранизации\n\n";
+    text += `${nav}\n\n`;
+    text += "> [!info] Обзор\n";
+    text += `> **Связей:** ${rows.length} · **Книг:** ${linkedBooks.size} · **Экранизаций:** ${linkedMedia.size}\n\n`;
 
     if (!rows.length) {
         text += "> Связей книга ↔ кино пока нет или папка `Кино/` недоступна в этом vault.\n";
     } else {
-        text += "| Книга | Автор | Экранизация | Тип | Моя оценка книги | Моя оценка кино |\n";
+        text += "| Книга | Автор | Экранизация | Тип | Книга ⭐ | Кино ⭐ |\n";
         text += "| --- | --- | --- | --- | ---: | ---: |\n";
         for (const row of rows) {
             text += `| ${tableLink(row.bookFile, row.title)} | ${row.authors} | ${tableLink(row.mediaFile, row.mediaFile.basename)} | ${row.type} | ${row.bookRating} | ${row.mediaRating} |\n`;

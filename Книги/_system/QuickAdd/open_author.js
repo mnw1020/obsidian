@@ -11,10 +11,7 @@ module.exports = async (params) => {
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
         if (file.basename === "_index") return false;
-        if (!(
-            file.path.startsWith("Книги/Художественные/") ||
-            file.path.startsWith("Книги/Non-fiction/")
-        )) return false;
+        if (!(file.path.startsWith("Книги/Художественные/") || file.path.startsWith("Книги/Non-fiction/"))) return false;
         const fm = getFrontmatter(file);
         return Boolean(fm.title) && Boolean(fm.authors);
     }
@@ -28,17 +25,12 @@ module.exports = async (params) => {
     let author = String(variables.author ?? "").trim();
 
     if (!author) {
-        const authors = [...new Set(
-            app.vault.getMarkdownFiles()
-                .filter(isBook)
-                .flatMap(authorsOf)
-        )].sort((a, b) => a.localeCompare(b, "ru"));
-
+        const authors = [...new Set(app.vault.getMarkdownFiles().filter(isBook).flatMap(authorsOf))]
+            .sort((a, b) => a.localeCompare(b, "ru"));
         if (!authors.length) {
             new Notice("Авторы не найдены.");
             return;
         }
-
         author = await quickAddApi.suggester(authors, authors, "Выбери автора");
         if (!author) return;
     }
@@ -48,22 +40,14 @@ module.exports = async (params) => {
         `selected_author: ${JSON.stringify(author)}\n` +
         `obsidianUIMode: preview\n` +
         `---\n\n` +
-        `# ${author}\n\n` +
-        "```button\n" +
-        "name 👥 Все авторы\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Авторы\n" +
-        "```\n\n" +
+        `# 👤 ${author}\n\n` +
+        `[← Все авторы](obsidian://quickadd?choice=${encodeURIComponent("Книги - Авторы")}) · [[Книги/_index|Книги]]\n\n` +
         `![[Книги/Книги.base#Автор]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) {
-        await app.vault.modify(page, content);
-    } else {
-        page = await app.vault.create(PAGE_PATH, content);
-    }
+    if (page) await app.vault.modify(page, content);
+    else page = await app.vault.create(PAGE_PATH, content);
 
-    // Даем metadata cache обновить selected_author перед рендером встроенной Base.
     await new Promise(resolve => setTimeout(resolve, 80));
     await app.workspace.getLeaf(false).openFile(page);
 };

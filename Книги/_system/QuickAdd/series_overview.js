@@ -22,11 +22,7 @@ module.exports = async (params) => {
     function authorsOf(frontmatter) {
         const raw = frontmatter.authors;
         const values = Array.isArray(raw) ? raw : [raw];
-        return [...new Set(
-            values
-                .map(value => String(value ?? "").trim())
-                .filter(Boolean)
-        )];
+        return [...new Set(values.map(value => String(value ?? "").trim()).filter(Boolean))];
     }
 
     function numericRating(value) {
@@ -60,6 +56,11 @@ module.exports = async (params) => {
             .trim();
     }
 
+    function commandLink(label, choice) {
+        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice);
+        return `[${label}](${uri})`;
+    }
+
     function seriesLink(series) {
         const uri =
             "obsidian://quickadd?choice=" +
@@ -76,17 +77,23 @@ module.exports = async (params) => {
     }
 
     const aggregates = new Map();
+    let booksInSeries = 0;
+    let readBooks = 0;
+    let ratedBooks = 0;
 
     for (const file of app.vault.getMarkdownFiles().filter(isBook)) {
         const fm = getFrontmatter(file);
         const series = String(fm.series ?? "").trim();
         if (!series) continue;
 
+        booksInSeries += 1;
         const title = String(fm.title ?? file.basename).trim() || file.basename;
         const rating = numericRating(fm.rating);
         const date = String(fm.date ?? "").trim();
         const dateKey = normalizeDate(date);
         const readCount = Number(fm.read_count);
+        if (Number.isFinite(readCount) && readCount > 0) readBooks += 1;
+        if (rating !== null) ratedBooks += 1;
 
         if (!aggregates.has(series)) {
             aggregates.set(series, {
@@ -104,7 +111,6 @@ module.exports = async (params) => {
         item.books.add(file.path);
         for (const author of authorsOf(fm)) item.authors.add(author);
         if (Number.isFinite(readCount) && readCount > 0) item.readBooks += 1;
-
         if (rating !== null) {
             item.ratingSum += rating;
             item.ratingCount += 1;
@@ -144,34 +150,33 @@ module.exports = async (params) => {
         const latest = item.latest
             ? bookLink(item.latest.file, item.latest.title, item.latest.date)
             : "—";
-
         return `| ${seriesLink(item.series)} | ${authors} | ${item.books.size} | ${item.readBooks} | ${average} | ${latest} |`;
     });
+
+    const nav = [
+        "[[Книги/_index|← Книги]]",
+        commandLink("👥 Авторы", "Книги - Авторы"),
+        commandLink("🎬 Экранизации", "Книги - Экранизации"),
+        commandLink("↻ Обновить", "Книги - Серии")
+    ].join(" · ");
 
     const content =
         `---\n` +
         `obsidianUIMode: preview\n` +
         `---\n\n` +
-        `# 📚 Серии\n\n` +
-        `[[Книги/_index|← Книги]]\n\n` +
-        "```button\n" +
-        "name 🔄 Обновить обзор серий\n" +
-        "type command\n" +
-        "action QuickAdd: Книги - Серии\n" +
-        "```\n\n" +
-        `Всего серий: **${seriesItems.length}**\n\n` +
-        `Средняя оценка считается только по книгам, где оценка указана.\n\n` +
-        `| Серия | Автор(ы) | Книг в базе | Прочитано | Средняя оценка | Последняя книга |\n` +
+        `# 🧩 Серии\n\n` +
+        `${nav}\n\n` +
+        `> [!info] Обзор\n` +
+        `> **Серий:** ${seriesItems.length} · **Книг:** ${booksInSeries} · **Прочитано:** ${readBooks} · **С оценкой:** ${ratedBooks}\n\n` +
+        `Средняя оценка — только по книгам, где она указана.\n\n` +
+        `| Серия | Автор(ы) | Книг | Прочитано | ⭐ ср. | Последняя книга |\n` +
         `| --- | --- | ---: | ---: | ---: | --- |\n` +
         rows.join("\n") +
         `\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) {
-        await app.vault.modify(page, content);
-    } else {
-        page = await app.vault.create(PAGE_PATH, content);
-    }
+    if (page) await app.vault.modify(page, content);
+    else page = await app.vault.create(PAGE_PATH, content);
 
     await app.workspace.getLeaf(false).openFile(page);
 };
