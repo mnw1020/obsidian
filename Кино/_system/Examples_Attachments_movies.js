@@ -19,18 +19,36 @@ async function kinoLoadPersonCache(app) {
         };
     } catch (_) {}
 }
-function kinoPersonKey(value) {
+function kinoPersonBaseKey(value) {
     let text = String(value ?? "").trim().normalize("NFC");
     text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    text = text.replace(/\s*\([^)]*\)\s*$/, "");
+    text = text.replace(/\s*\([^()]*\)\s*$/, "");
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
+}
+function normalizeKinoPersonDisplay(value) {
+    let text = String(value ?? "").trim().normalize("NFC");
+    for (let i = 0; i < 5; i++) {
+        const match = text.match(/^(.+?)\s*\((.*)\)$/);
+        if (!match || !match[2].includes("(")) break;
+        const inner = match[2].replace(/^.*\(([^()]*)\)$/, "$1").trim();
+        if (!inner || inner === match[2]) break;
+        text = `${match[1].trim()} (${inner})`;
+    }
+    const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
+    if (pair && kinoPersonBaseKey(pair[1]) === kinoPersonBaseKey(pair[2])) return pair[1].trim();
+    return text;
+}
+function kinoPersonKey(value) {
+    return kinoPersonBaseKey(normalizeKinoPersonDisplay(value));
 }
 function kinoPersonDisplay(field, value) {
     const text = String(value ?? "").trim().normalize("NFC");
     if (!text) return "";
-    return KINO_PERSON_DYNAMIC_ALIASES[field]?.[kinoPersonKey(text)]
-        || KINO_PERSON_ALIASES[field]?.[kinoPersonKey(text)] || text;
+    const key = kinoPersonKey(text);
+    const canonical = KINO_PERSON_ALIASES[field]?.[key]
+        || KINO_PERSON_DYNAMIC_ALIASES[field]?.[key] || text;
+    return normalizeKinoPersonDisplay(canonical);
 }
 const ENTITY_LINKS_BLOCK = "<!-- KINO:ENTITY:LINKS:V2 -->\n```dataviewjs\nconst KINO_GENRE_ALIASES = {\"Боевик\":[\"Action\",\"Боевик\"],\"Приключения\":[\"Adventure\",\"Приключения\"],\"Анимация\":[\"Animation\",\"Анимация\",\"Мультфильм\"],\"Биография\":[\"Biography\",\"Биография\"],\"Комедия\":[\"Comedy\",\"Комедия\"],\"Криминал\":[\"Crime\",\"Криминал\"],\"Документальный\":[\"Documentary\",\"Документальный\",\"Документальное\"],\"Драма\":[\"Drama\",\"Драма\"],\"Семейный\":[\"Family\",\"Семейный\"],\"Фэнтези\":[\"Fantasy\",\"Фэнтези\"],\"История\":[\"History\",\"История\"],\"Ужасы\":[\"Horror\",\"Ужасы\"],\"Музыка\":[\"Music\",\"Музыка\"],\"Мюзикл\":[\"Musical\",\"Мюзикл\"],\"Мистика\":[\"Mystery\",\"Мистика\"],\"Мелодрама\":[\"Romance\",\"Мелодрама\"],\"Фантастика\":[\"Sci-Fi\",\"Science Fiction\",\"Фантастика\"],\"Короткометражка\":[\"Short\",\"Short Film\",\"Короткометражка\"],\"Спорт\":[\"Sport\",\"Sports\",\"Спорт\"],\"Триллер\":[\"Thriller\",\"Триллер\"],\"Военный\":[\"War\",\"Военный\"],\"Реалити-шоу\":[\"Reality-TV\",\"Reality TV\",\"Реалити-шоу\"],\"Вестерн\":[\"Western\",\"Вестерн\"]};\nconst KINO_ENTITY_FIELDS = [\n    [\"Режисер\", \"Режиссер\", \"Кино - Открыть режиссера\"],\n    [\"Актеры\", \"Актеры\", \"Кино - Открыть актера\"],\n    [\"Жанр\", \"Жанры\", \"Кино - Открыть жанр\"]\n];\n\nfunction kinoEntityText(value) {\n    return String(value ?? \"\").trim().normalize(\"NFC\");\n}\n\nfunction kinoEntityKey(value) {\n    return kinoEntityText(value).toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\");\n}\n\nfunction kinoCanonicalGenre(value) {\n    const text = kinoEntityText(value);\n    const key = kinoEntityKey(text);\n    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {\n        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;\n    }\n    return text;\n}\n\nfunction kinoValues(value) {\n    return [...new Set((Array.isArray(value) ? value : [value])\n        .map(kinoEntityText).filter(Boolean))];\n}\n\nfunction kinoCanonical(field, value) {\n    return field === \"Жанр\" ? kinoCanonicalGenre(value) : kinoEntityText(value);\n}\n\nfunction kinoUri(choice, value) {\n    return \"obsidian://quickadd?vault=\" + encodeURIComponent(app.vault.getName())\n        + \"&choice=\" + encodeURIComponent(choice)\n        + \"&value-entity=\" + encodeURIComponent(value);\n}\n\nconst kinoRoot = dv.container.createDiv({ cls: \"kino-entity-links\" });\nfor (const [field, label, choice] of KINO_ENTITY_FIELDS) {\n    const groups = new Map();\n    for (const original of kinoValues(dv.current()[field])) {\n        const canonical = kinoCanonical(field, original);\n        const key = kinoEntityKey(canonical);\n        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });\n        groups.get(key).originals.push(original);\n    }\n    const row = kinoRoot.createDiv({ cls: \"kino-entity-links-row\" });\n    row.createEl(\"strong\", { text: label + \": \" });\n    if (!groups.size) {\n        row.appendText(\"Не указано\");\n        continue;\n    }\n    [...groups.values()].forEach((group, index) => {\n        if (index) row.appendText(\" · \");\n        const link = row.createEl(\"a\");\n        link.textContent = group.label;\n        link.href = kinoUri(choice, group.label);\n        if (group.originals.some(original => original !== group.label)) {\n            link.title = \"В YAML: \" + group.originals.join(\" / \");\n        }\n    });\n}\n```";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

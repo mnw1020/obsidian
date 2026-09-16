@@ -13,18 +13,36 @@ async function kinoLoadPersonCache(app) {
         };
     } catch (_) {}
 }
-function kinoPersonKey(value) {
+function kinoPersonBaseKey(value) {
     let text = String(value ?? "").trim().normalize("NFC");
     text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    text = text.replace(/\s*\([^)]*\)\s*$/, "");
+    text = text.replace(/\s*\([^()]*\)\s*$/, "");
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
+}
+function normalizeKinoPersonDisplay(value) {
+    let text = String(value ?? "").trim().normalize("NFC");
+    for (let i = 0; i < 5; i++) {
+        const match = text.match(/^(.+?)\s*\((.*)\)$/);
+        if (!match || !match[2].includes("(")) break;
+        const inner = match[2].replace(/^.*\(([^()]*)\)$/, "$1").trim();
+        if (!inner || inner === match[2]) break;
+        text = `${match[1].trim()} (${inner})`;
+    }
+    const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
+    if (pair && kinoPersonBaseKey(pair[1]) === kinoPersonBaseKey(pair[2])) return pair[1].trim();
+    return text;
+}
+function kinoPersonKey(value) {
+    return kinoPersonBaseKey(normalizeKinoPersonDisplay(value));
 }
 function kinoPersonDisplay(field, value) {
     const text = String(value ?? "").trim().normalize("NFC");
     if (!text) return "";
-    return KINO_PERSON_DYNAMIC_ALIASES[field]?.[kinoPersonKey(text)]
-        || KINO_PERSON_ALIASES[field]?.[kinoPersonKey(text)] || text;
+    const key = kinoPersonKey(text);
+    const canonical = KINO_PERSON_ALIASES[field]?.[key]
+        || KINO_PERSON_DYNAMIC_ALIASES[field]?.[key] || text;
+    return normalizeKinoPersonDisplay(canonical);
 }
 const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
 function entityName(value) {
