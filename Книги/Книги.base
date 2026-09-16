@@ -30,13 +30,13 @@ views:
     order:
       - formula.book_link
       - formula.author_links
-      - rating
-      - date
-      - read_count
+      - note.rating
+      - note.date
+      - note.read_count
       - formula.series_link
-      - series_index
+      - note.series_index
     sort:
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Художественные
@@ -46,15 +46,15 @@ views:
     order:
       - formula.book_link
       - formula.author_links
-      - rating
-      - date
-      - read_count
+      - note.rating
+      - note.date
+      - note.read_count
       - formula.series_link
-      - series_index
+      - note.series_index
     sort:
       - property: formula.author_links
         direction: DESC
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Non-fiction
@@ -64,12 +64,12 @@ views:
     order:
       - formula.book_link
       - formula.author_links
-      - date
-      - read_count
+      - note.date
+      - note.read_count
       - formula.series_link
-      - series_index
+      - note.series_index
     sort:
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Серии
@@ -77,19 +77,19 @@ views:
       and:
         - note.series
     groupBy:
-      property: series
+      property: note.series
       direction: ASC
     order:
-      - series_index
+      - note.series_index
       - formula.book_link
       - formula.author_links
-      - rating
-      - date
-      - read_count
+      - note.rating
+      - note.date
+      - note.read_count
     sort:
-      - property: series_index
+      - property: note.series_index
         direction: ASC
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Перечитанные
@@ -99,33 +99,33 @@ views:
     order:
       - formula.book_link
       - formula.author_links
-      - rating
-      - date
-      - read_count
+      - note.rating
+      - note.date
+      - note.read_count
       - formula.series_link
-      - series_index
+      - note.series_index
     sort:
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Автор
     filters:
       and:
-        - note.authors.contains(this.selected_author)
+        - 'note.authors.contains(this.selected_author)'
     groupBy:
       property: formula.series_group
       direction: ASC
     order:
       - formula.book_link
       - formula.series_link
-      - series_index
-      - rating
-      - date
-      - read_count
+      - note.series_index
+      - note.rating
+      - note.date
+      - note.read_count
     sort:
-      - property: series_index
+      - property: note.series_index
         direction: ASC
-      - property: date
+      - property: note.date
         direction: DESC
   - type: table
     name: Серия
@@ -133,14 +133,14 @@ views:
       and:
         - note.series == this.selected_series
     order:
-      - series_index
+      - note.series_index
       - formula.book_link
       - formula.author_links
-      - rating
-      - date
-      - read_count
+      - note.rating
+      - note.date
+      - note.read_count
     sort:
-      - property: series_index
+      - property: note.series_index
         direction: ASC
-      - property: date
+      - property: note.date
         direction: DESC
