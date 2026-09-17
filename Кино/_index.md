@@ -77,6 +77,10 @@ name 🎬 Добавить
 type command
 action QuickAdd: movie_imdb
 color purple
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-add-movie
 
@@ -85,6 +89,10 @@ name ...просмотр
 type command
 action QuickAdd: Добавить просмотр
 color gray
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-add-viewing
 
