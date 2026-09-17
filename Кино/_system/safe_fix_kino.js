@@ -4,8 +4,6 @@ module.exports = async (params) => {
 
     const ROOT = "Кино";
     const CHANGELOG_PATH = `${ROOT}/_system/Журнал изменений.md`;
-    const CACHE_PATH = `${ROOT}/_system/kino-person-alias-cache.json`;
-    const PERSON_FIELDS = ["Режисер", "Актеры"];
     const ENTITY_FIELDS = ["Режисер", "Актеры", "Жанр"];
 
     const asText = value => {
@@ -58,6 +56,18 @@ module.exports = async (params) => {
         return text;
     }
 
+    const PERSON_CANONICAL_OVERRIDES = {
+        vitaliygogunskiy: "Vitaly Gogunsky (Виталий Гогунский)",
+        vitalygogunsky: "Vitaly Gogunsky (Виталий Гогунский)",
+        виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
+        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)"
+    };
+
+    function canonicalPersonDisplay(value) {
+        const normalized = normalizePersonDisplay(value);
+        return PERSON_CANONICAL_OVERRIDES[personBaseKey(normalized)] || normalized;
+    }
+
     function entityKey(field, value) {
         if (field !== "Жанр") return personBaseKey(value);
         const text = asText(value);
@@ -68,7 +78,7 @@ module.exports = async (params) => {
         const result = [];
         const seen = new Set();
         for (const value of values) {
-            const next = field === "Жанр" ? asText(value) : normalizePersonDisplay(value);
+            const next = field === "Жанр" ? asText(value) : canonicalPersonDisplay(value);
             if (!next) continue;
             const key = entityKey(field, next);
             if (seen.has(key)) continue;
@@ -127,37 +137,10 @@ module.exports = async (params) => {
         changes.push(`Карточка **${file.path}**: нормализованы имена/жанры и удалены точные дубли.`);
     }
 
-    let cacheChanged = false;
-    const cacheFile = app.vault.getAbstractFileByPath(normalizePath(CACHE_PATH));
-    if (cacheFile) {
-        try {
-            const cache = JSON.parse(await app.vault.read(cacheFile));
-            for (const field of PERSON_FIELDS) {
-                const clean = {};
-                for (const [key, value] of Object.entries(cache[field] || {})) {
-                    const next = normalizePersonDisplay(value);
-                    const base = personBaseKey(next);
-                    const nested = /\([^()]*\([^()]*\)[^()]*\)/.test(asText(value));
-                    if (nested && key.startsWith(base) && key.length > base.length + 4) {
-                        cacheChanged = true;
-                        continue;
-                    }
-                    clean[key] = next;
-                    if (next !== value) cacheChanged = true;
-                }
-                cache[field] = clean;
-            }
-            if (cacheChanged) await app.vault.modify(cacheFile, JSON.stringify(cache, null, 2) + "\n");
-        } catch (error) {
-            new Notice(`Кэш псевдонимов не исправлен: ${error?.message || error}`, 9000);
-        }
-    }
-
-    if (changedCards || cacheChanged) {
+    if (changedCards) {
         if (changedCards) changes.unshift(`Изменено карточек: **${changedCards}**.`);
-        if (cacheChanged) changes.unshift("Очищен кэш псевдонимов.");
         await appendJournal(changes);
     }
 
-    new Notice(`Безопасное исправление завершено: карточек ${changedCards}, кэш ${cacheChanged ? "изменён" : "без изменений"}. Запусти "Кино - Проверить кинотеку".`, 9000);
+    new Notice(`Безопасное исправление завершено: карточек ${changedCards}. Запусти "Кино - Проверить кинотеку".`, 9000);
 };
