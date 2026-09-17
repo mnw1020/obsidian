@@ -3,9 +3,6 @@ cssclasses:
   - movies-dashboard
 ---
 # 🎬 [[_Кино.base|Кинотека]]  
-
-[[Кино/_system/Проверка кинотеки|🔎 Проверка кинотеки]] · [[Кино/_system/Журнал изменений|📜 Журнал изменений]]
-
 ```dataviewjs
 const all = dv.pages('"Кино"').array();
 
@@ -61,8 +58,7 @@ for (const [icon, label, value] of stats) {
 ```
 `button-add-movie` `button-add-viewing` `button-add-season`
 
-Редактировать `^button-edit-season` `^button-edit-viewing` `^button-rebuild-card` `^button-kino-franshise`
-
+`^button-edit-season` `^button-edit-viewing` `^button-rebuild-card`
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
 ## 🔁 Перепросмотры
@@ -77,10 +73,6 @@ name 🎬 Добавить
 type command
 action QuickAdd: movie_imdb
 color purple
-width 10
-height 1
-align center middle
-hidden true
 ```
 ^button-add-movie
 
@@ -89,10 +81,6 @@ name ...просмотр
 type command
 action QuickAdd: Добавить просмотр
 color gray
-width 10
-height 1
-align center middle
-hidden true
 ```
 ^button-add-viewing
 
@@ -101,58 +89,36 @@ name ...сезон
 type command
 action QuickAdd: Добавить сезон
 color gray
-width 10
-height 1
-align center middle
-hidden true
 ```
 ^button-add-season
 
 ```button
-name Сезон
+name ✏️ Редактировать сезон
 type command
 action QuickAdd: Редактировать сезон
 color blue
-width 5
-height 1
-align center middle
-hidden true
 ```
 ^button-edit-season
 
 ```button
-name Просмотр
+name ✏️ Редактировать просмотр
 type command
 action QuickAdd: Редактировать просмотр
 color blue
-width 5
-height 1
-align center middle
-hidden true
 ```
 ^button-edit-viewing
 
 ```button
-name Карту
+name 🔄 Обновить
 type command
 action QuickAdd: Пересобрать карточку
 color blue
-width 5
-height 1
-align center middle
-hidden true
 ```
 ^button-rebuild-card
 
-
 ```button
-name Франшизу
+name Франшиза
 type command
 action QuickAdd: Франшиза
 color blue
-width 5
-height 1
-align center middle
-hidden true
 ```
-^button-kino-franshise
