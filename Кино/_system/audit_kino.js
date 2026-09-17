@@ -8,8 +8,6 @@ module.exports = async (params) => {
     const VIEWINGS_PREFIX = `${ROOT}/Просмотры/`;
     const SEASONS_PREFIX = `${ROOT}/Сезоны/`;
     const FRANCHISES_PREFIX = `${ROOT}/Франшизы/`;
-    const CACHE_PATH = `${ROOT}/_system/kino-person-alias-cache.json`;
-    const PERSON_FIELDS = ["Режисер", "Актеры"];
     const ENTITY_FIELDS = ["Режисер", "Актеры", "Жанр"];
 
     const asText = value => {
@@ -432,24 +430,6 @@ module.exports = async (params) => {
         if (missing.length) warnings.push(`Для \`${mediaFile.path}\` пропущены сезоны: **${missing.join(", ")}**.`);
     }
 
-    let cacheNested = 0;
-    const cacheFile = app.vault.getAbstractFileByPath(normalizePath(CACHE_PATH));
-    if (!cacheFile) {
-        warnings.push(`Не найден кэш псевдонимов: \`${CACHE_PATH}\`.`);
-    } else {
-        try {
-            const cache = JSON.parse(await app.vault.read(cacheFile));
-            for (const field of PERSON_FIELDS) {
-                for (const value of Object.values(cache?.[field] || {})) {
-                    if (hasNestedParentheses(value)) cacheNested++;
-                }
-            }
-            if (cacheNested) errors.push(`В кэше псевдонимов найдено вложенных значений: **${cacheNested}**.`);
-        } catch (error) {
-            errors.push(`Кэш псевдонимов не читается: ${error?.message || error}.`);
-        }
-    }
-
     const journalState = async () => {
         const file = app.vault.getAbstractFileByPath(normalizePath(CHANGELOG_PATH));
         if (!file) return "-";
@@ -471,7 +451,6 @@ module.exports = async (params) => {
     info.push(`Записей сезонов: **${seasonFiles.length}**.`);
     info.push(`Страниц франшиз: **${franchiseFiles.length}**, связей с франшизами: **${franchiseLinkCount}**.`);
     info.push(`Шаблонов без названия: **${templates.length}**.`);
-    info.push(`Повреждённых значений в кэше: **${cacheNested}**.`);
     info.push(`Возможных дублей карточек: **${possibleDuplicates.length}**.`);
 
     const renderSection = (title, items, emptyText) => {
@@ -505,7 +484,7 @@ module.exports = async (params) => {
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";
-    report += `- целостность кэша псевдонимов, включая источник ошибки вложенных имён.\n`;
+    report += "- формат имён, скобок, wikilink-ссылок и дублей в карточках.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);
