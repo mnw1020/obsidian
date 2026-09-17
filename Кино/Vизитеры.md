@@ -15,10 +15,10 @@ tags:
 Время: 42 min
 Режисер:
   - "Yves Simoneau (Ив Симоно)"
-  - "Дэвид Баррет"
+  - "Devid Barret (Дэвид Баррет)"
   - "Bryan Spicer (Брайан Спайсер)"
-  - "Фредерик И.О. Туа"
-  - "Дин Уайт"
+  - "Frederik I.O. Tua (Фредерик И.О. Туа)"
+  - "Din Uayt (Дин Уайт)"
 Актеры:
   - "Elizabeth Mitchell (Элизабет Митчелл)"
   - "Morena Baccarin (Морена Баккарин)"

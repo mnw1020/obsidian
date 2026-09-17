@@ -20,7 +20,7 @@ tags:
   - "Jesse Plemons (Джесси Племонс)"
   - "Krysten Ritter (Кристен Риттер)"
   - "Charles Baker (Чарльз Бэйкер)"
-  - "Мэтт Джонс"
+  - "Mett Dzhons (Мэтт Джонс)"
 Описание: Джесси Пинкман сбежал от неонацистов. Не зная, куда ему податься, он скрывается от полиции, похитителей и прошлого. Теперь он должен понять, как ему жить дальше.
 imdb Id: tt9243946
 poster: https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzItOTlkM2MyM2ExM2RlXkEyXkFqcGc@._V1_.jpg

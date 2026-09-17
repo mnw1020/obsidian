@@ -5,9 +5,14 @@ const KINO_PERSON_CANONICAL_OVERRIDES = {
         vitaliygogunskiy: "Vitaly Gogunsky (Виталий Гогунский)",
         vitalygogunsky: "Vitaly Gogunsky (Виталий Гогунский)",
         виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
-        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)"
+        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
+        evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
+        евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)"
     },
-    Режисер: {}
+    Режисер: {
+        mikhailshulaev: "Mikhail Shulaev (Михаил Шулаев)",
+        михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
+    }
 };
 function kinoPersonBaseKey(value) {
     let text = String(value ?? "").trim().normalize("NFC");
@@ -38,7 +43,15 @@ function kinoPersonDisplay(field, value) {
     const key = kinoPersonKey(text);
     const canonical = KINO_PERSON_CANONICAL_OVERRIDES[field]?.[key]
         || KINO_PERSON_ALIASES[field]?.[key] || text;
-    return normalizeKinoPersonDisplay(canonical);
+    const normalized = normalizeKinoPersonDisplay(canonical);
+    if (!normalized || normalized.toUpperCase() === "N/A") return normalized;
+    if (/[а-яё]/i.test(normalized) && !/[a-z]/i.test(normalized)) {
+        const map = { а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"yo", ж:"zh", з:"z", и:"i", й:"y", к:"k", л:"l", м:"m", н:"n", о:"o", п:"p", р:"r", с:"s", т:"t", у:"u", ф:"f", х:"kh", ц:"ts", ч:"ch", ш:"sh", щ:"shch", ъ:"", ы:"y", ь:"", э:"e", ю:"yu", я:"ya" };
+        const english = normalized.toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("")
+            .replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
+        return `${english} (${normalized})`;
+    }
+    return normalized;
 }
 const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
 function entityName(value) {
