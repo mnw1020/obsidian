@@ -98,12 +98,29 @@ module.exports = {
 };
 
 async function addMovie(params, settings) {
+    const progress = new params.obsidian.Notice("Кино: запускаю…", 0);
+    let handedOff = false;
+    try {
+        return await addMovieCore(params, settings, progress, () => { handedOff = true; });
+    } finally {
+        if (!handedOff) progress.hide?.();
+    }
+}
+
+async function addMovieCore(params, settings, progress, handOff) {
     const { app, quickAddApi: qa, obsidian: ob } = params;
+    const status = message => progress?.setMessage?.(`Кино: ${message}`);
+    status("проверяю настройки…");
     await kinoLoadPersonCache(app);
     await kinoLoadImdbKpCache(app);
     const key = String(settings?.[API_KEY_OPTION] || "").trim();
     if (!key) { new ob.Notice("Укажи OMDb API Key в настройках скрипта."); return; }
-    const query = await qa.inputPrompt("Название, IMDb ID или ссылка/ID КП");
+    status("жду IMDb ID, ID КП или название…");
+    const query = await qa.inputPrompt(
+        "IMDb ID, ссылка КП или название",
+        "Лучше всего: tt1234567. Также можно 8690650 или ссылку КП",
+        ""
+    );
     if (!query?.trim()) return;
     const queryText = query.trim();
     const get = (url, values) => getJson(ob, url, values);
@@ -113,25 +130,34 @@ async function addMovie(params, settings) {
     const inputImdbId = extractImdbId(queryText);
     const inputKpId = extractKinopoiskId(queryText);
 
-    if (inputImdbId) movie = await omdb({ i: inputImdbId, plot: "full" });
+    if (inputImdbId) {
+        status(`получаю данные IMDb (${inputImdbId})…`);
+        movie = await omdb({ i: inputImdbId, plot: "full" });
+    }
     else if (inputKpId) {
+        status(`загружаю данные Кинопоиска (${inputKpId})…`);
         kp = await kinopoiskById(get, inputKpId);
         if (!kp) { new ob.Notice("Не удалось получить карточку по ID Кинопоиска."); return; }
-        const imdbInput = await qa.inputPrompt("IMDb ID", "Для объединения данных введи IMDb ID", "");
+        status("жду IMDb ID для объединения данных…");
+        const imdbInput = await qa.inputPrompt("IMDb ID", "Формат: tt1234567", "");
         if (imdbInput == null || !extractImdbId(imdbInput)) {
             new ob.Notice("Нужен корректный IMDb ID формата tt1234567."); return;
         }
         movie = movieFromKinopoisk(kp, extractImdbId(imdbInput));
     } else {
+        status(`ищу фильм в IMDb по названию "${queryText}"…`);
         const result = await omdb({ s: queryText });
         const items = result?.Search || [];
         if (!items.length) {
+            status("IMDb не нашел фильм, жду ID или ссылку КП…");
             const kpId = await askKinopoiskId(qa, "IMDb не нашел фильм. Вставь ссылку или ID Кинопоиска");
             if (kpId === undefined) return;
             if (kpId) {
+                status(`загружаю данные Кинопоиска (${kpId})…`);
                 kp = await kinopoiskById(get, kpId);
                 if (!kp) { new ob.Notice("Не удалось получить карточку по ID Кинопоиска."); return; }
-                const imdbInput = await qa.inputPrompt("IMDb ID", "Для карточки нужен IMDb ID", "");
+                status("жду IMDb ID для объединения данных…");
+                const imdbInput = await qa.inputPrompt("IMDb ID", "Формат: tt1234567", "");
                 if (imdbInput == null || !extractImdbId(imdbInput)) {
                     new ob.Notice("Нужен корректный IMDb ID формата tt1234567."); return;
                 }
@@ -142,10 +168,12 @@ async function addMovie(params, settings) {
         } else {
             const selected = await qa.suggester(items.map(x => `${x.Title} (${x.Year}, ${x.Type})`), items);
             if (!selected) return;
+            status(`загружаю выбранную карточку IMDb (${selected.imdbID})…`);
             movie = await omdb({ i: selected.imdbID, plot: "full" });
         }
     }
     if (!movie || movie.Response === "False" || !/^tt\d{7,12}$/.test(movie.imdbID || "")) {
+        status("IMDb не вернул полную карточку, жду ID или ссылку КП…");
         const kpId = await askKinopoiskId(qa, "IMDb не вернул полную карточку. Вставь ссылку или ID Кинопоиска");
         if (kpId === undefined) return;
         if (!kpId) { new ob.Notice("Проверь IMDb ID или укажи ID Кинопоиска."); return; }
@@ -158,13 +186,19 @@ async function addMovie(params, settings) {
     if (!["movie", "series"].includes(movie.Type)) {
         new ob.Notice("Выбери фильм или сериал целиком, а не отдельный эпизод."); return;
     }
+    status("проверяю, нет ли фильма в кинотеке…");
     const existing = await findMovie(app, ob, movie.imdbID);
     if (existing) { await app.workspace.getLeaf(false).openFile(existing); new ob.Notice("Этот фильм уже есть в кинотеке."); return; }
 
     // Сначала используем сохраненную связь, Wikidata и поиск по названию.
+    status("проверяю связь IMDb с Кинопоиском…");
     const wiki = await wikidata(get, movie.imdbID);
-    if (!kp) kp = await kinopoisk(get, qa, movie, wiki);
+    if (!kp) {
+        status("загружаю данные Кинопоиска…");
+        kp = await kinopoisk(get, qa, movie, wiki);
+    }
     if (kpNeedsManualId(kp)) {
+        status("данные Кинопоиска неполные, жду ID или ссылку КП…");
         const manualKpId = await askKinopoiskId(qa, kp
             ? "Данные КП найдены не полностью. Вставь ссылку или ID правильной карточки КП"
             : "КП не найден. Вставь ссылку или ID карточки КП");
@@ -177,6 +211,7 @@ async function addMovie(params, settings) {
     }
     if (kp?.kp_id) await kinoSaveImdbKpCache(app, movie.imdbID, kp.kp_id);
 
+    status("собираю русское название и описание…");
     let russianTitle = russian(kp?.title) || russian(wiki.title);
     let description = russian(kp?.description) || russian(kp?.overview_ru) || russian(movie.Plot);
     let descriptionSource = description && kp?.kp_id ? `https://movie-planner.ru/f/${kp.kp_id}` : "";
@@ -196,6 +231,7 @@ async function addMovie(params, settings) {
     }
     const title = safeName(russianTitle);
     if (!title) return;
+    status("сопоставляю актеров и режиссера…");
     const franchise = {};
     const yamlNumber = value => number(value) === null ? "null" : String(number(value));
     const linkList = (value, field) => links(value, field).map(x => "\n  - " + JSON.stringify(x)).join("");
@@ -223,7 +259,9 @@ async function addMovie(params, settings) {
         franchiseLink: franchise.path ? `[[${franchise.path.replace(/\.md$/,"")}]]` : "",
         franchisePart: franchise.part ?? ""
     };
-    watchTemplate(params,movie,title,description,franchise);
+    status("создаю карточку из шаблона…");
+    watchTemplate(params,movie,title,description,franchise,progress);
+    handOff?.();
     return true;
 }
 
@@ -237,7 +275,11 @@ function extractKinopoiskId(value) {
     return match?.[1] || "";
 }
 async function askKinopoiskId(qa, prompt) {
-    const input = await qa.inputPrompt("ID Кинопоиска", `${prompt}. Можно оставить пустым`, "");
+    const input = await qa.inputPrompt(
+        "ID Кинопоиска",
+        `${prompt}. Пример: 8690650 или https://www.kinopoisk.ru/series/8690650/. Можно оставить пустым`,
+        ""
+    );
     if (input == null) return undefined;
     return extractKinopoiskId(input);
 }
@@ -5181,7 +5223,7 @@ const CATALOG = {
 // Ожидаем только НОВУЮ карточку выбранного фильма, которую создаёт старый Template.
 // Никаких изменений существующих фильмов и самого шаблона.
 const pendingImports = new WeakMap();
-function watchTemplate(params, movie, title, description, franchise) {
+function watchTemplate(params, movie, title, description, franchise, progress) {
     const {app, obsidian:ob} = params;
     pendingImports.get(app)?.();
     const previousFiles = new Set(app.vault.getMarkdownFiles());
@@ -5197,10 +5239,12 @@ function watchTemplate(params, movie, title, description, franchise) {
         timers.forEach(clearTimeout);
         refs.forEach(ref => app.vault.offref(ref));
         if (pendingImports.get(app) === cleanup) pendingImports.delete(app);
+        progress?.hide?.();
     }
     async function finish(file) {
         if (finished || processing || !created.has(file)) return;
         processing = true;
+        progress?.setMessage?.("Кино: шаблон создан, проверяю карточку…");
         try {
             const original = await app.vault.read(file);
             const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise, normalizeRelease(movie.Released));
@@ -5228,6 +5272,7 @@ function watchTemplate(params, movie, title, description, franchise) {
                     }
                 }
             }
+            progress?.setMessage?.("Кино: карточка добавлена.");
             cleanup();
             queueFranchise(params,movie,file);
         } catch (error) {
