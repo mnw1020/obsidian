@@ -3,6 +3,9 @@ cssclasses:
   - movies-dashboard
 ---
 # 🎬 [[_Кино.base|Кинотека]]  
+
+[[Кино/_system/Проверка кинотеки|🔎 Проверка кинотеки]] · [[Кино/_system/Журнал изменений|📜 Журнал изменений]]
+
 ```dataviewjs
 const all = dv.pages('"Кино"').array();
 
@@ -59,6 +62,7 @@ for (const [icon, label, value] of stats) {
 `button-add-movie` `button-add-viewing` `button-add-season`
 
 `^button-edit-season` `^button-edit-viewing` `^button-rebuild-card`
+`button-kino-audit` `button-kino-safe-fix`
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
 ## 🔁 Перепросмотры
@@ -115,6 +119,22 @@ action QuickAdd: Пересобрать карточку
 color blue
 ```
 ^button-rebuild-card
+
+```button
+name 🔎 Проверка кинотеки
+type command
+action QuickAdd: Кино - Проверить кинотеку
+color blue
+```
+^button-kino-audit
+
+```button
+name 🛠 Исправить безопасное
+type command
+action QuickAdd: Кино - Исправить безопасное
+color gray
+```
+^button-kino-safe-fix
 
 ```button
 name Франшиза

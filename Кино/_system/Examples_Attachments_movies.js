@@ -5039,7 +5039,7 @@ function watchTemplate(params, movie, title, description, franchise) {
         } catch (error) {
             // Карточка уже создана шаблоном. Не запускаем бесконечные записи.
             cleanup();
-            new ob.Notice("Карточка сохранена. Проверь её имя и поле Франшиза.");
+            new ob.Notice("Карточка сохранена. Проверь её имя и поле Франшиза. Затем запусти Кино - Проверить кинотеку.");
         } finally { processing = false; }
     }
     function schedule(file) {
@@ -5128,7 +5128,7 @@ const franchiseJobs = new WeakMap();
 function queueFranchise(params,movie,file) {
     const previous=franchiseJobs.get(params.app)||Promise.resolve();
     const job=previous.catch(()=>{}).then(()=>afterTemplateFranchise(params,movie,file)).catch(()=>{
-        new params.obsidian.Notice('Карточка сохранена. Франшизу можно назначить отдельной командой.');
+        new params.obsidian.Notice('Карточка сохранена. Франшизу можно назначить отдельной командой. Затем запусти Кино - Проверить кинотеку.');
     });
     franchiseJobs.set(params.app,job);
     return job;
