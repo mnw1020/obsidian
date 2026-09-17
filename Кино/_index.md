@@ -109,11 +109,11 @@ hidden true
 ^button-add-season
 
 ```button
-name ✏️ Ред. сезон
+name Сезон
 type command
 action QuickAdd: Редактировать сезон
 color blue
-width 8
+width 5
 height 1
 align center middle
 hidden true
@@ -121,11 +121,11 @@ hidden true
 ^button-edit-season
 
 ```button
-name ✏️ Ред. просмотр
+name Просмотр
 type command
 action QuickAdd: Редактировать просмотр
 color blue
-width 8
+width 5
 height 1
 align center middle
 hidden true
@@ -133,50 +133,26 @@ hidden true
 ^button-edit-viewing
 
 ```button
-name 🔄 Ред. Карту
+name Карту
 type command
 action QuickAdd: Пересобрать карточку
 color blue
-width 8
+width 5
 height 1
 align center middle
 hidden true
 ```
 ^button-rebuild-card
 
+
 ```button
-name 🔎 Проверка кинотеки
-type command
-action QuickAdd: Кино - Проверить кинотеку
-color blue
-width 10
-height 1
-align center middle
-hidden true
-```
-```button
-name Франшиза
+name Франшизу
 type command
 action QuickAdd: Франшиза
 color blue
-width 8
+width 5
 height 1
 align center middle
 hidden true
 ```
 ^button-kino-franshise
-
-
-^button-kino-audit
-
-```button
-name 🛠 Исправить безопасное
-type command
-action QuickAdd: Кино - Исправить безопасное
-color gray
-width 10
-height 1
-align center middle
-hidden true
-```
-^button-kino-safe-fix
