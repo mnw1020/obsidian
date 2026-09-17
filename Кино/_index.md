@@ -61,8 +61,8 @@ for (const [icon, label, value] of stats) {
 ```
 `button-add-movie` `button-add-viewing` `button-add-season`
 
-`^button-edit-season` `^button-edit-viewing` `^button-rebuild-card`
-`button-kino-audit` `button-kino-safe-fix`
+Редактировать `^button-edit-season` `^button-edit-viewing` `^button-rebuild-card` `^button-kino-franshise`
+
 ## 🕐 Последние просмотры
 ![[_Кино.base#Последние]]
 ## 🔁 Перепросмотры
@@ -109,11 +109,11 @@ hidden true
 ^button-add-season
 
 ```button
-name ✏️ Редактировать сезон
+name ✏️ Ред. сезон
 type command
 action QuickAdd: Редактировать сезон
 color blue
-width 10
+width 8
 height 1
 align center middle
 hidden true
@@ -121,11 +121,11 @@ hidden true
 ^button-edit-season
 
 ```button
-name ✏️ Редактировать просмотр
+name ✏️ Ред. просмотр
 type command
 action QuickAdd: Редактировать просмотр
 color blue
-width 10
+width 8
 height 1
 align center middle
 hidden true
@@ -133,11 +133,11 @@ hidden true
 ^button-edit-viewing
 
 ```button
-name 🔄 Обновить
+name 🔄 Ред. Карту
 type command
 action QuickAdd: Пересобрать карточку
 color blue
-width 10
+width 8
 height 1
 align center middle
 hidden true
@@ -154,6 +154,19 @@ height 1
 align center middle
 hidden true
 ```
+```button
+name Франшиза
+type command
+action QuickAdd: Франшиза
+color blue
+width 8
+height 1
+align center middle
+hidden true
+```
+^button-kino-franshise
+
+
 ^button-kino-audit
 
 ```button
@@ -167,15 +180,3 @@ align center middle
 hidden true
 ```
 ^button-kino-safe-fix
-
-```button
-name Франшиза
-type command
-action QuickAdd: Франшиза
-color blue
-width 10
-height 1
-align center middle
-hidden true
-```
-^button-kino-franshise
