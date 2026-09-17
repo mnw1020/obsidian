@@ -101,6 +101,10 @@ name ...сезон
 type command
 action QuickAdd: Добавить сезон
 color gray
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-add-season
 
@@ -109,6 +113,10 @@ name ✏️ Редактировать сезон
 type command
 action QuickAdd: Редактировать сезон
 color blue
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-edit-season
 
@@ -117,6 +125,10 @@ name ✏️ Редактировать просмотр
 type command
 action QuickAdd: Редактировать просмотр
 color blue
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-edit-viewing
 
@@ -125,6 +137,10 @@ name 🔄 Обновить
 type command
 action QuickAdd: Пересобрать карточку
 color blue
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-rebuild-card
 
@@ -133,6 +149,10 @@ name 🔎 Проверка кинотеки
 type command
 action QuickAdd: Кино - Проверить кинотеку
 color blue
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-kino-audit
 
@@ -141,6 +161,10 @@ name 🛠 Исправить безопасное
 type command
 action QuickAdd: Кино - Исправить безопасное
 color gray
+width 10
+height 1
+align center middle
+hidden true
 ```
 ^button-kino-safe-fix
 
@@ -149,4 +173,9 @@ name Франшиза
 type command
 action QuickAdd: Франшиза
 color blue
+width 10
+height 1
+align center middle
+hidden true
 ```
+^button-kino-franshise
