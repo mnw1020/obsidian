@@ -138,6 +138,17 @@ module.exports = async (params) => {
         return Boolean(pair && personBaseKey(pair[1]) === personBaseKey(pair[2]));
     }
 
+    function personFormatIssue(value) {
+        const text = stripWiki(normalizePersonDisplay(value));
+        if (!text || text.toUpperCase() === "N/A") return "";
+        const hasLatin = /[a-z]/i.test(text);
+        const hasCyrillic = /[а-яё]/i.test(text);
+        const hasPair = /^.+?\s*\([^()]+\)$/.test(text);
+        if (hasCyrillic && !hasLatin) return "русское имя без английского варианта";
+        if (hasLatin && hasCyrillic && !hasPair) return "английское и русское имя должны быть в формате `English (Русский)`";
+        return "";
+    }
+
     function dateText(value) {
         const text = asText(value).replace(/^@date:/, "");
         return text;
@@ -282,6 +293,8 @@ module.exports = async (params) => {
                 if (field !== "Жанр") {
                     if (hasNestedParentheses(value)) addError(file, `в \`${field}\` вложенные скобки: \`${value}\`.`);
                     if (hasSameParentheses(value)) addError(file, `в \`${field}\` повторяется имя в скобках: \`${value}\`.`);
+                    const formatIssue = personFormatIssue(value);
+                    if (formatIssue) addError(file, `в \`${field}\`: ${formatIssue}: \`${value}\`.`);
                     if (value.toUpperCase() === "N/A") naDirectors++;
                 }
                 const key = field === "Жанр" ? normalizeText(value) : personKey(value);
@@ -480,7 +493,7 @@ module.exports = async (params) => {
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
     report += `- IMDb ID и повторное использование одного ID;\n`;
-    report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер`, `Актеры`, `Жанр`;\n";
+    report += "- вложенные скобки, повторяющиеся имена, wikilinks, формат `English (Русский)` и дубли в `Режисер`, `Актеры`, `Жанр`;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";

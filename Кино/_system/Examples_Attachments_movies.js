@@ -13,9 +13,14 @@ const KINO_PERSON_CANONICAL_OVERRIDES = {
         vitaliygogunskiy: "Vitaly Gogunsky (Виталий Гогунский)",
         vitalygogunsky: "Vitaly Gogunsky (Виталий Гогунский)",
         виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
-        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)"
+        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
+        evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
+        евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)"
     },
-    Режисер: {}
+    Режисер: {
+        mikhailshulaev: "Mikhail Shulaev (Михаил Шулаев)",
+        михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
+    }
 };
 function kinoPersonBaseKey(value) {
     let text = String(value ?? "").trim().normalize("NFC");
@@ -299,13 +304,39 @@ function number(value) {
     const text = clean(value).replace(/[,\s]/g, "");
     return text && Number.isFinite(Number(text)) ? Number(text) : null;
 }
+function personParts(value) {
+    const text = normalizeKinoPersonDisplay(clean(value));
+    if (!text || text.toUpperCase() === "N/A") return { english: "", russian: "" };
+    const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
+    const values = pair ? [pair[1].trim(), pair[2].trim()] : [text];
+    return {
+        english: values.find(part => /[a-z]/i.test(part) && !/[а-яё]/i.test(part)) || "",
+        russian: values.find(part => /[а-яё]/i.test(part)) || ""
+    };
+}
 function personEnglishName(person) {
-    const values = [person?.name_en, person?.name, person?.name_ru].map(clean).filter(Boolean);
-    return values.find(value => /[a-z]/i.test(value)) || values[0] || "";
+    const values = [
+        typeof person === "string" ? person : "",
+        person?.name_en, person?.english_name, person?.name,
+        person?.name_ru, person?.original_name
+    ].map(clean).filter(Boolean);
+    for (const value of values) {
+        const parts = personParts(value);
+        if (parts.english) return parts.english;
+    }
+    return "";
 }
 function personRussianName(person) {
-    const values = [person?.name_ru, person?.name, person?.name_en].map(clean).filter(Boolean);
-    return values.find(value => /[а-яё]/i.test(value)) || "";
+    const values = [
+        typeof person === "string" ? person : "",
+        person?.name_ru, person?.russian_name, person?.name,
+        person?.name_en, person?.original_name
+    ].map(clean).filter(Boolean);
+    for (const value of values) {
+        const parts = personParts(value);
+        if (parts.russian) return parts.russian;
+    }
+    return "";
 }
 function transliterateRussian(value) {
     const map = {
@@ -315,16 +346,24 @@ function transliterateRussian(value) {
     };
     return String(value || "").toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("");
 }
+function titleCaseTransliteration(value) {
+    return transliterateRussian(value).replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
+}
 function personMatchKeys(value) {
-    const text = String(value || "").replace(/\s*\([^()]*\)\s*$/, "").trim();
-    const plain = text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("ru");
-    const transliterated = transliterateRussian(text);
-    return new Set([
-        plain.replace(/[^0-9a-zа-яё]/gi, "").replace(/ё/g, "е"),
-        transliterated.replace(/[^0-9a-z]/gi, ""),
-        normalizePersonMatchKey(plain),
-        normalizePersonMatchKey(transliterated)
-    ].filter(Boolean));
+    const parts = personParts(value);
+    const candidates = [clean(value), parts.english, parts.russian].filter(Boolean);
+    const keys = new Set();
+    for (const candidate of candidates) {
+        const plain = candidate.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("ru");
+        const transliterated = transliterateRussian(candidate);
+        for (const key of [
+            plain.replace(/[^0-9a-zа-яё]/gi, "").replace(/ё/g, "е"),
+            transliterated.replace(/[^0-9a-z]/gi, ""),
+            normalizePersonMatchKey(plain),
+            normalizePersonMatchKey(transliterated)
+        ]) if (key) keys.add(key);
+    }
+    return keys;
 }
 function samePerson(left, right) {
     const rightKeys = personMatchKeys(right);
@@ -341,13 +380,21 @@ function normalizePersonMatchKey(value) {
         .replace(/ii/g, "y");
 }
 function personPair(english, russian, field) {
-    const canonical = kinoPersonDisplay(field, clean(english));
-    const canonicalPair = canonical.match(/^(.+?)\s*\(([^()]*)\)$/);
-    const en = canonicalPair ? canonicalPair[1].trim() : canonical;
-    const ru = clean(russian) || (canonicalPair && /[А-Яа-яЁё]/.test(canonicalPair[2]) ? canonicalPair[2].trim() : "");
-    if (en && ru && personMatchKeys(en).size && !samePerson(en, ru)) return `${en} (${ru})`;
+    const rawValues = [clean(english), clean(russian)].filter(Boolean);
+    const normalizedValues = rawValues.map(value => kinoPersonDisplay(field, value));
+    const values = [...rawValues, ...normalizedValues];
+    let en = "";
+    let ru = "";
+    for (const value of values) {
+        const parts = personParts(value);
+        if (!en && parts.english) en = parts.english;
+        if (!ru && parts.russian) ru = parts.russian;
+    }
+    if (!en && ru) en = titleCaseTransliteration(ru);
     if (en && ru && en !== ru) return `${en} (${ru})`;
-    return kinoPersonDisplay(field, en || ru);
+    if (en) return en;
+    if (ru) return ru;
+    return rawValues.some(value => value.toUpperCase() === "N/A") ? "N/A" : "";
 }
 function mergedPeople(movieValue, kpPeople, field) {
     const source = Array.isArray(movieValue)
@@ -359,7 +406,7 @@ function mergedPeople(movieValue, kpPeople, field) {
         const kpPerson = kpList.find(person => samePerson(value, personRussianName(person)) || samePerson(value, personEnglishName(person)))
             || (source.length === 1 && kpList.length === 1 ? kpList[0] : null);
         if (kpPerson) return personPair(value, personRussianName(kpPerson), field);
-        return kinoPersonDisplay(field, value);
+        return personPair(value, "", field);
     }).filter(Boolean))];
 }
 function kinoRuntime(movie, kp) {

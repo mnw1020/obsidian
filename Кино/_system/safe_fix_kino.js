@@ -60,12 +60,40 @@ module.exports = async (params) => {
         vitaliygogunskiy: "Vitaly Gogunsky (Виталий Гогунский)",
         vitalygogunsky: "Vitaly Gogunsky (Виталий Гогунский)",
         виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
-        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)"
+        виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
+        evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
+        евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)",
+        mikhailshulaev: "Mikhail Shulaev (Михаил Шулаев)",
+        михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
     };
+
+    function transliterateRussian(value) {
+        const map = {
+            а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo", ж: "zh", з: "z", и: "i", й: "y",
+            к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f",
+            х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya"
+        };
+        return String(value || "").toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("");
+    }
+
+    function titleCaseTransliteration(value) {
+        return transliterateRussian(value).replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
+    }
 
     function canonicalPersonDisplay(value) {
         const normalized = normalizePersonDisplay(value);
-        return PERSON_CANONICAL_OVERRIDES[personBaseKey(normalized)] || normalized;
+        const canonical = PERSON_CANONICAL_OVERRIDES[personBaseKey(normalized)] || normalized;
+        if (!canonical || canonical.toUpperCase() === "N/A") return canonical;
+        const pair = canonical.match(/^(.+?)\s*\(([^()]*)\)$/);
+        if (pair) {
+            const english = /[a-z]/i.test(pair[1]) ? pair[1].trim() : "";
+            const russian = /[а-яё]/i.test(pair[2]) ? pair[2].trim() : "";
+            if (english && russian) return `${english} (${russian})`;
+        }
+        if (/[а-яё]/i.test(canonical) && !/[a-z]/i.test(canonical)) {
+            return `${titleCaseTransliteration(canonical)} (${canonical})`;
+        }
+        return canonical;
     }
 
     function entityKey(field, value) {
