@@ -2,7 +2,7 @@
  * OMDb API Key сохраняется в прежних настройках. Для КП и Wikidata ключи не нужны.
  * Название в YAML остаётся оригинальным; имя файла берётся на русском.
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
- * Актеры и режиссер объединяются в формате English (Русский), если оба имени найдены.
+ * Актеры объединяются в формате English (Русский) - роль из IMDb fullcredits или КП cast.
  */
 const API_KEY_OPTION = "OMDb API Key";
 const ROOT = "Кино";
@@ -15,22 +15,49 @@ const KINO_PERSON_CANONICAL_OVERRIDES = {
         виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
         виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
         evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
-        евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)"
+        евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)",
+        joeystarr: "JoeyStarr (Джои Старр)",
+        джоистарр: "JoeyStarr (Джои Старр)",
+        icecube: "Ice Cube (Айс Кьюб)",
+        айскьюб: "Ice Cube (Айс Кьюб)",
+        methodman: "Method Man (Метод Мэн)",
+        методмэн: "Method Man (Метод Мэн)",
+        vingrhames: "Ving Rhames (Винг Реймз)",
+        вингреймз: "Ving Rhames (Винг Реймз)"
     },
     Режисер: {
+        thomasschnauz: "Thomas Schnauz (Томас Шнауц)",
+        томасшнауц: "Thomas Schnauz (Томас Шнауц)",
+        petergould: "Peter Gould (Питер Гулд)",
+        питергулд: "Peter Gould (Питер Гулд)",
+        michaelmorris: "Michael Morris (Майкл Моррис)",
+        маиклморрис: "Michael Morris (Майкл Моррис)",
+        майклморрис: "Michael Morris (Майкл Моррис)",
+        adambernstein: "Adam Bernstein (Адам Бернштейн)",
+        адамбернштеин: "Adam Bernstein (Адам Бернштейн)",
         mikhailshulaev: "Mikhail Shulaev (Михаил Шулаев)",
         михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
     }
 };
-function kinoPersonBaseKey(value) {
+function kinoPersonRole(value) {
     let text = String(value ?? "").trim().normalize("NFC");
     text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
+    return text.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || "";
+}
+function kinoPersonName(value) {
+    let text = String(value ?? "").trim().normalize("NFC");
+    text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
+    return text.replace(/\s+-\s+.+$/, "").trim();
+}
+function kinoPersonBaseKey(value) {
+    let text = kinoPersonName(value);
     text = text.replace(/\s*\([^()]*\)\s*$/, "");
     return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
         .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
 }
 function normalizeKinoPersonDisplay(value) {
-    let text = String(value ?? "").trim().normalize("NFC");
+    const role = kinoPersonRole(value);
+    let text = kinoPersonName(value);
     for (let i = 0; i < 5; i++) {
         const match = text.match(/^(.+?)\s*\((.*)\)$/);
         if (!match || !match[2].includes("(")) break;
@@ -39,23 +66,26 @@ function normalizeKinoPersonDisplay(value) {
         text = `${match[1].trim()} (${inner})`;
     }
     const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
-    if (pair && kinoPersonBaseKey(pair[1]) === kinoPersonBaseKey(pair[2])) return pair[1].trim();
-    return text;
+    const normalized = pair && kinoPersonBaseKey(pair[1]) === kinoPersonBaseKey(pair[2])
+        ? pair[1].trim() : text;
+    return role && normalized ? `${normalized} - ${role}` : normalized;
 }
 function kinoPersonKey(value) {
     return kinoPersonBaseKey(normalizeKinoPersonDisplay(value));
 }
 function kinoPersonDisplay(field, value) {
-    const text = String(value ?? "").trim().normalize("NFC");
+    const original = String(value ?? "").trim().normalize("NFC");
+    const role = kinoPersonRole(original);
+    const text = kinoPersonName(original);
     if (!text) return "";
     const key = kinoPersonKey(text);
     const canonical = KINO_PERSON_CANONICAL_OVERRIDES[field]?.[key]
         || KINO_PERSON_ALIASES[field]?.[key] || text;
-    return normalizeKinoPersonDisplay(canonical);
+    const normalized = normalizeKinoPersonDisplay(canonical);
+    return role && normalized ? `${normalized} - ${role}` : normalized;
 }
-const ENTITY_LINKS_BLOCK = "<!-- KINO:ENTITY:LINKS:V2 -->\n```dataviewjs\nconst KINO_GENRE_ALIASES = {\"Боевик\":[\"Action\",\"Боевик\"],\"Приключения\":[\"Adventure\",\"Приключения\"],\"Анимация\":[\"Animation\",\"Анимация\",\"Мультфильм\"],\"Биография\":[\"Biography\",\"Биография\"],\"Комедия\":[\"Comedy\",\"Комедия\"],\"Криминал\":[\"Crime\",\"Криминал\"],\"Документальный\":[\"Documentary\",\"Документальный\",\"Документальное\"],\"Драма\":[\"Drama\",\"Драма\"],\"Семейный\":[\"Family\",\"Семейный\"],\"Фэнтези\":[\"Fantasy\",\"Фэнтези\"],\"История\":[\"History\",\"История\"],\"Ужасы\":[\"Horror\",\"Ужасы\"],\"Музыка\":[\"Music\",\"Музыка\"],\"Мюзикл\":[\"Musical\",\"Мюзикл\"],\"Мистика\":[\"Mystery\",\"Мистика\"],\"Мелодрама\":[\"Romance\",\"Мелодрама\"],\"Фантастика\":[\"Sci-Fi\",\"Science Fiction\",\"Фантастика\"],\"Короткометражка\":[\"Short\",\"Short Film\",\"Короткометражка\"],\"Спорт\":[\"Sport\",\"Sports\",\"Спорт\"],\"Триллер\":[\"Thriller\",\"Триллер\"],\"Военный\":[\"War\",\"Военный\"],\"Реалити-шоу\":[\"Reality-TV\",\"Reality TV\",\"Реалити-шоу\"],\"Вестерн\":[\"Western\",\"Вестерн\"]};\nconst KINO_ENTITY_FIELDS = [\n    [\"Режисер\", \"Режиссер\", \"Кино - Открыть режиссера\"],\n    [\"Актеры\", \"Актеры\", \"Кино - Открыть актера\"],\n    [\"Жанр\", \"Жанры\", \"Кино - Открыть жанр\"]\n];\n\nfunction kinoEntityText(value) {\n    return String(value ?? \"\").trim().normalize(\"NFC\");\n}\n\nfunction kinoEntityKey(value) {\n    return kinoEntityText(value).toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\");\n}\n\nfunction kinoCanonicalGenre(value) {\n    const text = kinoEntityText(value);\n    const key = kinoEntityKey(text);\n    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {\n        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;\n    }\n    return text;\n}\n\nfunction kinoValues(value) {\n    return [...new Set((Array.isArray(value) ? value : [value])\n        .map(kinoEntityText).filter(Boolean))];\n}\n\nfunction kinoCanonical(field, value) {\n    return field === \"Жанр\" ? kinoCanonicalGenre(value) : kinoEntityText(value);\n}\n\nfunction kinoUri(choice, value) {\n    return \"obsidian://quickadd?vault=\" + encodeURIComponent(app.vault.getName())\n        + \"&choice=\" + encodeURIComponent(choice)\n        + \"&value-entity=\" + encodeURIComponent(value);\n}\n\nconst kinoRoot = dv.container.createDiv({ cls: \"kino-entity-links\" });\nfor (const [field, label, choice] of KINO_ENTITY_FIELDS) {\n    const groups = new Map();\n    for (const original of kinoValues(dv.current()[field])) {\n        const canonical = kinoCanonical(field, original);\n        const key = kinoEntityKey(canonical);\n        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });\n        groups.get(key).originals.push(original);\n    }\n    const row = kinoRoot.createDiv({ cls: \"kino-entity-links-row\" });\n    row.createEl(\"strong\", { text: label + \": \" });\n    if (!groups.size) {\n        row.appendText(\"Не указано\");\n        continue;\n    }\n    [...groups.values()].forEach((group, index) => {\n        if (index) row.appendText(\" · \");\n        const link = row.createEl(\"a\");\n        link.textContent = group.label;\n        link.href = kinoUri(choice, group.label);\n        if (group.originals.some(original => original !== group.label)) {\n            link.title = \"В YAML: \" + group.originals.join(\" / \");\n        }\n    });\n}\n```";
+const ENTITY_LINKS_BLOCK = "<!-- KINO:ENTITY:LINKS:V2 -->\n```dataviewjs\nconst KINO_GENRE_ALIASES = {\"Боевик\":[\"Action\",\"Боевик\"],\"Приключения\":[\"Adventure\",\"Приключения\"],\"Анимация\":[\"Animation\",\"Анимация\",\"Мультфильм\"],\"Биография\":[\"Biography\",\"Биография\"],\"Комедия\":[\"Comedy\",\"Комедия\"],\"Криминал\":[\"Crime\",\"Криминал\"],\"Документальный\":[\"Documentary\",\"Документальный\",\"Документальное\"],\"Драма\":[\"Drama\",\"Драма\"],\"Семейный\":[\"Family\",\"Семейный\"],\"Фэнтези\":[\"Fantasy\",\"Фэнтези\"],\"История\":[\"History\",\"История\"],\"Ужасы\":[\"Horror\",\"Ужасы\"],\"Музыка\":[\"Music\",\"Музыка\"],\"Мюзикл\":[\"Musical\",\"Мюзикл\"],\"Мистика\":[\"Mystery\",\"Мистика\"],\"Мелодрама\":[\"Romance\",\"Мелодрама\"],\"Фантастика\":[\"Sci-Fi\",\"Science Fiction\",\"Фантастика\"],\"Короткометражка\":[\"Short\",\"Short Film\",\"Короткометражка\"],\"Спорт\":[\"Sport\",\"Sports\",\"Спорт\"],\"Триллер\":[\"Thriller\",\"Триллер\"],\"Военный\":[\"War\",\"Военный\"],\"Реалити-шоу\":[\"Reality-TV\",\"Reality TV\",\"Реалити-шоу\"],\"Вестерн\":[\"Western\",\"Вестерн\"]};\nconst KINO_ENTITY_FIELDS = [\n    [\"Режисер\", \"Режиссер\", \"Кино - Открыть режиссера\"],\n    [\"Актеры\", \"Актеры\", \"Кино - Открыть актера\"],\n    [\"Жанр\", \"Жанры\", \"Кино - Открыть жанр\"]\n];\n\nfunction kinoEntityText(value) {\n    return String(value ?? \"\").trim().normalize(\"NFC\");\n}\n\nfunction kinoPersonName(value) {\n    return kinoEntityText(value).replace(/\\s+-\\s+.+$/, \"\").trim();\n}\n\nfunction kinoEntityKey(value) {\n    return kinoEntityText(value).toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\");\n}\n\nfunction kinoCanonicalGenre(value) {\n    const text = kinoEntityText(value);\n    const key = kinoEntityKey(text);\n    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {\n        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;\n    }\n    return text;\n}\n\nfunction kinoValues(value) {\n    return [...new Set((Array.isArray(value) ? value : [value])\n        .map(kinoEntityText).filter(Boolean))];\n}\n\nfunction kinoCanonical(field, value) {\n    return field === \"Жанр\" ? kinoCanonicalGenre(value) : kinoEntityText(value);\n}\n\nfunction kinoUri(choice, value) {\n    return \"obsidian://quickadd?vault=\" + encodeURIComponent(app.vault.getName())\n        + \"&choice=\" + encodeURIComponent(choice)\n        + \"&value-entity=\" + encodeURIComponent(value);\n}\n\nconst kinoRoot = dv.container.createDiv({ cls: \"kino-entity-links\" });\nfor (const [field, label, choice] of KINO_ENTITY_FIELDS) {\n    const groups = new Map();\n    for (const original of kinoValues(dv.current()[field])) {\n        const canonical = kinoCanonical(field, original);\n        const key = kinoEntityKey(canonical);\n        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });\n        groups.get(key).originals.push(original);\n    }\n    const row = kinoRoot.createDiv({ cls: \"kino-entity-links-row\" });\n    row.createEl(\"strong\", { text: label + \": \" });\n    if (!groups.size) {\n        row.appendText(\"Не указано\");\n        continue;\n    }\n    [...groups.values()].forEach((group, index) => {\n        if (field !== \"Актеры\" && index) row.appendText(\" · \");\n        const target = field === \"Актеры\" ? kinoPersonName(group.label) : group.label;\n        const linkRow = field === \"Актеры\" ? row.createDiv({ cls: \"kino-entity-link-line\" }) : row;\n        const link = linkRow.createEl(\"a\");\n        link.textContent = group.label;\n        link.href = kinoUri(choice, target);\n        if (group.originals.some(original => original !== group.label)) {\n            link.title = \"В YAML: \" + group.originals.join(\" / \");\n        }\n    });\n}\n```";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-const cache = new Map();
 const cooldown = new Map();
 let busy = false;
 
@@ -217,8 +247,14 @@ async function addMovieCore(params, settings, progress, handOff) {
     const franchise = {};
     const yamlNumber = value => number(value) === null ? "null" : String(number(value));
     const linkList = (value, field) => links(value, field).map(x => "\n  - " + JSON.stringify(x)).join("");
-    const actorValues = mergedPeople(movie.Actors, kp?.cast?.actors, "Актеры");
-    const directorValues = mergedPeople(movie.Director, kp?.cast?.director, "Режисер");
+    const currentActors = clean(movie.Actors).split(/\s*,\s*/).map(entityName).filter(Boolean);
+    const credits = await loadActorCredits(ob, movie.imdbID, kp?.kp_id, movie.Type, status, currentActors);
+    const actorValues = mergedPeople(movie.Actors, [
+        kp?.cast?.actors,
+        credits.imdb,
+        credits.kp
+    ], "Актеры");
+    const directorValues = mergedPeople(movie.Director, [kp?.cast?.director], "Режисер");
     params.variables = {
         ...params.variables, ...movie,
         Released: normalizeRelease(movie.Released),
@@ -242,7 +278,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         franchisePart: franchise.part ?? ""
     };
     status("создаю карточку из шаблона…");
-    watchTemplate(params,movie,title,description,franchise,progress);
+    watchTemplate(params,movie,title,description,franchise,progress,kp?.kp_id || "");
     handOff?.();
     return true;
 }
@@ -271,7 +307,6 @@ function kpNeedsManualId(kp) {
         || !russian(kp.description || kp.overview_ru)
         || number(kp.rating_kp) === null
         || number(kp.rating_kp_votes) === null
-        || !kp.cast?.actors?.length
         || !kp.cast?.director;
 }
 function movieFromKinopoisk(kp, imdbId) {
@@ -288,7 +323,9 @@ function movieFromKinopoisk(kp, imdbId) {
         Runtime: kinoRuntime({}, kp) || "N/A",
         Genre: clean(kp?.genres),
         Director: personEnglishName(director),
-        Actors: actors.map(personEnglishName).filter(Boolean).join(", "),
+        Actors: actors.map(person => personPair(
+            personEnglishName(person), personRussianName(person), "Актеры", personRole(person)
+        )).filter(Boolean).join(", "),
         Plot: clean(kp?.overview_en) || clean(kp?.description),
         Language: "Russian",
         Country: clean(kp?.country),
@@ -304,8 +341,36 @@ function number(value) {
     const text = clean(value).replace(/[,\s]/g, "");
     return text && Number.isFinite(Number(text)) ? Number(text) : null;
 }
+function cleanRole(value) {
+    if (value === null || value === undefined || value === "") return "";
+    if (Array.isArray(value)) {
+        return [...new Set(value.map(cleanRole).filter(Boolean))].join(" / ");
+    }
+    if (typeof value === "object") {
+        for (const key of ["name_ru", "name", "title_ru", "title", "value", "role", "character", "character_name", "characterName"]) {
+            const result = cleanRole(value[key]);
+            if (result) return result;
+        }
+        return "";
+    }
+    const text = clean(value).replace(/^['"]|['"]$/g, "").trim();
+    if (!text || /^(actor|actress|актёр|актер|актриса)$/i.test(text)) return "";
+    return text;
+}
+function personRole(person) {
+    if (typeof person === "string") return kinoPersonRole(person);
+    if (!person || typeof person !== "object") return "";
+    for (const key of [
+        "role", "character", "character_name", "characterName", "role_name", "roleName",
+        "characters", "roles", "played_as", "playedAs"
+    ]) {
+        const result = cleanRole(person[key]);
+        if (result) return result;
+    }
+    return "";
+}
 function personParts(value) {
-    const text = normalizeKinoPersonDisplay(clean(value));
+    const text = normalizeKinoPersonDisplay(kinoPersonName(clean(value)));
     if (!text || text.toUpperCase() === "N/A") return { english: "", russian: "" };
     const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
     const values = pair ? [pair[1].trim(), pair[2].trim()] : [text];
@@ -379,10 +444,13 @@ function normalizePersonMatchKey(value) {
         .replace(/iy/g, "y")
         .replace(/ii/g, "y");
 }
-function personPair(english, russian, field) {
+function personPair(english, russian, field, role = "") {
     const rawValues = [clean(english), clean(russian)].filter(Boolean);
+    const normalizedRole = cleanRole(role) || personRole(english) || personRole(russian);
     const normalizedValues = rawValues.map(value => kinoPersonDisplay(field, value));
-    const values = [...rawValues, ...normalizedValues];
+    // Сначала берём канонический вариант: так Vitaliy Gogunskiy не вернётся
+    // обратно поверх заданного Vitaly Gogunsky.
+    const values = [...normalizedValues, ...rawValues];
     let en = "";
     let ru = "";
     for (const value of values) {
@@ -391,22 +459,35 @@ function personPair(english, russian, field) {
         if (!ru && parts.russian) ru = parts.russian;
     }
     if (!en && ru) en = titleCaseTransliteration(ru);
-    if (en && ru && en !== ru) return `${en} (${ru})`;
-    if (en) return en;
-    if (ru) return ru;
-    return rawValues.some(value => value.toUpperCase() === "N/A") ? "N/A" : "";
+    let result = "";
+    if (en && ru && en !== ru) result = `${en} (${ru})`;
+    else if (en) result = en;
+    else if (ru) result = ru;
+    else result = rawValues.some(value => value.toUpperCase() === "N/A") ? "N/A" : "";
+    return normalizedRole && result && result.toUpperCase() !== "N/A"
+        ? `${result} - ${normalizedRole}` : result;
 }
-function mergedPeople(movieValue, kpPeople, field) {
+function mergedPeople(movieValue, peopleSources, field) {
     const source = Array.isArray(movieValue)
-        ? movieValue.map(entityName).filter(Boolean)
+        ? movieValue.map(value => typeof value === "object"
+            ? personEnglishName(value) || personRussianName(value) : entityName(value)).filter(Boolean)
         : clean(movieValue).split(",").map(entityName).filter(Boolean);
-    const kpList = Array.isArray(kpPeople) ? kpPeople : kpPeople ? [kpPeople] : [];
-    if (!source.length) return kpList.map(person => personPair(personEnglishName(person), personRussianName(person), field)).filter(Boolean);
+    const kpList = (Array.isArray(peopleSources) ? peopleSources : [peopleSources])
+        .flatMap(source => Array.isArray(source) ? source : source ? [source] : []);
+    if (!source.length) return kpList.map(person => personPair(
+        personEnglishName(person), personRussianName(person), field,
+        field === "Актеры" ? personRole(person) : ""
+    )).filter(Boolean);
     return [...new Set(source.map(value => {
-        const kpPerson = kpList.find(person => samePerson(value, personRussianName(person)) || samePerson(value, personEnglishName(person)))
-            || (source.length === 1 && kpList.length === 1 ? kpList[0] : null);
-        if (kpPerson) return personPair(value, personRussianName(kpPerson), field);
-        return personPair(value, "", field);
+        const matches = kpList.filter(person => samePerson(value, personRussianName(person))
+            || samePerson(value, personEnglishName(person)));
+        if (!matches.length && source.length === 1 && kpList.length === 1) matches.push(kpList[0]);
+        const english = matches.map(personEnglishName).find(Boolean) || personEnglishName(value) || value;
+        const russian = matches.map(personRussianName).find(Boolean) || personRussianName(value);
+        const role = field === "Актеры"
+            ? matches.map(personRole).find(Boolean) || personRole(value)
+            : "";
+        return personPair(english, russian, field, role);
     }).filter(Boolean))];
 }
 function kinoRuntime(movie, kp) {
@@ -481,8 +562,6 @@ async function askDate(qa) {
 async function getJson(ob, base, params = {}) {
     const url = new URL(base);
     Object.entries(params).forEach(([key,value]) => url.searchParams.set(key,String(value)));
-    const cached = cache.get(url.href);
-    if (cached && cached.expires > Date.now()) return cached.data;
     const host = url.host;
     if ((cooldown.get(host) || 0) - Date.now() > 15000) return null;
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -505,12 +584,256 @@ async function getJson(ob, base, params = {}) {
             if (response.status !== 200) return null;
             const data = response.json;
             if (data?.Response === "False" || data?.error) return null;
-            cache.set(url.href,{data,expires:Date.now()+300000});
             return data;
         } catch { cooldown.set(host,Date.now()+2500); return null; }
         finally { clearTimeout(timer); }
     }
     return null;
+}
+
+async function getText(ob, url, headers = {}) {
+    const parsed = new URL(url);
+    const host = parsed.host;
+    if ((cooldown.get(host) || 0) - Date.now() > 15000) return "";
+    for (let attempt = 0; attempt < 2; attempt++) {
+        await sleep(Math.max(0, (cooldown.get(host) || 0) - Date.now()));
+        cooldown.set(host, Date.now() + 1200);
+        let timer;
+        try {
+            const response = await Promise.race([
+                ob.requestUrl({
+                    url,
+                    method: "GET",
+                    throw: false,
+                    headers: {
+                        Accept: "text/html,application/xhtml+xml",
+                        "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+                        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36",
+                        ...headers
+                    }
+                }),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 20000); })
+            ]);
+            if ([429, 503].includes(response.status)) {
+                cooldown.set(host, Date.now() + 5000);
+                if (attempt === 0) continue;
+                return "";
+            }
+            if (response.status !== 200) return "";
+            return String(response.text || "");
+        } catch {
+            cooldown.set(host, Date.now() + 2500);
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+    return "";
+}
+
+function decodeHtml(value) {
+    return String(value ?? "")
+        .replace(/&#(x[0-9a-f]+|[0-9]+);/gi, (_, code) => {
+            const number = code[0].toLowerCase() === "x"
+                ? parseInt(code.slice(1), 16) : parseInt(code, 10);
+            return Number.isFinite(number) ? String.fromCodePoint(number) : _;
+        })
+        .replace(/&nbsp;/gi, " ")
+        .replace(/&quot;/gi, '"')
+        .replace(/&apos;|&#39;/gi, "'")
+        .replace(/&amp;/gi, "&")
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">");
+}
+
+function htmlPlain(value) {
+    return decodeHtml(String(value ?? "")
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+        .replace(/<br\s*\/?\s*>/gi, "\n")
+        .replace(/<\/(?:div|p|li|tr|section|article|h[1-6]|dd|dt)>/gi, "\n")
+        .replace(/<[^>]+>/g, " "))
+        .replace(/[ \t]+/g, " ")
+        .replace(/\n[ \t]+/g, "\n")
+        .trim();
+}
+
+function valueText(value) {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "string" || typeof value === "number") return String(value).trim();
+    if (Array.isArray(value)) return value.map(valueText).filter(Boolean).join(" / ");
+    if (typeof value === "object") {
+        for (const key of ["text", "value", "name", "displayName", "label", "title"]) {
+            const text = valueText(value[key]);
+            if (text) return text;
+        }
+    }
+    return "";
+}
+
+function creditRoleText(value) {
+    const text = valueText(value).replace(/^['"]|['"]$/g, "").replace(/\s+/g, " ").trim();
+    if (!text || /^(actor|actress|cast|act[её]р|актриса)$/i.test(text)) return "";
+    if (/^(режиссёр|режиссер|director|producer|продюсер|writer|сценарист|оператор|cinematographer|монтажёр|монтажер|editor)$/i.test(text)
+        || /(?:режисс[её]р|продюсер|сценарист|оператор|монтаж[её]р|художник|композитор|костюм|грим|director|producer|writer|cinematographer|editor)/i.test(text)) return "";
+    return text;
+}
+
+function creditNameParts(node, source) {
+    const values = [];
+    const add = value => {
+        const text = valueText(value);
+        if (text && !values.includes(text)) values.push(text);
+    };
+    if (typeof node === "string") add(node);
+    else if (node && typeof node === "object") {
+        const keys = source === "kp"
+            ? ["name_ru", "russian_name", "name", "displayName", "title"]
+            : ["name_en", "english_name", "original_name", "name", "displayName", "title"];
+        keys.forEach(key => add(node[key]));
+        if (node.nameText) add(node.nameText);
+        if (node.name && typeof node.name === "object") {
+            add(node.name.nameText);
+            add(node.name.displayName);
+            add(node.name.text);
+        }
+    }
+    const english = values.find(value => /[a-z]/i.test(value) && !/[а-яё]/i.test(value)) || "";
+    const russian = values.find(value => /[а-яё]/i.test(value)) || "";
+    return { english, russian, values };
+}
+
+function collectJsonCredits(node, source, result = [], seen = new WeakSet()) {
+    if (!node || typeof node !== "object") return result;
+    if (seen.has(node)) return result;
+    seen.add(node);
+    if (Array.isArray(node)) {
+        node.forEach(item => collectJsonCredits(item, source, result, seen));
+        return result;
+    }
+    const role = creditRoleText(node.characters || node.character || node.role || node.roleName
+        || node.character_name || node.characterName || node.roles || node.charactersText);
+    const nestedPerson = node.person || node.actor || node.personInfo || node.castMember;
+    const directNames = creditNameParts(node, source);
+    const nestedNames = creditNameParts(nestedPerson, source);
+    const names = {
+        english: directNames.english || nestedNames.english,
+        russian: directNames.russian || nestedNames.russian
+    };
+    if (role && (names.english || names.russian) && (node.id || node.nconst || node.href || node.url
+        || node.personId || node.kinopoiskId || node.name || node.nameText || nestedPerson)) {
+        result.push({ name_en: names.english, name_ru: names.russian, role });
+    }
+    Object.values(node).forEach(value => collectJsonCredits(value, source, result, seen));
+    return result;
+}
+
+function parseEmbeddedCredits(html, source) {
+    const result = [];
+    const scripts = String(html || "").matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi);
+    for (const match of scripts) {
+        const attrs = match[1] || "";
+        const body = match[2].trim();
+        if (!/application\/json|__NEXT_DATA__|initial/i.test(attrs + body.slice(0, 80))) continue;
+        try {
+            const parsed = JSON.parse(body.replace(/^<!--|-->$/g, "").trim());
+            collectJsonCredits(parsed, source, result);
+        } catch { /* На странице может быть несколько служебных JSON-блоков. */ }
+    }
+    return result;
+}
+
+function roleFromCreditChunk(chunk) {
+    const roleElements = /<([a-z0-9]+)\b[^>]*(?:class|data-testid|data-qa)=['"][^'"]*(?:role|character|acting|characters)[^'"]*['"][^>]*>([\s\S]*?)<\/\1>/gi;
+    for (const match of String(chunk || "").matchAll(roleElements)) {
+        const role = creditRoleText(htmlPlain(match[2]));
+        if (role) return role;
+    }
+    const plain = htmlPlain(chunk);
+    const asRole = plain.match(/\bas\s+([^\n|·]{1,120})/i)?.[1];
+    if (asRole && creditRoleText(asRole)) return creditRoleText(asRole);
+    const ellipsis = plain.match(/(?:\.\.\.|…)[ \t]*([^\n]{1,120})/);
+    if (ellipsis && creditRoleText(ellipsis[1])) return creditRoleText(ellipsis[1]);
+    return "";
+}
+
+function parseAnchorCredits(html, source) {
+    const result = [];
+    const links = [...String(html || "").matchAll(/<a\b[^>]*href=['"][^'"]*\/name\/(?:nm)?\d+[^'"]*['"][^>]*>([\s\S]*?)<\/a>/gi)];
+    links.forEach((match, index) => {
+        const name = htmlPlain(match[1]);
+        const next = links[index + 1]?.index ?? Math.min(String(html).length, (match.index || 0) + 2400);
+        const chunk = String(html).slice(match.index || 0, next);
+        const role = roleFromCreditChunk(chunk);
+        if (!role || !name || name.length > 120) return;
+        const parts = source === "kp" ? { name_en: "", name_ru: name } : { name_en: name, name_ru: "" };
+        result.push({ ...parts, role });
+    });
+    return result;
+}
+
+function uniqueCredits(values) {
+    const map = new Map();
+    for (const value of values || []) {
+        const role = creditRoleText(value?.role);
+        const names = creditNameParts(value, "mixed");
+        const english = value?.name_en || names.english;
+        const russian = value?.name_ru || names.russian;
+        if (!role || !(english || russian)) continue;
+        const nameKey = [...personMatchKeys(english || russian)][0] || normalizePersonMatchKey(english || russian);
+        const key = `${nameKey}|${role.toLocaleLowerCase("ru")}`;
+        const previous = map.get(key);
+        map.set(key, {
+            name_en: previous?.name_en || english || "",
+            name_ru: previous?.name_ru || russian || "",
+            role
+        });
+    }
+    return [...map.values()];
+}
+
+function parseCreditPage(html, source) {
+    return uniqueCredits([
+        ...parseEmbeddedCredits(html, source),
+        ...parseAnchorCredits(html, source)
+    ]);
+}
+
+async function imdbCredits(ob, imdbId) {
+    const id = extractImdbId(imdbId);
+    if (!id) return [];
+    const html = await getText(ob, `https://www.imdb.com/title/${id}/fullcredits/`, {
+        Referer: `https://www.imdb.com/title/${id}/`
+    });
+    return parseCreditPage(html, "imdb");
+}
+
+async function kinopoiskCredits(ob, kpId, type) {
+    const id = String(kpId || "").match(/^\d{4,12}$/)?.[0] || "";
+    if (!id) return [];
+    const paths = type === "series" ? ["series", "film"] : ["film", "series"];
+    for (const path of paths) {
+        const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${id}/cast/`, {
+            Referer: `https://www.kinopoisk.ru/${path}/${id}/`
+        });
+        const credits = parseCreditPage(html, "kp");
+        if (credits.length) return credits;
+    }
+    return [];
+}
+
+async function loadActorCredits(ob, imdbId, kpId, type, status, currentActors = []) {
+    status?.("получаю роли актёров из IMDb…");
+    const imdb = await imdbCredits(ob, imdbId);
+    const kpCast = [];
+    const complete = currentActors.length > 0 && currentActors.every(actor =>
+        imdb.some(person => person.role && (samePerson(actor, personEnglishName(person))
+            || samePerson(actor, personRussianName(person)))));
+    if (complete) return { imdb, kp: kpCast };
+    if (kpId) {
+        status?.("в IMDb роли не найдены, проверяю Кинопоиск…");
+        kpCast.push(...await kinopoiskCredits(ob, kpId, type));
+    }
+    return { imdb, kp: kpCast };
 }
 
 async function wikidata(get, id) {
@@ -5257,7 +5580,7 @@ const CATALOG = {
 // Ожидаем только НОВУЮ карточку выбранного фильма, которую создаёт старый Template.
 // Никаких изменений существующих фильмов и самого шаблона.
 const pendingImports = new WeakMap();
-function watchTemplate(params, movie, title, description, franchise, progress) {
+function watchTemplate(params, movie, title, description, franchise, progress, kinopoiskId) {
     const {app, obsidian:ob} = params;
     pendingImports.get(app)?.();
     const previousFiles = new Set(app.vault.getMarkdownFiles());
@@ -5281,7 +5604,8 @@ function watchTemplate(params, movie, title, description, franchise, progress) {
         progress?.setMessage?.("Кино: шаблон создан, проверяю карточку…");
         try {
             const original = await app.vault.read(file);
-            const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise, normalizeRelease(movie.Released));
+            const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise,
+                normalizeRelease(movie.Released), kinopoiskId);
             if (replacement === null) return;
             // Перепроверяем путь: исходный файл обязан находиться среди созданных этим ожиданием.
             if (app.vault.getAbstractFileByPath(file.path) !== file) return;
@@ -5332,7 +5656,7 @@ function watchTemplate(params, movie, title, description, franchise, progress) {
     return cleanup;
 }
 
-function patchTemplate(raw, ob, id, description, franchise, releaseDate) {
+function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoiskId) {
     const match = raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return null;
     let yaml = match[2];
@@ -5346,6 +5670,7 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate) {
         yaml = expression.test(yaml) ? yaml.replace(expression,()=>line) : yaml.trimEnd()+newline+line;
     }
     set('Описание',description);
+    if (/^\d{4,12}$/.test(String(kinopoiskId || ""))) set('Кинопоиск ID', String(kinopoiskId));
     let fm;
     try { fm=ob.parseYaml(yaml); } catch { return null; }
     if (String(fm?.['imdb Id']) !== id) return null;
