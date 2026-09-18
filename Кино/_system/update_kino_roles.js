@@ -8,6 +8,12 @@ const API = "https://movie-planner.ru/api/public";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let nextRequestAt = 0;
 
+// Резервные связи IMDb -> КП для карточек, где старое поле КП ещё не записано.
+// Они используются только после попытки IMDb и не меняют приоритет источников ролей.
+const KNOWN_KP_BY_IMDB = {
+    tt6210996: "1008203"
+};
+
 module.exports = async function updateKinoRoles(params) {
     const { app, obsidian: ob } = params;
     const files = app.vault.getMarkdownFiles()
@@ -219,6 +225,7 @@ async function getText(ob, url, headers = {}) {
 async function findKpId(ob, fm, file) {
     const imdbId = extractImdbId(fm["imdb Id"]);
     if (!imdbId) return "";
+    if (KNOWN_KP_BY_IMDB[imdbId]) return KNOWN_KP_BY_IMDB[imdbId];
     const directSearch = await getJson(ob, `${API}/search`, { q: imdbId, limit: 24, person_limit: 0 });
     const exact = (directSearch?.items || []).filter(item => extractImdbId(item.imdb_id || item.imdbID) === imdbId);
     const exactIds = [...new Set(exact.map(item => String(item.kp_id || "")).filter(Boolean))];
@@ -316,6 +323,7 @@ function splitBilingualText(value) {
 function roleText(value) {
     const text = valueText(value).replace(/^['"]|['"]$/g, "").replace(/\s+/g, " ").trim();
     const cleaned = text
+        .replace(/^(?:as|в роли)\s+/i, "")
         .replace(/\s*,\s*\$[\d\s.,]+.*$/i, "")
         .replace(/\s+\d+\.\s*$/, "")
         .trim();
@@ -352,6 +360,14 @@ function transliterateEnglishToRussian(value) {
 function roleRussianFromEnglish(value) {
     const text = roleText(value);
     if (!text || /[а-яё]/i.test(text) && !/[a-z]/i.test(text)) return text;
+    const exact = {
+        cathy: "Кэти",
+        lewis: "Льюис",
+        dennis: "Деннис",
+        jen: "Джен",
+        jarrod: "Джаррод"
+    }[text.toLocaleLowerCase("en")];
+    if (exact) return exact;
     const phrases = [
         ["scenes deleted", "сцены вырезаны"], ["uncredited", "в титрах не указан"],
         ["himself", "самого себя"], ["herself", "саму себя"], ["themselves", "самих себя"],
