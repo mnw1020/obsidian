@@ -92,6 +92,80 @@ function waitForKinoSelection(app, file, expected) {
     });
 }
 
+const FIXED_PAGE_TEXT = PAGE_TEXT.replace(
+    /function kinoPersonDisplay\(value\) \{[\s\S]*?\n\}\nconst selected = kinoPersonDisplay\(dv\.current\(\)\["Выбрано"\] \|\| ""\);/,
+    `const KINO_PERSON_CANONICAL_OVERRIDES = {
+    vitaliygogunskiy: "Vitaly Gogunsky (Виталий Гогунский)",
+    vitalygogunsky: "Vitaly Gogunsky (Виталий Гогунский)",
+    виталийгогунский: "Vitaly Gogunsky (Виталий Гогунский)",
+    виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
+    evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
+    евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)"
+};
+function kinoPersonParts(value) {
+    const text = kinoPersonName(value);
+    const pair = text.match(/^(.+?)\\s*\\(([^()]*)\\)$/);
+    const values = pair ? [pair[1].trim(), pair[2].trim()] : [text];
+    return {
+        english: values.find(part => /[a-z]/i.test(part) && !/[а-яё]/i.test(part)) || "",
+        russian: values.find(part => /[а-яё]/i.test(part)) || ""
+    };
+}
+function kinoPersonKey(value) {
+    let text = kinoPersonName(value).replace(/\\s*\\([^)]*\\)\\s*$/, "");
+    return text.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+        .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "")
+        .replace(/iy/g, "y").replace(/ii/g, "y");
+}
+function kinoTransliterate(value) {
+    const map = { а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"yo", ж:"zh", з:"z", и:"i", й:"y", к:"k", л:"l", м:"m", н:"n", о:"o", п:"p", р:"r", с:"s", т:"t", у:"u", ф:"f", х:"kh", ц:"ts", ч:"ch", ш:"sh", щ:"shch", ъ:"", ы:"y", ь:"", э:"e", ю:"yu", я:"ya" };
+    return String(value || "").toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("");
+}
+function kinoPersonMatchKeys(value) {
+    const parts = kinoPersonParts(value);
+    const candidates = [value, parts.english, parts.russian].filter(Boolean);
+    const keys = new Set();
+    for (const candidate of candidates) {
+        const plain = String(candidate).normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+            .toLocaleLowerCase("ru");
+        [plain.replace(/[^0-9a-zа-яё]/gi, "").replace(/ё/g, "е"),
+            kinoTransliterate(candidate).replace(/[^0-9a-z]/gi, ""), kinoPersonKey(candidate)]
+            .filter(Boolean).forEach(key => keys.add(key));
+    }
+    return keys;
+}
+function kinoSamePerson(left, right) {
+    const leftKeys = kinoPersonMatchKeys(left);
+    const rightKeys = kinoPersonMatchKeys(right);
+    return [...leftKeys].some(key => rightKeys.has(key));
+}
+function kinoPersonDisplay(value) {
+    const text = kinoPersonName(value);
+    if (!text) return "";
+    const key = kinoPersonKey(text);
+    return KINO_PERSON_CANONICAL_OVERRIDES[key]
+        || KINO_PERSON_ALIASES["Актеры"]?.[key] || text;
+}
+const selectedValue = dv.current()["Выбрано"] || "";
+const selected = kinoPersonDisplay(selectedValue);`
+).replace(
+    'return values.some(value => kinoPersonDisplay(value) === selected);',
+    'return values.some(value => kinoSamePerson(value, selectedValue));'
+);
+const FINAL_PAGE_TEXT = FIXED_PAGE_TEXT
+    .replace(
+        /(\n    dv\.paragraph\("Произведений:[\s\S]*?;\n)(\}\n```)/,
+        `$1    dv.table(["Произведение", "Тип", "Релиз", "Моя оценка", "IMDb", "Франшиза"], rows.map(p => [
+        p.file.link,
+        p.file.tags?.includes("#serial") ? "Сериал" : "Фильм",
+        p["Релиз"] || "",
+        p["Оценка"] || "",
+        p["Оценка Imdb"] || "",
+        p["Франшиза"] || ""
+    ]));\n$2`
+    )
+    .replace(/\n```base[\s\S]*$/, "");
+
 async function refreshKinoSelection(app, file, selected) {
     await waitForKinoSelection(app, file, selected);
     const leaf = app.workspace.getLeaf(false);
@@ -197,7 +271,7 @@ module.exports=async function openEntity(params) {
     selected=kinoPersonDisplay(FIELD, selected);
     if(!selected)return;
     let file=app.vault.getAbstractFileByPath(PAGE);
-    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT);}
+    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,FINAL_PAGE_TEXT);}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
     await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
     await refreshKinoSelection(app, file, selected);

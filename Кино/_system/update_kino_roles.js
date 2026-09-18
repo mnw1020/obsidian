@@ -1,5 +1,5 @@
 // QuickAdd: Кино - обновить роли актёров.
-// Порядок источников: IMDb fullcredits, затем КП cast, если IMDb не дал роли.
+// Порядок источников: IMDb fullcredits, затем КП cast, если IMDb не дал все роли.
 // Постоянного HTTP-кэша нет. Уже записанные значения не заменяются пустыми ответами.
 
 const ROOT = "Кино";
@@ -22,6 +22,7 @@ module.exports = async function updateKinoRoles(params) {
     let skipped = 0;
     let failed = 0;
     let noRoleSource = 0;
+    const noRoleFiles = [];
 
     try {
         for (const file of files) {
@@ -30,7 +31,10 @@ module.exports = async function updateKinoRoles(params) {
             const imdbId = extractImdbId(fm["imdb Id"]);
             const actorValue = fm.Актеры;
             const actors = splitPeople(actorValue).map(entityName).filter(Boolean);
-            notice.setMessage?.(`Кино: ${processed}/${files.length} - ${file.basename}`);
+            const progress = stage => notice.setMessage?.(
+                `Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`
+            );
+            progress("подготовка");
             if (!actors.length) {
                 skipped++;
                 continue;
@@ -38,6 +42,7 @@ module.exports = async function updateKinoRoles(params) {
 
             try {
                 const type = tagsOf(fm).includes("serial") ? "series" : "movie";
+                progress("IMDb fullcredits");
                 const imdb = imdbId ? await getImdbCredits(ob, imdbId) : [];
                 if (imdb.length) imdbSources++;
 
@@ -48,11 +53,21 @@ module.exports = async function updateKinoRoles(params) {
                     imdb.some(person => person.role && (samePerson(actor, personEnglish(person))
                         || samePerson(actor, personRussian(person)))));
                 if (!imdbComplete) {
-                    if (!kpId) kpId = await findKpId(ob, fm, file);
+                    if (!kpId) {
+                        progress("поиск ID Кинопоиска");
+                        kpId = await findKpId(ob, fm, file);
+                    }
                     if (kpId) {
+                        progress("Кинопоиск: детали и роли");
                         kpDetails = await getKpDetails(ob, kpId);
                         kp = normalizeCredits(kpDetails?.cast?.actors || [], "kp");
-                        if (!kp.some(person => person.role)) {
+                        // API КП иногда возвращает только часть актёров или роли без
+                        // нескольких персонажей. В таком случае нужен полный /cast/.
+                        const kpComplete = actors.length > 0 && actors.every(actor =>
+                            kp.some(person => person.role && (samePerson(actor, personEnglish(person))
+                                || samePerson(actor, personRussian(person)))));
+                        if (!kpComplete) {
+                            progress("Кинопоиск: полный cast");
                             const direct = await getKinopoiskCredits(ob, kpId, type);
                             kp = uniqueCredits([...kp, ...direct]);
                         }
@@ -64,12 +79,14 @@ module.exports = async function updateKinoRoles(params) {
                 foundRoles += result.roles;
                 if (!result.values.length) {
                     skipped++;
+                    noRoleFiles.push(file.basename);
                     continue;
                 }
                 const nextValue = Array.isArray(actorValue) ? result.values : result.values.join(", ");
                 const hasNewKpId = Boolean(kpId && !explicitKpId(fm));
                 if (JSON.stringify(nextValue) === JSON.stringify(actorValue) && !hasNewKpId) {
                     if (!result.roles) noRoleSource++;
+                    if (!result.roles) noRoleFiles.push(file.basename);
                     continue;
                 }
                 await app.fileManager.processFrontMatter(file, frontmatter => {
@@ -79,6 +96,7 @@ module.exports = async function updateKinoRoles(params) {
                 changed++;
                 if (result.roles) continue;
                 noRoleSource++;
+                noRoleFiles.push(file.basename);
             } catch (error) {
                 failed++;
                 console.warn("Кино: не удалось получить роли", file.path, error);
@@ -88,8 +106,11 @@ module.exports = async function updateKinoRoles(params) {
         notice.hide?.();
     }
 
+    const unresolved = noRoleFiles.length
+        ? ` Не найдены: ${noRoleFiles.slice(0, 5).join(", ")}${noRoleFiles.length > 5 ? "…" : ""}.`
+        : "";
     new ob.Notice(
-        `Роли актёров: обработано ${processed}, изменено ${changed}, добавлено ролей ${foundRoles}, IMDb ${imdbSources}, КП ${kpSources}, без ролей ${noRoleSource}, пропущено ${skipped}, ошибок ${failed}.`,
+        `Роли актёров: обработано ${processed}, изменено ${changed}, добавлено ролей ${foundRoles}, IMDb ${imdbSources}, КП ${kpSources}, без ролей ${noRoleSource}, пропущено ${skipped}, ошибок ${failed}.${unresolved}`,
         15000
     );
 };
@@ -149,7 +170,7 @@ function explicitKpId(fm) {
     return "";
 }
 
-async function request(ob, url, accept) {
+async function request(ob, url, accept, headers = {}) {
     for (let attempt = 0; attempt < 2; attempt++) {
         await sleep(Math.max(0, nextRequestAt - Date.now()));
         nextRequestAt = Date.now() + 900;
@@ -163,7 +184,8 @@ async function request(ob, url, accept) {
                     headers: {
                         Accept: accept,
                         "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
-                        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36"
+                        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36",
+                        ...headers
                     }
                 }),
                 new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 20000); })
@@ -189,8 +211,8 @@ async function getJson(ob, base, params = {}) {
     return request(ob, url.href, "application/json");
 }
 
-async function getText(ob, url) {
-    return request(ob, url, "text/html,application/xhtml+xml");
+async function getText(ob, url, headers = {}) {
+    return request(ob, url, "text/html,application/xhtml+xml", headers);
 }
 
 async function findKpId(ob, fm, file) {
@@ -198,7 +220,8 @@ async function findKpId(ob, fm, file) {
     if (!imdbId) return "";
     const directSearch = await getJson(ob, `${API}/search`, { q: imdbId, limit: 24, person_limit: 0 });
     const exact = (directSearch?.items || []).filter(item => extractImdbId(item.imdb_id || item.imdbID) === imdbId);
-    if (exact.length === 1) return String(exact[0].kp_id || "");
+    const exactIds = [...new Set(exact.map(item => String(item.kp_id || "")).filter(Boolean))];
+    if (exactIds.length === 1) return exactIds[0];
 
     const wiki = await getJson(ob, "https://query.wikidata.org/sparql", {
         format: "json",
@@ -210,14 +233,17 @@ async function findKpId(ob, fm, file) {
 
     const title = String(fm.Название || file.basename || "").trim();
     const year = String(fm.Релиз || "").match(/\d{4}/)?.[0] || "";
+    // В старых карточках мини-сериалы часто помечены как movies. Поэтому
+    // сначала учитываем год, затем предпочитаем тип, но не отбрасываем другой.
     const type = tagsOf(fm).includes("serial") ? "series" : "film";
     for (const query of [`${title} ${year}`.trim(), title].filter(Boolean)) {
-        const result = await getJson(ob, `${API}/search`, { q: query, limit: 24, type, person_limit: 0 });
+        const result = await getJson(ob, `${API}/search`, { q: query, limit: 24, person_limit: 0 });
         const items = Array.isArray(result?.items) ? result.items : [];
-        const candidates = items
-            .filter(item => Boolean(item.is_series) === (type === "series"))
-            .filter(item => !year || String(item.year || "") === year);
-        if (candidates.length === 1) return String(candidates[0].kp_id || "");
+        const byYear = items.filter(item => !year || String(item.year || "") === year);
+        const preferred = byYear.filter(item => Boolean(item.is_series) === (type === "series"));
+        const candidates = preferred.length ? preferred : byYear;
+        const ids = [...new Set(candidates.map(item => String(item.kp_id || "")).filter(Boolean))];
+        if (ids.length === 1) return ids[0];
     }
     return "";
 }
@@ -352,14 +378,18 @@ function parseCredits(html, source) {
 }
 
 async function getImdbCredits(ob, imdbId) {
-    const html = await getText(ob, `https://www.imdb.com/title/${imdbId}/fullcredits/`);
+    const html = await getText(ob, `https://www.imdb.com/title/${imdbId}/fullcredits/`, {
+        Referer: `https://www.imdb.com/title/${imdbId}/`
+    });
     return parseCredits(html, "imdb");
 }
 
 async function getKinopoiskCredits(ob, kpId, type) {
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
     for (const path of paths) {
-        const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${kpId}/cast/`);
+        const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${kpId}/cast/`, {
+            Referer: `https://www.kinopoisk.ru/${path}/${kpId}/`
+        });
         const credits = parseCredits(html, "kp");
         if (credits.length) return credits;
     }
