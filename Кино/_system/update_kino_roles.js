@@ -1,5 +1,5 @@
 // QuickAdd: Кино - обновить роли актёров.
-// Порядок источников: IMDb fullcredits, затем КП cast, если IMDb не дал все роли.
+// Порядок источников: IMDb fullcredits/GraphQL, затем КП /cast/.
 // Формат: English (Русский) - Role (Роль).
 // Постоянного HTTP-кэша нет. Уже записанные значения не заменяются пустыми ответами.
 
@@ -18,6 +18,7 @@ module.exports = async function updateKinoRoles(params) {
     let processed = 0;
     let changed = 0;
     let foundRoles = 0;
+    let foundDirectors = 0;
     let imdbSources = 0;
     let kpSources = 0;
     let skipped = 0;
@@ -32,11 +33,14 @@ module.exports = async function updateKinoRoles(params) {
             const imdbId = extractImdbId(fm["imdb Id"]);
             const actorValue = fm.Актеры;
             const actors = splitPeople(actorValue).map(entityName).filter(Boolean);
+            const directorField = fm.Режисер !== undefined ? "Режисер" : "Режиссер";
+            const directorValue = fm[directorField];
+            const directors = splitPeople(directorValue).map(entityName).filter(Boolean);
             const progress = stage => notice.setMessage?.(
                 `Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`
             );
             progress("подготовка");
-            if (!actors.length) {
+            if (!actors.length && !directors.length) {
                 skipped++;
                 continue;
             }
@@ -44,17 +48,19 @@ module.exports = async function updateKinoRoles(params) {
             try {
                 const type = tagsOf(fm).includes("serial") ? "series" : "movie";
                 progress("IMDb fullcredits / API");
-                const imdb = imdbId ? await getImdbCredits(ob, imdbId) : [];
+                const imdb = imdbId ? await getImdbCredits(ob, imdbId, actors.length) : [];
                 if (imdb.length) imdbSources++;
 
                 let kpId = explicitKpId(fm);
                 let kpDetails = null;
                 let kp = [];
+                let kpDirectors = [];
                 const imdbComplete = actors.length > 0 && actors.every(actor =>
                     imdb.some(person => person.role && (samePerson(actor, personEnglish(person))
                         || samePerson(actor, personRussian(person)))));
                 const needsRussianNames = actors.some(actor => !personParts(actor).russian);
-                if (!imdbComplete || needsRussianNames) {
+                const needsRussianDirector = directors.some(director => !personParts(director).russian);
+                if (!imdbComplete || needsRussianNames || !directors.length || needsRussianDirector || kpId) {
                     if (!kpId) {
                         progress("поиск ID Кинопоиска");
                         kpId = await findKpId(ob, fm, file);
@@ -63,42 +69,47 @@ module.exports = async function updateKinoRoles(params) {
                         progress("Кинопоиск: детали и роли");
                         kpDetails = await getKpDetails(ob, kpId);
                         kp = normalizeCredits(kpDetails?.cast?.actors || [], "kp");
-                        // API КП иногда возвращает только часть актёров или роли без
-                        // нескольких персонажей. В таком случае нужен полный /cast/.
-                        const kpComplete = actors.length > 0 && actors.every(actor =>
-                            kp.some(person => person.role && (samePerson(actor, personEnglish(person))
-                                || samePerson(actor, personRussian(person)))));
-                        if (!kpComplete) {
-                            progress("Кинопоиск: полный cast");
-                            const direct = await getKinopoiskCredits(ob, kpId, type);
-                            kp = uniqueCredits([...kp, ...direct]);
-                        }
+                        kpDirectors = normalizePeople(kpDetails?.cast?.director || []);
+                        // API КП может вернуть только часть cast. Страница /cast/
+                        // является обязательным вторым источником для полной
+                        // замены актеров и режиссеров.
+                        progress("Кинопоиск: полный /cast/");
+                        const direct = await getKinopoiskCredits(ob, kpId, type);
+                        kp = uniqueCredits([...kp, ...direct.actors]);
+                        kpDirectors = uniquePeople([...kpDirectors, ...direct.directors]);
                     }
                 }
-                if (kp.length) kpSources++;
+                if (kp.length || kpDirectors.length) kpSources++;
 
                 const result = mergeActors(actors, [imdb, kp]);
+                const directorResult = mergeDirectors(directors, [kpDirectors]);
                 foundRoles += result.roles;
-                if (!result.values.length) {
+                foundDirectors += kpDirectors.length;
+                if (!result.values.length && !directorResult.values.length) {
                     skipped++;
-                    noRoleFiles.push(file.basename);
+                    if (actors.length) noRoleFiles.push(file.basename);
                     continue;
                 }
                 const nextValue = Array.isArray(actorValue) ? result.values : result.values.join(", ");
+                const nextDirectorValue = Array.isArray(directorValue)
+                    ? directorResult.values : directorResult.values.join(", ");
                 const hasNewKpId = Boolean(kpId && !explicitKpId(fm));
-                if (JSON.stringify(nextValue) === JSON.stringify(actorValue) && !hasNewKpId) {
-                    if (!result.roles) noRoleSource++;
-                    if (!result.roles) noRoleFiles.push(file.basename);
+                if (JSON.stringify(nextValue) === JSON.stringify(actorValue)
+                    && JSON.stringify(nextDirectorValue) === JSON.stringify(directorValue)
+                    && !hasNewKpId) {
+                    if (!result.roles && !kpDirectors.length) noRoleSource++;
+                    if (!result.roles && actors.length) noRoleFiles.push(file.basename);
                     continue;
                 }
                 await app.fileManager.processFrontMatter(file, frontmatter => {
                     frontmatter.Актеры = nextValue;
+                    frontmatter[directorField] = nextDirectorValue;
                     if (hasNewKpId) frontmatter["Кинопоиск ID"] = kpId;
                 });
                 changed++;
-                if (result.roles) continue;
+                if (result.roles || kpDirectors.length) continue;
                 noRoleSource++;
-                noRoleFiles.push(file.basename);
+                if (actors.length) noRoleFiles.push(file.basename);
             } catch (error) {
                 failed++;
                 console.warn("Кино: не удалось получить роли", file.path, error);
@@ -112,7 +123,7 @@ module.exports = async function updateKinoRoles(params) {
         ? ` Не найдены: ${noRoleFiles.slice(0, 5).join(", ")}${noRoleFiles.length > 5 ? "…" : ""}.`
         : "";
     new ob.Notice(
-        `Роли актёров: обработано ${processed}, изменено ${changed}, добавлено ролей ${foundRoles}, IMDb ${imdbSources}, КП ${kpSources}, без ролей ${noRoleSource}, пропущено ${skipped}, ошибок ${failed}.${unresolved}`,
+        `Роли и люди: обработано ${processed}, изменено ${changed}, ролей ${foundRoles}, режиссеров ${foundDirectors}, IMDb ${imdbSources}, КП ${kpSources}, без ролей ${noRoleSource}, пропущено ${skipped}, ошибок ${failed}.${unresolved}`,
         15000
     );
 };
@@ -538,6 +549,100 @@ function parseCredits(html, source) {
     return uniqueCredits(values);
 }
 
+function kinopoiskSectionBefore(html, index) {
+    const plain = htmlPlain(String(html || "").slice(0, index)).replace(/\s+/g, " ").trim();
+    const markers = [...plain.matchAll(/(?:^|\s)(Режисс(?:е|ё)р(?:ы)?(?:\s+дубляжа)?|Акт(?:е|ё)ры(?:\s+дубляжа)?|Продюсеры|Сценаристы|Оператор|Композитор|Художники|Монтажер|Монтажёр)(?=\s|$)/gi)];
+    const marker = markers.at(-1)?.[1]?.toLocaleLowerCase("ru") || "";
+    if (marker.includes("режисс") && !marker.includes("дубляж")) return "director";
+    if (marker.includes("актер") || marker.includes("актёр")) return marker.includes("дубляж") ? "" : "actor";
+    return "";
+}
+
+function kinopoiskNameParts(anchorName, chunk) {
+    const anchor = htmlPlain(anchorName).replace(/\s+/g, " ").trim();
+    let plain = htmlPlain(chunk).replace(/\s+/g, " ").trim().replace(/^\d+\.\s*/, "");
+    plain = plain.split(/\s+(?:\.\.\.|…)[ \t]*/)[0].trim();
+    plain = plain.replace(/\s+(?:Акт(?:е|ё)ры|Режисс(?:е|ё)р(?:ы)?|Продюсеры|Сценаристы|Оператор|Композитор|Художники|Монтажер|Монтажёр)(?=\s|$)[\s\S]*$/i, "").trim();
+    const names = creditNameParts(plain || anchor, "mixed");
+    const anchorParts = creditNameParts(anchor, "mixed");
+    return {
+        english: names.english || anchorParts.english,
+        russian: names.russian || anchorParts.russian
+    };
+}
+
+function kinopoiskRoleFromChunk(chunk) {
+    const role = roleFromChunk(chunk);
+    if (role) return role;
+    const plain = htmlPlain(chunk).replace(/\s+/g, " ").trim();
+    const after = plain.match(/(?:\.\.\.|…)\s*(.+)$/)?.[1] || "";
+    if (!after) return "";
+    const withoutDub = after.replace(/\s+(?=[А-ЯЁ][А-ЯЁа-яё]+(?:\s+[А-ЯЁ][А-ЯЁа-яё]+){1,}(?:\s|$)).*$/u, "").trim();
+    return roleText(withoutDub || after);
+}
+
+function sameCreditPerson(left, right) {
+    const leftNames = [personEnglish(left), personRussian(left)].filter(Boolean);
+    const rightNames = [personEnglish(right), personRussian(right)].filter(Boolean);
+    return leftNames.some(leftName => rightNames.some(rightName => samePerson(leftName, rightName)));
+}
+
+function uniquePeople(values) {
+    const result = [];
+    for (const value of values || []) {
+        const parts = creditNameParts(value, "mixed");
+        const person = {
+            name_en: value?.name_en || parts.english || "",
+            name_ru: value?.name_ru || parts.russian || "",
+            role: value?.role || "",
+            role_en: value?.role_en || "",
+            role_ru: value?.role_ru || ""
+        };
+        if (!(person.name_en || person.name_ru)) continue;
+        const previous = result.find(item => sameCreditPerson(item, person));
+        if (!previous) {
+            result.push(person);
+            continue;
+        }
+        previous.name_en ||= person.name_en;
+        previous.name_ru ||= person.name_ru;
+        previous.role ||= person.role;
+        previous.role_en ||= person.role_en;
+        previous.role_ru ||= person.role_ru;
+    }
+    return result;
+}
+
+function normalizePeople(values) {
+    return uniquePeople((Array.isArray(values) ? values : values ? [values] : []).map(value => {
+        const parts = creditNameParts(value, "mixed");
+        return { name_en: parts.english, name_ru: parts.russian };
+    }));
+}
+
+function parseKinopoiskCastPage(html) {
+    const actors = [...parseEmbeddedCredits(html, "kp")];
+    const directors = [];
+    const links = [...String(html || "").matchAll(/<a\b[^>]*href=['"][^'"]*\/name\/(?:nm)?\d+[^'"]*['"][^>]*>([\s\S]*?)<\/a>/gi)];
+    links.forEach((match, index) => {
+        const section = kinopoiskSectionBefore(html, match.index || 0);
+        if (!section) return;
+        const next = links[index + 1]?.index ?? Math.min(String(html).length, (match.index || 0) + 2400);
+        const chunk = String(html).slice(match.index || 0, next);
+        const names = kinopoiskNameParts(match[1], chunk);
+        if (!(names.english || names.russian)) return;
+        if (section === "director") {
+            directors.push({ name_en: names.english, name_ru: names.russian });
+        } else {
+            actors.push({ name_en: names.english, name_ru: names.russian, role: kinopoiskRoleFromChunk(chunk) });
+        }
+    });
+    return {
+        actors: uniquePeople(actors),
+        directors: uniquePeople(directors)
+    };
+}
+
 function parseImdbGraphqlCredits(data) {
     const edges = data?.data?.title?.mainColumnData?.cast?.edges
         || data?.data?.title?.credits?.edges
@@ -585,25 +690,29 @@ async function getImdbGraphqlCredits(ob, imdbId) {
     return [];
 }
 
-async function getImdbCredits(ob, imdbId) {
+async function getImdbCredits(ob, imdbId, minimumCount = 0) {
     const html = await getText(ob, `https://www.imdb.com/title/${imdbId}/fullcredits/`, {
         Referer: `https://www.imdb.com/title/${imdbId}/`
     });
     const htmlCredits = parseCredits(html, "imdb");
-    if (htmlCredits.length) return htmlCredits;
-    return getImdbGraphqlCredits(ob, imdbId);
+    if (htmlCredits.length > minimumCount) return htmlCredits;
+    const graphqlCredits = await getImdbGraphqlCredits(ob, imdbId);
+    return uniqueCredits([...htmlCredits, ...graphqlCredits]);
 }
 
 async function getKinopoiskCredits(ob, kpId, type) {
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
+    const empty = { actors: [], directors: [] };
     for (const path of paths) {
         const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${kpId}/cast/`, {
             Referer: `https://www.kinopoisk.ru/${path}/${kpId}/`
         });
+        const cast = parseKinopoiskCastPage(html);
+        if (cast.actors.length || cast.directors.length) return cast;
         const credits = parseCredits(html, "kp");
-        if (credits.length) return credits;
+        if (credits.length) return { actors: credits, directors: [] };
     }
-    return [];
+    return empty;
 }
 
 function baseKey(value) {
@@ -758,46 +867,73 @@ function uniqueCredits(values) {
 }
 
 function mergeActors(current, sources) {
+    const people = (sources || []).flatMap(source => Array.isArray(source) ? source : []);
+    if (!people.length) {
+        const values = current.map(value => normalizePerson(value)).filter(Boolean);
+        return { values, roles: values.filter(value => personRoleParts(value).english || personRoleParts(value).russian).length, replaced: false };
+    }
+
+    // Источник есть - полностью пересобираем поле из него. Старый список
+    // используется только как безопасный fallback, если оба источника пусты.
+    const groups = [];
+    const related = (left, right) => {
+        const leftNames = [personEnglish(left), personRussian(left)].filter(Boolean);
+        const rightNames = [personEnglish(right), personRussian(right)].filter(Boolean);
+        return leftNames.some(leftName => rightNames.some(rightName => samePerson(leftName, rightName)));
+    };
+    for (const person of people) {
+        const english = personEnglish(person);
+        const russian = personRussian(person);
+        if (!(english || russian)) continue;
+        const group = groups.find(item => item.some(other => related(person, other)));
+        if (group) group.push(person);
+        else groups.push([person]);
+    }
+
     const values = [];
     let roles = 0;
     const seen = new Set();
-    const people = (sources || []).flatMap(source => Array.isArray(source) ? source : []);
-    let matchedCurrent = 0;
-    const append = (english, russian, role, countRole) => {
+    const append = (english, russian, role) => {
         const value = normalizePerson(personPair(english, russian, role));
         const roleKey = (role.english || role.russian || "").toLocaleLowerCase("ru");
         const key = `${baseKey(value)}|${roleKey}`;
         if (!value || seen.has(key)) return;
         seen.add(key);
         values.push(value);
-        if (countRole && roleKey) roles++;
+        if (roleKey) roles++;
     };
-    for (const actor of current) {
-        const matches = people.filter(person => samePerson(actor, personEnglish(person)) || samePerson(actor, personRussian(person)));
-        if (matches.length) matchedCurrent++;
-        const english = matches.map(personEnglish).find(Boolean) || personParts(actor).english || actor;
-        const russian = matches.map(personRussian).find(Boolean) || personParts(actor).russian;
-        const role = matches.map(personRoleParts).find(parts => parts.english || parts.russian)
-            || personRoleParts(actor);
-        append(english, russian, role, matches.some(person => {
-            const parts = personRoleParts(person);
-            return parts.english || parts.russian;
-        }));
+    for (const group of groups) {
+        const english = group.map(personEnglish).find(Boolean) || "";
+        const russian = group.map(personRussian).find(Boolean) || "";
+        const roleValues = group.map(personRoleParts).filter(role => role.english || role.russian);
+        const roleEnglish = [...new Set(roleValues.map(role => role.english).filter(Boolean))].join(" / ");
+        const roleRussian = [...new Set(roleValues.map(role => role.russian).filter(Boolean))].join(" / ");
+        append(english, russian, { english: roleEnglish, russian: roleRussian });
     }
-    // Если ни один текущий актёр не совпал с источником, список в карточке
-    // относится к другому произведению. Берём основной cast источника, а не
-    // сохраняем заведомо чужие имена без ролей.
-    if (!matchedCurrent && people.length) {
-        values.length = 0;
-        seen.clear();
-        roles = 0;
-        const limit = Math.max(current.length, 5);
-        for (const person of people.slice(0, limit)) {
-            const role = personRoleParts(person);
-            append(personEnglish(person), personRussian(person), role, Boolean(role.english || role.russian));
-        }
+    return { values, roles, replaced: true };
+}
+
+function mergeDirectors(current, sources) {
+    const people = (sources || []).flatMap(source => Array.isArray(source) ? source : []);
+    if (!people.length) return { values: current.map(value => normalizePerson(value)).filter(Boolean), replaced: false };
+    const groups = [];
+    const related = (left, right) => {
+        const leftNames = [personEnglish(left), personRussian(left)].filter(Boolean);
+        const rightNames = [personEnglish(right), personRussian(right)].filter(Boolean);
+        return leftNames.some(leftName => rightNames.some(rightName => samePerson(leftName, rightName)));
+    };
+    for (const person of people) {
+        if (!(personEnglish(person) || personRussian(person))) continue;
+        const group = groups.find(item => item.some(other => related(person, other)));
+        if (group) group.push(person);
+        else groups.push([person]);
     }
-    return { values, roles, replaced: !matchedCurrent && people.length > 0 };
+    const values = groups.map(group => normalizePerson(personPair(
+        group.map(personEnglish).find(Boolean) || "",
+        group.map(personRussian).find(Boolean) || "",
+        ""
+    ))).filter(Boolean);
+    return { values, replaced: true };
 }
 
 function roleFromChunk(chunk) {
