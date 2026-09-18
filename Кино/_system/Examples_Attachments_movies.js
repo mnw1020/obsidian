@@ -2,7 +2,7 @@
  * OMDb API Key сохраняется в прежних настройках. Для КП и Wikidata ключи не нужны.
  * Название в YAML остаётся оригинальным; имя файла берётся на русском.
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
- * Актеры объединяются в формате English (Русский) - роль из IMDb fullcredits или КП cast.
+ * Актеры объединяются в формате English (Русский) - Role (Роль) из IMDb fullcredits или КП cast.
  */
 const API_KEY_OPTION = "OMDb API Key";
 const ROOT = "Кино";
@@ -287,9 +287,9 @@ function extractImdbId(value) {
     return String(value || "").match(/\btt\d{7,12}\b/i)?.[0].toLowerCase() || "";
 }
 function extractKinopoiskId(value) {
-    const text = String(value || "").trim();
-    if (/^\d{4,12}$/.test(text)) return text;
-    const match = text.match(/(?:kinopoisk\.ru\/(?:film|series)\/|movie-planner\.ru\/f\/|(?:^|[\s:])(?:kp|кп)\s*[:#]?\s*)(\d{4,12})/i);
+    const text = String(value || "").trim().replace(/^['"]|['"]$/g, "");
+    if (/^\d{1,12}$/.test(text)) return text;
+    const match = text.match(/(?:kinopoisk\.ru\/(?:film|series)\/|movie-planner\.ru\/f\/|(?:^|[\s:])(?:kp|кп)\s*[:#]?\s*)(\d{1,12})/i);
     return match?.[1] || "";
 }
 async function askKinopoiskId(qa, prompt) {
@@ -347,7 +347,7 @@ function cleanRole(value) {
         return [...new Set(value.map(cleanRole).filter(Boolean))].join(" / ");
     }
     if (typeof value === "object") {
-        for (const key of ["name_ru", "name", "title_ru", "title", "value", "role", "character", "character_name", "characterName"]) {
+        for (const key of ["name_ru", "name", "title_ru", "title", "value", "role_ru", "role_en", "role", "character", "character_name", "characterName"]) {
             const result = cleanRole(value[key]);
             if (result) return result;
         }
@@ -357,23 +357,112 @@ function cleanRole(value) {
     if (!text || /^(actor|actress|актёр|актер|актриса)$/i.test(text)) return "";
     return text;
 }
-function personRole(person) {
-    if (typeof person === "string") return kinoPersonRole(person);
-    if (!person || typeof person !== "object") return "";
-    for (const key of [
-        "role", "character", "character_name", "characterName", "role_name", "roleName",
-        "characters", "roles", "played_as", "playedAs"
-    ]) {
-        const result = cleanRole(person[key]);
-        if (result) return result;
+
+function splitBilingualText(value) {
+    const text = htmlPlain(String(value ?? "")).replace(/\s+/g, " ").trim();
+    if (!text) return { english: "", russian: "" };
+    const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
+    if (pair && /[a-z]/i.test(pair[1]) && /[а-яё]/i.test(pair[2])) {
+        return { english: pair[1].trim(), russian: pair[2].trim() };
     }
-    return "";
+    if (pair && /[а-яё]/i.test(pair[1]) && /[a-z]/i.test(pair[2])) {
+        return { english: pair[2].trim(), russian: pair[1].trim() };
+    }
+    const main = text.replace(/\s+\((?:в титрах|in credits|credited as|credit(?:ed)? as)[\s\S]*$/i, "").trim();
+    const russianFirst = main.match(/^(.+?[А-ЯЁа-яё][А-ЯЁа-яё .,'’`-]*)\s+([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ .,'’`-]*)$/u);
+    if (russianFirst) return { english: russianFirst[2].trim(), russian: russianFirst[1].trim() };
+    const englishFirst = main.match(/^([A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ .,'’`-]*)\s+(.+?[А-ЯЁа-яё][А-ЯЁа-яё .,'’`-]*)$/u);
+    if (englishFirst) return { english: englishFirst[1].trim(), russian: englishFirst[2].trim() };
+    return {
+        english: /[a-z]/i.test(text) && !/[а-яё]/i.test(text) ? text : "",
+        russian: /[а-яё]/i.test(text) ? text : ""
+    };
+}
+
+function transliterateEnglishToRussian(value) {
+    const digraphs = [["tch", "ч"], ["sch", "ш"], ["sh", "ш"], ["ch", "ч"], ["th", "т"],
+        ["ph", "ф"], ["kh", "х"], ["zh", "ж"], ["ts", "ц"], ["qu", "кв"], ["ck", "к"],
+        ["ya", "я"], ["yu", "ю"], ["yo", "ё"], ["ee", "и"], ["oo", "у"], ["ou", "ау"], ["ow", "оу"]];
+    const chars = { a: "а", b: "б", c: "к", d: "д", e: "е", f: "ф", g: "г", h: "х", i: "и",
+        j: "дж", k: "к", l: "л", m: "м", n: "н", o: "о", p: "п", q: "к", r: "р", s: "с",
+        t: "т", u: "у", v: "в", w: "в", x: "кс", y: "й", z: "з" };
+    const source = String(value || "").toLocaleLowerCase("en");
+    let result = "";
+    for (let index = 0; index < source.length;) {
+        const rest = source.slice(index);
+        const digraph = digraphs.find(([from]) => rest.startsWith(from));
+        if (digraph) { result += digraph[1]; index += digraph[0].length; continue; }
+        result += chars[source[index]] ?? source[index];
+        index++;
+    }
+    return result.replace(/ие(?=\s|[\/,;:.)]|$)/g, "и")
+        .replace(/(^|[\s-])([а-яё])/g, (_, prefix, char) => prefix + char.toLocaleUpperCase("ru"));
+}
+
+function roleRussianFromEnglish(value) {
+    const text = cleanRole(value);
+    if (!text || /[а-яё]/i.test(text) && !/[a-z]/i.test(text)) return text;
+    const phrases = [
+        ["scenes deleted", "сцены вырезаны"], ["uncredited", "в титрах не указан"],
+        ["himself", "самого себя"], ["herself", "саму себя"], ["themselves", "самих себя"],
+        ["voice", "голос"], ["narrator", "рассказчик"], ["waitress", "официантка"],
+        ["waiter", "официант"], ["attorney", "адвокат"], ["prosecutor", "прокурор"],
+        ["ranger", "рейнджер"], ["doctor", "доктор"], ["professor", "профессор"],
+        ["detective", "детектив"], ["police officer", "полицейский"], ["customer", "посетитель"],
+        ["woman", "женщина"], ["man", "мужчина"], ["girl", "девушка"], ["boy", "мальчик"],
+        ["mother", "мать"], ["father", "отец"], ["wife", "жена"], ["husband", "муж"],
+        ["brother", "брат"], ["sister", "сестра"], ["young", "молодой"], ["old", "старый"]
+    ];
+    const placeholders = [];
+    let translated = text;
+    for (const [english, russian] of phrases) {
+        const token = `\uE000${placeholders.length}\uE001`;
+        const expression = new RegExp(`(^|[^A-Za-z])${english.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z])`, "gi");
+        if (expression.test(translated)) {
+            translated = translated.replace(expression, (_, prefix) => prefix + token);
+            placeholders.push(russian);
+        }
+    }
+    translated = translated.split(/([A-Za-zÀ-ÖØ-öø-ÿ]+)/u).map(part =>
+        /[A-Za-zÀ-ÖØ-öø-ÿ]/u.test(part) ? transliterateEnglishToRussian(part) : part
+    ).join("");
+    return translated.replace(/\uE000(\d+)\uE001/g, (_, index) => placeholders[Number(index)] || "");
+}
+
+function roleParts(value) {
+    if (value && typeof value === "object" && (value.role_en || value.role_ru || value.character_en || value.character_ru)) {
+        const english = cleanRole(value.role_en || value.character_en || "");
+        const russian = cleanRole(value.role_ru || value.character_ru || "");
+        return { english, russian: russian || roleRussianFromEnglish(english) };
+    }
+    const raw = typeof value === "string"
+        ? value.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || value
+        : ["role", "character", "character_name", "characterName", "role_name", "roleName",
+            "characters", "roles", "played_as", "playedAs"].map(key => cleanRole(value?.[key])).find(Boolean) || "";
+    const pair = splitBilingualText(raw);
+    const english = pair.english || (/[a-z]/i.test(raw) && !/[а-яё]/i.test(raw) ? cleanRole(raw) : "");
+    const russian = pair.russian || (/[а-яё]/i.test(raw) && !/[a-z]/i.test(raw) ? cleanRole(raw) : "")
+        || roleRussianFromEnglish(english);
+    return { english, russian };
+}
+
+function formatRole(value) {
+    const parts = roleParts(value);
+    return parts.english && parts.russian
+        ? `${parts.english} (${parts.russian})`
+        : parts.english || parts.russian || "";
+}
+
+function personRole(person) {
+    if (typeof person === "string" && !/\s+-\s+/.test(person)) return "";
+    return formatRole(person);
 }
 function personParts(value) {
     const text = normalizeKinoPersonDisplay(kinoPersonName(clean(value)));
     if (!text || text.toUpperCase() === "N/A") return { english: "", russian: "" };
     const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
-    const values = pair ? [pair[1].trim(), pair[2].trim()] : [text];
+    const bilingual = pair ? { english: "", russian: "" } : splitBilingualText(text);
+    const values = pair ? [pair[1].trim(), pair[2].trim()] : [bilingual.english, bilingual.russian].filter(Boolean);
     return {
         english: values.find(part => /[a-z]/i.test(part) && !/[а-яё]/i.test(part)) || "",
         russian: values.find(part => /[а-яё]/i.test(part)) || ""
@@ -446,7 +535,7 @@ function normalizePersonMatchKey(value) {
 }
 function personPair(english, russian, field, role = "") {
     const rawValues = [clean(english), clean(russian)].filter(Boolean);
-    const normalizedRole = cleanRole(role) || personRole(english) || personRole(russian);
+    const normalizedRole = formatRole(role) || personRole(english) || personRole(russian);
     const normalizedValues = rawValues.map(value => kinoPersonDisplay(field, value));
     // Сначала берём канонический вариант: так Vitaliy Gogunskiy не вернётся
     // обратно поверх заданного Vitaly Gogunsky.
@@ -672,17 +761,25 @@ function valueText(value) {
 
 function creditRoleText(value) {
     const text = valueText(value).replace(/^['"]|['"]$/g, "").replace(/\s+/g, " ").trim();
-    if (!text || /^(actor|actress|cast|act[её]р|актриса)$/i.test(text)) return "";
-    if (/^(режиссёр|режиссер|director|producer|продюсер|writer|сценарист|оператор|cinematographer|монтажёр|монтажер|editor)$/i.test(text)
-        || /(?:режисс[её]р|продюсер|сценарист|оператор|монтаж[её]р|художник|композитор|костюм|грим|director|producer|writer|cinematographer|editor)/i.test(text)) return "";
-    return text;
+    const cleaned = text.replace(/\s*,\s*\$[\d\s.,]+.*$/i, "").replace(/\s+\d+\.\s*$/, "").trim();
+    if (!cleaned || /^(actor|actress|cast|act[её]р|актриса)$/i.test(cleaned)) return "";
+    if (/^(режиссёр|режиссер|director|producer|продюсер|writer|сценарист|оператор|cinematographer|монтажёр|монтажер|editor)$/i.test(cleaned)
+        || /(?:режисс[её]р|продюсер|сценарист|оператор|монтаж[её]р|художник|композитор|костюм|грим|director|producer|writer|cinematographer|editor)/i.test(cleaned)) return "";
+    return cleaned;
 }
 
 function creditNameParts(node, source) {
     const values = [];
+    const separated = { english: "", russian: "" };
     const add = value => {
         const text = valueText(value);
         if (text && !values.includes(text)) values.push(text);
+        const pair = splitBilingualText(text);
+        if (!separated.english && pair.english) separated.english = pair.english;
+        if (!separated.russian && pair.russian) separated.russian = pair.russian;
+        for (const part of [pair.english, pair.russian]) {
+            if (part && !values.includes(part)) values.push(part);
+        }
     };
     if (typeof node === "string") add(node);
     else if (node && typeof node === "object") {
@@ -697,8 +794,8 @@ function creditNameParts(node, source) {
             add(node.name.text);
         }
     }
-    const english = values.find(value => /[a-z]/i.test(value) && !/[а-яё]/i.test(value)) || "";
-    const russian = values.find(value => /[а-яё]/i.test(value)) || "";
+    const english = separated.english || values.find(value => /[a-z]/i.test(value) && !/[а-яё]/i.test(value)) || "";
+    const russian = separated.russian || values.find(value => /[а-яё]/i.test(value) && !/[a-z]/i.test(value)) || "";
     return { english, russian, values };
 }
 
@@ -765,7 +862,8 @@ function parseAnchorCredits(html, source) {
         const chunk = String(html).slice(match.index || 0, next);
         const role = roleFromCreditChunk(chunk);
         if (!role || !name || name.length > 120) return;
-        const parts = source === "kp" ? { name_en: "", name_ru: name } : { name_en: name, name_ru: "" };
+        const names = creditNameParts(name, source);
+        const parts = { name_en: names.english, name_ru: names.russian };
         result.push({ ...parts, role });
     });
     return result;
@@ -808,7 +906,7 @@ async function imdbCredits(ob, imdbId) {
 }
 
 async function kinopoiskCredits(ob, kpId, type) {
-    const id = String(kpId || "").match(/^\d{4,12}$/)?.[0] || "";
+    const id = String(kpId || "").match(/^\d{1,12}$/)?.[0] || "";
     if (!id) return [];
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
     for (const path of paths) {
@@ -891,7 +989,7 @@ async function kinopoisk(get, qa, movie, wiki) {
 }
 async function kinopoiskById(get, kpId) {
     const id = String(kpId || "").trim();
-    if (!/^\d{4,12}$/.test(id)) return null;
+    if (!/^\d{1,12}$/.test(id)) return null;
     const result = await get(`https://movie-planner.ru/api/public/film/${id}`);
     const film = result?.film;
     if (!film || String(film.kp_id) !== id) return null;
@@ -5670,7 +5768,7 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
         yaml = expression.test(yaml) ? yaml.replace(expression,()=>line) : yaml.trimEnd()+newline+line;
     }
     set('Описание',description);
-    if (/^\d{4,12}$/.test(String(kinopoiskId || ""))) set('Кинопоиск ID', String(kinopoiskId));
+    if (/^\d{1,12}$/.test(String(kinopoiskId || ""))) set('Кинопоиск ID', String(kinopoiskId));
     let fm;
     try { fm=ob.parseYaml(yaml); } catch { return null; }
     if (String(fm?.['imdb Id']) !== id) return null;
