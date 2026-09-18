@@ -8,12 +8,6 @@ const API = "https://movie-planner.ru/api/public";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let nextRequestAt = 0;
 
-// Резервные связи IMDb -> КП для карточек, где старое поле КП ещё не записано.
-// Они используются только после попытки IMDb и не меняют приоритет источников ролей.
-const KNOWN_KP_BY_IMDB = {
-    tt6210996: "1008203"
-};
-
 module.exports = async function updateKinoRoles(params) {
     const { app, obsidian: ob } = params;
     const files = app.vault.getMarkdownFiles()
@@ -49,7 +43,7 @@ module.exports = async function updateKinoRoles(params) {
 
             try {
                 const type = tagsOf(fm).includes("serial") ? "series" : "movie";
-                progress("IMDb fullcredits");
+                progress("IMDb fullcredits / API");
                 const imdb = imdbId ? await getImdbCredits(ob, imdbId) : [];
                 if (imdb.length) imdbSources++;
 
@@ -59,7 +53,8 @@ module.exports = async function updateKinoRoles(params) {
                 const imdbComplete = actors.length > 0 && actors.every(actor =>
                     imdb.some(person => person.role && (samePerson(actor, personEnglish(person))
                         || samePerson(actor, personRussian(person)))));
-                if (!imdbComplete) {
+                const needsRussianNames = actors.some(actor => !personParts(actor).russian);
+                if (!imdbComplete || needsRussianNames) {
                     if (!kpId) {
                         progress("поиск ID Кинопоиска");
                         kpId = await findKpId(ob, fm, file);
@@ -222,10 +217,49 @@ async function getText(ob, url, headers = {}) {
     return request(ob, url, "text/html,application/xhtml+xml", headers);
 }
 
+async function postJson(ob, url, body, headers = {}) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+        await sleep(Math.max(0, nextRequestAt - Date.now()));
+        nextRequestAt = Date.now() + 900;
+        let timer;
+        try {
+            const response = await Promise.race([
+                ob.requestUrl({
+                    url,
+                    method: "POST",
+                    throw: false,
+                    body: JSON.stringify(body),
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                        "Accept-Language": "en-US,en;q=0.9,ru;q=0.8",
+                        "Origin": "https://www.imdb.com",
+                        Referer: "https://www.imdb.com/",
+                        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36",
+                        ...headers
+                    }
+                }),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 20000); })
+            ]);
+            if ([429, 503].includes(response.status)) {
+                nextRequestAt = Date.now() + 5000;
+                continue;
+            }
+            if (response.status !== 200) return null;
+            if (response.json && typeof response.json === "object") return response.json;
+            return JSON.parse(String(response.text || "{}"));
+        } catch {
+            nextRequestAt = Date.now() + 2500;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+    return null;
+}
+
 async function findKpId(ob, fm, file) {
     const imdbId = extractImdbId(fm["imdb Id"]);
     if (!imdbId) return "";
-    if (KNOWN_KP_BY_IMDB[imdbId]) return KNOWN_KP_BY_IMDB[imdbId];
     const directSearch = await getJson(ob, `${API}/search`, { q: imdbId, limit: 24, person_limit: 0 });
     const exact = (directSearch?.items || []).filter(item => extractImdbId(item.imdb_id || item.imdbID) === imdbId);
     const exactIds = [...new Set(exact.map(item => String(item.kp_id || "")).filter(Boolean))];
@@ -504,11 +538,60 @@ function parseCredits(html, source) {
     return uniqueCredits(values);
 }
 
+function parseImdbGraphqlCredits(data) {
+    const edges = data?.data?.title?.mainColumnData?.cast?.edges
+        || data?.data?.title?.credits?.edges
+        || [];
+    const values = edges.map(edge => {
+        const node = edge?.node || edge || {};
+        const name = node.name || node.person || {};
+        const role = valueText(node.characters || node.character || node.roles)
+            || valueText(node.attributes);
+        return {
+            name_en: valueText(name.nameText?.text || name.nameText || name.text || name),
+            role
+        };
+    });
+    return normalizeCredits(values, "imdb");
+}
+
+async function getImdbGraphqlCredits(ob, imdbId) {
+    const id = extractImdbId(imdbId);
+    if (!id) return [];
+    const query = `query TitleCast($id: ID!) {
+        title(id: $id) {
+            mainColumnData {
+                cast(first: 100) {
+                    edges {
+                        node {
+                            name { nameText { text } }
+                            characters { name }
+                            attributes { text }
+                        }
+                    }
+                }
+            }
+        }
+    }`;
+    for (const endpoint of ["https://graphql.imdb.com/", "https://api.graphql.imdb.com/"]) {
+        const data = await postJson(ob, endpoint, {
+            operationName: "TitleCast",
+            query,
+            variables: { id }
+        });
+        const credits = parseImdbGraphqlCredits(data);
+        if (credits.length) return credits;
+    }
+    return [];
+}
+
 async function getImdbCredits(ob, imdbId) {
     const html = await getText(ob, `https://www.imdb.com/title/${imdbId}/fullcredits/`, {
         Referer: `https://www.imdb.com/title/${imdbId}/`
     });
-    return parseCredits(html, "imdb");
+    const htmlCredits = parseCredits(html, "imdb");
+    if (htmlCredits.length) return htmlCredits;
+    return getImdbGraphqlCredits(ob, imdbId);
 }
 
 async function getKinopoiskCredits(ob, kpId, type) {
@@ -679,25 +762,42 @@ function mergeActors(current, sources) {
     let roles = 0;
     const seen = new Set();
     const people = (sources || []).flatMap(source => Array.isArray(source) ? source : []);
+    let matchedCurrent = 0;
+    const append = (english, russian, role, countRole) => {
+        const value = normalizePerson(personPair(english, russian, role));
+        const roleKey = (role.english || role.russian || "").toLocaleLowerCase("ru");
+        const key = `${baseKey(value)}|${roleKey}`;
+        if (!value || seen.has(key)) return;
+        seen.add(key);
+        values.push(value);
+        if (countRole && roleKey) roles++;
+    };
     for (const actor of current) {
         const matches = people.filter(person => samePerson(actor, personEnglish(person)) || samePerson(actor, personRussian(person)));
+        if (matches.length) matchedCurrent++;
         const english = matches.map(personEnglish).find(Boolean) || personParts(actor).english || actor;
         const russian = matches.map(personRussian).find(Boolean) || personParts(actor).russian;
         const role = matches.map(personRoleParts).find(parts => parts.english || parts.russian)
             || personRoleParts(actor);
-        const value = normalizePerson(personPair(english, russian, role));
-        const roleKey = (role.english || role.russian || "").toLocaleLowerCase("ru");
-        const key = `${baseKey(value)}|${roleKey}`;
-        if (value && !seen.has(key)) {
-            seen.add(key);
-            values.push(value);
-            if (matches.some(person => {
-                const parts = personRoleParts(person);
-                return parts.english || parts.russian;
-            })) roles++;
+        append(english, russian, role, matches.some(person => {
+            const parts = personRoleParts(person);
+            return parts.english || parts.russian;
+        }));
+    }
+    // Если ни один текущий актёр не совпал с источником, список в карточке
+    // относится к другому произведению. Берём основной cast источника, а не
+    // сохраняем заведомо чужие имена без ролей.
+    if (!matchedCurrent && people.length) {
+        values.length = 0;
+        seen.clear();
+        roles = 0;
+        const limit = Math.max(current.length, 5);
+        for (const person of people.slice(0, limit)) {
+            const role = personRoleParts(person);
+            append(personEnglish(person), personRussian(person), role, Boolean(role.english || role.russian));
         }
     }
-    return { values, roles };
+    return { values, roles, replaced: !matchedCurrent && people.length > 0 };
 }
 
 function roleFromChunk(chunk) {
