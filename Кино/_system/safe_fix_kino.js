@@ -35,15 +35,25 @@ module.exports = async (params) => {
         return match ? (match[2] || match[1]).trim() : text;
     }
 
+    function personRole(value) {
+        const text = stripWiki(value).normalize("NFC");
+        return text.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || "";
+    }
+
+    function personName(value) {
+        return stripWiki(value).normalize("NFC").replace(/\s+-\s+.+$/, "").trim();
+    }
+
     function personBaseKey(value) {
-        let text = stripWiki(value).normalize("NFC");
+        let text = personName(value);
         text = text.replace(/\s*\([^()]*\)\s*$/, "");
         return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
     }
 
     function normalizePersonDisplay(value) {
-        let text = stripWiki(value).trim().normalize("NFC");
+        const role = personRole(value);
+        let text = personName(value);
         for (let i = 0; i < 5; i++) {
             const match = text.match(/^(.+?)\s*\((.*)\)$/);
             if (!match || !match[2].includes("(")) break;
@@ -52,8 +62,9 @@ module.exports = async (params) => {
             text = `${match[1].trim()} (${inner})`;
         }
         const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
-        if (pair && personBaseKey(pair[1]) === personBaseKey(pair[2])) return pair[1].trim();
-        return text;
+        const normalized = pair && personBaseKey(pair[1]) === personBaseKey(pair[2])
+            ? pair[1].trim() : text;
+        return role && normalized ? `${normalized} - ${role}` : normalized;
     }
 
     const PERSON_CANONICAL_OVERRIDES = {
@@ -63,6 +74,23 @@ module.exports = async (params) => {
         виталиигогунскии: "Vitaly Gogunsky (Виталий Гогунский)",
         evgeniyromantsov: "Evgeniy Romantsov (Евгений Романцов)",
         евгенийроманцов: "Evgeniy Romantsov (Евгений Романцов)",
+        joeystarr: "JoeyStarr (Джои Старр)",
+        джоистарр: "JoeyStarr (Джои Старр)",
+        icecube: "Ice Cube (Айс Кьюб)",
+        айскьюб: "Ice Cube (Айс Кьюб)",
+        methodman: "Method Man (Метод Мэн)",
+        методмэн: "Method Man (Метод Мэн)",
+        vingrhames: "Ving Rhames (Винг Реймз)",
+        вингреймз: "Ving Rhames (Винг Реймз)",
+        thomasschnauz: "Thomas Schnauz (Томас Шнауц)",
+        томасшнауц: "Thomas Schnauz (Томас Шнауц)",
+        petergould: "Peter Gould (Питер Гулд)",
+        питергулд: "Peter Gould (Питер Гулд)",
+        michaelmorris: "Michael Morris (Майкл Моррис)",
+        маиклморрис: "Michael Morris (Майкл Моррис)",
+        майклморрис: "Michael Morris (Майкл Моррис)",
+        adambernstein: "Adam Bernstein (Адам Бернштейн)",
+        адамбернштеин: "Adam Bernstein (Адам Бернштейн)",
         mikhailshulaev: "Mikhail Shulaev (Михаил Шулаев)",
         михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
     };
@@ -81,22 +109,25 @@ module.exports = async (params) => {
     }
 
     function canonicalPersonDisplay(value) {
-        const normalized = normalizePersonDisplay(value);
+        const role = personRole(value);
+        const normalized = personName(normalizePersonDisplay(value));
         const canonical = PERSON_CANONICAL_OVERRIDES[personBaseKey(normalized)] || normalized;
         if (!canonical || canonical.toUpperCase() === "N/A") return canonical;
+        let result = canonical;
         const pair = canonical.match(/^(.+?)\s*\(([^()]*)\)$/);
         if (pair) {
             const english = /[a-z]/i.test(pair[1]) ? pair[1].trim() : "";
             const russian = /[а-яё]/i.test(pair[2]) ? pair[2].trim() : "";
-            if (english && russian) return `${english} (${russian})`;
+            if (english && russian) result = `${english} (${russian})`;
         }
-        if (/[а-яё]/i.test(canonical) && !/[a-z]/i.test(canonical)) {
-            return `${titleCaseTransliteration(canonical)} (${canonical})`;
+        if (!pair && /[а-яё]/i.test(canonical) && !/[a-z]/i.test(canonical)) {
+            result = `${titleCaseTransliteration(canonical)} (${canonical})`;
         }
-        return canonical;
+        return role && result ? `${result} - ${role}` : result;
     }
 
     function entityKey(field, value) {
+        if (field === "Актеры") return `${personBaseKey(value)}|${personRole(value).toLocaleLowerCase("ru")}`;
         if (field !== "Жанр") return personBaseKey(value);
         const text = asText(value);
         return text.toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");

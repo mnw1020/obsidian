@@ -39,6 +39,10 @@ function kinoEntityText(value) {
     return String(value ?? "").trim().normalize("NFC");
 }
 
+function kinoPersonName(value) {
+    return kinoEntityText(value).replace(/\s+-\s+.+$/, "").trim();
+}
+
 function kinoEntityKey(value) {
     return kinoEntityText(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
 }
@@ -83,18 +87,17 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
         continue;
     }
     [...groups.values()].forEach((group, index) => {
-        if (index) row.appendText(" · ");
-        const link = row.createEl("a");
+        if (field !== "Актеры" && index) row.appendText(" · ");
+        const target = field === "Актеры" ? kinoPersonName(group.label) : group.label;
+        const linkRow = field === "Актеры" ? row.createDiv({ cls: "kino-entity-link-line" }) : row;
+        const link = linkRow.createEl("a");
         link.textContent = group.label;
-        link.href = kinoUri(choice, group.label);
+        link.href = kinoUri(choice, target);
         if (group.originals.some(original => original !== group.label)) {
             link.title = "В YAML: " + group.originals.join(" / ");
         }
     });
 }
 ```
-
-Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
-
 ---
 ![](https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg)

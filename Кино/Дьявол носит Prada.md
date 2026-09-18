@@ -36,6 +36,10 @@ function kinoEntityText(value) {
     return String(value ?? "").trim().normalize("NFC");
 }
 
+function kinoPersonName(value) {
+    return kinoEntityText(value).replace(/\s+-\s+.+$/, "").trim();
+}
+
 function kinoEntityKey(value) {
     return kinoEntityText(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
 }
@@ -80,19 +84,17 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
         continue;
     }
     [...groups.values()].forEach((group, index) => {
-        if (index) row.appendText(" · ");
-        const link = row.createEl("a");
+        if (field !== "Актеры" && index) row.appendText(" · ");
+        const target = field === "Актеры" ? kinoPersonName(group.label) : group.label;
+        const linkRow = field === "Актеры" ? row.createDiv({ cls: "kino-entity-link-line" }) : row;
+        const link = linkRow.createEl("a");
         link.textContent = group.label;
-        link.href = kinoUri(choice, group.label);
+        link.href = kinoUri(choice, target);
         if (group.originals.some(original => original !== group.label)) {
             link.title = "В YAML: " + group.originals.join(" / ");
         }
     });
 }
 ```
-
-Успех всегда требует платы. Вопрос - готов ли ты платить именно такую цену? Работа мечты может оказаться ловушкой. Легко потерять себя в угоду "ценностям компании".  
-Компромисс с собой происходит незаметно - сначала мелочь, потом норма, а в конце ты уже не помнишь, где был твой выбор. Система редко ломает сразу - она приучает. И в этом ее главная сила.
-
 ---
 ![](https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg)

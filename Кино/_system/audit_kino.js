@@ -104,15 +104,24 @@ module.exports = async (params) => {
         return match ? (match[2] || match[1]).trim() : text;
     }
 
+    function personRole(value) {
+        return stripWiki(value).match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || "";
+    }
+
+    function personName(value) {
+        return stripWiki(value).replace(/\s+-\s+.+$/, "").trim();
+    }
+
     function personBaseKey(value) {
-        let text = stripWiki(value).normalize("NFC");
+        let text = personName(value).normalize("NFC");
         text = text.replace(/\s*\([^()]*\)\s*$/, "");
         return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             .toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
     }
 
     function normalizePersonDisplay(value) {
-        let text = stripWiki(value).trim().normalize("NFC");
+        const role = personRole(value);
+        let text = personName(value).normalize("NFC");
         for (let i = 0; i < 5; i++) {
             const match = text.match(/^(.+?)\s*\((.*)\)$/);
             if (!match || !match[2].includes("(")) break;
@@ -121,8 +130,9 @@ module.exports = async (params) => {
             text = `${match[1].trim()} (${inner})`;
         }
         const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
-        if (pair && personBaseKey(pair[1]) === personBaseKey(pair[2])) return pair[1].trim();
-        return text;
+        const normalized = pair && personBaseKey(pair[1]) === personBaseKey(pair[2])
+            ? pair[1].trim() : text;
+        return role && normalized ? `${normalized} - ${role}` : normalized;
     }
 
     function personKey(value) {
@@ -134,12 +144,12 @@ module.exports = async (params) => {
     }
 
     function hasSameParentheses(value) {
-        const pair = asText(value).match(/^(.+?)\s*\(([^()]*)\)$/);
+        const pair = personName(value).match(/^(.+?)\s*\(([^()]*)\)$/);
         return Boolean(pair && personBaseKey(pair[1]) === personBaseKey(pair[2]));
     }
 
     function personFormatIssue(value) {
-        const text = stripWiki(normalizePersonDisplay(value));
+        const text = personName(normalizePersonDisplay(value));
         if (!text || text.toUpperCase() === "N/A") return "";
         const hasLatin = /[a-z]/i.test(text);
         const hasCyrillic = /[а-яё]/i.test(text);
@@ -200,6 +210,12 @@ module.exports = async (params) => {
         if (!array.includes(value)) array.push(value);
     }
 
+    function entityValueKey(field, value) {
+        const base = field === "Жанр" ? normalizeText(value) : personKey(value);
+        if (field !== "Актеры") return base;
+        return `${base}|${normalizeText(personRole(value))}`;
+    }
+
     const allMarkdown = app.vault.getMarkdownFiles();
     const mediaFiles = allMarkdown.filter(isMedia).sort((a, b) => a.path.localeCompare(b.path, "ru"));
     const media = mediaFiles.filter(file => !isTemplate(file, getFrontmatter(file)));
@@ -228,6 +244,7 @@ module.exports = async (params) => {
     let missingActors = 0;
     let missingGenres = 0;
     let naDirectors = 0;
+    let actorsWithoutRoles = 0;
     let franchiseLinkCount = 0;
 
     for (const file of media) {
@@ -296,8 +313,9 @@ module.exports = async (params) => {
                     const formatIssue = personFormatIssue(value);
                     if (formatIssue) addError(file, `в \`${field}\`: ${formatIssue}: \`${value}\`.`);
                     if (value.toUpperCase() === "N/A") naDirectors++;
+                    if (field === "Актеры" && value.toUpperCase() !== "N/A" && !personRole(value)) actorsWithoutRoles++;
                 }
-                const key = field === "Жанр" ? normalizeText(value) : personKey(value);
+                const key = entityValueKey(field, value);
                 if (key && seen.has(key)) addError(file, `в \`${field}\` есть точный дубль: \`${value}\`.`);
                 if (key) seen.add(key);
             }
@@ -344,6 +362,7 @@ module.exports = async (params) => {
     if (missingActors) warnings.push(`Карточек без актёров: **${missingActors}**.`);
     if (missingGenres) warnings.push(`Карточек без жанра: **${missingGenres}**.`);
     if (naDirectors) warnings.push(`Карточек с режиссёром \`N/A\`: **${naDirectors}**.`);
+    if (actorsWithoutRoles) warnings.push(`Актёров без указанной роли: **${actorsWithoutRoles}**. Роль добавляется только если её вернул источник КП/IMDb.`);
 
     function addGrouped(map, key, item) {
         if (!map.has(key)) map.set(key, []);
