@@ -353,6 +353,59 @@ async function getKpDetails(ob, kpId) {
     return result?.film ? { ...result.film, cast: result.cast || {} } : null;
 }
 
+function asPeople(value) {
+    return Array.isArray(value) ? value : value ? [value] : [];
+}
+
+function normalizeApiCredit(person) {
+    const names = creditNameParts(person, "mixed");
+    const role = personRoleParts(person);
+    return {
+        name_en: person?.name_en || names.english || "",
+        name_ru: person?.name_ru || names.russian || "",
+        display_name: person?.display_name || names.raw || names.english || names.russian || "",
+        role: person?.role || role.english || role.russian || "",
+        role_en: person?.role_en || role.english || "",
+        role_ru: person?.role_ru || role.russian || ""
+    };
+}
+
+function normalizeKpApiCast(cast) {
+    const rawActors = asPeople(cast?.actors ?? cast?.actor ?? cast?.cast);
+    const rawDirectors = [...asPeople(cast?.directors), ...asPeople(cast?.director)];
+    const actors = rawActors.map(normalizeApiCredit)
+        .filter(person => person.name_en || person.name_ru);
+    const directors = uniquePeople(rawDirectors.map(normalizeApiCredit)
+        .filter(person => person.name_en || person.name_ru));
+    return { actors: uniqueRoleCredits(actors), directors };
+}
+
+function uniqueRoleCredits(values) {
+    const result = [];
+    const seen = new Set();
+    for (const person of values || []) {
+        const name = sourcePersonName(person);
+        const role = sourcePersonRole(person, "Актеры");
+        const key = `${name.toLocaleLowerCase("en")}|${role.toLocaleLowerCase("ru")}`;
+        if (!name || seen.has(key)) continue;
+        seen.add(key);
+        result.push(person);
+    }
+    return result;
+}
+
+function mergeKpCredits(left, right) {
+    return {
+        actors: uniqueRoleCredits([...(left?.actors || []), ...(right?.actors || [])]),
+        directors: uniquePeople([...(left?.directors || []), ...(right?.directors || [])])
+    };
+}
+
+async function getKpApiCredits(ob, kpId) {
+    const details = await getKpDetails(ob, kpId);
+    return normalizeKpApiCast(details?.cast);
+}
+
 function decodeHtml(value) {
     return String(value ?? "")
         .replace(/&#(x[0-9a-f]+|[0-9]+);/gi, (_, code) => {
@@ -729,76 +782,114 @@ function parseKinopoiskCastPage(html) {
 }
 
 function parseImdbGraphqlCredits(data) {
-    const edges = data?.data?.title?.mainColumnData?.cast?.edges
-        || data?.data?.title?.credits?.edges
+    const castEdges = data?.data?.title?.credits?.edges
+        || data?.data?.title?.mainColumnData?.cast?.edges
         || [];
-    const values = edges.map(edge => {
+    const directorEdges = data?.data?.title?.directorCredits?.edges || [];
+    const edges = [...castEdges, ...directorEdges];
+    const actors = [];
+    const directors = [];
+    edges.forEach(edge => {
         const node = edge?.node || edge || {};
         const name = node.name || node.person || {};
+        const nameEn = valueText(name.nameText?.text || name.nameText || name.text || name);
+        if (!nameEn) return;
+        const category = String(node.category?.id || node.category?.text || "").toLowerCase();
+        if (category === "director" || category === "directors") {
+            directors.push({ name_en: nameEn, display_name: nameEn });
+            return;
+        }
+        // Любой узел с category - это съёмочная группа, а не актёр.
+        if (category) return;
         const role = valueText(node.characters || node.character || node.roles)
             || valueText(node.attributes);
-        return {
-            name_en: valueText(name.nameText?.text || name.nameText || name.text || name),
-            display_name: valueText(name.nameText?.text || name.nameText || name.text || name),
-            role
-        };
+        if (role) actors.push({ name_en: nameEn, display_name: nameEn, role });
     });
-    return normalizeCredits(values, "imdb");
+    return { actors: normalizeCredits(actors, "imdb"), directors: uniquePeople(directors) };
 }
 
 async function getImdbGraphqlCredits(ob, imdbId) {
     const id = extractImdbId(imdbId);
-    if (!id) return [];
-    const query = `query TitleCast($id: ID!) {
+    if (!id) return { actors: [], directors: [] };
+    const query = `query TitleCredits($id: ID!, $after: ID) {
         title(id: $id) {
-            mainColumnData {
-                cast(first: 100) {
-                    edges {
-                        node {
-                            name { nameText { text } }
-                            characters { name }
-                            attributes { text }
-                        }
+            credits(first: 100, after: $after) {
+                edges {
+                    node {
+                        name { nameText { text } }
+                        ... on Cast { characters { name } }
+                        ... on Crew { category { id text } }
+                        attributes { text }
+                    }
+                }
+                pageInfo { hasNextPage endCursor }
+            }
+            directorCredits: credits(first: 10, filter: { categories: ["director"] }) {
+                edges {
+                    node {
+                        name { nameText { text } }
+                        ... on Crew { category { id text } }
                     }
                 }
             }
         }
     }`;
     for (const endpoint of ["https://graphql.imdb.com/", "https://api.graphql.imdb.com/"]) {
-        const data = await postJson(ob, endpoint, {
-            operationName: "TitleCast",
-            query,
-            variables: { id }
-        });
-        const credits = parseImdbGraphqlCredits(data);
-        if (credits.length) return credits;
+        const actors = [];
+        const directors = [];
+        let after = null;
+        for (let page = 0; page < 5; page++) {
+            const data = await postJson(ob, endpoint, {
+                operationName: "TitleCredits",
+                query,
+                variables: { id, after }
+            });
+            const credits = parseImdbGraphqlCredits(data);
+            actors.push(...credits.actors);
+            directors.push(...credits.directors);
+            const pageInfo = data?.data?.title?.credits?.pageInfo;
+            if (!pageInfo?.hasNextPage || !pageInfo.endCursor) break;
+            after = pageInfo.endCursor;
+        }
+        const result = { actors: uniqueCredits(actors), directors: uniquePeople(directors) };
+        if (result.actors.length || result.directors.length) return result;
     }
-    return [];
+    return { actors: [], directors: [] };
 }
 
 async function getImdbCredits(ob, imdbId) {
-    const html = await getText(ob, `https://www.imdb.com/title/${imdbId}/fullcredits/`, {
-        Referer: `https://www.imdb.com/title/${imdbId}/`
-    });
-    const parsed = parseImdbFullcredits(html);
+    let parsed = { actors: [], directors: [] };
+    for (const base of ["https://www.imdb.com", "https://m.imdb.com"]) {
+        const html = await getText(ob, `${base}/title/${imdbId}/fullcredits/`, {
+            Referer: `https://www.imdb.com/title/${imdbId}/`
+        });
+        parsed = parseImdbFullcredits(html);
+        if (parsed.actors.length || parsed.directors.length) break;
+    }
     const htmlCredits = parsed.actors;
     const graphqlCredits = await getImdbGraphqlCredits(ob, imdbId);
-    return { actors: uniqueCredits([...htmlCredits, ...graphqlCredits]), directors: parsed.directors };
+    return {
+        actors: uniqueCredits([...htmlCredits, ...graphqlCredits.actors]),
+        directors: uniquePeople([...parsed.directors, ...graphqlCredits.directors])
+    };
 }
 
 async function getKinopoiskCredits(ob, kpId, type) {
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
-    const empty = { actors: [], directors: [] };
+    let pageCredits = { actors: [], directors: [] };
     for (const path of paths) {
         const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${kpId}/cast/`, {
             Referer: `https://www.kinopoisk.ru/${path}/${kpId}/`
         });
         const cast = parseKinopoiskCastPage(html);
-        if (cast.actors.length || cast.directors.length) return cast;
         const credits = parseCredits(html, "kp");
-        if (credits.length) return { actors: credits, directors: [] };
+        pageCredits = mergeKpCredits(pageCredits, {
+            actors: [...cast.actors, ...credits],
+            directors: cast.directors
+        });
     }
-    return empty;
+    const apiCredits = await getKpApiCredits(ob, kpId);
+    return mergeKpCredits(pageCredits, apiCredits);
 }
 
 function baseKey(value) {

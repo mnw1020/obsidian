@@ -296,7 +296,11 @@ async function addMovieCore(params, settings, progress, handOff) {
     let credits = await loadActorCredits(
         ob, movie.imdbID, kp?.kp_id, movie.Type, status
     );
-    const kpHasPeople = Boolean(kp?.cast?.actors?.length || kp?.cast?.director);
+    const kpHasPeople = Boolean(
+        kp?.cast?.actors?.length
+        || kp?.cast?.director?.length
+        || kp?.cast?.directors?.length
+    );
     if ((!credits.imdb.length || !credits.imdbDirectors.length) && !kp?.kp_id && !kpHasPeople) {
         status("IMDb не дал полный список, жду ID Кинопоиска…");
         const manualKpId = await askKinopoiskId(
@@ -1200,41 +1204,63 @@ function parseImdbFullcredits(html) {
 }
 
 function parseImdbGraphqlCredits(data) {
-    const edges = data?.data?.title?.mainColumnData?.cast?.edges
-        || data?.data?.title?.credits?.edges
+    const castEdges = data?.data?.title?.credits?.edges
+        || data?.data?.title?.mainColumnData?.cast?.edges
         || [];
-    return uniqueCredits(edges.map(edge => {
+    const directorEdges = data?.data?.title?.directorCredits?.edges || [];
+    const edges = [...castEdges, ...directorEdges];
+    const actors = [];
+    const directors = [];
+    edges.forEach(edge => {
         const node = edge?.node || edge || {};
         const name = node.name || node.person || {};
         const displayName = valueText(name.nameText?.text || name.nameText || name.text || name);
-        return {
-            name_en: displayName,
-            display_name: displayName,
-            role: valueText(node.characters || node.character || node.roles)
-                || valueText(node.attributes)
-        };
-    }));
+        if (!displayName) return;
+        const category = String(node.category?.id || node.category?.text || "").toLowerCase();
+        if (category === "director" || category === "directors") {
+            directors.push({ name_en: displayName, display_name: displayName });
+            return;
+        }
+        // Узлы Crew с другой category не должны попадать в список актёров.
+        if (category) return;
+        const role = valueText(node.characters || node.character || node.roles)
+            || valueText(node.attributes);
+        if (role) actors.push({ name_en: displayName, display_name: displayName, role });
+    });
+    return { actors: uniqueCredits(actors), directors: uniquePeople(directors) };
 }
 
 async function imdbCredits(ob, imdbId) {
     const id = extractImdbId(imdbId);
     if (!id) return { actors: [], directors: [] };
-    const html = await getText(ob, `https://www.imdb.com/title/${id}/fullcredits/`, {
-        Referer: `https://www.imdb.com/title/${id}/`
-    });
-    const parsed = parseImdbFullcredits(html);
+    let parsed = { actors: [], directors: [] };
+    for (const base of ["https://www.imdb.com", "https://m.imdb.com"]) {
+        const html = await getText(ob, `${base}/title/${id}/fullcredits/`, {
+            Referer: `https://www.imdb.com/title/${id}/`
+        });
+        parsed = parseImdbFullcredits(html);
+        if (parsed.actors.length || parsed.directors.length) break;
+    }
     const htmlCredits = parsed.actors;
     const query = [
-        "query TitleCast($id: ID!) {",
+        "query TitleCredits($id: ID!, $after: ID) {",
         "  title(id: $id) {",
-        "    mainColumnData {",
-        "      cast(first: 100) {",
-        "        edges {",
-        "          node {",
-        "            name { nameText { text } }",
-        "            characters { name }",
-        "            attributes { text }",
-        "          }",
+        "    credits(first: 100, after: $after) {",
+        "      edges {",
+        "        node {",
+        "          name { nameText { text } }",
+        "          ... on Cast { characters { name } }",
+        "          ... on Crew { category { id text } }",
+        "          attributes { text }",
+        "        }",
+        "      }",
+        "      pageInfo { hasNextPage endCursor }",
+        "    }",
+        "    directorCredits: credits(first: 10, filter: { categories: [\"director\"] }) {",
+        "      edges {",
+        "        node {",
+        "          name { nameText { text } }",
+        "          ... on Crew { category { id text } }",
         "        }",
         "      }",
         "    }",
@@ -1242,34 +1268,103 @@ async function imdbCredits(ob, imdbId) {
         "}"
     ].join("\n");
     for (const endpoint of ["https://graphql.imdb.com/", "https://api.graphql.imdb.com/"]) {
-        const data = await postJson(ob, endpoint, {
-            operationName: "TitleCast",
-            query,
-            variables: { id }
-        });
-        const credits = parseImdbGraphqlCredits(data);
-        if (credits.length) return {
-            actors: uniqueCredits([...htmlCredits, ...credits]),
-            directors: parsed.directors
+        const actors = [];
+        const directors = [];
+        let after = null;
+        for (let page = 0; page < 5; page++) {
+            const data = await postJson(ob, endpoint, {
+                operationName: "TitleCredits",
+                query,
+                variables: { id, after }
+            });
+            const credits = parseImdbGraphqlCredits(data);
+            actors.push(...credits.actors);
+            directors.push(...credits.directors);
+            const pageInfo = data?.data?.title?.credits?.pageInfo;
+            if (!pageInfo?.hasNextPage || !pageInfo.endCursor) break;
+            after = pageInfo.endCursor;
+        }
+        if (actors.length || directors.length) return {
+            actors: uniqueCredits([...htmlCredits, ...actors]),
+            directors: uniquePeople([...parsed.directors, ...directors])
         };
     }
     return parsed;
+}
+
+function asPeople(value) {
+    return Array.isArray(value) ? value : value ? [value] : [];
+}
+
+function normalizeApiCredit(person) {
+    const names = creditNameParts(person, "mixed");
+    const role = roleParts(person);
+    return {
+        name_en: person?.name_en || names.english || "",
+        name_ru: person?.name_ru || names.russian || "",
+        display_name: person?.display_name || names.raw || names.english || names.russian || "",
+        role: person?.role || role.english || role.russian || "",
+        role_en: person?.role_en || role.english || "",
+        role_ru: person?.role_ru || role.russian || ""
+    };
+}
+
+function normalizeKpApiCast(cast) {
+    const rawActors = asPeople(cast?.actors ?? cast?.actor ?? cast?.cast);
+    const rawDirectors = [...asPeople(cast?.directors), ...asPeople(cast?.director)];
+    const actors = rawActors.map(normalizeApiCredit)
+        .filter(person => person.name_en || person.name_ru);
+    const directors = uniquePeople(rawDirectors.map(normalizeApiCredit)
+        .filter(person => person.name_en || person.name_ru));
+    return { actors: uniqueRoleCredits(actors), directors };
+}
+
+function uniqueRoleCredits(values) {
+    const result = [];
+    const seen = new Set();
+    for (const person of values || []) {
+        const name = sourcePersonName(person);
+        const role = sourcePersonRole(person, "Актеры");
+        const key = `${name.toLocaleLowerCase("en")}|${role.toLocaleLowerCase("ru")}`;
+        if (!name || seen.has(key)) continue;
+        seen.add(key);
+        result.push(person);
+    }
+    return result;
+}
+
+function mergeKpCredits(left, right) {
+    return {
+        actors: uniqueRoleCredits([...(left?.actors || []), ...(right?.actors || [])]),
+        directors: uniquePeople([...(left?.directors || []), ...(right?.directors || [])])
+    };
+}
+
+async function getKpApiCredits(ob, kpId) {
+    const id = String(kpId || "").match(/^\d{1,12}$/)?.[0] || "";
+    if (!id) return { actors: [], directors: [] };
+    const result = await getJson(ob, `https://movie-planner.ru/api/public/film/${id}`);
+    return normalizeKpApiCast(result?.cast);
 }
 
 async function kinopoiskCredits(ob, kpId, type) {
     const id = String(kpId || "").match(/^\d{1,12}$/)?.[0] || "";
     if (!id) return { actors: [], directors: [] };
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
+    let pageCredits = { actors: [], directors: [] };
     for (const path of paths) {
         const html = await getText(ob, `https://www.kinopoisk.ru/${path}/${id}/cast/`, {
             Referer: `https://www.kinopoisk.ru/${path}/${id}/`
         });
         const cast = parseKinopoiskCastPage(html);
-        if (cast.actors.length || cast.directors.length) return cast;
         const credits = parseCreditPage(html, "kp");
-        if (credits.length) return { actors: credits, directors: [] };
+        pageCredits = mergeKpCredits(pageCredits, {
+            actors: [...cast.actors, ...credits],
+            directors: cast.directors
+        });
     }
-    return { actors: [], directors: [] };
+    const apiCredits = await getKpApiCredits(ob, id);
+    return mergeKpCredits(pageCredits, apiCredits);
 }
 
 async function loadActorCredits(ob, imdbId, kpId, type, status) {
