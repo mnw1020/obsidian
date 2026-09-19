@@ -707,7 +707,14 @@ function mergedPeople(peopleSources, field) {
         seen.add(key);
         result.push(key);
     }
-    return result;
+    return result.sort(comparePeopleValues);
+}
+
+function comparePeopleValues(left, right) {
+    const leftName = sourcePersonName(left);
+    const rightName = sourcePersonName(right);
+    return leftName.localeCompare(rightName, "en", { sensitivity: "base", numeric: true })
+        || String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
 }
 function kinoRuntime(movie, kp) {
     const original = clean(movie?.Runtime);

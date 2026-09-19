@@ -1114,7 +1114,16 @@ function replacePeople(source, field) {
         displayValues.push(display || name);
         if (field === "Актеры" && /\s+-\s+/.test(display)) roles++;
     }
+    values.sort(comparePeopleValues);
+    displayValues.sort(comparePeopleValues);
     return { values, displayValues, roles, replaced: Boolean(source?.length) };
+}
+
+function comparePeopleValues(left, right) {
+    const leftName = sourcePersonName(left);
+    const rightName = sourcePersonName(right);
+    return leftName.localeCompare(rightName, "en", { sensitivity: "base", numeric: true })
+        || String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
 }
 
 function ensureRoleLinksBlock(raw) {
