@@ -3,8 +3,8 @@
  * Название в YAML остаётся оригинальным; имя файла берётся на русском.
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
  * Актеры и режиссеры сначала берутся из IMDb fullcredits/GraphQL, затем из КП /cast/.
- * Успешный источник полностью заменяет поле. Имена и роли не переводятся,
- * не склеиваются в English (Русский) и не проходят через список алиасов.
+ * Успешный источник полностью заменяет поле. Имена в YAML всегда латиницей;
+ * строки с ролями хранятся отдельно и выводятся по одной на строку.
  */
 const API_KEY_OPTION = "OMDb API Key";
 const ROOT = "Кино";
@@ -81,6 +81,56 @@ function kinoPersonDisplay(field, value) {
     return String(value ?? "").trim().normalize("NFC");
 }
 const ENTITY_LINKS_BLOCK = "<!-- KINO:ENTITY:LINKS:V2 -->\n```dataviewjs\nconst KINO_GENRE_ALIASES = {\"Боевик\":[\"Action\",\"Боевик\"],\"Приключения\":[\"Adventure\",\"Приключения\"],\"Анимация\":[\"Animation\",\"Анимация\",\"Мультфильм\"],\"Биография\":[\"Biography\",\"Биография\"],\"Комедия\":[\"Comedy\",\"Комедия\"],\"Криминал\":[\"Crime\",\"Криминал\"],\"Документальный\":[\"Documentary\",\"Документальный\",\"Документальное\"],\"Драма\":[\"Drama\",\"Драма\"],\"Семейный\":[\"Family\",\"Семейный\"],\"Фэнтези\":[\"Fantasy\",\"Фэнтези\"],\"История\":[\"History\",\"История\"],\"Ужасы\":[\"Horror\",\"Ужасы\"],\"Музыка\":[\"Music\",\"Музыка\"],\"Мюзикл\":[\"Musical\",\"Мюзикл\"],\"Мистика\":[\"Mystery\",\"Мистика\"],\"Мелодрама\":[\"Romance\",\"Мелодрама\"],\"Фантастика\":[\"Sci-Fi\",\"Science Fiction\",\"Фантастика\"],\"Короткометражка\":[\"Short\",\"Short Film\",\"Короткометражка\"],\"Спорт\":[\"Sport\",\"Sports\",\"Спорт\"],\"Триллер\":[\"Thriller\",\"Триллер\"],\"Военный\":[\"War\",\"Военный\"],\"Реалити-шоу\":[\"Reality-TV\",\"Reality TV\",\"Реалити-шоу\"],\"Вестерн\":[\"Western\",\"Вестерн\"]};\nconst KINO_ENTITY_FIELDS = [\n    [\"Режисер\", \"Режиссер\", \"Кино - Открыть режиссера\"],\n    [\"Актеры\", \"Актеры\", \"Кино - Открыть актера\"],\n    [\"Жанр\", \"Жанры\", \"Кино - Открыть жанр\"]\n];\n\nfunction kinoEntityText(value) {\n    return String(value ?? \"\").trim().normalize(\"NFC\");\n}\n\nfunction kinoPersonName(value) {\n    return kinoEntityText(value).replace(/\\s+-\\s+.+$/, \"\").trim();\n}\n\nfunction kinoEntityKey(value) {\n    return kinoEntityText(value).toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\");\n}\n\nfunction kinoCanonicalGenre(value) {\n    const text = kinoEntityText(value);\n    const key = kinoEntityKey(text);\n    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {\n        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;\n    }\n    return text;\n}\n\nfunction kinoValues(value) {\n    return [...new Set((Array.isArray(value) ? value : [value])\n        .map(kinoEntityText).filter(Boolean))];\n}\n\nfunction kinoCanonical(field, value) {\n    return field === \"Жанр\" ? kinoCanonicalGenre(value) : kinoEntityText(value);\n}\n\nfunction kinoUri(choice, value) {\n    return \"obsidian://quickadd?vault=\" + encodeURIComponent(app.vault.getName())\n        + \"&choice=\" + encodeURIComponent(choice)\n        + \"&value-entity=\" + encodeURIComponent(value);\n}\n\nconst kinoRoot = dv.container.createDiv({ cls: \"kino-entity-links\" });\nfor (const [field, label, choice] of KINO_ENTITY_FIELDS) {\n    const groups = new Map();\n    for (const original of kinoValues(dv.current()[field])) {\n        const canonical = kinoCanonical(field, original);\n        const key = kinoEntityKey(canonical);\n        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });\n        groups.get(key).originals.push(original);\n    }\n    const row = kinoRoot.createDiv({ cls: \"kino-entity-links-row\" });\n    row.createEl(\"strong\", { text: label + \": \" });\n    if (!groups.size) {\n        row.appendText(\"Не указано\");\n        continue;\n    }\n    [...groups.values()].forEach((group, index) => {\n        if (field !== \"Актеры\" && index) row.appendText(\" · \");\n        const target = field === \"Актеры\" ? kinoPersonName(group.label) : group.label;\n        const linkRow = field === \"Актеры\" ? row.createDiv({ cls: \"kino-entity-link-line\" }) : row;\n        const link = linkRow.createEl(\"a\");\n        link.textContent = group.label;\n        link.href = kinoUri(choice, target);\n        if (group.originals.some(original => original !== group.label)) {\n            link.title = \"В YAML: \" + group.originals.join(\" / \");\n        }\n    });\n}\n```";
+// Новая версия блока читает роли из отдельного YAML-поля. Поле "Актеры"
+// остается чистым списком имен и поэтому продолжает работать как индекс.
+const ROLE_LINKS_BLOCK = [
+    '<!-- KINO:ENTITY:LINKS:V3 -->',
+    '```dataviewjs',
+    'const KINO_ENTITY_FIELDS = [',
+    '    ["Режисер", "Режиссер", "Кино - Открыть режиссера"],',
+    '    ["Актеры", "Актеры", "Кино - Открыть актера"],',
+    '    ["Жанр", "Жанры", "Кино - Открыть жанр"]',
+    '];',
+    '',
+    'function kinoText(value) { return String(value ?? "").trim().normalize("NFC"); }',
+    'function kinoValues(value) {',
+    '    return [...new Set((Array.isArray(value) ? value : [value]).map(kinoText).filter(Boolean))];',
+    '}',
+    'function kinoName(value) { return kinoText(value).replace(/\\s+-\\s+.+$/, "").trim(); }',
+    'function kinoKey(value) { return kinoText(value).toLocaleLowerCase("ru").replace(/ё/g, "е"); }',
+    'function kinoUri(choice, value) {',
+    '    return "obsidian://quickadd?vault=" + encodeURIComponent(app.vault.getName())',
+    '        + "&choice=" + encodeURIComponent(choice)',
+    '        + "&value-entity=" + encodeURIComponent(value);',
+    '}',
+    '',
+    'const actorRoles = kinoValues(dv.current()["Роли актеров"]);',
+    'const root = dv.container.createDiv({ cls: "kino-entity-links" });',
+    'for (const [field, label, choice] of KINO_ENTITY_FIELDS) {',
+    '    const row = root.createDiv({ cls: "kino-entity-links-row" });',
+    '    row.createEl("strong", { text: label + ": " });',
+    '    const values = field === "Актеры"',
+    '        ? (actorRoles.length ? actorRoles : kinoValues(dv.current()[field]))',
+    '        : kinoValues(dv.current()[field]);',
+    '    if (!values.length) { row.appendText("Не указано"); continue; }',
+    '    if (field === "Актеры") {',
+    '        values.forEach(value => {',
+    '            const line = row.createDiv({ cls: "kino-entity-link-line" });',
+    '            const link = line.createEl("a");',
+    '            link.textContent = value;',
+    '            link.href = kinoUri(choice, kinoName(value));',
+    '        });',
+    '        continue;',
+    '    }',
+    '    values.forEach((value, index) => {',
+    '        if (index) row.appendText(" · ");',
+    '        const link = row.createEl("a");',
+    '        link.textContent = value;',
+    '        link.href = kinoUri(choice, value);',
+    '    });',
+    '}',
+    '```'
+].join("\n");
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const cooldown = new Map();
 let busy = false;
@@ -243,30 +293,52 @@ async function addMovieCore(params, settings, progress, handOff) {
     const franchise = {};
     const yamlNumber = value => number(value) === null ? "null" : String(number(value));
     const linkList = (value, field) => links(value, field).map(x => "\n  - " + JSON.stringify(x)).join("");
-    const currentActors = clean(movie.Actors).split(/\s*,\s*/).map(entityName).filter(Boolean);
-    const credits = await loadActorCredits(
-        ob, movie.imdbID, kp?.kp_id, movie.Type, status, currentActors, movie.Director
+    let credits = await loadActorCredits(
+        ob, movie.imdbID, kp?.kp_id, movie.Type, status
     );
-    const actorValues = mergedPeople(movie.Actors, [
+    const kpHasPeople = Boolean(kp?.cast?.actors?.length || kp?.cast?.director);
+    if ((!credits.imdb.length || !credits.imdbDirectors.length) && !kp?.kp_id && !kpHasPeople) {
+        status("IMDb не дал полный список, жду ID Кинопоиска…");
+        const manualKpId = await askKinopoiskId(
+            qa,
+            "IMDb не вернул полный список актёров или режиссера. Вставь ID/ссылку КП"
+        );
+        if (manualKpId === undefined) return;
+        if (manualKpId) {
+            const directKp = await kinopoiskById(get, manualKpId);
+            if (directKp) {
+                kp = directKp;
+                credits = await loadActorCredits(ob, movie.imdbID, kp.kp_id, movie.Type, status);
+            } else {
+                new ob.Notice("ID КП не найден. Продолжаю с данными IMDb.");
+            }
+        }
+    }
+    const actorRoleValues = mergedPeople([
         credits.imdb,
         credits.kp,
         kp?.cast?.actors
     ], "Актеры");
-    const directorValues = mergedPeople(movie.Director, [
+    const directorValues = mergedPeople([
         credits.imdbDirectors,
         credits.directors,
         kp?.cast?.director
     ], "Режисер");
+    const actorNames = [...new Set(actorRoleValues.map(value => sourcePersonName(value)).filter(Boolean))];
+    const directorNames = [...new Set(directorValues.map(value => sourcePersonName(value)).filter(Boolean))];
+    const yamlList = values => (values || []).map(value => "\n  - " + JSON.stringify(value)).join("");
     params.variables = {
         ...params.variables, ...movie,
         Released: normalizeRelease(movie.Released),
         Plot: description.replace(/\s+/g," ").trim(),
         Runtime: kinoRuntime(movie, kp),
-        Actors: actorValues.join(", "),
-        Director: directorValues.join(", "),
-        actorLinks: linkList(actorValues, "Актеры"),
+        Actors: actorNames.join(", "),
+        Director: directorNames.join(", "),
+        actorLinks: yamlList(actorNames),
+        actorRoleLinks: yamlList(actorRoleValues),
+        actorRoles: actorRoleValues.join("\n"),
         genreLinks: linkList(movie.Genre, "Жанр"),
-        directorLink: linkList(directorValues, "Режисер"),
+        directorLink: yamlList(directorNames),
         fileName: title,
         typeLink: `[[${movie.Type === "movie" ? "Movies" : "Series"}]]`,
         languageLower: clean(movie.Language).toLowerCase(),
@@ -280,7 +352,11 @@ async function addMovieCore(params, settings, progress, handOff) {
         franchisePart: franchise.part ?? ""
     };
     status("создаю карточку из шаблона…");
-    watchTemplate(params,movie,title,description,franchise,progress,kp?.kp_id || "");
+    watchTemplate(params, movie, title, description, franchise, progress, kp?.kp_id || "", {
+        actorNames,
+        actorRoles: actorRoleValues,
+        directorNames
+    });
     handOff?.();
     return true;
 }
@@ -511,6 +587,15 @@ function transliterateRussian(value) {
 function titleCaseTransliteration(value) {
     return transliterateRussian(value).replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
 }
+function transliteratePersonName(value) {
+    return String(value || "").split(/([А-ЯЁа-яё]+)/u).map(part => {
+        if (!/[А-ЯЁа-яё]/u.test(part)) return part;
+        const latin = transliterateRussian(part);
+        return /^[А-ЯЁ]/u.test(part)
+            ? latin.charAt(0).toUpperCase() + latin.slice(1)
+            : latin;
+    }).join("").replace(/\s+/g, " ").trim();
+}
 function personMatchKeys(value) {
     const parts = personParts(value);
     const candidates = [clean(value), parts.english, parts.russian].filter(Boolean);
@@ -565,13 +650,21 @@ function personPair(english, russian, field, role = "") {
         ? `${result} - ${normalizedRole}` : result;
 }
 function sourcePersonName(person) {
-    if (typeof person === "string") {
-        return clean(person).replace(/^\[\[([\s\S]+?)\]\]$/, "$1").replace(/\s+-\s+.+$/, "").trim();
+    const candidates = typeof person === "string"
+        ? [person]
+        : [person?.name_en, person?.english_name, person?.original_name,
+            person?.display_name, person?.source_name, person?.name_raw,
+            person?.name, person?.name_ru];
+    let fallback = "";
+    for (const candidate of candidates.map(clean).filter(Boolean)) {
+        const text = candidate.replace(/^\[\[([\s\S]+?)\]\]$/, "$1")
+            .replace(/\s+-\s+.+$/, "").trim();
+        const parts = splitBilingualText(text);
+        if (parts.english && !/[а-яё]/i.test(parts.english)) return parts.english;
+        if (!/[а-яё]/i.test(text)) return text;
+        fallback ||= parts.russian || text;
     }
-    // display_name/source_name сохраняют текст источника. name_en нужен только
-    // для старого ответа API КП, где отдельного исходного display_name нет.
-    return clean(person?.display_name || person?.source_name || person?.name_raw
-        || person?.name_en || person?.english_name || person?.name_ru || person?.name).trim();
+    return transliteratePersonName(fallback);
 }
 
 function sourcePersonRole(person, field) {
@@ -589,14 +682,14 @@ function sourcePersonValue(person, field) {
     return role ? `${name} - ${role}` : name;
 }
 
-function mergedPeople(movieValue, peopleSources, field) {
+function mergedPeople(peopleSources, field) {
     const sources = (Array.isArray(peopleSources) ? peopleSources : [peopleSources])
         .filter(source => Array.isArray(source) && source.length);
     if (!sources.length) return [];
 
     // IMDb остается первым источником. КП используется только если IMDb пуст
-    // или дал меньше записей, чем резервный /cast/. Это предотвращает и старый
-    // короткий OMDb-список, и склейку разных написаний одного имени.
+    // или резервный /cast/ явно полнее. Старое содержимое карточки здесь
+    // намеренно не участвует: источник выбирается только по ID фильма.
     const primary = sources[0];
     const fallback = sources.slice(1).reduce((best, source) =>
         !best || source.length > best.length ? source : best, null);
@@ -620,7 +713,9 @@ function kinoRuntime(movie, kp) {
 }
 function links(value, field) {
     const values = Array.isArray(value) ? value : clean(value).split(",");
-    return [...new Set(values.map(x => kinoPersonDisplay(field, entityName(x))).filter(Boolean))];
+    return [...new Set(values.map(x => field === "Актеры"
+        ? sourcePersonName(x)
+        : kinoPersonDisplay(field, entityName(x))).filter(Boolean))];
 }
 function safeName(value) {
     let name = clean(value).replace(/[\\/:*?"<>|\[\]#^\x00-\x1f]/g, " ").replace(/\s+/g, " ").trim().replace(/[. ]+$/g, "").slice(0, 160).trim();
@@ -1121,7 +1216,7 @@ function parseImdbGraphqlCredits(data) {
     }));
 }
 
-async function imdbCredits(ob, imdbId, minimumCount = 0) {
+async function imdbCredits(ob, imdbId) {
     const id = extractImdbId(imdbId);
     if (!id) return { actors: [], directors: [] };
     const html = await getText(ob, `https://www.imdb.com/title/${id}/fullcredits/`, {
@@ -1129,7 +1224,6 @@ async function imdbCredits(ob, imdbId, minimumCount = 0) {
     });
     const parsed = parseImdbFullcredits(html);
     const htmlCredits = parsed.actors;
-    if (htmlCredits.length > minimumCount) return parsed;
     const query = [
         "query TitleCast($id: ID!) {",
         "  title(id: $id) {",
@@ -1178,9 +1272,9 @@ async function kinopoiskCredits(ob, kpId, type) {
     return { actors: [], directors: [] };
 }
 
-async function loadActorCredits(ob, imdbId, kpId, type, status, currentActors = [], currentDirector = "") {
+async function loadActorCredits(ob, imdbId, kpId, type, status) {
     status?.("получаю роли актёров из IMDb…");
-    const imdbResult = await imdbCredits(ob, imdbId, currentActors.length);
+    const imdbResult = await imdbCredits(ob, imdbId);
     const imdb = imdbResult.actors;
     if (!kpId) return { imdb, imdbDirectors: imdbResult.directors, kp: [], directors: [] };
     // КП используется вторым источником, если IMDb дал пустой или более
@@ -5947,7 +6041,7 @@ const CATALOG = {
 // Ожидаем только НОВУЮ карточку выбранного фильма, которую создаёт старый Template.
 // Никаких изменений существующих фильмов и самого шаблона.
 const pendingImports = new WeakMap();
-function watchTemplate(params, movie, title, description, franchise, progress, kinopoiskId) {
+function watchTemplate(params, movie, title, description, franchise, progress, kinopoiskId, people) {
     const {app, obsidian:ob} = params;
     pendingImports.get(app)?.();
     const previousFiles = new Set(app.vault.getMarkdownFiles());
@@ -5972,7 +6066,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
         try {
             const original = await app.vault.read(file);
             const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise,
-                normalizeRelease(movie.Released), kinopoiskId);
+                normalizeRelease(movie.Released), kinopoiskId, people);
             if (replacement === null) return;
             // Перепроверяем путь: исходный файл обязан находиться среди созданных этим ожиданием.
             if (app.vault.getAbstractFileByPath(file.path) !== file) return;
@@ -6023,7 +6117,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
     return cleanup;
 }
 
-function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoiskId) {
+function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoiskId, people = {}) {
     const match = raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return null;
     let yaml = match[2];
@@ -6032,11 +6126,25 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
     if (!imdb || imdb[1] !== id) return null;
     const newline = raw.includes('\r\n') ? '\r\n' : '\n';
     function set(key,value) {
-        const expression = new RegExp('^(?:'+key+'|"'+key+'"|\''+key+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
+        const expression = new RegExp('^(?:'+safeKey+'|"'+safeKey+'"|\''+safeKey+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
         const line = `${key}: ${JSON.stringify(value)}`;
         yaml = expression.test(yaml) ? yaml.replace(expression,()=>line) : yaml.trimEnd()+newline+line;
     }
+    function setList(key, values) {
+        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
+        const expression = new RegExp('^(?:'+safeKey+'|"'+safeKey+'"|\''+safeKey+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+        const items = [...new Set((values || []).map(value => String(value || "").trim()).filter(Boolean))];
+        const replacement = items.length
+            ? `${key}:${newline}${items.map(value => `  - ${JSON.stringify(value)}`).join(newline)}`
+            : `${key}: []`;
+        yaml = expression.test(yaml) ? yaml.replace(expression, () => replacement)
+            : yaml.trimEnd() + newline + replacement;
+    }
     set('Описание',description);
+    if (Array.isArray(people.actorNames)) setList('Актеры', people.actorNames);
+    if (Array.isArray(people.actorRoles)) setList('Роли актеров', people.actorRoles);
+    if (Array.isArray(people.directorNames)) setList('Режисер', people.directorNames);
     if (/^\d{1,12}$/.test(String(kinopoiskId || ""))) set('Кинопоиск ID', String(kinopoiskId));
     let fm;
     try { fm=ob.parseYaml(yaml); } catch { return null; }
@@ -6343,7 +6451,7 @@ function ensureEntityLinksBlock(raw) {
     const match = raw.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!match) return raw;
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
-    const pattern = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V2 -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const pattern = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
     const body = raw.slice(match[0].length).replace(pattern, "");
-    return match[0] + ENTITY_LINKS_BLOCK.replace(/\n/g, newline) + newline + body;
+    return match[0] + ROLE_LINKS_BLOCK.replace(/\n/g, newline) + newline + body;
 }
