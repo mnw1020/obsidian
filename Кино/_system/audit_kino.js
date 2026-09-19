@@ -151,11 +151,9 @@ module.exports = async (params) => {
     function personFormatIssue(value) {
         const text = personName(normalizePersonDisplay(value));
         if (!text || text.toUpperCase() === "N/A") return "";
-        const hasLatin = /[a-z]/i.test(text);
-        const hasCyrillic = /[а-яё]/i.test(text);
-        const hasPair = /^.+?\s*\([^()]+\)$/.test(text);
-        if (hasCyrillic && !hasLatin) return "русское имя без английского варианта";
-        if (hasLatin && hasCyrillic && !hasPair) return "английское и русское имя должны быть в формате `English (Русский)`";
+        // Имя и роль проверяются как текст источника. Наличие кириллицы,
+        // латиницы или скобок само по себе больше не является ошибкой.
+        if (hasNestedParentheses(text)) return "вложенные скобки в имени";
         return "";
     }
 
@@ -512,11 +510,11 @@ module.exports = async (params) => {
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
     report += `- IMDb ID и повторное использование одного ID;\n`;
-    report += "- вложенные скобки, повторяющиеся имена, wikilinks, формат `English (Русский)` и дубли в `Режисер`, `Актеры`, `Жанр`;\n";
+    report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер`, `Актеры`, `Жанр`;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";
-    report += "- формат имён, скобок, wikilink-ссылок и дублей в карточках.\n";
+    report += "- исходное написание имён и ролей, скобки, wikilink-ссылки и дубли в карточках.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);

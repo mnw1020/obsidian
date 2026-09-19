@@ -66,22 +66,7 @@ function kinoPersonKey(value) {
     return kinoPersonBaseKey(normalizeKinoPersonDisplay(value));
 }
 function kinoPersonDisplay(field, value) {
-    const original = String(value ?? "").trim().normalize("NFC");
-    const role = kinoPersonRole(original);
-    const text = kinoPersonName(original);
-    if (!text) return "";
-    const key = kinoPersonKey(text);
-    const canonical = KINO_PERSON_CANONICAL_OVERRIDES[field]?.[key]
-        || KINO_PERSON_ALIASES[field]?.[key] || text;
-    const normalized = normalizeKinoPersonDisplay(canonical);
-    if (!normalized || normalized.toUpperCase() === "N/A") return normalized;
-    if (/[а-яё]/i.test(normalized) && !/[a-z]/i.test(normalized)) {
-        const map = { а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"yo", ж:"zh", з:"z", и:"i", й:"y", к:"k", л:"l", м:"m", н:"n", о:"o", п:"p", р:"r", с:"s", т:"t", у:"u", ф:"f", х:"kh", ц:"ts", ч:"ch", ш:"sh", щ:"shch", ъ:"", ы:"y", ь:"", э:"e", ю:"yu", я:"ya" };
-        const english = normalized.toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("")
-            .replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
-        return role ? `${english} (${normalized}) - ${role}` : `${english} (${normalized})`;
-    }
-    return role && normalized ? `${normalized} - ${role}` : normalized;
+    return String(value ?? "").trim().normalize("NFC");
 }
 const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
 function entityName(value) {
@@ -97,9 +82,7 @@ function entityName(value) {
 function normalizeEntityField(value, field) {
     if (value == null) return value;
     const source = Array.isArray(value) ? value : [value];
-    const result = [...new Set(source.map(entityName).map(text =>
-        field === "Режисер" || field === "Актеры" ? kinoPersonDisplay(field, text) : text
-    ).filter(Boolean))];
+    const result = [...new Set(source.map(entityName).filter(Boolean))];
     return Array.isArray(value) ? result : (result[0] || "");
 }
 function yamlParts(raw) {

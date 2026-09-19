@@ -109,26 +109,12 @@ module.exports = async (params) => {
     }
 
     function canonicalPersonDisplay(value) {
-        const role = personRole(value);
-        const normalized = personName(normalizePersonDisplay(value));
-        const canonical = PERSON_CANONICAL_OVERRIDES[personBaseKey(normalized)] || normalized;
-        if (!canonical || canonical.toUpperCase() === "N/A") return canonical;
-        let result = canonical;
-        const pair = canonical.match(/^(.+?)\s*\(([^()]*)\)$/);
-        if (pair) {
-            const english = /[a-z]/i.test(pair[1]) ? pair[1].trim() : "";
-            const russian = /[а-яё]/i.test(pair[2]) ? pair[2].trim() : "";
-            if (english && russian) result = `${english} (${russian})`;
-        }
-        if (!pair && /[а-яё]/i.test(canonical) && !/[a-z]/i.test(canonical)) {
-            result = `${titleCaseTransliteration(canonical)} (${canonical})`;
-        }
-        return role && result ? `${result} - ${role}` : result;
+        // Этот скрипт больше не переводит и не унифицирует людей.
+        return stripWiki(value).normalize("NFC");
     }
 
     function entityKey(field, value) {
-        if (field === "Актеры") return `${personBaseKey(value)}|${personRole(value).toLocaleLowerCase("ru")}`;
-        if (field !== "Жанр") return personBaseKey(value);
+        if (field !== "Жанр") return asText(value).normalize("NFC").toLocaleLowerCase("ru");
         const text = asText(value);
         return text.toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/[^0-9a-zа-я]/gi, "");
     }
