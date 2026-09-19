@@ -4,7 +4,7 @@
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
  * Актеры и режиссеры сначала берутся из IMDb fullcredits/GraphQL, затем из КП /cast/.
  * Успешный источник полностью заменяет поле. Имена в YAML всегда латиницей;
- * строки с ролями хранятся отдельно и выводятся по одной на строку.
+ * строки с ролями хранятся отдельно и выводятся по одной на строку в формате Role - Name.
  */
 const API_KEY_OPTION = "OMDb API Key";
 const ROOT = "Кино";
@@ -41,15 +41,19 @@ const KINO_PERSON_CANONICAL_OVERRIDES = {
         михаилшулаев: "Mikhail Shulaev (Михаил Шулаев)"
     }
 };
+function roleValueParts(value) {
+    const text = String(value ?? "").trim().normalize("NFC")
+        .replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
+    const match = text.match(/^(.+?)\s+-\s+(.+)$/);
+    return match
+        ? { role: match[1].trim(), name: match[2].trim() }
+        : { role: "", name: text };
+}
 function kinoPersonRole(value) {
-    let text = String(value ?? "").trim().normalize("NFC");
-    text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    return text.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || "";
+    return roleValueParts(value).role;
 }
 function kinoPersonName(value) {
-    let text = String(value ?? "").trim().normalize("NFC");
-    text = text.replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    return text.replace(/\s+-\s+.+$/, "").trim();
+    return roleValueParts(value).name;
 }
 function kinoPersonBaseKey(value) {
     let text = kinoPersonName(value);
@@ -70,7 +74,7 @@ function normalizeKinoPersonDisplay(value) {
     const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
     const normalized = pair && kinoPersonBaseKey(pair[1]) === kinoPersonBaseKey(pair[2])
         ? pair[1].trim() : text;
-    return role && normalized ? `${normalized} - ${role}` : normalized;
+    return role && normalized ? `${role} - ${normalized}` : normalized;
 }
 function kinoPersonKey(value) {
     return kinoPersonBaseKey(normalizeKinoPersonDisplay(value));
@@ -96,7 +100,15 @@ const ROLE_LINKS_BLOCK = [
     'function kinoValues(value) {',
     '    return [...new Set((Array.isArray(value) ? value : [value]).map(kinoText).filter(Boolean))];',
     '}',
-    'function kinoName(value) { return kinoText(value).replace(/\\s+-\\s+.+$/, "").trim(); }',
+    'function kinoName(value) {',
+    '    const text = kinoText(value);',
+    '    const actorNames = kinoValues(dv.current()["Актеры"]);',
+    '    const known = actorNames.find(name =>',
+    '        text === name || text.startsWith(name + " - ") || text.endsWith(" - " + name)',
+    '    );',
+    '    if (known) return known;',
+    '    return text.includes(" - ") ? text.split(/\\s+-\\s+/).slice(-1)[0].trim() : text;',
+    '}',
     'function kinoKey(value) { return kinoText(value).toLocaleLowerCase("ru").replace(/ё/g, "е"); }',
     'function kinoUri(choice, value) {',
     '    return "obsidian://quickadd?vault=" + encodeURIComponent(app.vault.getName())',
@@ -318,17 +330,19 @@ async function addMovieCore(params, settings, progress, handOff) {
             }
         }
     }
-    const actorRoleValues = mergedPeople([
+    const actorRoleValuesByActor = mergedPeople([
         credits.imdb,
         credits.kp,
         kp?.cast?.actors
     ], "Актеры");
+    const actorRoleValues = actorRoleValuesByActor.slice().sort(compareRoleValues);
     const directorValues = mergedPeople([
         credits.imdbDirectors,
         credits.directors,
         kp?.cast?.director
     ], "Режисер");
-    const actorNames = [...new Set(actorRoleValues.map(value => sourcePersonName(value)).filter(Boolean))];
+    const actorNames = [...new Set(actorRoleValuesByActor.map(value => sourcePersonName(value)).filter(Boolean))]
+        .sort(comparePeopleValues);
     const directorNames = [...new Set(directorValues.map(value => sourcePersonName(value)).filter(Boolean))];
     const yamlList = values => (values || []).map(value => "\n  - " + JSON.stringify(value)).join("");
     params.variables = {
@@ -524,7 +538,7 @@ function roleParts(value) {
         return { english, russian: russian || roleRussianFromEnglish(english) };
     }
     const raw = typeof value === "string"
-        ? value.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || value
+        ? roleValueParts(value).role || value
         : ["role", "character", "character_name", "characterName", "role_name", "roleName",
             "characters", "roles", "played_as", "playedAs"].map(key => cleanRole(value?.[key])).find(Boolean) || "";
     const pair = splitBilingualText(raw);
@@ -651,7 +665,7 @@ function personPair(english, russian, field, role = "") {
     else if (ru) result = ru;
     else result = rawValues.some(value => value.toUpperCase() === "N/A") ? "N/A" : "";
     return normalizedRole && result && result.toUpperCase() !== "N/A"
-        ? `${result} - ${normalizedRole}` : result;
+        ? `${normalizedRole} - ${result}` : result;
 }
 function sourcePersonName(person) {
     const candidates = typeof person === "string"
@@ -661,8 +675,7 @@ function sourcePersonName(person) {
             person?.name, person?.name_ru];
     let fallback = "";
     for (const candidate of candidates.map(clean).filter(Boolean)) {
-        const text = candidate.replace(/^\[\[([\s\S]+?)\]\]$/, "$1")
-            .replace(/\s+-\s+.+$/, "").trim();
+        const text = roleValueParts(candidate).name;
         const parts = splitBilingualText(text);
         if (parts.english && !/[а-яё]/i.test(parts.english)) return parts.english;
         if (!/[а-яё]/i.test(text)) return text;
@@ -673,7 +686,7 @@ function sourcePersonName(person) {
 
 function sourcePersonRole(person, field) {
     if (field !== "Актеры") return "";
-    if (typeof person === "string") return clean(person.match(/^.+?\s+-\s+(.+)$/)?.[1] || "");
+    if (typeof person === "string") return clean(roleValueParts(person).role);
     return clean(person?.role_raw || person?.source_role || person?.role
         || person?.character || person?.character_name || person?.characterName
         || person?.role_en || person?.role_ru || "");
@@ -683,7 +696,7 @@ function sourcePersonValue(person, field) {
     const name = sourcePersonName(person);
     if (!name || name.toUpperCase() === "N/A") return "";
     const role = sourcePersonRole(person, field);
-    return role ? `${name} - ${role}` : name;
+    return role ? `${role} - ${name}` : name;
 }
 
 function mergedPeople(peopleSources, field) {
@@ -715,6 +728,13 @@ function comparePeopleValues(left, right) {
     const rightName = sourcePersonName(right);
     return leftName.localeCompare(rightName, "en", { sensitivity: "base", numeric: true })
         || String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
+}
+
+function compareRoleValues(left, right) {
+    const leftRole = sourcePersonRole(left, "Актеры");
+    const rightRole = sourcePersonRole(right, "Актеры");
+    return leftRole.localeCompare(rightRole, "en", { sensitivity: "base", numeric: true })
+        || sourcePersonName(left).localeCompare(sourcePersonName(right), "en", { sensitivity: "base", numeric: true });
 }
 function kinoRuntime(movie, kp) {
     const original = clean(movie?.Runtime);

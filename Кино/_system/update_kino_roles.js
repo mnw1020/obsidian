@@ -1,7 +1,7 @@
 // QuickAdd: Кино - обновить роли актёров.
 // Порядок источников: IMDb fullcredits/GraphQL, затем КП /cast/.
 // YAML "Актеры"/"Режисер" содержит только латинские имена.
-// Строки Name - Role хранятся в YAML-поле "Роли актеров" и выводятся по строке.
+// Строки Role - Name хранятся в YAML-поле "Роли актеров" и выводятся по строке.
 // Постоянного HTTP-кэша нет. Успешный источник полностью заменяет поле;
 // старое значение используется только если источник для этого поля недоступен.
 
@@ -23,7 +23,15 @@ const ROLE_LINKS_BLOCK = [
     'function kinoValues(value) {',
     '    return [...new Set((Array.isArray(value) ? value : [value]).map(kinoText).filter(Boolean))];',
     '}',
-    'function kinoName(value) { return kinoText(value).replace(/\\s+-\\s+.+$/, "").trim(); }',
+    'function kinoName(value) {',
+    '    const text = kinoText(value);',
+    '    const actorNames = kinoValues(dv.current()["Актеры"]);',
+    '    const known = actorNames.find(name =>',
+    '        text === name || text.startsWith(name + " - ") || text.endsWith(" - " + name)',
+    '    );',
+    '    if (known) return known;',
+    '    return text.includes(" - ") ? text.split(/\\s+-\\s+/).slice(-1)[0].trim() : text;',
+    '}',
     'function kinoUri(choice, value) {',
     '    return "obsidian://quickadd?vault=" + encodeURIComponent(app.vault.getName())',
     '        + "&choice=" + encodeURIComponent(choice)',
@@ -547,7 +555,7 @@ function personRoleParts(person) {
         if (english || russian) return { english, russian: russian || roleRussianFromEnglish(english) };
     }
     const raw = typeof person === "string"
-        ? person.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || ""
+        ? roleValueParts(person).role || ""
         : ["role", "character", "character_name", "characterName", "role_name", "roleName",
             "characters", "roles", "played_as", "playedAs"].map(key => roleText(person?.[key])).find(Boolean) || "";
     const pair = splitBilingualText(raw);
@@ -898,8 +906,16 @@ function baseKey(value) {
         .replace(/[^0-9a-zа-я]/gi, "").replace(/iy/g, "y").replace(/ii/g, "y");
 }
 
+function roleValueParts(value) {
+    const text = String(value || "").replace(/^\[\[([\s\S]+?)\]\]$/, "$1").trim();
+    const match = text.match(/^(.+?)\s+-\s+(.+)$/);
+    return match
+        ? { role: match[1].trim(), name: match[2].trim() }
+        : { role: "", name: text };
+}
+
 function personName(value) {
-    return String(value || "").replace(/^\[\[([\s\S]+?)\]\]$/, "$1").replace(/\s+-\s+.+$/, "").trim();
+    return roleValueParts(value).name;
 }
 
 function personParts(value) {
@@ -1001,7 +1017,7 @@ function normalizePerson(value) {
     }
     const pair = text.match(/^(.+?)\s*\(([^()]*)\)$/);
     const normalized = pair && baseKey(pair[1]) === baseKey(pair[2]) ? pair[1].trim() : text;
-    return role && normalized ? `${normalized} - ${role}` : normalized;
+    return role && normalized ? `${role} - ${normalized}` : normalized;
 }
 
 function personPair(english, russian, role) {
@@ -1016,7 +1032,7 @@ function personPair(english, russian, role) {
     const finalRole = roleParts.english && roleParts.russian
         ? `${roleParts.english} (${roleParts.russian})`
         : roleParts.english || roleParts.russian || "";
-    return finalRole && result ? `${result} - ${finalRole}` : result;
+    return finalRole && result ? `${finalRole} - ${result}` : result;
 }
 
 function normalizeCredits(values, source) {
@@ -1073,7 +1089,7 @@ function sourcePersonName(person) {
 
 function sourcePersonRole(person, field) {
     if (field !== "Актеры") return "";
-    if (typeof person === "string") return person.match(/^.+?\s+-\s+(.+)$/)?.[1].trim() || "";
+    if (typeof person === "string") return roleValueParts(person).role;
     return String(person?.role_raw || person?.source_role || person?.role
         || person?.character || person?.character_name || person?.characterName
         || person?.role_en || person?.role_ru || "").trim();
@@ -1083,7 +1099,7 @@ function sourcePersonValue(person, field) {
     const name = sourcePersonName(person);
     if (!name || name.toUpperCase() === "N/A") return "";
     const role = sourcePersonRole(person, field);
-    return role ? `${name} - ${role}` : name;
+    return role ? `${role} - ${name}` : name;
 }
 
 function chooseCreditSource(sources) {
@@ -1115,7 +1131,7 @@ function replacePeople(source, field) {
         if (field === "Актеры" && /\s+-\s+/.test(display)) roles++;
     }
     values.sort(comparePeopleValues);
-    displayValues.sort(comparePeopleValues);
+    displayValues.sort(compareRoleValues);
     return { values, displayValues, roles, replaced: Boolean(source?.length) };
 }
 
@@ -1124,6 +1140,13 @@ function comparePeopleValues(left, right) {
     const rightName = sourcePersonName(right);
     return leftName.localeCompare(rightName, "en", { sensitivity: "base", numeric: true })
         || String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
+}
+
+function compareRoleValues(left, right) {
+    const leftRole = sourcePersonRole(left, "Актеры");
+    const rightRole = sourcePersonRole(right, "Актеры");
+    return leftRole.localeCompare(rightRole, "en", { sensitivity: "base", numeric: true })
+        || sourcePersonName(left).localeCompare(sourcePersonName(right), "en", { sensitivity: "base", numeric: true });
 }
 
 function ensureRoleLinksBlock(raw) {
