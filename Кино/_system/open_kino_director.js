@@ -103,6 +103,20 @@ async function refreshKinoSelection(app, file, selected) {
     } catch (_) {}
 }
 
+const SOURCE_PAGE_TEXT = PAGE_TEXT.replace(
+    /function kinoPersonDisplay\(value\) \{[\s\S]*?\n\}\nconst selected = kinoPersonDisplay\(dv\.current\(\)\["Выбрано"\] \|\| ""\);/,
+    `function kinoPersonDisplay(value) {
+    const text = kinoPersonName(value);
+    if (!text) return "";
+    return text;
+}
+const selected = kinoPersonDisplay(dv.current()["Выбрано"] || "");`
+).replace(
+    'return values.some(value => kinoPersonDisplay(value) === selected);',
+    'return values.some(value => kinoPersonDisplay(value) === selected);'
+);
+const FINAL_PAGE_TEXT = SOURCE_PAGE_TEXT.replace(/\n```base[\s\S]*$/, "");
+
 const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
 function entityName(value) {
     if (value == null) return "";
@@ -114,11 +128,15 @@ function entityName(value) {
     return (parts.length > 1 ? parts.slice(1).join("|") : parts[0].split("#")[0]
         .replace(/\.md$/i, "").split("/").pop()).trim().normalize("NFC");
 }
+function sourcePersonDisplay(value) {
+    const text = entityName(value);
+    return text.replace(/\s+-\s+.+$/, "").trim();
+}
 function normalizeEntityField(value, field) {
     if (value == null) return value;
     const source = Array.isArray(value) ? value : [value];
-    const result = [...new Set(source.map(entityName).map(text =>
-        field === "Режисер" || field === "Актеры" ? kinoPersonDisplay(field, text) : text
+    const result = [...new Set(source.map(text =>
+        field === "Режисер" || field === "Актеры" ? sourcePersonDisplay(text) : entityName(text)
     ).filter(Boolean))];
     return Array.isArray(value) ? result : (result[0] || "");
 }
@@ -169,7 +187,7 @@ module.exports=async function openEntity(params) {
     const {app,obsidian:ob,quickAddApi:qa}=params;
     let selected=params.variables?.entity;
     // URI уже декодирован QuickAdd. Повторный decodeURIComponent испортил бы имена с %.
-    if(typeof selected==='string' && selected.trim())selected=kinoPersonDisplay(FIELD, entityName(selected));
+    if(typeof selected==='string' && selected.trim())selected=sourcePersonDisplay(selected);
     else {
         const values=new Set();
         for(const file of app.vault.getMarkdownFiles()) {
@@ -181,7 +199,7 @@ module.exports=async function openEntity(params) {
                 const value=cached[FIELD];
                 for(const name of Array.isArray(value)?value:[value]) {
                     const clean=entityName(name);
-                    if(clean)values.add(kinoPersonDisplay(FIELD, clean));
+                    if(clean)values.add(sourcePersonDisplay(clean));
                 }
                 continue;
             }
@@ -189,15 +207,15 @@ module.exports=async function openEntity(params) {
             if(!isMediaRaw(file.path,raw,ob))continue;
             const part=yamlParts(raw),block=propertyBlock(part.yaml,FIELD);
             const value=block?normalizeEntityField(ob.parseYaml(block[0])?.[FIELD], FIELD):null;
-            for(const name of Array.isArray(value)?value:[value])if(name)values.add(kinoPersonDisplay(FIELD, name));
+            for(const name of Array.isArray(value)?value:[value])if(name)values.add(sourcePersonDisplay(name));
         }
         const names=[...values].sort((a,b)=>a.localeCompare(b,'ru',{sensitivity:'base'}));
         selected=await qa.suggester(names,names,'Выбери '+LABEL);
     }
-    selected=kinoPersonDisplay(FIELD, selected);
+    selected=sourcePersonDisplay(selected);
     if(!selected)return;
     let file=app.vault.getAbstractFileByPath(PAGE);
-    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT);}
+    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,FINAL_PAGE_TEXT);}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
     await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
     await refreshKinoSelection(app, file, selected);
