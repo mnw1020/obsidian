@@ -28,11 +28,20 @@ const average = ratings.length
     ? (ratings.reduce((sum, v) => sum + v, 0) / ratings.length).toFixed(2)
     : "–";
 
+const kpRatings = media
+    .map(p => Number(String(p["Оценка Кинопоиск"] ?? "").replace(",", ".")))
+    .filter(v => Number.isFinite(v));
+
+const kpAverage = kpRatings.length
+    ? (kpRatings.reduce((sum, v) => sum + v, 0) / kpRatings.length).toFixed(2)
+    : "–";
+
 const stats = [
     ["🎞️", "Просмотрено", watched.length],
     ["🎬", "Фильмы", movies.length],
     ["📺", "Сериалы", serials.length],
-    ["⭐", "Средняя оценка", average]
+    ["⭐", "Средняя оценка", average],
+    ["КП", "Средняя КП", kpAverage]
 ];
 
 const grid = document.createElement("div");
@@ -69,8 +78,12 @@ for (const [icon, label, value] of stats) {
 ![[_Кино.base#Перепросмотры]]
 ## 📺 Последние сериалы
 ![[_Кино.base#Последние сериалы]]
-## 📊 [[_Кино.base#Сравнение оценок|Сравнение оценок]]
-
+## 📈 Выше IMDb
+![[_Кино.base#Выше IMDb]]
+## 📈 Выше КП
+![[_Кино.base#Выше КП]]
+## 📊 Сравнение оценок
+![[_Кино.base#Сравнение оценок]]
 
 ---
 

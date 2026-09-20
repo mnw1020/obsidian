@@ -113,6 +113,19 @@ module.exports = async (params) => {
         return stripWiki(value).replace(/\s+-\s+.+$/, "").trim();
     }
 
+    function roleActorName(value, knownActors = []) {
+        const text = stripWiki(value);
+        const known = listValues(knownActors).find(name =>
+            text === name || text.endsWith(` - ${name}`)
+        );
+        if (known) return known;
+        return text.includes(" - ") ? text.split(/\s+-\s+/).slice(-1)[0].trim() : text;
+    }
+
+    function hasCyrillicPersonName(value) {
+        return /[\u0400-\u04FF]/u.test(personName(value));
+    }
+
     function personBaseKey(value) {
         let text = personName(value).normalize("NFC");
         text = text.replace(/\s*\([^()]*\)\s*$/, "");
@@ -152,8 +165,8 @@ module.exports = async (params) => {
     function personFormatIssue(value) {
         const text = personName(normalizePersonDisplay(value));
         if (!text || text.toUpperCase() === "N/A") return "";
-        // Имя и роль проверяются как текст источника. Наличие кириллицы,
-        // латиницы или скобок само по себе больше не является ошибкой.
+        // Структурная проверка имени. Кириллица в русской части в скобках
+        // проверяется отдельно и допустима.
         if (hasNestedParentheses(text)) return "вложенные скобки в имени";
         return "";
     }
@@ -238,6 +251,7 @@ module.exports = async (params) => {
     const viewingsByMedia = new Map();
     const seasonsByMedia = new Map();
     const missingIds = [];
+    const missingKinopoiskIds = [];
     const missingPosters = [];
     let missingDirectors = 0;
     let missingActors = 0;
@@ -269,6 +283,14 @@ module.exports = async (params) => {
             imdbKeys.get(imdb).push(file);
         }
 
+        const kinopoiskId = asText(fm["Кинопоиск ID"]);
+        if (!kinopoiskId || /^(none|null|n\/a)$/i.test(kinopoiskId)) {
+            // КП ID необязателен: роли и другие данные могут быть получены по IMDb.
+            missingKinopoiskIds.push(file);
+        } else if (!/^\d+$/.test(kinopoiskId)) {
+            addError(file, `некорректный Кинопоиск ID: \`${kinopoiskId}\`.`);
+        }
+
         if (!asText(fm.poster)) missingPosters.push(file);
 
         if (!roleFile) {
@@ -294,6 +316,14 @@ module.exports = async (params) => {
                     if (field !== "Роли актеров") {
                         if (hasNestedParentheses(value)) addError(roleFile, `в \`${field}\` вложенные скобки: \`${value}\`.`);
                         if (hasSameParentheses(value)) addError(roleFile, `в \`${field}\` повторяется имя в скобках: \`${value}\`.`);
+                    }
+                    if (field === "Режисер" || field === "Актеры" || field === "Роли актеров") {
+                        const personValue = field === "Роли актеров"
+                            ? roleActorName(value, roleFm.Актеры)
+                            : value;
+                        if (hasCyrillicPersonName(personValue)) {
+                            addError(roleFile, `в \`${field}\` имя содержит кириллицу: \`${value}\`. Ожидается только латинское имя.`);
+                        }
                     }
                     if (field === "Роли актеров" && !personRole(value)) actorsWithoutRoles++;
                     const key = field === "Роли актеров"
@@ -347,6 +377,9 @@ module.exports = async (params) => {
                     if (hasSameParentheses(value)) addError(file, `в \`${field}\` повторяется имя в скобках: \`${value}\`.`);
                     const formatIssue = personFormatIssue(value);
                     if (formatIssue) addError(file, `в \`${field}\`: ${formatIssue}: \`${value}\`.`);
+                    if (hasCyrillicPersonName(value)) {
+                        addError(file, `в \`${field}\` имя содержит кириллицу: \`${value}\`. Ожидается только латинское имя.`);
+                    }
                     if (value.toUpperCase() === "N/A") naDirectors++;
                 }
                 const key = entityValueKey(field, value);
@@ -518,6 +551,7 @@ module.exports = async (params) => {
     info.push(`Страниц франшиз: **${franchiseFiles.length}**, связей с франшизами: **${franchiseLinkCount}**.`);
     info.push(`Шаблонов без названия: **${templates.length}**.`);
     info.push(`Возможных дублей карточек: **${possibleDuplicates.length}**.`);
+    info.push(`Карточек без КП ID: **${missingKinopoiskIds.length}**. Это допустимо; такие карточки всё равно проверяются по IMDb и локальным данным.`);
 
     const renderSection = (title, items, emptyText) => {
         if (!items.length) return `## ${title}\n\n${emptyText}\n\n`;
@@ -540,12 +574,15 @@ module.exports = async (params) => {
     report += `## Итог\n\n- Ошибок: **${errors.length}**.\n- Предупреждений: **${warnings.length}**.\n${info.map(item => `- ${item}`).join("\n")}\n\n`;
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
+    report += renderSection("ℹ️ Карточки без Кинопоиск ID", missingKinopoiskIds.map(file => fileLink(file)), "Все карточки содержат КП ID.");
     report += renderSection("🔎 Возможные дубли", possibleDuplicates, "Похожих дублей не найдено.");
     report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n\n";
     report += `## Что проверяется\n\n`;
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
     report += `- IMDb ID и повторное использование одного ID;\n`;
+    report += "- КП ID, если он указан; отсутствие КП ID допустимо и показывается отдельным списком;\n";
+    report += "- только латинские имена режиссёров и актёров; любая кириллица считается ошибкой;\n";
     report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер` и `Жанр`, а также в файлах ролей;\n";
     report += "- наличие пары карточка + `_system/Роли/<название>.роли.md` и корректную обратную ссылку;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;

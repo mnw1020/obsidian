@@ -20,7 +20,7 @@ formulas:
   release_display: if(formula.release_date, formula.release_date.format("DD.MM.YYYY"), if(note.Релиз, note.Релиз.toString(), ""))
   release_year: if(formula.release_date, formula.release_date.year, null)
   entity_director: list(note["Режисер"]).filter(value != null && value != "").map(link("obsidian://quickadd?vault=obsidian&choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%80%D0%B5%D0%B6%D0%B8%D1%81%D1%81%D0%B5%D1%80%D0%B0&value-entity=" + value.toString().replace("%", "%25").replace("&", "%26").replace("+", "%2B").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace(" ", "%20").replace("\"", "%22").replace("'", "%27").replace("<", "%3C").replace(">", "%3E").replace("\n", "%0A").replace("\r", "%0D").replace("\t", "%09"), value))
-  entity_actor: if(note["Роли файл"] != null && note["Роли файл"].toString().trim() != "", link("obsidian://open?vault=obsidian&file=" + note["Роли файл"].toString().replace("%", "%25").replace("&", "%26").replace("+", "%2B").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace(" ", "%20").replace("\"", "%22").replace("'", "%27").replace("<", "%3C").replace(">", "%3E").replace("\n", "%0A").replace("\r", "%0D").replace("\t", "%09"), "Актеры и роли"), null)
+  entity_actor: list(note["Актеры"]).filter(value != null && value != "").map(link("obsidian://quickadd?vault=obsidian&choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%BA%D1%82%D0%B5%D1%80%D0%B0&value-entity=" + value.toString().replace("%", "%25").replace("&", "%26").replace("+", "%2B").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace(" ", "%20").replace("\"", "%22").replace("'", "%27").replace("<", "%3C").replace(">", "%3E").replace("\n", "%0A").replace("\r", "%0D").replace("\t", "%09"), value))
   entity_genre: list(note["Жанр"]).filter(value != null && value != "").map(link("obsidian://quickadd?vault=obsidian&choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B6%D0%B0%D0%BD%D1%80&value-entity=" + value.toString().replace("%", "%25").replace("&", "%26").replace("+", "%2B").replace("#", "%23").replace("?", "%3F").replace("=", "%3D").replace(" ", "%20").replace("\"", "%22").replace("'", "%27").replace("<", "%3C").replace(">", "%3E").replace("\n", "%0A").replace("\r", "%0D").replace("\t", "%09"), value))
 properties:
   file.name:
@@ -58,7 +58,7 @@ properties:
   formula.entity_director:
     displayName: Режиссер
   formula.entity_actor:
-    displayName: Актеры и роли
+    displayName: Актер
   formula.entity_genre:
     displayName: Жанр
 views:
