@@ -153,12 +153,30 @@ const selected = kinoPersonDisplay(selectedValue);`
 const FINAL_PAGE_TEXT = FIXED_PAGE_TEXT
     .replace(
         /(\n    dv\.paragraph\("Произведений:[\s\S]*?;\n)(\}\n```)/,
-        `$1    dv.table(["Произведение", "Тип", "Релиз", "Моя оценка", "IMDb", "Франшиза"], rows.map(p => [
+        `$1    function kinoRoleFor(page, selectedName) {
+        const values = Array.isArray(page["Роли актеров"]) ? page["Роли актеров"] : [page["Роли актеров"]];
+        const roles = [];
+        for (const value of values) {
+            const text = String(value ?? "").trim();
+            const match = text.match(/^(.+?)\\s+-\\s+(.+)$/);
+            if (!match) continue;
+            let role = match[1].trim();
+            let actor = match[2].trim();
+            if (!kinoSamePerson(actor, selectedName)) {
+                if (!kinoSamePerson(role, selectedName)) continue;
+                [role, actor] = [actor, role];
+            }
+            roles.push(role);
+        }
+        return [...new Set(roles)].join(" · ");
+    }
+    dv.table(["Произведение", "Тип", "Релиз", "Моя оценка", "IMDb", "Роль", "Франшиза"], rows.map(p => [
         p.file.link,
         p.file.tags?.includes("#serial") ? "Сериал" : "Фильм",
         p["Релиз"] || "",
         p["Оценка"] || "",
         p["Оценка Imdb"] || "",
+        kinoRoleFor(p, selected),
         p["Франшиза"] || ""
     ]));\n$2`
     )
