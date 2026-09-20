@@ -56,7 +56,7 @@ hidden true
 ^button-books-edit-reading
 
 ```button
-name 👥 Авторы
+name 👥 Автор
 type command
 action QuickAdd: Книги - Авторы
 width 10
@@ -67,7 +67,7 @@ hidden true
 ^button-books-authors
 
 ```button
-name 🧩 Серии
+name 🧩 Серия
 type command
 action QuickAdd: Книги - Серии
 width 10
