@@ -4,6 +4,7 @@ TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Редактировано"
 FROM ""
 WHERE date(now) - file.mtime <= dur(3 days) and file.name != "_index"
 SORT file.mtime desc
+LIMIT 20
 ```
 # Новые заметки
 ```dataview
@@ -11,6 +12,7 @@ TABLE dateformat(file.mtime, "dd.MM.yyyy HH:mm") as "Создано"
 FROM ""
 WHERE date(now) - file.ctime <= dur(3 days)
 SORT file.ctime desc
+LIMIT 20
 ```
 # Hotkey
 
