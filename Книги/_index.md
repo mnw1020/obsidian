@@ -33,7 +33,7 @@
 name ➕ Произведение
 type command
 action QuickAdd: Книги - Добавить книгу
-width 6.5
+width 10
 height 1.4
 align center middle
 hidden true
