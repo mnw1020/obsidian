@@ -14,6 +14,20 @@ function canonicalGenre(value) {
     return text;
 }
 
+function withKpColumns(template) {
+    return template
+        .replace(
+            '  imdb: if(note["Оценка Imdb"] != null && note["Оценка Imdb"].toString().trim() != "", number(note["Оценка Imdb"]), null)\nproperties:',
+            '  imdb: if(note["Оценка Imdb"] != null && note["Оценка Imdb"].toString().trim() != "", number(note["Оценка Imdb"]), null)\n  kp: if(note["Оценка Кинопоиск"] != null && note["Оценка Кинопоиск"].toString().trim() != "", number(note["Оценка Кинопоиск"]), null)\nproperties:'
+        )
+        .replace(
+            '  formula.imdb:\n    displayName: IMDb\n',
+            '  formula.imdb:\n    displayName: IMDb\n  formula.kp:\n    displayName: КП\n'
+        )
+        .replaceAll('  - formula.imdb\n', '  - formula.imdb\n  - formula.kp\n');
+}
+const PAGE_TEXT_WITH_KP = withKpColumns(PAGE_TEXT);
+
 function waitForKinoSelection(app, file, expected) {
     const read = () => String(app.metadataCache.getFileCache(file)?.frontmatter?.Выбрано ?? "") === String(expected);
     if (read()) return Promise.resolve();
@@ -137,7 +151,7 @@ module.exports=async function openEntity(params) {
     if(FIELD==="Жанр")selected=canonicalGenre(selected);
     if(!selected)return;
     let file=app.vault.getAbstractFileByPath(PAGE);
-    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT);}
+    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,PAGE_TEXT_WITH_KP);}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
     await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
     await refreshKinoSelection(app, file, selected);

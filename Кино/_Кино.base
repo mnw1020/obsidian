@@ -8,7 +8,10 @@ formulas:
   type: if(file.hasTag("serial"), "📺 Сериал", if(file.hasTag("movies"), "🎬 Фильм", ""))
   rating: if(note.Оценка, number(note.Оценка), null)
   imdb_rating: if(note["Оценка Imdb"], number(note["Оценка Imdb"]), null)
+  kp_rating: if(note["Оценка Кинопоиск"], number(note["Оценка Кинопоиск"]), null)
   rating_delta: if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)
+  rating_delta_kp: if(formula.rating != null && formula.kp_rating != null, (formula.rating - formula.kp_rating).round(1), null)
+  imdb_kp_delta: if(formula.imdb_rating != null && formula.kp_rating != null, (formula.imdb_rating - formula.kp_rating).round(1), null)
   watched: if(note.Просмотрено, note.Просмотрено.format("DD.MM.YYYY"), "")
   watch_count: if(note["Количество просмотров"], number(note["Количество просмотров"]), 1)
   release_raw: if(note.Релиз, note.Релиз.toString().trim().replace(/\\s+/g, " "), null)
@@ -36,8 +39,14 @@ properties:
     displayName: Моя оценка
   formula.imdb_rating:
     displayName: IMDb
+  formula.kp_rating:
+    displayName: КП
   formula.rating_delta:
     displayName: Δ к IMDb
+  formula.rating_delta_kp:
+    displayName: Δ к КП
+  formula.imdb_kp_delta:
+    displayName: IMDb − КП
   formula.release_display:
     displayName: Релиз
   formula.release_year:
@@ -114,6 +123,7 @@ views:
       - formula.watched
       - formula.rating
       - formula.imdb_rating
+      - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - formula.entity_director
@@ -137,6 +147,7 @@ views:
       - formula.watched
       - formula.rating
       - formula.imdb_rating
+      - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - Описание
@@ -162,6 +173,7 @@ views:
       - formula.watched
       - formula.rating
       - formula.imdb_rating
+      - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - Описание
@@ -191,6 +203,7 @@ views:
       - formula.release_display
       - formula.rating
       - formula.imdb_rating
+      - formula.kp_rating
       - formula.watched
       - formula.entity_genre
       - formula.entity_director
@@ -201,25 +214,22 @@ views:
       - property: formula.rating
         direction: DESC
   - type: table
-    name: Выше IMDb
+    name: Сравнение оценок
     filters:
       and:
-        - formula.rating_delta != null
+        - formula.rating != null || formula.imdb_rating != null || formula.kp_rating != null
     order:
       - file.name
       - formula.type
       - formula.rating
       - formula.imdb_rating
+      - formula.kp_rating
       - formula.rating_delta
-      - formula.watched
-      - formula.entity_director
-      - formula.entity_actor
-      - formula.entity_genre
+      - formula.rating_delta_kp
+      - formula.imdb_kp_delta
     sort:
-      - property: formula.rating_delta
+      - property: file.name
         direction: ASC
-      - property: formula.rating
-        direction: DESC
   - type: dynamic-views-grid
     name: Перепросмотры
     filters:
@@ -229,6 +239,8 @@ views:
       - file.name
       - formula.watch_count
       - formula.rating
+      - formula.imdb_rating
+      - formula.kp_rating
       - formula.watched
     sort:
       - property: formula.watch_count

@@ -168,15 +168,20 @@ const FINAL_PAGE_TEXT = FIXED_PAGE_TEXT
             }
             roles.push(role);
         }
-        return [...new Set(roles)].join(" · ");
+        return [...new Set(roles)].sort((a, b) => a.localeCompare(b, "ru", {sensitivity: "base"})).join(" · ");
     }
-    dv.table(["Произведение", "Тип", "Релиз", "Моя оценка", "IMDb", "Роль", "Франшиза"], rows.map(p => [
+    rows.sort((left, right) => {
+        const roleOrder = kinoRoleFor(left, selected).localeCompare(kinoRoleFor(right, selected), "ru", {sensitivity: "base"});
+        return roleOrder || left.file.name.localeCompare(right.file.name, "ru", {sensitivity: "base"});
+    });
+    dv.table(["Произведение", "Роль", "Тип", "Релиз", "Моя оценка", "IMDb", "КП", "Франшиза"], rows.map(p => [
         p.file.link,
+        kinoRoleFor(p, selected),
         p.file.tags?.includes("#serial") ? "Сериал" : "Фильм",
         p["Релиз"] || "",
         p["Оценка"] || "",
         p["Оценка Imdb"] || "",
-        kinoRoleFor(p, selected),
+        p["Оценка Кинопоиск"] || "",
         p["Франшиза"] || ""
     ]));\n$2`
     )
