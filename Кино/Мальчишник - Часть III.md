@@ -9,93 +9,300 @@
 tags:
   - movies
 Жанр:
-  - "Comedy"
-  - "Crime"
+  - Comedy
+  - Crime
 Релиз: 2013-05-23
 Время: 100 min
 Режисер:
-  - "Todd Phillips (Тодд Филлипс)"
+  - Todd Phillips
 Актеры:
-  - "Bradley Cooper (Брэдли Купер)"
-  - "Ed Helms (Эд Хелмс)"
-  - "John Goodman (Джон Гудман)"
-  - "Ken Jeong (Кен Джонг)"
-  - "Zach Galifianakis (Зак Галифианакис)"
+  - Aaron Drexler
+  - Abigail Rich
+  - Adrian Voo
+  - Alan D. Purwin
+  - Alexis Genest
+  - Amy Alyssa
+  - Andres Galindo
+  - Anna Moreno
+  - Anthony Henderson
+  - Anthony Patricio
+  - Antonio D. Bonilla
+  - Ariane Bellamar
+  - B.J. Parker
+  - Betty Murphy
+  - Billy Lozowski
+  - Bradley Cooper
+  - Brenda Johnson
+  - Brent Yoshida
+  - Brian Blu
+  - Brian Metran
+  - Buck Childress
+  - Candy Binnings
+  - Casey Jones
+  - Cham
+  - Charles Lasher
+  - Charlie Brewer
+  - Chelsea O'Toole
+  - Chuck Rockford
+  - Cory Norton
+  - Damion Poitier
+  - Daniel TwoFeathers
+  - Danielle Burgio
+  - Danny Le Boyer
+  - Davin Tong
+  - Dean Mauro
+  - Deuandra T. Brown
+  - Ed Helms
+  - Ehab Elgharabawy
+  - Elysia Richards
+  - Emma Wetzel
+  - Ernesto Trinidad
+  - Eugene Varos
+  - Evie Ryland
+  - Fernando Perez
+  - Frank Scozzari
+  - Frank Spatacco
+  - Gillian Vigman
+  - Gladis Giada
+  - Grant Holmquist
+  - Harrison Forsyth
+  - Heather Graham
+  - Jamie Chung
+  - Jedediah Jones
+  - Jeffrey Tambor
+  - Jenny Ladner
+  - Jim Lau
+  - Joan Riegert
+  - Joey Aliano
+  - John Goodman
+  - Jon Josh Chua
+  - Jonny Coyne
+  - Joseph Kerkos
+  - Justin Bartha
+  - Karina Weeks
+  - Keith A. Somers
+  - Ken Jeong
+  - Kevin Deon
+  - Kevin Sumethasorn
+  - Kirstie Rodden
+  - Lela Loren
+  - Lewis Tan
+  - Lorenzo Aranda
+  - Matthew Condie
+  - Max Aronoff-Sher
+  - Max Napolitano
+  - Melissa McCarthy
+  - Michael Bower
+  - Michael Monteiro
+  - Michelle Antrobus
+  - Mike Epps
+  - Mike Vallely
+  - Noah F. Madril
+  - Oliver Cooper
+  - Oscar Torre
+  - Patrick Chien
+  - Patty Chong
+  - Paul Brunel
+  - Raul Limon
+  - Renee Schmidt
+  - Rey Cacoi Rodis II
+  - Rob Mars
+  - Robert 'Momo' Thompson
+  - Robert Bess
+  - Roger Schueller
+  - Sam B. Lorn
+  - Samantha Kelly
+  - Sasha Barrese
+  - Sasha Milan Slavnic
+  - Scott Anthony Leet
+  - Silvia Curiel
+  - Sondra Currie
+  - Spencer Kayden
+  - Stephanie Hill
+  - Tarah McDaniel
+  - Taylor West
+  - Tiffany Tynes
+  - Tim Sitarz
+  - Timothy Skyler Dunigan
+  - Todd Phillips
+  - Travis Wong
+  - Westley Nguyen
+  - Yimmy Yim
+  - Zach Galifianakis
+  - Zoe Aggeliki
+  - Zuhair Haddad
 Описание: В этот раз никакой свадьбы. Никакого мальчишника. Казалось бы, что могло пойти не так? Но когда Волчья стая оказывается на дороге, все ставки снимаются.
 imdb Id: tt1951261
 poster: https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3MDY4MTQ3Mzk@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Мальчишник]]"
+Роли актеров:
+  - Alan - Zach Galifianakis
+  - Black Doug - Mike Epps
+  - Bride - Ariane Bellamar
+  - Business Traveler - Brian Blu
+  - Casino Guest - B.J. Parker
+  - Casino Guy - Andres Galindo
+  - Casino Guy - Max Napolitano
+  - Casino Hottie - Tiffany Tynes
+  - Casino Patron - Joseph Kerkos
+  - Casino Patron - Michelle Antrobus
+  - Casino Patron - Raul Limon
+  - Casino Patron - Spencer Kayden
+  - Casino Patron / Precision Driver - Patty Chong
+  - Cassie - Melissa McCarthy
+  - Cassie's Mom - Betty Murphy
+  - Chief Prison Guard - Jim Lau
+  - Cocktail Girl - Abigail Rich
+  - Doug - Justin Bartha
+  - Driver - Stephanie Hill
+  - Female Officer - Lela Loren
+  - Freeway Boy - Max Aronoff-Sher
+  - Freeway Dad - Charlie Brewer
+  - Freeway Girl - Alexis Genest
+  - Freeway Girl - Emma Wetzel
+  - Freeway Mom - Danielle Burgio
+  - Gas Station Customer - Yimmy Yim
+  - Gas Station Patron - Daniel TwoFeathers
+  - Grieving Friend - Evie Ryland
+  - Hannah - Kirstie Rodden
+  - Happy Couple - Michael Bower
+  - Hearst Driver - Keith A. Somers
+  - Hector - Jonny Coyne
+  - Helicopter Pilot - Alan D. Purwin
+  - "Henchman #1 - Robert 'Momo' Thompson"
+  - "Henchman #1 - Scott Anthony Leet"
+  - "Henchman #2 - Tim Sitarz"
+  - "Henchman #3 - Rob Mars"
+  - "Henchman #5 - Danny Le Boyer"
+  - "Henchman #6 - Damion Poitier"
+  - "Henchmen #3 - Robert Bess"
+  - High Roller - Dean Mauro
+  - High Roller - Michael Monteiro
+  - Hooker - Elysia Richards
+  - Hooker - Renee Schmidt
+  - Hooker - Tarah McDaniel
+  - House Keeper - Silvia Curiel
+  - Inmate - Aaron Drexler
+  - Jade - Heather Graham
+  - Latino MC - Eugene Varos
+  - Laughing Pedestrian - Amy Alyssa
+  - Lauren - Jamie Chung
+  - Linda - Sondra Currie
+  - Liquor Store Patron - Lorenzo Aranda
+  - Local Shopper - Deuandra T. Brown
+  - Lost Tourist - Cory Norton
+  - Mailman - Billy Lozowski
+  - Male Gigolo - Noah F. Madril
+  - Market Shopper - Fernando Perez
+  - Marshall - John Goodman
+  - Mourner - Paul Brunel
+  - Mourning Family Friend - Matthew Condie
+  - Mr. Chow - Ken Jeong
+  - Mr. Creepy - Todd Phillips
+  - Nico - Mike Vallely
+  - Officer Vasquez - Oscar Torre
+  - Party Girl - Jenny Ladner
+  - Pedestrian - Charles Lasher
+  - Pedestrian - Gladis Giada
+  - Pedestrian - Joan Riegert
+  - Pedestrian - Taylor West
+  - Pedestrian / Tourist - Timothy Skyler Dunigan
+  - Pedestrian at Pawn Shop - Frank Scozzari
+  - Pharmacy Assistant - Oliver Cooper
+  - Phil - Bradley Cooper
+  - Pimp - Sasha Milan Slavnic
+  - Police officer - Frank Spatacco
+  - Priest at Funeral - Roger Schueller
+  - Prison Guard - Lewis Tan
+  - Prison Riot Guard - Anthony Patricio
+  - Prisoner - Adrian Voo
+  - Prisoner - Brent Yoshida
+  - Prisoner - Travis Wong
+  - Restaurant Patron - Chelsea O'Toole
+  - Restaurant patron - Ehab Elgharabawy
+  - Sandra - Zoe Aggeliki
+  - Sarah - Casey Jones
+  - Self - Chao's son - Davin Tong
+  - Sheik - Zuhair Haddad
+  - Shocked Tourist - Candy Binnings
+  - Shocked Tourist - Kevin Deon
+  - Sid - Jeffrey Tambor
+  - Stephanie - Gillian Vigman
+  - Stu - Ed Helms
+  - Thai Prisoner - Brian Metran
+  - Thai Prisoner - Cham
+  - Thai Prisoner - Chuck Rockford
+  - Thai Prisoner - Ernesto Trinidad
+  - Thai Prisoner - Jon Josh Chua
+  - Thai Prisoner - Kevin Sumethasorn
+  - Thai Prisoner - Patrick Chien
+  - Thai Prisoner - Rey Cacoi Rodis II
+  - Thai Prisoner - Sam B. Lorn
+  - Thai Prisoner - Westley Nguyen
+  - Thai Woman - Samantha Kelly
+  - Timothy - Harrison Forsyth
+  - Tourist - Anthony Henderson
+  - Tourist - Antonio D. Bonilla
+  - Tourist - Buck Childress
+  - Tourist - Jedediah Jones
+  - Tourist - Joey Aliano
+  - Tracy - Sasha Barrese
+  - Tyler - Grant Holmquist
+  - Valet Patron - Brenda Johnson
+  - Vendor - Anna Moreno
+  - Witness - Karina Weeks
+Кинопоиск ID: "600847"
 ---
-<!-- KINO:ENTITY:LINKS:V2 -->
+<!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
-const KINO_GENRE_ALIASES = {"Боевик":["Action","Боевик"],"Приключения":["Adventure","Приключения"],"Анимация":["Animation","Анимация","Мультфильм"],"Биография":["Biography","Биография"],"Комедия":["Comedy","Комедия"],"Криминал":["Crime","Криминал"],"Документальный":["Documentary","Документальный","Документальное"],"Драма":["Drama","Драма"],"Семейный":["Family","Семейный"],"Фэнтези":["Fantasy","Фэнтези"],"История":["History","История"],"Ужасы":["Horror","Ужасы"],"Музыка":["Music","Музыка"],"Мюзикл":["Musical","Мюзикл"],"Мистика":["Mystery","Мистика"],"Мелодрама":["Romance","Мелодрама"],"Фантастика":["Sci-Fi","Science Fiction","Фантастика"],"Короткометражка":["Short","Short Film","Короткометражка"],"Спорт":["Sport","Sports","Спорт"],"Триллер":["Thriller","Триллер"],"Военный":["War","Военный"],"Реалити-шоу":["Reality-TV","Reality TV","Реалити-шоу"],"Вестерн":["Western","Вестерн"]};
 const KINO_ENTITY_FIELDS = [
     ["Режисер", "Режиссер", "Кино - Открыть режиссера"],
     ["Актеры", "Актеры", "Кино - Открыть актера"],
     ["Жанр", "Жанры", "Кино - Открыть жанр"]
 ];
 
-function kinoEntityText(value) {
-    return String(value ?? "").trim().normalize("NFC");
-}
-
-function kinoPersonName(value) {
-    return kinoEntityText(value).replace(/\s+-\s+.+$/, "").trim();
-}
-
-function kinoEntityKey(value) {
-    return kinoEntityText(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
-}
-
-function kinoCanonicalGenre(value) {
-    const text = kinoEntityText(value);
-    const key = kinoEntityKey(text);
-    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {
-        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;
-    }
-    return text;
-}
-
+function kinoText(value) { return String(value ?? "").trim().normalize("NFC"); }
 function kinoValues(value) {
-    return [...new Set((Array.isArray(value) ? value : [value])
-        .map(kinoEntityText).filter(Boolean))];
+    return [...new Set((Array.isArray(value) ? value : [value]).map(kinoText).filter(Boolean))];
 }
-
-function kinoCanonical(field, value) {
-    return field === "Жанр" ? kinoCanonicalGenre(value) : kinoEntityText(value);
+function kinoName(value) {
+    const text = kinoText(value);
+    const actorNames = kinoValues(dv.current()["Актеры"]);
+    const known = actorNames.find(name =>
+        text === name || text.startsWith(name + " - ") || text.endsWith(" - " + name)
+    );
+    if (known) return known;
+    return text.includes(" - ") ? text.split(/\s+-\s+/).slice(-1)[0].trim() : text;
 }
-
 function kinoUri(choice, value) {
     return "obsidian://quickadd?vault=" + encodeURIComponent(app.vault.getName())
         + "&choice=" + encodeURIComponent(choice)
         + "&value-entity=" + encodeURIComponent(value);
 }
 
-const kinoRoot = dv.container.createDiv({ cls: "kino-entity-links" });
+const actorRoles = kinoValues(dv.current()["Роли актеров"]);
+const root = dv.container.createDiv({ cls: "kino-entity-links" });
 for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
-    const groups = new Map();
-    for (const original of kinoValues(dv.current()[field])) {
-        const canonical = kinoCanonical(field, original);
-        const key = kinoEntityKey(canonical);
-        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });
-        groups.get(key).originals.push(original);
-    }
-    const row = kinoRoot.createDiv({ cls: "kino-entity-links-row" });
+    const row = root.createDiv({ cls: "kino-entity-links-row" });
     row.createEl("strong", { text: label + ": " });
-    if (!groups.size) {
-        row.appendText("Не указано");
+    const values = field === "Актеры"
+        ? (actorRoles.length ? actorRoles : kinoValues(dv.current()[field]))
+        : kinoValues(dv.current()[field]);
+    if (!values.length) { row.appendText("Не указано"); continue; }
+    if (field === "Актеры") {
+        values.forEach(value => {
+            const line = row.createDiv({ cls: "kino-entity-link-line" });
+            const link = line.createEl("a");
+            link.textContent = value;
+            link.href = kinoUri(choice, kinoName(value));
+        });
         continue;
     }
-    [...groups.values()].forEach((group, index) => {
-        if (field !== "Актеры" && index) row.appendText(" · ");
-        const target = field === "Актеры" ? kinoPersonName(group.label) : group.label;
-        const linkRow = field === "Актеры" ? row.createDiv({ cls: "kino-entity-link-line" }) : row;
-        const link = linkRow.createEl("a");
-        link.textContent = group.label;
-        link.href = kinoUri(choice, target);
-        if (group.originals.some(original => original !== group.label)) {
-            link.title = "В YAML: " + group.originals.join(" / ");
-        }
+    values.forEach((value, index) => {
+        if (index) row.appendText(" · ");
+        const link = row.createEl("a");
+        link.textContent = value;
+        link.href = kinoUri(choice, value);
     });
 }
 ```
