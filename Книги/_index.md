@@ -1,10 +1,8 @@
-# 📚 Книги
-
-## Действия
+# 📚 [[Книги/Книги.base#Все|Книги]]
 
 `button-books-add` `button-books-reading` `button-books-edit-reading`
 
-## Обзоры
+## Обзор
 
 `button-books-authors` `button-books-series` `button-books-adaptations`
 
@@ -18,11 +16,6 @@
 <!-- BOOK-HOME-STATS:END -->
 
 ---
-
-# 📖 Все книги
-
-![[Книги/Книги.base#Все]]
-
 # 🔁 Перечитанные
  ![[Книги/Книги.base#Перечитанные]]
 
@@ -85,7 +78,7 @@ hidden true
 ^button-books-series
 
 ```button
-name 🎬 Экранизации
+name 🎬 Экранизация
 type command
 action QuickAdd: Книги - Экранизации
 width 10
