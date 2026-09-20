@@ -230,6 +230,10 @@ views:
     sort:
       - property: file.name
         direction: ASC
+    columnSize:
+      formula.imdb_rating: 67
+      formula.rating_delta: 99
+      formula.imdb_kp_delta: 108
   - type: dynamic-views-grid
     name: Перепросмотры
     filters:
