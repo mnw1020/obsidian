@@ -58,7 +58,7 @@ module.exports = async (params) => {
             const count = Number(fm.read_count);
             if (Number.isInteger(count) && count > 1) reread++;
         }
-        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${allBooks.length} книг** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${allBooks.length} произведений** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
         const current = await app.vault.read(home);
         const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
             ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
@@ -409,6 +409,13 @@ module.exports = async (params) => {
         if (seriesAuthors.length === 1) defaultAuthor = seriesAuthors[0];
     }
 
+    const workType = await quickAddApi.suggester(
+        ["📕 Книга", "📄 Рассказ", "🎓 Лекция", "📰 Статья"],
+        ["", "story", "lecture", "article"],
+        "Тип произведения"
+    );
+    if (workType === undefined || workType === null) return;
+
     const section = await quickAddApi.suggester(
         ["Художественные", "Non-fiction"],
         ["Художественные", "Non-fiction"],
@@ -417,7 +424,7 @@ module.exports = async (params) => {
     if (!section) return;
 
     const inputs = [
-        { id: "title", label: "Название книги", type: "text" },
+        { id: "title", label: "Название произведения", type: "text" },
         {
             id: "authors",
             label: "Автор(ы), через запятую",
@@ -460,7 +467,7 @@ module.exports = async (params) => {
         .filter(Boolean);
 
     if (!title) {
-        new Notice("Не указано название книги.");
+        new Notice("Не указано название произведения.");
         return;
     }
     if (authors.length === 0) {
@@ -560,7 +567,7 @@ module.exports = async (params) => {
     const filePath = normalizePath(`${destinationFolder}/${safeName(rawFileName)}.md`);
 
     if (app.vault.getAbstractFileByPath(filePath)) {
-        new Notice(`Книга уже существует:\n${filePath}`);
+        new Notice(`Произведение уже существует:\n${filePath}`);
         return;
     }
 
@@ -568,6 +575,7 @@ module.exports = async (params) => {
     content += `title: ${yamlString(title)}\n`;
     content += "authors:\n";
     for (const author of authors) content += `  - ${yamlString(author)}\n`;
+    if (workType) content += `work_type: ${workType}\n`;
     content += `date: ${yamlString(date)}\n`;
     if (rating !== null) content += `rating: ${rating}\n`;
     content += "read_count: 1\n";
@@ -583,17 +591,17 @@ module.exports = async (params) => {
 
     const bookFile = await app.vault.create(filePath, content);
     try {
-        await appendStructureJournal(`Добавлена книга: **${title}** (${authors.join(", ")}) — \`${bookFile.path}\`.`);
+        await appendStructureJournal(`Добавлено произведение: **${title}** (${authors.join(", ")}) — \`${bookFile.path}\`.`);
     } catch (error) {
-        new Notice(`Книга добавлена, но журнал не обновлен: ${error?.message || error}`, 7000);
+        new Notice(`Произведение добавлено, но журнал не обновлен: ${error?.message || error}`, 7000);
     }
     const entries = [{ number: 1, date, rating }];
     await updateHomeStats();
     const issues = await lightCheckBook(bookFile, entries);
     if (issues.length) {
-        new Notice(`${title}: книга добавлена. ⚠️ ${issues.join("; ")}. Запусти «Проверить библиотеку».`, 9000);
+        new Notice(`${title}: произведение добавлено. ⚠️ ${issues.join("; ")}. Запусти «Проверить библиотеку».`, 9000);
     } else {
-        new Notice(`${title}: книга добавлена`);
+        new Notice(`${title}: произведение добавлено`);
     }
     await app.workspace.getLeaf(false).openFile(bookFile);
 };

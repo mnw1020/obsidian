@@ -87,7 +87,7 @@ module.exports = async (params) => {
                 return aTitle.localeCompare(bTitle, "ru");
             });
         if (!books.length) {
-            new Notice("Книги не найдены.");
+            new Notice("Произведения не найдены.");
             return;
         }
         const labels = books.map(file => {
@@ -96,7 +96,7 @@ module.exports = async (params) => {
             const authors = listValues(fm.authors).join(", ");
             return authors ? `${title} | ${authors}` : title;
         });
-        bookFile = await quickAddApi.suggester(labels, books, "Выбери книгу");
+        bookFile = await quickAddApi.suggester(labels, books, "Выбери произведение");
         if (!bookFile) return;
     }
 

@@ -139,7 +139,7 @@ module.exports = async (params) => {
     text += "# 🎬 Экранизации\n\n";
     text += `${nav}\n\n`;
     text += "> [!info] Обзор\n";
-    text += `> **Связей:** ${rows.length} · **Книг:** ${linkedBooks.size} · **Экранизаций:** ${linkedMedia.size}\n\n`;
+    text += `> **Связей:** ${rows.length} · **Произведений:** ${linkedBooks.size} · **Экранизаций:** ${linkedMedia.size}\n\n`;
 
     if (!rows.length) {
         text += "> Связей книга ↔ кино пока нет или папка `Кино/` недоступна в этом vault.\n";

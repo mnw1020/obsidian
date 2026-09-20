@@ -693,6 +693,7 @@ module.exports = async (params) => {
     let completeCinemaRelationCount = 0;
     let mutualRelationCount = 0;
     let completeMutualRelationCount = 0;
+    const workTypeCounts = { book: 0, story: 0, lecture: 0, article: 0 };
 
     for (const file of books) {
         const fm = getFrontmatter(file);
@@ -703,6 +704,10 @@ module.exports = async (params) => {
         if (fiction && Number.isFinite(numericRating) && numericRating >= 1 && numericRating <= 10) ratedBooksCount++;
 
         const title = asText(fm.title);
+        const workType = asText(fm.work_type);
+        if (!workType) workTypeCounts.book++;
+        else if (Object.prototype.hasOwnProperty.call(workTypeCounts, workType)) workTypeCounts[workType]++;
+        else warnings.push(`${wikiLink(file, title || file.basename)} - неизвестный \`work_type: ${workType}\`; допустимы story, lecture, article или отсутствие свойства для книги.`);
         const authors = listValues(fm.authors);
         const series = asText(fm.series);
         const seriesIndexRaw = fm.series_index;
@@ -1191,16 +1196,17 @@ module.exports = async (params) => {
         }
     }
 
-    info.push(`Книг проверено: **${books.length}**.`);
+    info.push(`Произведений проверено: **${books.length}**.`);
     info.push(`Художественных: **${fictionCount}**, Non-fiction: **${nonfictionCount}**.`);
+    info.push(`По типу: 📕 книги **${workTypeCounts.book}**, 📄 рассказы **${workTypeCounts.story}**, 🎓 лекции **${workTypeCounts.lecture}**, 📰 статьи **${workTypeCounts.article}**.`);
     info.push(`Уникальных авторов: **${authorsMap.size}**.`);
     info.push(`Серий: **${seriesRecords.size}**.`);
-    info.push(`Записей чтений: **${readingEntriesCount}**; перечитанных книг: **${rereadBooksCount}**.`);
+    info.push(`Записей чтений: **${readingEntriesCount}**; перечитанных произведений: **${rereadBooksCount}**.`);
     info.push(`Картинок в \`Книги/\`: **${imageFiles.length}**; без ссылок: **${orphanImageCount}**.`);
     info.push(`Ссылок на отсутствующие локальные вложения: **${missingAttachmentCount}**.`);
     info.push(`Карточек кино/сериалов найдено: **${mediaFiles.length}**; связей книга ↔ кино: **${cinemaRelationCount}**; полностью взаимных: **${completeCinemaRelationCount}**.`);
     info.push(`Прочих взаимных связей: **${mutualRelationCount}**; полностью взаимных: **${completeMutualRelationCount}**.`);
-    info.push(`Подсказок возможных дублей книг: **${duplicateSuggestions.length}**.`);
+    info.push(`Подсказок возможных дублей произведений: **${duplicateSuggestions.length}**.`);
     info.push(`Подсказок возможных экранизаций: **${adaptationSuggestions.length}**.`);
 
     const now = new Date();
@@ -1220,7 +1226,7 @@ module.exports = async (params) => {
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит сам не исправляет ошибки, кроме подтвержденной тобой нормализации авторов/серий. Для однозначных исправлений используй ссылку «Исправить безопасное».\n\n`;
     report += `## Состояние библиотеки\n\n`;
-    report += `**${books.length} книг** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${imageFiles.length} изображений** · **${fictionCount} fiction** · **${nonfictionCount} non-fiction** · **${rereadBooksCount} перечитано** · **${ratedBooksCount} оценено**\n\n`;
+    report += `**${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${imageFiles.length} изображений** · **${fictionCount} fiction** · **${nonfictionCount} non-fiction** · **${rereadBooksCount} перечитано** · **${ratedBooksCount} оценено**\n\n`;
     report += `- Последняя проверка: **${timestamp}**.\n`;
     report += `- Последняя нормализация: **${state.lastNormalization}**.\n`;
     report += `- Последнее изменение структуры: **${state.lastStructure}**.\n`;
@@ -1258,7 +1264,7 @@ module.exports = async (params) => {
     // Обновляем компактную статистику на главной теми же проверенными счетчиками.
     const homeFile = app.vault.getAbstractFileByPath(normalizePath("Книги/_index.md"));
     if (homeFile) {
-        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${books.length} книг** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
         const homeText = await app.vault.read(homeFile);
         if (/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(homeText)) {
             await app.vault.modify(homeFile, homeText.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, homeBlock));

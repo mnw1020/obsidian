@@ -14,7 +14,7 @@
 
 <!-- BOOK-HOME-STATS:START -->
 > [!abstract] Библиотека
-> **154 книг** · **79 авторов** · **12 серий** · **50 оценено** · **0 перечитано**
+> **154 произведений** · **79 авторов** · **12 серий** · **50 оценено** · **0 перечитано**
 <!-- BOOK-HOME-STATS:END -->
 
 ---
@@ -30,7 +30,7 @@
 <!-- BUTTON DEFINITIONS -->
 
 ```button
-name ➕ Книга
+name ➕ Произведение
 type command
 action QuickAdd: Книги - Добавить книгу
 width 6.5
@@ -44,7 +44,7 @@ hidden true
 name 📖 Чтение
 type command
 action QuickAdd: Книги - Добавить чтение
-width 7.5
+width 10
 height 1.4
 align center middle
 hidden true
@@ -55,7 +55,7 @@ hidden true
 name ✏️ Изменить
 type command
 action QuickAdd: Книги - Редактировать чтение
-width 8
+width 10
 height 1.4
 align center middle
 hidden true
@@ -66,7 +66,7 @@ hidden true
 name 👥 Авторы
 type command
 action QuickAdd: Книги - Авторы
-width 8
+width 10
 height 1.4
 align center middle
 hidden true
@@ -77,7 +77,7 @@ hidden true
 name 🧩 Серии
 type command
 action QuickAdd: Книги - Серии
-width 8
+width 10
 height 1.4
 align center middle
 hidden true
@@ -88,7 +88,7 @@ hidden true
 name 🎬 Экранизации
 type command
 action QuickAdd: Книги - Экранизации
-width 8
+width 10
 height 1.4
 align center middle
 hidden true
