@@ -345,6 +345,9 @@ async function addMovieCore(params, settings, progress, handOff) {
         .sort(comparePeopleValues);
     const directorNames = [...new Set(directorValues.map(value => sourcePersonName(value)).filter(Boolean))];
     const yamlList = values => (values || []).map(value => "\n  - " + JSON.stringify(value)).join("");
+    // Актеры и роли сразу передаются шаблону как однострочные YAML-массивы.
+    // patchTemplate ниже повторяет это правило после создания карточки.
+    const yamlInlineList = values => " " + yamlArray((values || []).map(value => String(value || "").trim()).filter(Boolean));
     params.variables = {
         ...params.variables, ...movie,
         Released: normalizeRelease(movie.Released),
@@ -352,8 +355,8 @@ async function addMovieCore(params, settings, progress, handOff) {
         Runtime: kinoRuntime(movie, kp),
         Actors: actorNames.join(", "),
         Director: directorNames.join(", "),
-        actorLinks: yamlList(actorNames),
-        actorRoleLinks: yamlList(actorRoleValues),
+        actorLinks: yamlInlineList(actorNames),
+        actorRoleLinks: yamlInlineList(actorRoleValues),
         actorRoles: actorRoleValues.join("\n"),
         genreLinks: linkList(movie.Genre, "Жанр"),
         directorLink: yamlList(directorNames),
@@ -6213,6 +6216,17 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
                     }
                 }
             }
+            // Люди и роли живут в отдельной служебной карточке. Путь строится
+            // после переименования: если имя пришлось изменить из-за конфликта,
+            // основная карточка и файл ролей всё равно останутся связаны.
+            const rolePath = roleFilePath(file);
+            await writeRoleFile(app, ob, file, movie, kinopoiskId, people);
+            let roleEmbedApplied = false;
+            await app.vault.process(file, text => {
+                const next = ensureRoleEmbed(text, rolePath);
+                roleEmbedApplied = next !== text;
+                return next;
+            });
             progress?.setMessage?.("Кино: карточка добавлена.");
             cleanup();
             queueFranchise(params,movie,file);
@@ -6257,15 +6271,20 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
         const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
         const expression = new RegExp('^(?:'+safeKey+'|"'+safeKey+'"|\''+safeKey+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
         const items = [...new Set((values || []).map(value => String(value || "").trim()).filter(Boolean))];
-        const replacement = items.length
-            ? `${key}:${newline}${items.map(value => `  - ${JSON.stringify(value)}`).join(newline)}`
-            : `${key}: []`;
+        const replacement = `${key}: ${yamlArray(items)}`;
         yaml = expression.test(yaml) ? yaml.replace(expression, () => replacement)
             : yaml.trimEnd() + newline + replacement;
     }
+    function removeField(key) {
+        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
+        const expression = new RegExp('(?:^|\\r?\\n)'+safeKey+':[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+        yaml = yaml.replace(expression, match => match.startsWith("\\n") || match.startsWith("\\r\\n") ? "" : "");
+    }
     set('Описание',description);
-    if (Array.isArray(people.actorNames)) setList('Актеры', people.actorNames);
-    if (Array.isArray(people.actorRoles)) setList('Роли актеров', people.actorRoles);
+    // Актеры и роли больше не раздувают основную карточку: они записываются
+    // в Кино/_system/Роли/<карточка>.роли.md после переименования файла.
+    removeField('Актеры');
+    removeField('Роли актеров');
     if (Array.isArray(people.directorNames)) setList('Режисер', people.directorNames);
     if (/^\d{1,12}$/.test(String(kinopoiskId || ""))) set('Кинопоиск ID', String(kinopoiskId));
     let fm;
@@ -6278,7 +6297,7 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
         set('Франшиза',`[[${franchise.path.replace(/\.md$/,'')}]]`);
         if (franchise.part != null && fm['Часть'] == null) set('Часть',franchise.part);
     }
-    return ensureEntityLinksBlock(migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob));
+    return migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob);
 }
 
 const SERIES_ALIASES = {
@@ -6514,17 +6533,22 @@ function migrateEntities(raw,ob) {
     const parts=yamlParts(raw);
     if(!parts)return raw;
     let yaml=parts.yaml;
-    const newline=raw.includes('\r\n')?'\r\n':'\n';
     for(const key of ENTITY_FIELDS) {
         const block=propertyBlock(yaml,key);
         if(!block)continue;
         const value=ob.parseYaml(block[0])?.[key];
         const result=normalizeEntityField(value,key);
         if(JSON.stringify(value)===JSON.stringify(result))continue;
-        const replacement=Array.isArray(result)?key+':'+(result.length?newline+result.map(x=>'  - '+JSON.stringify(x)).join(newline):' []'):key+': '+JSON.stringify(result);
+        const replacement = Array.isArray(result)
+            ? `${key}: ${yamlArray(result)}`
+            : `${key}: ${JSON.stringify(result)}`;
         yaml=yaml.slice(0,block.index)+replacement+yaml.slice(block.index+block[0].length);
     }
     return parts.prefix+yaml+parts.end+parts.body;
+}
+function yamlArray(values) {
+    return JSON.stringify(values).replace(/[\u007f-\u009f]/g,
+        character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`);
 }
 function originalMediaPath(path) {
     return path.startsWith('Кино/') && path.endsWith('.md') && !/^Кино\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(path);
@@ -6569,11 +6593,71 @@ function normalizeRelease(value) {
     return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-function ensureEntityLinksBlock(raw) {
-    const match = raw.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
+function roleFilePath(file) {
+    return `${ROOT}/_system/Роли/${file.basename}.роли.md`;
+}
+
+function roleValues(value) {
+    const source = Array.isArray(value) ? value : [value];
+    return [...new Set(source.map(item => String(item ?? "").trim()).filter(Boolean))];
+}
+
+function setRawYamlField(raw, key, value) {
+    const match = raw.match(/^(\ufeff?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return raw;
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
-    const pattern = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
-    const body = raw.slice(match[0].length).replace(pattern, "");
-    return match[0] + ROLE_LINKS_BLOCK.replace(/\n/g, newline) + newline + body;
+    let yaml = match[2];
+    const safeKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const expression = new RegExp('^'+safeKey+':[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+    const line = `${key}: ${JSON.stringify(value)}`;
+    yaml = expression.test(yaml) ? yaml.replace(expression, () => line)
+        : yaml.trimEnd() + newline + line;
+    return match[1] + yaml + match[3] + raw.slice(match[0].length);
+}
+
+function ensureRoleEmbed(raw, rolePath) {
+    const withPath = setRawYamlField(raw, "Роли файл", rolePath);
+    const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
+    if (!match) return withPath;
+    const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
+    const oldBlock = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const oldEmbed = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
+    let body = withPath.slice(match[0].length).replace(oldBlock, "").replace(oldEmbed, "");
+    body = body.replace(/^(?:\r?\n)+/, "");
+    const target = rolePath.replace(/\.md$/i, "");
+    const embed = `<!-- KINO:ROLES:EMBED:V1 -->${newline}![[${target}]]${newline}`;
+    return match[0] + embed + body;
+}
+
+async function writeRoleFile(app, ob, mainFile, movie = {}, kinopoiskId = "", people = {}) {
+    const rolePath = roleFilePath(mainFile);
+    const mainFm = await frontmatter(app, ob, mainFile);
+    const actorNames = roleValues(people.actorNames?.length ? people.actorNames : mainFm.Актеры);
+    const actorRoles = roleValues(people.actorRoles?.length ? people.actorRoles : mainFm["Роли актеров"]);
+    const directorNames = roleValues(people.directorNames?.length ? people.directorNames
+        : (mainFm.Режисер ?? mainFm.Режиссер));
+    const genres = roleValues(mainFm.Жанр);
+    const imdbId = String(movie?.imdbID || mainFm["imdb Id"] || "").trim();
+    const kpId = String(kinopoiskId || mainFm["Кинопоиск ID"] || "").trim();
+    const title = String(mainFm.Название || movie?.Title || mainFile.basename).trim();
+    const lines = [
+        "---",
+        `Название: ${JSON.stringify(title)}`,
+        `Основная карточка: ${JSON.stringify(mainFile.path)}`,
+        `imdb Id: ${JSON.stringify(imdbId)}`,
+        `Кинопоиск ID: ${JSON.stringify(kpId)}`,
+        `Жанр: ${yamlArray(genres)}`,
+        `Режисер: ${yamlArray(directorNames)}`,
+        `Актеры: ${yamlArray(actorNames)}`,
+        `Роли актеров: ${yamlArray(actorRoles)}`,
+        "---",
+        ROLE_LINKS_BLOCK,
+        ""
+    ];
+    const content = lines.join("\n");
+    await makeFolders(app, rolePath);
+    const existing = app.vault.getAbstractFileByPath(rolePath);
+    if (existing) await app.vault.modify(existing, content);
+    else await app.vault.create(rolePath, content);
+    return rolePath;
 }

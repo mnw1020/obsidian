@@ -28,14 +28,6 @@ const average = ratings.length
     ? (ratings.reduce((sum, v) => sum + v, 0) / ratings.length).toFixed(2)
     : "–";
 
-const kpRatings = media
-    .map(p => Number(String(p["Оценка Кинопоиск"] ?? "").replace(",", ".")))
-    .filter(v => Number.isFinite(v));
-
-const kpAverage = kpRatings.length
-    ? (kpRatings.reduce((sum, v) => sum + v, 0) / kpRatings.length).toFixed(2)
-    : "–";
-
 const stats = [
     ["🎞️", "Просмотрено", watched.length],
     ["🎬", "Фильмы", movies.length],

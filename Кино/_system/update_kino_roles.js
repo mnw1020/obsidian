@@ -1,7 +1,7 @@
 // QuickAdd: Кино - обновить роли актёров.
 // Порядок источников: IMDb fullcredits/GraphQL, затем КП /cast/.
-// YAML "Актеры"/"Режисер" содержит только латинские имена.
-// Строки Role - Name хранятся в YAML-поле "Роли актеров" и выводятся по строке.
+// В основной карточке остается только короткий индекс режиссера.
+// "Актеры" и строки Role - Name хранятся в companion-файле _system/Роли.
 // Постоянного HTTP-кэша нет. Успешный источник полностью заменяет поле;
 // старое значение используется только если источник для этого поля недоступен.
 
@@ -89,9 +89,13 @@ module.exports = async function updateKinoRoles(params) {
             processed++;
             const fm = app.metadataCache.getFileCache(file)?.frontmatter || {};
             const imdbId = extractImdbId(fm["imdb Id"]);
-            const actorValue = fm.Актеры;
+            const rolePath = roleFilePath(file);
+            const roleFile = app.vault.getAbstractFileByPath(rolePath);
+            const roleFm = roleFile ? app.metadataCache.getFileCache(roleFile)?.frontmatter || {} : {};
+            const actorValue = roleFm.Актеры ?? fm.Актеры ?? [];
+            const roleValue = roleFm["Роли актеров"] ?? fm["Роли актеров"] ?? [];
             const directorField = fm.Режисер !== undefined ? "Режисер" : "Режиссер";
-            const directorValue = fm[directorField];
+            const directorValue = roleFm.Режисер ?? roleFm.Режиссер ?? fm[directorField] ?? [];
             const storedKpId = explicitKpId(fm);
             const progress = stage => notice.setMessage?.(
                 `Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`
@@ -137,38 +141,44 @@ module.exports = async function updateKinoRoles(params) {
                 foundDirectors += directorResult.values.length;
                 const hasActorSource = result.values.length > 0;
                 const hasDirectorSource = directorResult.values.length > 0;
-                if (!hasActorSource && !hasDirectorSource) {
-                    skipped++;
-                    noRoleFiles.push(file.basename);
-                    continue;
-                }
-                const nextValue = hasActorSource
-                    ? (Array.isArray(actorValue) ? result.values : result.values.join(", "))
-                    : actorValue;
-                const nextActorRoles = hasActorSource ? result.displayValues : undefined;
+                // Списки актёров и ролей теперь всегда живут во внешнем файле.
+                // Если источник временно недоступен, сохраняем уже известное
+                // значение из этого файла, а не затираем его пустым ответом.
+                const nextValue = hasActorSource ? result.values : asArray(actorValue);
+                const nextActorRoles = hasActorSource ? result.displayValues : asArray(roleValue);
                 const nextDirectorValue = hasDirectorSource
-                    ? (Array.isArray(directorValue) ? directorResult.values : directorResult.values.join(", "))
-                    : directorValue;
+                    ? directorResult.values
+                    : asArray(directorValue);
                 const hasNewKpId = Boolean(kpId && !explicitKpId(fm));
-                let frontmatterChanged = JSON.stringify(nextValue) !== JSON.stringify(actorValue)
-                    || (hasActorSource && JSON.stringify(nextActorRoles) !== JSON.stringify(fm["Роли актеров"]))
+                const roleChanged = !roleFile
+                    || JSON.stringify(nextValue) !== JSON.stringify(asArray(roleFm.Актеры))
+                    || JSON.stringify(nextActorRoles) !== JSON.stringify(asArray(roleFm["Роли актеров"]))
+                    || JSON.stringify(nextDirectorValue) !== JSON.stringify(asArray(roleFm.Режисер ?? roleFm.Режиссер));
+                let frontmatterChanged = JSON.stringify(nextDirectorValue) !== JSON.stringify(asArray(fm[directorField]))
                     || JSON.stringify(nextDirectorValue) !== JSON.stringify(directorValue)
                     || hasNewKpId;
                 let bodyChanged = false;
                 if (frontmatterChanged) {
                     await app.fileManager.processFrontMatter(file, frontmatter => {
-                        frontmatter.Актеры = nextValue;
-                        if (hasActorSource) frontmatter["Роли актеров"] = nextActorRoles;
                         frontmatter[directorField] = nextDirectorValue;
                         if (hasNewKpId) frontmatter["Кинопоиск ID"] = kpId;
                     });
                 }
+                if (roleChanged) {
+                    await writeRoleFile(app, file, fm, {
+                        actors: nextValue,
+                        roles: nextActorRoles,
+                        directors: nextDirectorValue,
+                        kpId: kpId || explicitKpId(fm),
+                        genre: fm.Жанр
+                    });
+                }
                 await app.vault.process(file, raw => {
-                    const next = ensureRoleLinksBlock(raw);
+                    const next = ensureRoleEmbed(raw, rolePath);
                     bodyChanged = next !== raw;
                     return next;
                 });
-                if (!frontmatterChanged && !bodyChanged) {
+                if (!frontmatterChanged && !roleChanged && !bodyChanged) {
                     if (!result.roles && !directorResult.values.length) noRoleSource++;
                     continue;
                 }
@@ -1149,6 +1159,66 @@ function compareRoleValues(left, right) {
         || sourcePersonName(left).localeCompare(sourcePersonName(right), "en", { sensitivity: "base", numeric: true });
 }
 
+function roleFilePath(file) {
+    return `${ROOT}/_system/Роли/${file.basename}.роли.md`;
+}
+
+async function makeFolders(app, path) {
+    let current = "";
+    for (const part of path.split("/").slice(0, -1)) {
+        current = current ? `${current}/${part}` : part;
+        if (!app.vault.getAbstractFileByPath(current)) await app.vault.createFolder(current);
+    }
+}
+
+async function writeRoleFile(app, mainFile, fm, values) {
+    const rolePath = roleFilePath(mainFile);
+    const title = String(fm.Название || mainFile.basename).trim();
+    const content = [
+        "---",
+        `Название: ${JSON.stringify(title)}`,
+        `Основная карточка: ${JSON.stringify(mainFile.path)}`,
+        `imdb Id: ${JSON.stringify(String(fm["imdb Id"] || "").trim())}`,
+        `Кинопоиск ID: ${JSON.stringify(String(values.kpId || fm["Кинопоиск ID"] || "").trim())}`,
+        `Жанр: ${yamlArray(asArray(values.genre ?? fm.Жанр))}`,
+        `Режисер: ${yamlArray(asArray(values.directors))}`,
+        `Актеры: ${yamlArray(asArray(values.actors))}`,
+        `Роли актеров: ${yamlArray(asArray(values.roles))}`,
+        "---",
+        ROLE_LINKS_BLOCK,
+        ""
+    ].join("\n");
+    await makeFolders(app, rolePath);
+    const existing = app.vault.getAbstractFileByPath(rolePath);
+    if (existing) await app.vault.modify(existing, content);
+    else await app.vault.create(rolePath, content);
+}
+
+function setRawField(raw, key, value) {
+    const match = raw.match(/^(\ufeff?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
+    if (!match) return raw;
+    const newline = raw.includes("\r\n") ? "\r\n" : "\n";
+    let yaml = match[2];
+    const safe = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const expression = new RegExp("^" + safe + ":[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*", "m");
+    const line = `${key}: ${JSON.stringify(value)}`;
+    yaml = expression.test(yaml) ? yaml.replace(expression, line)
+        : yaml.trimEnd() + newline + line;
+    return match[1] + yaml + match[3] + raw.slice(match[0].length);
+}
+
+function ensureRoleEmbed(raw, rolePath) {
+    const withPath = setRawField(raw, "Роли файл", rolePath);
+    const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
+    if (!match) return withPath;
+    const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
+    const oldBlock = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const oldEmbed = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
+    const body = withPath.slice(match[0].length)
+        .replace(oldBlock, "").replace(oldEmbed, "").replace(/^(?:\r?\n)+/, "");
+    return match[0] + `<!-- KINO:ROLES:EMBED:V1 -->${newline}![[${rolePath.replace(/\.md$/i, "")}]]${newline}` + body;
+}
+
 function ensureRoleLinksBlock(raw) {
     const frontmatter = raw.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!frontmatter) return raw;
@@ -1156,6 +1226,96 @@ function ensureRoleLinksBlock(raw) {
     const pattern = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
     const body = raw.slice(frontmatter[0].length).replace(pattern, "");
     return frontmatter[0] + ROLE_LINKS_BLOCK.replace(/\n/g, newline) + newline + body;
+}
+
+function compactPeopleFields(raw, ob) {
+    const parts = yamlParts(raw);
+    if (!parts) return raw;
+    let yaml = parts.yaml;
+    for (const key of ["Актеры", "Роли актеров"]) {
+        const block = propertyBlock(yaml, key);
+        if (!block) continue;
+        const parsed = readField(block[0], key, ob);
+        if (!parsed.found) continue;
+        const values = parsed.values;
+        const replacement = `${key}: ${yamlArray(values)}`;
+        if (block[0] === replacement) continue;
+        yaml = yaml.slice(0, block.index) + replacement
+            + yaml.slice(block.index + block[0].length);
+    }
+    return parts.prefix + yaml + parts.end + parts.body;
+}
+
+function readField(block, key, ob) {
+    try {
+        const parsed = ob.parseYaml(block) || {};
+        if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+            return { found: true, values: asArray(parsed[key]) };
+        }
+    } catch {
+        // В старых ролях встречаются управляющие символы. Используем
+        // построчный разбор и затем безопасно сериализуем значение в JSON.
+    }
+    const lines = block.split(/\r?\n/);
+    const first = lines.shift() || "";
+    const colon = first.indexOf(":");
+    if (colon < 0) return { found: false, values: [] };
+    const inline = first.slice(colon + 1).trim();
+    if (!inline || inline === "[]") {
+        return {
+            found: true,
+            values: lines
+                .filter(line => /^\s*-\s+/.test(line))
+                .map(line => decodeScalar(line.replace(/^\s*-\s+/, "")))
+                .filter(value => value.trim() !== "")
+        };
+    }
+    try { return { found: true, values: asArray(JSON.parse(inline)) }; }
+    catch { return { found: true, values: [decodeScalar(inline)].filter(value => value.trim() !== "") }; }
+}
+
+function asArray(value) {
+    if (value === null || value === undefined || value === "") return [];
+    const values = Array.isArray(value) ? value : [value];
+    return values.map(item => String(item ?? "")).filter(item => item.trim() !== "");
+}
+
+function decodeScalar(value) {
+    const text = String(value ?? "").trim();
+    if (text.startsWith('"') && text.endsWith('"')) {
+        try { return JSON.parse(escapeControls(text)); } catch { return text.slice(1, -1); }
+    }
+    if (text.startsWith("'") && text.endsWith("'")) {
+        return text.slice(1, -1).replace(/''/g, "'");
+    }
+    return text;
+}
+
+function escapeControls(value) {
+    return value.replace(/[\u0000-\u001f\u007f-\u009f]/g,
+        character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`);
+}
+
+function yamlArray(values) {
+    return JSON.stringify(values).replace(/[\u007f-\u009f]/g,
+        character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`);
+}
+
+function yamlParts(raw) {
+    const match = raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
+    return match
+        ? { prefix: match[1], yaml: match[2], end: match[3], body: raw.slice(match[0].length) }
+        : null;
+}
+
+function propertyBlock(yaml, key) {
+    const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const expression = new RegExp(
+        `^(?:${escaped}|"${escaped}"|'${escaped}'):[^\\r\\n]*` +
+        `(?:\\r?\\n(?![^ \\t\\r\\n#][^\\r\\n]*:)[^\\r\\n]*)*`,
+        "m"
+    );
+    return yaml.match(expression);
 }
 
 function roleFromChunk(chunk) {

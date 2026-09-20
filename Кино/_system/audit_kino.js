@@ -8,7 +8,8 @@ module.exports = async (params) => {
     const VIEWINGS_PREFIX = `${ROOT}/Просмотры/`;
     const SEASONS_PREFIX = `${ROOT}/Сезоны/`;
     const FRANCHISES_PREFIX = `${ROOT}/Франшизы/`;
-    const ENTITY_FIELDS = ["Режисер", "Актеры", "Жанр"];
+    const ENTITY_FIELDS = ["Режисер", "Жанр"];
+    const ROLE_FIELDS = ["Режисер", "Актеры", "Роли актеров"];
 
     const asText = value => {
         if (value === null || value === undefined) return "";
@@ -251,6 +252,9 @@ module.exports = async (params) => {
         const fileTags = tags(fm);
         const mediaTags = fileTags.filter(tag => tag === "movies" || tag === "serial");
         const label = title || file.basename;
+        const rolePath = `${ROOT}/_system/Роли/${file.basename}.роли.md`;
+        const roleFile = app.vault.getAbstractFileByPath(rolePath);
+        const roleFm = roleFile ? getFrontmatter(roleFile) : {};
 
         if (!title) addError(file, "отсутствует свойство `Название`.");
         if (mediaTags.length > 1) addWarning(file, "одновременно стоят теги `movies` и `serial`.");
@@ -266,6 +270,40 @@ module.exports = async (params) => {
         }
 
         if (!asText(fm.poster)) missingPosters.push(file);
+
+        if (!roleFile) {
+            addError(file, `отсутствует файл ролей: \`${rolePath}\`.`);
+            missingActors++;
+        } else {
+            if (asText(fm["Роли файл"]) !== rolePath) {
+                addWarning(file, `поле \`Роли файл\` не совпадает с сопровождающим файлом: \`${rolePath}\`.`);
+            }
+            if (asText(roleFm["Основная карточка"]).replace(/^\[\[|\]\]$/g, "") !== file.path) {
+                addError(roleFile, `поле \`Основная карточка\` не ведёт на \`${file.path}\`.`);
+            }
+            for (const field of ROLE_FIELDS) {
+                const raw = roleFm[field];
+                if (raw === null || raw === undefined || raw === "") {
+                    if (field === "Актеры") missingActors++;
+                    continue;
+                }
+                const values = listValues(raw);
+                const seen = new Set();
+                for (const value of values) {
+                    if (value.startsWith("[[")) addWarning(roleFile, `в \`${field}\` осталась wikilink-ссылка: \`${value}\`.`);
+                    if (field !== "Роли актеров") {
+                        if (hasNestedParentheses(value)) addError(roleFile, `в \`${field}\` вложенные скобки: \`${value}\`.`);
+                        if (hasSameParentheses(value)) addError(roleFile, `в \`${field}\` повторяется имя в скобках: \`${value}\`.`);
+                    }
+                    if (field === "Роли актеров" && !personRole(value)) actorsWithoutRoles++;
+                    const key = field === "Роли актеров"
+                        ? `${personName(value)}|${personRole(value)}`
+                        : personKey(value);
+                    if (key && seen.has(key)) addError(roleFile, `в \`${field}\` есть точный дубль: \`${value}\`.`);
+                    if (key) seen.add(key);
+                }
+            }
+        }
 
         for (const [field, min, max] of [["Оценка", 1, 10], ["Оценка Imdb", 0, 10], ["Оценка Кинопоиск", 0, 10]]) {
             if (asText(fm[field]) === "") continue;
@@ -296,8 +334,7 @@ module.exports = async (params) => {
             const raw = fm[field];
             if (raw === null || raw === undefined || raw === "") {
                 if (field === "Режисер") missingDirectors++;
-                if (field === "Актеры") missingActors++;
-                if (field === "Жанр") missingGenres++;
+                    if (field === "Жанр") missingGenres++;
                 continue;
             }
 
@@ -311,7 +348,6 @@ module.exports = async (params) => {
                     const formatIssue = personFormatIssue(value);
                     if (formatIssue) addError(file, `в \`${field}\`: ${formatIssue}: \`${value}\`.`);
                     if (value.toUpperCase() === "N/A") naDirectors++;
-                    if (field === "Актеры" && value.toUpperCase() !== "N/A" && !personRole(value)) actorsWithoutRoles++;
                 }
                 const key = entityValueKey(field, value);
                 if (key && seen.has(key)) addError(file, `в \`${field}\` есть точный дубль: \`${value}\`.`);
@@ -357,7 +393,7 @@ module.exports = async (params) => {
     for (const file of missingIds) addWarning(file, "не указан IMDb ID.");
     for (const file of missingPosters) addWarning(file, "не указан poster.");
     if (missingDirectors) warnings.push(`Карточек без режиссёра: **${missingDirectors}**.`);
-    if (missingActors) warnings.push(`Карточек без актёров: **${missingActors}**.`);
+    if (missingActors) warnings.push(`Карточек без актёров или файла ролей: **${missingActors}**.`);
     if (missingGenres) warnings.push(`Карточек без жанра: **${missingGenres}**.`);
     if (naDirectors) warnings.push(`Карточек с режиссёром \`N/A\`: **${naDirectors}**.`);
     if (actorsWithoutRoles) warnings.push(`Актёров без указанной роли: **${actorsWithoutRoles}**. Роль добавляется только если её вернул источник КП/IMDb.`);
@@ -510,7 +546,8 @@ module.exports = async (params) => {
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
     report += `- IMDb ID и повторное использование одного ID;\n`;
-    report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер`, `Актеры`, `Жанр`;\n";
+    report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер` и `Жанр`, а также в файлах ролей;\n";
+    report += "- наличие пары карточка + `_system/Роли/<название>.роли.md` и корректную обратную ссылку;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";

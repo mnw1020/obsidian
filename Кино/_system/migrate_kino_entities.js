@@ -68,7 +68,7 @@ function kinoPersonKey(value) {
 function kinoPersonDisplay(field, value) {
     return String(value ?? "").trim().normalize("NFC");
 }
-const ENTITY_FIELDS = ['Режисер','Актеры','Жанр'];
+const ENTITY_FIELDS = ['Режисер','Жанр'];
 function entityName(value) {
     if (value == null) return "";
     const text = String(value).trim();
@@ -97,17 +97,20 @@ function migrateEntities(raw,ob) {
     const parts=yamlParts(raw);
     if(!parts)return raw;
     let yaml=parts.yaml;
-    const newline=raw.includes('\r\n')?'\r\n':'\n';
     for(const key of ENTITY_FIELDS) {
         const block=propertyBlock(yaml,key);
         if(!block)continue;
         const value=ob.parseYaml(block[0])?.[key];
         const result=normalizeEntityField(value,key);
         if(JSON.stringify(value)===JSON.stringify(result))continue;
-        const replacement=Array.isArray(result)?key+':'+(result.length?newline+result.map(x=>'  - '+JSON.stringify(x)).join(newline):' []'):key+': '+JSON.stringify(result);
+        const replacement=Array.isArray(result)?`${key}: ${yamlArray(result)}`:key+': '+JSON.stringify(result);
         yaml=yaml.slice(0,block.index)+replacement+yaml.slice(block.index+block[0].length);
     }
     return parts.prefix+yaml+parts.end+parts.body;
+}
+function yamlArray(values) {
+    return JSON.stringify(values).replace(/[\u007f-\u009f]/g,
+        character => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`);
 }
 function originalMediaPath(path) {
     return path.startsWith('Кино/') && path.endsWith('.md') && !/^Кино\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(path);
@@ -143,7 +146,9 @@ module.exports=async function installEntities({app,obsidian:ob,quickAddApi:qa}) 
             const before=await app.vault.read(file);
             if(!isMediaRaw(file.path,before,ob))continue;
             total++;
-            const after=ensureEntityLinksBlock(migrateEntities(before,ob));
+            // Списки людей уже вынесены в Кино/_system/Роли. Эта старая
+            // миграция больше не должна возвращать большой блок в карточку.
+            const after=migrateEntities(before,ob);
             if(after!==before)edits.push({path:file.path,before,after});
         }
         for(const file of app.vault.getFiles().filter(f=>f.extension==='base' && f.path.startsWith('Кино/') && !/^Кино\/(Просмотры|Сезоны)\//.test(f.path))) {
@@ -201,7 +206,7 @@ module.exports=async function installEntities({app,obsidian:ob,quickAddApi:qa}) 
         }
         await qa.infoDialog('Готово',[
             `Карточек проверено: ${total}. Изменено: ${checked}.`,
-            'Обновлены только Режисер, Актеры, Жанр. Остальной текст карточек сохранен.',
+            'Обновлены только Режисер и Жанр. Актеры и роли хранятся в _system/Роли.',
             'Добавлены три динамические страницы и четыре команды QuickAdd.',
             'В Bases теперь кликабельные имена. Старый Template остается на месте.',
             `Резервная копия: ${backupPath}`
@@ -216,6 +221,8 @@ function patchEntityBase(raw,ob,vaultName) {
     if(!relevant)return raw;
     const before=JSON.stringify(data);
     data.formulas||={};data.properties||={};
+    data.formulas.entity_actor = roleFileFormula(vaultName);
+    data.properties['formula.entity_actor'] = {displayName:'Актеры и роли'};
     for(const [field,meta] of Object.entries(ENTITY_META)) {
         data.formulas[meta.formula]=entityLinkFormula(field,meta.command,vaultName);
         data.properties['formula.'+meta.formula]={displayName:meta.label};
@@ -238,6 +245,13 @@ function entityLinkFormula(field,command,vaultName) {
     for(const [from,to] of [['%','%25'],['&','%26'],['+','%2B'],['#','%23'],['?','%3F'],['=','%3D'],[' ','%20'],['"','%22'],["'",'%27'],['<','%3C'],['>','%3E'],['\n','%0A'],['\r','%0D'],['\t','%09']])value+=`.replace(${JSON.stringify(from)}, ${JSON.stringify(to)})`;
     const base='obsidian://quickadd?'+(vaultName?'vault='+encodeURIComponent(vaultName)+'&':'')+'choice='+encodeURIComponent(command)+'&value-entity=';
     return `list(note[${JSON.stringify(field)}]).filter(value != null && value != "").map(link(${JSON.stringify(base)} + ${value}, value))`;
+}
+
+function roleFileFormula(vaultName) {
+    let value='note["Роли файл"].toString()';
+    for(const [from,to] of [['%','%25'],['&','%26'],['+','%2B'],['#','%23'],['?','%3F'],['=','%3D'],[' ','%20'],['"','%22'],["'",'%27'],['<','%3C'],['>','%3E'],['\n','%0A'],['\r','%0D'],['\t','%09']])value+=`.replace(${JSON.stringify(from)}, ${JSON.stringify(to)})`;
+    const base='obsidian://open?'+(vaultName?'vault='+encodeURIComponent(vaultName)+'&':'')+'file=';
+    return `if(note["Роли файл"] != null && note["Роли файл"].toString().trim() != "", link(${JSON.stringify(base)} + ${value}, "Актеры и роли"), null)`;
 }
 
 const SERVICE_PAGES = {
@@ -286,6 +300,23 @@ const selected = selectedValue;`
   )
   .replace(/\n```base[\s\S]*$/, "");
 SERVICE_PAGES["Кино/_system/Актер.md"] = patchedActorPage;
+// Если служебная страница актёра ещё не существует, создаём сразу
+// вариант, который читает внешние файлы ролей, а не удалённый YAML карточек.
+SERVICE_PAGES["Кино/_system/Актер.md"] = [
+  "---", "Выбрано: \"\"", "---", "",
+  "<!-- KINO:ENTITY:V1 -->", "# Актер", "",
+  "```dataviewjs",
+  "const selected = String(dv.current()[\"Выбрано\"] || \"\").trim();",
+  "function personKey(value) { return String(value ?? \"\").replace(/\\s+-\\s+.+$/, \"\").normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\").toLocaleLowerCase(\"ru\").replace(/ё/g, \"е\").replace(/[^0-9a-zа-я]/gi, \"\"); }",
+  "function roleFor(rolePage) { const values = Array.isArray(rolePage[\"Роли актеров\"]) ? rolePage[\"Роли актеров\"] : [rolePage[\"Роли актеров\"]]; return [...new Set(values.map(value => String(value ?? \"\").trim()).filter(value => { const match = value.match(/^(.+?)\\s+-\\s+(.+)$/); return match && personKey(match[2]) === personKey(selected); }).map(value => value.match(/^(.+?)\\s+-\\s+(.+)$/)[1].trim()))].join(\" · \"); }",
+  "if (!selected) { dv.paragraph(\"Выбери имя в кинотеке или запусти соответствующую команду QuickAdd.\"); } else {",
+  "  dv.header(2, selected);",
+  "  const rows = dv.pages('\"Кино/_system/Роли\"').array().map(rolePage => { const path = String(rolePage[\"Основная карточка\"] || \"\").replace(/\\.md$/, \"\"); return { rolePage, movie: path ? dv.page(path) : null }; }).filter(({ rolePage, movie }) => { const values = Array.isArray(rolePage[\"Актеры\"]) ? rolePage[\"Актеры\"] : [rolePage[\"Актеры\"]]; return movie && values.some(value => personKey(value) === personKey(selected)); });",
+  "  rows.sort((a, b) => roleFor(a.rolePage).localeCompare(roleFor(b.rolePage), \"ru\", {sensitivity: \"base\"}) || a.movie.file.name.localeCompare(b.movie.file.name, \"ru\", {sensitivity: \"base\"}));",
+  "  dv.table([\"Произведение\", \"Роль\", \"Тип\", \"Релиз\", \"Моя оценка\", \"IMDb\", \"КП\", \"Франшиза\"], rows.map(({ movie, rolePage }) => [movie.file.link, roleFor(rolePage), movie.file.tags?.includes(\"#serial\") ? \"Сериал\" : \"Фильм\", movie[\"Релиз\"] || \"\", movie[\"Оценка\"] || \"\", movie[\"Оценка Imdb\"] || \"\", movie[\"Оценка Кинопоиск\"] || \"\", movie[\"Франшиза\"] || \"\"]));",
+  "}",
+  "```", ""
+].join("\\n");
 const COMMANDS = [
   {
     "id": "kinoteka-entity-director-v1",
@@ -361,11 +392,6 @@ const ENTITY_META = {
     "formula": "entity_director",
     "command": "Кино - Открыть режиссера",
     "label": "Режиссер"
-  },
-  "Актеры": {
-    "formula": "entity_actor",
-    "command": "Кино - Открыть актера",
-    "label": "Актер"
   },
   "Жанр": {
     "formula": "entity_genre",

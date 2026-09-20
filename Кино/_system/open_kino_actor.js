@@ -150,11 +150,26 @@ const selected = kinoPersonDisplay(selectedValue);`
     'return values.some(value => kinoPersonDisplay(value) === selected);',
     'return values.some(value => kinoPersonDisplay(value) === selected);'
 );
-const FINAL_PAGE_TEXT = FIXED_PAGE_TEXT
+const ROLE_AWARE_PAGE_TEXT = FIXED_PAGE_TEXT.replace(
+    /    const rows = dv\.pages\('\"Кино\"'\)\.array\(\)\.filter\(p => \{[\s\S]*?    \}\);\n    const ratings =/,
+    `    const rows = dv.pages('"Кино/_system/Роли"').array().map(rolePage => {
+        const path = String(rolePage["Основная карточка"] || "").replace(/\\.md$/, "");
+        const movie = path ? dv.page(path) : null;
+        return { rolePage, movie };
+    }).filter(({rolePage, movie}) => {
+        if (!movie || !/^Кино\\//.test(movie.file.path)) return false;
+        const tags = Array.isArray(movie.tags) ? movie.tags : [movie.tags];
+        if (!tags.some(t => ["movies", "serial"].includes(String(t).replace(/^#/, "")))) return false;
+        const values = Array.isArray(rolePage["Актеры"]) ? rolePage["Актеры"] : [rolePage["Актеры"]];
+        return values.some(value => kinoSamePerson(value, selectedValue));
+    });
+    const ratings =`
+);
+const FINAL_PAGE_TEXT = ROLE_AWARE_PAGE_TEXT
     .replace(
         /(\n    dv\.paragraph\("Произведений:[\s\S]*?;\n)(\}\n```)/,
         `$1    function kinoRoleFor(page, selectedName) {
-        const values = Array.isArray(page["Роли актеров"]) ? page["Роли актеров"] : [page["Роли актеров"]];
+        const values = Array.isArray(page.rolePage["Роли актеров"]) ? page.rolePage["Роли актеров"] : [page.rolePage["Роли актеров"]];
         const roles = [];
         for (const value of values) {
             const text = String(value ?? "").trim();
@@ -172,17 +187,17 @@ const FINAL_PAGE_TEXT = FIXED_PAGE_TEXT
     }
     rows.sort((left, right) => {
         const roleOrder = kinoRoleFor(left, selected).localeCompare(kinoRoleFor(right, selected), "ru", {sensitivity: "base"});
-        return roleOrder || left.file.name.localeCompare(right.file.name, "ru", {sensitivity: "base"});
+        return roleOrder || left.movie.file.name.localeCompare(right.movie.file.name, "ru", {sensitivity: "base"});
     });
-    dv.table(["Произведение", "Роль", "Тип", "Релиз", "Моя оценка", "IMDb", "КП", "Франшиза"], rows.map(p => [
-        p.file.link,
-        kinoRoleFor(p, selected),
-        p.file.tags?.includes("#serial") ? "Сериал" : "Фильм",
-        p["Релиз"] || "",
-        p["Оценка"] || "",
-        p["Оценка Imdb"] || "",
-        p["Оценка Кинопоиск"] || "",
-        p["Франшиза"] || ""
+    dv.table(["Произведение", "Роль", "Тип", "Релиз", "Моя оценка", "IMDb", "КП", "Франшиза"], rows.map(({movie, rolePage}) => [
+        movie.file.link,
+        kinoRoleFor({rolePage}, selected),
+        movie.file.tags?.includes("#serial") ? "Сериал" : "Фильм",
+        movie["Релиз"] || "",
+        movie["Оценка"] || "",
+        movie["Оценка Imdb"] || "",
+        movie["Оценка Кинопоиск"] || "",
+        movie["Франшиза"] || ""
     ]));\n$2`
     )
     .replace(/\n```base[\s\S]*$/, "");
@@ -271,6 +286,15 @@ module.exports=async function openEntity(params) {
     if(typeof selected==='string' && selected.trim())selected=sourcePersonDisplay(selected);
     else {
         const values=new Set();
+        for(const roleFile of app.vault.getMarkdownFiles()) {
+            if(!roleFile.path.startsWith("Кино/_system/Роли/") || !roleFile.basename.endsWith(".роли"))continue;
+            const cached=app.metadataCache.getFileCache(roleFile)?.frontmatter || {};
+            const value=cached[FIELD];
+            for(const name of Array.isArray(value)?value:[value]) {
+                const clean=entityName(name);
+                if(clean)values.add(sourcePersonDisplay(clean));
+            }
+        }
         for(const file of app.vault.getMarkdownFiles()) {
             if(!originalMediaPath(file.path))continue;
             const cached=app.metadataCache.getFileCache(file)?.frontmatter;

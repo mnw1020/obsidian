@@ -4,7 +4,7 @@ module.exports = async (params) => {
 
     const ROOT = "Кино";
     const CHANGELOG_PATH = `${ROOT}/_system/Журнал изменений.md`;
-    const ENTITY_FIELDS = ["Режисер", "Актеры", "Жанр"];
+    const ENTITY_FIELDS = ["Режисер", "Жанр"];
 
     const asText = value => {
         if (value === null || value === undefined) return "";
@@ -27,6 +27,11 @@ module.exports = async (params) => {
         if (file.path.slice(ROOT.length + 1).includes("/")) return false;
         const fileTags = tags(getFrontmatter(file));
         return fileTags.includes("movies") || fileTags.includes("serial");
+    }
+
+    function isRoleFile(file) {
+        return file?.extension === "md" && file.path.startsWith(`${ROOT}/_system/Роли/`)
+            && file.basename.endsWith(".роли");
     }
 
     function stripWiki(value) {
@@ -152,13 +157,14 @@ module.exports = async (params) => {
 
     const changes = [];
     let changedCards = 0;
-    const files = app.vault.getMarkdownFiles().filter(isMedia);
+    const files = app.vault.getMarkdownFiles().filter(file => isMedia(file) || isRoleFile(file));
 
     for (const file of files) {
         const current = getFrontmatter(file);
         const updates = new Map();
 
-        for (const field of ENTITY_FIELDS) {
+        const fields = isRoleFile(file) ? ["Режисер", "Актеры", "Роли актеров"] : ENTITY_FIELDS;
+        for (const field of fields) {
             if (current[field] === null || current[field] === undefined || current[field] === "") continue;
             const raw = Array.isArray(current[field]) ? current[field] : [current[field]];
             const nextValues = dedupe(raw, field);
