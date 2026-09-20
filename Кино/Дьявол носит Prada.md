@@ -9,90 +9,233 @@
 tags:
   - movies
 Жанр:
-  - "Comedy"
-  - "Drama"
+  - Comedy
+  - Drama
 Релиз: 2006-06-30
 Время: 109 min
 Режисер:
-  - "David Frankel (Дэвид Фрэнкел)"
+  - David Frankel
 Актеры:
-  - "Adrian Grenier (Эдриан Гренье)"
-  - "Anne Hathaway (Энн Хэтэуэй)"
-  - "Meryl Streep (Мэрил Стрип)"
+  - Adrian Grenier
+  - Alexander Blaise
+  - Alexie Gilmore
+  - Alyssa Sutherland
+  - Andie Karvelis
+  - Andrea Bertola Shaw
+  - Anne Hathaway
+  - August Costa
+  - Bobby Shue
+  - Brandhyze Stanley
+  - Bridget Hall
+  - Carl Burrows
+  - Carla Collado
+  - Carrie Navarro
+  - Colleen Dengel
+  - Daniel Sunjata
+  - Darren Pettis
+  - David Callegati
+  - David Marshall Grant
+  - Denis McKeown
+  - Donatella Versace
+  - Dono Cunningham
+  - Dutch Johnson
+  - Emily Blunt
+  - Emily Sandberg
+  - Eric Seltzer
+  - Frank Anello
+  - George C. Wolfe
+  - Gisele Bündchen
+  - Guy A. Fortt
+  - Hector Lincoln
+  - Heidi Klum
+  - Ilona Alexandra
+  - Ines Rivero
+  - Ingrid Sophie Schram
+  - Ivan Magrin-Chagnolleau
+  - James Cronin
+  - James Naughton
+  - Jennifer Scott
+  - Jimena Hoyos
+  - John Graham
+  - Julie Jei
+  - Justin Restivo
+  - Kimberly Caines
+  - L.J. Ganser
+  - Laura D. Williams
+  - Laura McDavid
+  - Lauren Weisberger
+  - Lindsay Brice
+  - Mamie Gummer
+  - Marie Brandt
+  - Mateo Moreno
+  - Matt Murray
+  - Mauricio Alexander
+  - Meryl Streep
+  - Mira Tzur
+  - Molyneau DuBelle
+  - Nina Lisandrello
+  - Pamela Fischer
+  - Paul Keany
+  - Rebecca Mader
+  - Rich Sommer
+  - Robert Stio
+  - Robert Verdi
+  - Rori Cannon
+  - Rose Ritland
+  - Scott Hatfield
+  - Simon Baker
+  - Stan Newman
+  - Stanley Tucci
+  - Stella Stark
+  - Stephanie Szostak
+  - Steve Benisty
+  - Stuart Lopoten
+  - Suzanne Dengel
+  - Taylor Treadwell
+  - Tibor Feldman
+  - Tim Krueger
+  - Tracie Thoms
+  - Valentino Garavani
+  - Vivian Kalinov
+  - Wells Dixon
 Описание: Мечтающая стать журналисткой провинциальная девушка Энди по окончании университета получает должность помощницы всесильной Миранды Пристли, деспотичного редактора одного из крупнейших нью-йоркских журналов мод. Энди всегда мечтала о такой работе, не зная, с каким нервным напряжением это будет связано...
 imdb Id: tt0458352
 poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg
+Роли актеров:
+  - Ambassador - James Cronin
+  - Andy Sachs - Anne Hathaway
+  - Bartender - August Costa
+  - Black & White Ball Guest - Denis McKeown
+  - Black & White Ball Guest - Vivian Kalinov
+  - Black and White Gala guest - Dutch Johnson
+  - Book Guy - John Graham
+  - Bridget Hall - Bridget Hall
+  - Businessman - Carl Burrows
+  - Businessman - Mateo Moreno
+  - Caroline - Colleen Dengel
+  - Cassidy - Suzanne Dengel
+  - Christian Thompson - Simon Baker
+  - Clacker - Alexie Gilmore
+  - Clacker - Alyssa Sutherland
+  - Clacker - Emily Sandberg
+  - Clacker - Ingrid Sophie Schram
+  - Clacker - Nina Lisandrello
+  - Clacker - Rose Ritland
+  - Clacker in Elevator - Ines Rivero
+  - Counter Girl - Jennifer Scott
+  - Donatella Versace - Donatella Versace
+  - Doug - Rich Sommer
+  - Emily - Emily Blunt
+  - Fashion Photographer - Dono Cunningham
+  - Fashion Photographer - Steve Benisty
+  - Fashion Reporter - Robert Verdi
+  - Fashion Show Attendee - Marie Brandt
+  - French Bellhop - Alexander Blaise
+  - French Waiter - Justin Restivo
+  - Fund Raiser - Tim Krueger
+  - Gala Attendee - Laura McDavid
+  - Gara Guest - Julie Jei
+  - Girl - Carla Collado
+  - Girl at Party - Rori Cannon
+  - Girl in Cafe - Andie Karvelis
+  - Guy Holding Drink In Hallway - Darren Pettis
+  - Hector Lincoln - Hector Lincoln
+  - Heidi Klum - Heidi Klum
+  - Irv Ravitz - Tibor Feldman
+  - Jacqueline Follet - Stephanie Szostak
+  - James Holt - Daniel Sunjata
+  - Jocelyn - Rebecca Mader
+  - John Folger - Stan Newman
+  - Lily - Tracie Thoms
+  - Lobby Security Guard - Mauricio Alexander
+  - Lucia - Jimena Hoyos
+  - Marty - L.J. Ganser
+  - Massimo - David Callegati
+  - Miranda Priestly - Meryl Streep
+  - Miranda's Driver - Wells Dixon
+  - Miranda's New Assistant - Taylor Treadwell
+  - Nate - Adrian Grenier
+  - New York Mirror Reporter - Scott Hatfield
+  - Nigel - Stanley Tucci
+  - Paparazzo - Matt Murray
+  - Paparazzo - Mira Tzur
+  - Parisian Luncheon Guest - Ivan Magrin-Chagnolleau
+  - Parisian Luncheon Guest - Molyneau DuBelle
+  - Paul - George C. Wolfe
+  - Photographer - Robert Stio
+  - PR Woman - Lindsay Brice
+  - Red Carpert Celebrity - Stuart Lopoten
+  - Red Carpet Celebrity - Andrea Bertola Shaw
+  - Red Carpet Celebrity - Ilona Alexandra
+  - Restaurant Date - Stella Stark
+  - Richard Sachs - David Marshall Grant
+  - Roy - Eric Seltzer
+  - Runway / Magazine Model - Carrie Navarro
+  - Runway / Magazine Model - Kimberly Caines
+  - Runway Magazine Model / Party Guest - Laura D. Williams
+  - Runway Staff - Bobby Shue
+  - Security - Frank Anello
+  - Security - Guy A. Fortt
+  - Serena - Gisele Bündchen
+  - St. Regis Butler - Paul Keany
+  - Starbucks Barista - Mamie Gummer
+  - Stephen - James Naughton
+  - Teacher - Pamela Fischer
+  - The Twins' Nanny - Lauren Weisberger
+  - Valentino Garavani - Valentino Garavani
+  - Waitress - Brandhyze Stanley
+Кинопоиск ID: "104992"
 ---
-<!-- KINO:ENTITY:LINKS:V2 -->
+<!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
-const KINO_GENRE_ALIASES = {"Боевик":["Action","Боевик"],"Приключения":["Adventure","Приключения"],"Анимация":["Animation","Анимация","Мультфильм"],"Биография":["Biography","Биография"],"Комедия":["Comedy","Комедия"],"Криминал":["Crime","Криминал"],"Документальный":["Documentary","Документальный","Документальное"],"Драма":["Drama","Драма"],"Семейный":["Family","Семейный"],"Фэнтези":["Fantasy","Фэнтези"],"История":["History","История"],"Ужасы":["Horror","Ужасы"],"Музыка":["Music","Музыка"],"Мюзикл":["Musical","Мюзикл"],"Мистика":["Mystery","Мистика"],"Мелодрама":["Romance","Мелодрама"],"Фантастика":["Sci-Fi","Science Fiction","Фантастика"],"Короткометражка":["Short","Short Film","Короткометражка"],"Спорт":["Sport","Sports","Спорт"],"Триллер":["Thriller","Триллер"],"Военный":["War","Военный"],"Реалити-шоу":["Reality-TV","Reality TV","Реалити-шоу"],"Вестерн":["Western","Вестерн"]};
 const KINO_ENTITY_FIELDS = [
     ["Режисер", "Режиссер", "Кино - Открыть режиссера"],
     ["Актеры", "Актеры", "Кино - Открыть актера"],
     ["Жанр", "Жанры", "Кино - Открыть жанр"]
 ];
 
-function kinoEntityText(value) {
-    return String(value ?? "").trim().normalize("NFC");
-}
-
-function kinoPersonName(value) {
-    return kinoEntityText(value).replace(/\s+-\s+.+$/, "").trim();
-}
-
-function kinoEntityKey(value) {
-    return kinoEntityText(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
-}
-
-function kinoCanonicalGenre(value) {
-    const text = kinoEntityText(value);
-    const key = kinoEntityKey(text);
-    for (const [canonical, aliases] of Object.entries(KINO_GENRE_ALIASES)) {
-        if ([canonical, ...aliases].some(alias => kinoEntityKey(alias) === key)) return canonical;
-    }
-    return text;
-}
-
+function kinoText(value) { return String(value ?? "").trim().normalize("NFC"); }
 function kinoValues(value) {
-    return [...new Set((Array.isArray(value) ? value : [value])
-        .map(kinoEntityText).filter(Boolean))];
+    return [...new Set((Array.isArray(value) ? value : [value]).map(kinoText).filter(Boolean))];
 }
-
-function kinoCanonical(field, value) {
-    return field === "Жанр" ? kinoCanonicalGenre(value) : kinoEntityText(value);
+function kinoName(value) {
+    const text = kinoText(value);
+    const actorNames = kinoValues(dv.current()["Актеры"]);
+    const known = actorNames.find(name =>
+        text === name || text.startsWith(name + " - ") || text.endsWith(" - " + name)
+    );
+    if (known) return known;
+    return text.includes(" - ") ? text.split(/\s+-\s+/).slice(-1)[0].trim() : text;
 }
-
 function kinoUri(choice, value) {
     return "obsidian://quickadd?vault=" + encodeURIComponent(app.vault.getName())
         + "&choice=" + encodeURIComponent(choice)
         + "&value-entity=" + encodeURIComponent(value);
 }
 
-const kinoRoot = dv.container.createDiv({ cls: "kino-entity-links" });
+const actorRoles = kinoValues(dv.current()["Роли актеров"]);
+const root = dv.container.createDiv({ cls: "kino-entity-links" });
 for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
-    const groups = new Map();
-    for (const original of kinoValues(dv.current()[field])) {
-        const canonical = kinoCanonical(field, original);
-        const key = kinoEntityKey(canonical);
-        if (!groups.has(key)) groups.set(key, { label: canonical, originals: [] });
-        groups.get(key).originals.push(original);
-    }
-    const row = kinoRoot.createDiv({ cls: "kino-entity-links-row" });
+    const row = root.createDiv({ cls: "kino-entity-links-row" });
     row.createEl("strong", { text: label + ": " });
-    if (!groups.size) {
-        row.appendText("Не указано");
+    const values = field === "Актеры"
+        ? (actorRoles.length ? actorRoles : kinoValues(dv.current()[field]))
+        : kinoValues(dv.current()[field]);
+    if (!values.length) { row.appendText("Не указано"); continue; }
+    if (field === "Актеры") {
+        values.forEach(value => {
+            const line = row.createDiv({ cls: "kino-entity-link-line" });
+            const link = line.createEl("a");
+            link.textContent = value;
+            link.href = kinoUri(choice, kinoName(value));
+        });
         continue;
     }
-    [...groups.values()].forEach((group, index) => {
-        if (field !== "Актеры" && index) row.appendText(" · ");
-        const target = field === "Актеры" ? kinoPersonName(group.label) : group.label;
-        const linkRow = field === "Актеры" ? row.createDiv({ cls: "kino-entity-link-line" }) : row;
-        const link = linkRow.createEl("a");
-        link.textContent = group.label;
-        link.href = kinoUri(choice, target);
-        if (group.originals.some(original => original !== group.label)) {
-            link.title = "В YAML: " + group.originals.join(" / ");
-        }
+    values.forEach((value, index) => {
+        if (index) row.appendText(" · ");
+        const link = row.createEl("a");
+        link.textContent = value;
+        link.href = kinoUri(choice, value);
     });
 }
 ```
