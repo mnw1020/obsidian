@@ -32,7 +32,7 @@ views:
     name: Все
     groupBy:
       property: date
-      direction: ASC
+      direction: DESC
     order:
       - formula.book_link
       - formula.author_links
@@ -43,7 +43,7 @@ views:
       - formula.series_link
       - series_index
     sort:
-      - property: date
+      - property: formula.book_link
         direction: ASC
   - type: table
     name: По типу
