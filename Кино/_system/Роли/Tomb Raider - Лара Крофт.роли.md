@@ -2,7 +2,7 @@
 Название: "Tomb Raider"
 Основная карточка: "Кино/Tomb Raider - Лара Крофт.md"
 imdb Id: "tt1365519"
-Кинопоиск ID: ""
+Кинопоиск ID: "446136"
 Жанр: ["Fantasy"]
 Режисер: ["Roar Uthaug"]
 Актеры: ["Adrian Collins","Alex Jaep","Alexandre Willaume","Alicia Vikander","Alwyn Marx","Andrian Mazive","Andy Mihalache","Annabel Elizabeth Wood","Antonio Aakeel","Bernardo Santos","Billy Postlethwaite","Brendan McCoy","Celina Nessa","Civic Chung","Conny Stadler","Dan Burns","Daniel Wu","Derek Jacobi","Dominic West","Doug Berry","Duncan Airlie James","Ekran Mustafa","Elena Valdameri","Emily Carey","Eric Coco","Felix Orion","Francois Groenewald","Gintare Beinoraviciute","Gordon Chow","Hannah John-Kamen","Jaime Winstone","James Heron","James Pimenta","Jandre le Roux","Josef Altin","Kateryna Globa","Keenan Arrison","Kenneth Fok","Kristin Scott Thomas","Maisy De Freitas","Marian Lorencik","Maruwan Gasant","Matteo Paciletti","Michael Chapman","Michael Obiora","Michael Thyx","Milton Schorr","Nick Frost","Peter Waison","Phelim Kelly","Rae Lim","Raj Awasti","Rekha John-Cheriyan","Roger Jean Nsengiyumva","Rowan Polonski","Samuel Mak","Shekhar Varma","Sky Yang","Steve Broad","Tamer Burjaq","Vash Singh","Vere Tindale","Vinita Petrus","Walton Goggins"]

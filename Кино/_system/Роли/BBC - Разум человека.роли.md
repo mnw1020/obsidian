@@ -1,10 +1,10 @@
 ---
 Название: "BBC: The Human Mind"
 Основная карточка: "Кино/BBC - Разум человека.md"
-imdb Id: "None"
-Кинопоиск ID: ""
+imdb Id: ""
+Кинопоиск ID: "690014"
 Жанр: ["Documentary"]
-Режисер: ["Dzhoanna Gibbon (Джоанна Гиббон)","Nik Merfi (Ник Мерфи)"]
+Режисер: ["Johanna Woolford Gibbon","Nick Murphy"]
 Актеры: []
 Роли актеров: []
 ---

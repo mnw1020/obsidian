@@ -2,7 +2,7 @@
 Название: "Need for Speed"
 Основная карточка: "Кино/Need for Speed - Жажда скорости.md"
 imdb Id: "tt2369135"
-Кинопоиск ID: ""
+Кинопоиск ID: "678975"
 Жанр: ["Action"]
 Режисер: ["Scott Waugh"]
 Актеры: ["Aaron Paul","Adora Dei","Alan Pflueger","Amy Blackthorne","AnnaCorey","Anthony B. Harris","Antoni Corone","Austin Freeman","Becky Boyd","Beth Waugh","Biff O'Hara","Brent Fletcher","Brian L. Keaulana","Bryan Tanaka","Buddy Joe Hooker","Cabran E. Chamberlain","Carmela Zumbado","Chad Randall","Charles Black","Chelsea Small","Chloe Warren","Dakota Johnson","Dennis Doyle Jr.","Derrick J. Haywood","Diezel Ramos","Dominic Cooper","E. Roger Mitchell","Evan D. Anderson","Frank Brennan","Fred Galle","Grace Hartsfield","Harrison Sloan Gilbertson","Imogen Poots","Jacki Hill","Jaden Alexander","Jae Shawl","Jalil Jay Lynch","James Jerome","Jason M. Varso","Jeff George","Jeff Trink","Jeffrey J. Fernandez","Jessica McLarty","Jill Jane Clements","John Fleischmann","John Gatins","John Lobato","John Meier","Josh Turner","Kanin Howell","Kerry Gatins","Kevin McGaffey","Kid Cudi","Landon Salgado","Lee Vang","Lil Cory","Logan Holladay","Mahal Montoya","Marcus Goddard","Mary Ellen Itson","Mary Lu Marr","Michael C. Smith","Michael Keaton","Michael Koske","Michael Rose","Micky Francis","Mike Massa","Nick Chinlund","Ozzy Ojito","Pam German","Paul Dallenbach","Ralph H. Meyer","Rami Malek","Ramón Rodríguez","Ray Kendrick","Rich Rutherford","Rick Mischke","Rick Shuster","Ricky Dew","Samantha Kelly","Scott Lane","Scott Ledbetter","Scott Oakley","Sir Maejor","Stevie Ray Dallimore","Tara Lombardo","Thomas Rosales Jr.","Tierre Turner","Tim Gilbert","Tony Bellissimo","Tony Brakohiapa","Valdez Williams","William Grammer"]

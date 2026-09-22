@@ -20,7 +20,7 @@ tags:
 imdb Id: tt1365519
 poster: https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Лара Крофт]]"
-
+Кинопоиск ID: "446136"
 ---
 <!-- KINO:ROLES:EMBED:V1 -->
 ![[Кино/_system/Роли/Tomb Raider - Лара Крофт.роли]]

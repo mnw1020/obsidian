@@ -2,7 +2,7 @@
 Название: "Zombieland: Double Tap"
 Основная карточка: "Кино/Zомбилэнд - Контрольный выстрел.md"
 imdb Id: "tt1560220"
-Кинопоиск ID: ""
+Кинопоиск ID: "489414"
 Жанр: ["Action"]
 Режисер: ["Ruben Fleischer"]
 Актеры: ["Abigail Breslin","Al Roker","Andrew R. McCallister","Anthony Dilio","Ari Loeb","Avan Jogia","Bill Murray","Brianna Gardner","David Fleischer","Devin Mojica","Emma Stone","Evan J. Mackey","Felix Betancourt","Gianni Biasetti Jr.","Grace Randolph","Heng Theng","Ian Gregg","Isabelle Fretheim","Jason M. White","Jenin Gonzalez","Jess Durham","Jesse Eisenberg","Jessica Medina","John Dixon","Josh Horowitz","Julia Vasi","Julian B Lin","Kandis Hargrave","Kyra Elise Gardner","Lewis Wright","Lili Estefan","Louie g Maldonado","Lucas Fleischer","Luke Endyan","Luke Wilson","Michael A. Martinez","MWW Michael Wilkerson","Nathan W. Collins","NeShaunda Mays","Oscar Rodriguez III","Rachel Luttrell","Ronny Mathew","Rosario Dawson","Ruben Vidal","Sergio Briones","Thomas Middleditch","Tim McAdams","Timothy Carr","Victor Rivera","Victoria Hall","Woody Harrelson","Zara McDowell","Zoey Deutch"]

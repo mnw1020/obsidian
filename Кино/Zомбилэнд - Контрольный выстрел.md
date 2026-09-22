@@ -20,7 +20,7 @@ tags:
 imdb Id: tt1560220
 poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Зомбилэнд]]"
-
+Кинопоиск ID: "489414"
 ---
 <!-- KINO:ROLES:EMBED:V1 -->
 ![[Кино/_system/Роли/Zомбилэнд - Контрольный выстрел.роли]]

@@ -115,15 +115,15 @@ module.exports = async (params) => {
 
     function roleActorName(value, knownActors = []) {
         const text = stripWiki(value);
-        const known = listValues(knownActors).find(name =>
-            text === name || text.endsWith(` - ${name}`)
-        );
-        if (known) return known;
-        return text.includes(" - ") ? text.split(/\s+-\s+/).slice(-1)[0].trim() : text;
+        const known = knownActors instanceof Set ? knownActors : new Set(listValues(knownActors));
+        if (known.has(text)) return text;
+        const split = text.lastIndexOf(" - ");
+        const candidate = split >= 0 ? text.slice(split + 3).trim() : text;
+        return known.has(candidate) ? candidate : candidate;
     }
 
     function hasCyrillicPersonName(value) {
-        return /[\u0400-\u04FF]/u.test(personName(value));
+        return /\p{Script=Cyrillic}/u.test(stripWiki(value));
     }
 
     function personBaseKey(value) {
@@ -165,8 +165,7 @@ module.exports = async (params) => {
     function personFormatIssue(value) {
         const text = personName(normalizePersonDisplay(value));
         if (!text || text.toUpperCase() === "N/A") return "";
-        // Структурная проверка имени. Кириллица в русской части в скобках
-        // проверяется отдельно и допустима.
+        // Кириллица, в том числе в скобках, проверяется отдельно как ошибка.
         if (hasNestedParentheses(text)) return "вложенные скобки в имени";
         return "";
     }
@@ -297,15 +296,31 @@ module.exports = async (params) => {
             addError(file, `отсутствует файл ролей: \`${rolePath}\`.`);
             missingActors++;
         } else {
+            if (!Object.keys(roleFm).length) addError(roleFile, "файл ролей пуст или не содержит YAML.");
             if (asText(fm["Роли файл"]) !== rolePath) {
                 addWarning(file, `поле \`Роли файл\` не совпадает с сопровождающим файлом: \`${rolePath}\`.`);
             }
             if (asText(roleFm["Основная карточка"]).replace(/^\[\[|\]\]$/g, "") !== file.path) {
                 addError(roleFile, `поле \`Основная карточка\` не ведёт на \`${file.path}\`.`);
             }
+            for (const field of ["imdb Id", "Кинопоиск ID"]) {
+                if (asText(fm[field]) !== asText(roleFm[field])) {
+                    addError(roleFile, `\`${field}\` не совпадает с основной карточкой.`);
+                }
+            }
+            const actors = listValues(roleFm.Актеры);
+            const credits = listValues(roleFm["Роли актеров"]);
+            if (!actors.length) addWarning(file, "в файле ролей нет актёров.");
+            const actorSet = new Set(actors);
+            const creditedNames = new Set(credits
+                .filter(value => value.includes(" - "))
+                .map(value => roleActorName(value, actorSet)));
+            const noRoles = actors.filter(name => !creditedNames.has(name));
+            actorsWithoutRoles += noRoles.length;
+            if (noRoles.length) addWarning(file, `актёров без роли: **${noRoles.length}**. Можно запустить обновление ролей.`);
             for (const field of ROLE_FIELDS) {
                 const raw = roleFm[field];
-                if (raw === null || raw === undefined || raw === "") {
+                if (!listValues(raw).length) {
                     if (field === "Актеры") missingActors++;
                     continue;
                 }
@@ -319,13 +334,12 @@ module.exports = async (params) => {
                     }
                     if (field === "Режисер" || field === "Актеры" || field === "Роли актеров") {
                         const personValue = field === "Роли актеров"
-                            ? roleActorName(value, roleFm.Актеры)
+                            ? roleActorName(value, actorSet)
                             : value;
                         if (hasCyrillicPersonName(personValue)) {
                             addError(roleFile, `в \`${field}\` имя содержит кириллицу: \`${value}\`. Ожидается только латинское имя.`);
                         }
                     }
-                    if (field === "Роли актеров" && !personRole(value)) actorsWithoutRoles++;
                     const key = field === "Роли актеров"
                         ? `${personName(value)}|${personRole(value)}`
                         : personKey(value);
@@ -551,7 +565,7 @@ module.exports = async (params) => {
     info.push(`Страниц франшиз: **${franchiseFiles.length}**, связей с франшизами: **${franchiseLinkCount}**.`);
     info.push(`Шаблонов без названия: **${templates.length}**.`);
     info.push(`Возможных дублей карточек: **${possibleDuplicates.length}**.`);
-    info.push(`Карточек без КП ID: **${missingKinopoiskIds.length}**. Это допустимо; такие карточки всё равно проверяются по IMDb и локальным данным.`);
+    info.push(`Карточек без КП ID: **${missingKinopoiskIds.length}**. Проверены локальные поля; соответствие ID реальному фильму на сайтах этот аудит не подтверждает.`);
 
     const renderSection = (title, items, emptyText) => {
         if (!items.length) return `## ${title}\n\n${emptyText}\n\n`;

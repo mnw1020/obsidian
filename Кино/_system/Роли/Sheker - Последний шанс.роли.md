@@ -2,7 +2,7 @@
 Название: "Sheker. Poslednij shans"
 Основная карточка: "Кино/Sheker - Последний шанс.md"
 imdb Id: "tt37660303"
-Кинопоиск ID: ""
+Кинопоиск ID: "6264285"
 Жанр: ["Drama","Crime"]
 Режисер: ["Tulegenov Darkhan"]
 Актеры: ["Ansar Ilyasov","Azat Zhumadil","Berik Aytzhanov","Gani Kulzhanov","Willy Zogo","Yerzhan Tusupov"]

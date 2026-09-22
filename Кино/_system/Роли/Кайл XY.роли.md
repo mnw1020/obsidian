@@ -2,7 +2,7 @@
 Название: "Kyle XY"
 Основная карточка: "Кино/Кайл XY.md"
 imdb Id: "tt0756500"
-Кинопоиск ID: ""
+Кинопоиск ID: "279077"
 Жанр: ["Sci-Fi"]
 Режисер: ["Tony Dow"]
 Актеры: ["Alan David","David Ross","Ella Kenion","Ivan Kaye","Jack Doolan","John Challis","Peter Heppelthwaite","Sue Holderness"]

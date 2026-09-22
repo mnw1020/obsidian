@@ -20,7 +20,7 @@ tags:
 Описание: Алдик и Кана снова в центре рискованного бизнеса. Экшен-продолжение культового сериала. Смотрите онлайн фильм SHEKER. Последний шанс на Кинопоиске.
 imdb Id: tt37660303
 poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg
-
+Кинопоиск ID: "6264285"
 ---
 <!-- KINO:ROLES:EMBED:V1 -->
 ![[Кино/_system/Роли/Sheker - Последний шанс.роли]]

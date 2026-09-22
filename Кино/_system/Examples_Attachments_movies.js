@@ -44,7 +44,7 @@ const KINO_PERSON_CANONICAL_OVERRIDES = {
 function roleValueParts(value) {
     const text = String(value ?? "").trim().normalize("NFC")
         .replace(/^\[\[([\s\S]+?)\]\]$/, "$1");
-    const match = text.match(/^(.+?)\s+-\s+(.+)$/);
+    const match = text.match(/^(.+)\s+-\s+(.+)$/);
     return match
         ? { role: match[1].trim(), name: match[2].trim() }
         : { role: "", name: text };
@@ -281,6 +281,11 @@ async function addMovieCore(params, settings, progress, handOff) {
             else new ob.Notice("ID КП не найден. Продолжаю с доступными данными.");
         }
     }
+    if (kp?.imdb_id && extractImdbId(kp.imdb_id) !== movie.imdbID) {
+        new ob.Notice("КП ID относится к другому IMDb ID. Добавление остановлено, чтобы не смешать разные фильмы.", 10000);
+        return;
+    }
+    if (kp?.detailsUnavailable) new ob.Notice(`КП ${kp.kp_id}: дополнительные данные временно недоступны. ID будет сохранён.`, 7000);
     status("собираю русское название и описание…");
     let russianTitle = russian(kp?.title) || russian(wiki.title);
     let description = russian(kp?.description) || russian(kp?.overview_ru) || russian(movie.Plot);
@@ -323,6 +328,10 @@ async function addMovieCore(params, settings, progress, handOff) {
         if (manualKpId) {
             const directKp = await kinopoiskById(get, manualKpId);
             if (directKp) {
+                if (directKp.imdb_id && extractImdbId(directKp.imdb_id) !== movie.imdbID) {
+                    new ob.Notice("КП ID относится к другому IMDb ID. Добавление остановлено.", 10000);
+                    return;
+                }
                 kp = directKp;
                 credits = await loadActorCredits(ob, movie.imdbID, kp.kp_id, movie.Type, status);
             } else {
@@ -401,7 +410,9 @@ async function askKinopoiskId(qa, prompt) {
     return extractKinopoiskId(input);
 }
 function kpNeedsManualId(kp) {
-    if (!kp) return true;
+    if (!extractKinopoiskId(kp?.kp_id)) return true;
+    // ID уже известен. Повторный ввод того же ID не исправит сбой API.
+    if (kp.detailsUnavailable) return false;
     return !russian(kp.title)
         || !russian(kp.description || kp.overview_ru)
         || number(kp.rating_kp) === null
@@ -601,7 +612,9 @@ function transliterateRussian(value) {
     const map = {
         а:"a", б:"b", в:"v", г:"g", д:"d", е:"e", ё:"yo", ж:"zh", з:"z", и:"i", й:"y",
         к:"k", л:"l", м:"m", н:"n", о:"o", п:"p", р:"r", с:"s", т:"t", у:"u", ф:"f",
-        х:"kh", ц:"ts", ч:"ch", ш:"sh", щ:"shch", ъ:"", ы:"y", ь:"", э:"e", ю:"yu", я:"ya"
+        х:"kh", ц:"ts", ч:"ch", ш:"sh", щ:"shch", ъ:"", ы:"y", ь:"", э:"e", ю:"yu", я:"ya",
+        і:"i", ї:"yi", є:"ye", ґ:"g", ў:"u", ђ:"dj", ј:"j", љ:"lj", њ:"nj", ћ:"c", џ:"dz", ѕ:"dz", ѓ:"gj", ќ:"kj",
+        ә:"a", ғ:"gh", қ:"q", ң:"ng", ө:"o", ұ:"u", ү:"u", һ:"h", ӓ:"a", ӧ:"o", ӱ:"u", ӂ:"zh"
     };
     return String(value || "").toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("");
 }
@@ -609,13 +622,14 @@ function titleCaseTransliteration(value) {
     return transliterateRussian(value).replace(/(^|[\s.-])([a-z])/gi, (_, separator, letter) => separator + letter.toUpperCase());
 }
 function transliteratePersonName(value) {
-    return String(value || "").split(/([А-ЯЁа-яё]+)/u).map(part => {
-        if (!/[А-ЯЁа-яё]/u.test(part)) return part;
+    const result = String(value || "").split(/(\p{Script=Cyrillic}+)/u).map(part => {
+        if (!/\p{Script=Cyrillic}/u.test(part)) return part;
         const latin = transliterateRussian(part);
-        return /^[А-ЯЁ]/u.test(part)
+        return /^\p{Lu}/u.test(part)
             ? latin.charAt(0).toUpperCase() + latin.slice(1)
             : latin;
     }).join("").replace(/\s+/g, " ").trim();
+    return /\p{Script=Cyrillic}/u.test(result) ? "" : result;
 }
 function personMatchKeys(value) {
     const parts = personParts(value);
@@ -678,10 +692,10 @@ function sourcePersonName(person) {
             person?.name, person?.name_ru];
     let fallback = "";
     for (const candidate of candidates.map(clean).filter(Boolean)) {
-        const text = roleValueParts(candidate).name;
+        const text = typeof person === "string" ? roleValueParts(candidate).name : candidate;
         const parts = splitBilingualText(text);
-        if (parts.english && !/[а-яё]/i.test(parts.english)) return parts.english;
-        if (!/[а-яё]/i.test(text)) return text;
+        if (parts.english && !/\p{Script=Cyrillic}/u.test(parts.english)) return parts.english;
+        if (!/\p{Script=Cyrillic}/u.test(text)) return text;
         fallback ||= parts.russian || text;
     }
     return transliteratePersonName(fallback);
@@ -707,13 +721,12 @@ function mergedPeople(peopleSources, field) {
         .filter(source => Array.isArray(source) && source.length);
     if (!sources.length) return [];
 
-    // IMDb остается первым источником. КП используется только если IMDb пуст
-    // или резервный /cast/ явно полнее. Старое содержимое карточки здесь
-    // намеренно не участвует: источник выбирается только по ID фильма.
-    const primary = sources[0];
-    const fallback = sources.slice(1).reduce((best, source) =>
-        !best || source.length > best.length ? source : best, null);
-    const selected = fallback && fallback.length > primary.length ? fallback : primary;
+    // Порядок источников задается вызывающим кодом: IMDb, затем КП. Если
+    // IMDb вернул имена, но не роли, для актёров используем первый резервный
+    // источник с ролями.
+    const selected = field === "Актеры"
+        ? sources.find(source => source.some(person => sourcePersonRole(person, field))) || sources[0]
+        : sources[0];
     const result = [];
     const seen = new Set();
     for (const person of selected) {
@@ -1478,9 +1491,16 @@ async function kinopoisk(get, qa, movie, wiki) {
 async function kinopoiskById(get, kpId) {
     const id = String(kpId || "").trim();
     if (!/^\d{1,12}$/.test(id)) return null;
-    const result = await get(`https://movie-planner.ru/api/public/film/${id}`);
+    let result;
+    try { result = await get(`https://movie-planner.ru/api/public/film/${id}`); } catch { result = null; }
     const film = result?.film;
-    if (!film || String(film.kp_id) !== id) return null;
+    // Недоступность данных не отменяет ID, уже введенный пользователем
+    // или подтвержденный точной связью IMDb/Wikidata.
+    if (!film) {
+        if (result && (result.found === false || result.status === 404 || /not.found|не найден/i.test(String(result.error || "")))) return null;
+        return { kp_id: id, cast: {}, detailsUnavailable: true };
+    }
+    if (String(film.kp_id) !== id) return null;
     return {...film, cast: result?.cast || {}};
 }
 async function wikiDescription(get, article) {
@@ -6233,7 +6253,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
         } catch (error) {
             // Карточка уже создана шаблоном. Не запускаем бесконечные записи.
             cleanup();
-            new ob.Notice("Карточка сохранена. Проверь её имя и поле Франшиза. Затем запусти Кино - Проверить кинотеку.");
+            new ob.Notice("Шаблон создан, но заполнение карточки/файла ролей не завершено: " + String(error?.message || error) + ". Запусти проверку кинотеки.", 12000);
         } finally { processing = false; }
     }
     function schedule(file) {
@@ -6243,7 +6263,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
     }
     refs.push(app.vault.on('create',file=>{
         if (previousFiles.has(file) || file.extension !== 'md' || !file.path.startsWith(ROOT+'/') ||
-            /\/(Просмотры|Сезоны|Франшизы|Служебное)\//.test(file.path)) return;
+            /\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(file.path)) return;
         created.add(file); schedule(file);
     }));
     refs.push(app.vault.on('modify',schedule));
@@ -6262,23 +6282,19 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
     if (!imdb || imdb[1] !== id) return null;
     const newline = raw.includes('\r\n') ? '\r\n' : '\n';
     function set(key,value) {
-        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-        const expression = new RegExp('^(?:'+safeKey+'|"'+safeKey+'"|\''+safeKey+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+        const expression = yamlFieldExpression(key);
         const line = `${key}: ${JSON.stringify(value)}`;
         yaml = expression.test(yaml) ? yaml.replace(expression,()=>line) : yaml.trimEnd()+newline+line;
     }
     function setList(key, values) {
-        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-        const expression = new RegExp('^(?:'+safeKey+'|"'+safeKey+'"|\''+safeKey+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
-        const items = [...new Set((values || []).map(value => String(value || "").trim()).filter(Boolean))];
+        const expression = yamlFieldExpression(key);
+        const items = [...new Set((values || []).map(sourcePersonName).filter(Boolean))].sort(comparePeopleValues);
         const replacement = `${key}: ${yamlArray(items)}`;
         yaml = expression.test(yaml) ? yaml.replace(expression, () => replacement)
             : yaml.trimEnd() + newline + replacement;
     }
     function removeField(key) {
-        const safeKey = key.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&");
-        const expression = new RegExp('(?:^|\\r?\\n)'+safeKey+':[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
-        yaml = yaml.replace(expression, match => match.startsWith("\\n") || match.startsWith("\\r\\n") ? "" : "");
+        yaml = yaml.replace(yamlFieldExpression(key), "");
     }
     set('Описание',description);
     // Актеры и роли больше не раздувают основную карточку: они записываются
@@ -6602,13 +6618,18 @@ function roleValues(value) {
     return [...new Set(source.map(item => String(item ?? "").trim()).filter(Boolean))];
 }
 
+function yamlFieldExpression(key) {
+    const safe = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Obsidian использует как списки с отступами, так и `Поле:\n- значение`.
+    return new RegExp('^(?:'+safe+'|"'+safe+'"|\''+safe+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|-(?:[ \\t]+[^\\r\\n]*)?|(?=\\r?$)))*', 'm');
+}
+
 function setRawYamlField(raw, key, value) {
     const match = raw.match(/^(\ufeff?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return raw;
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
     let yaml = match[2];
-    const safeKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const expression = new RegExp('^'+safeKey+':[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*','m');
+    const expression = yamlFieldExpression(key);
     const line = `${key}: ${JSON.stringify(value)}`;
     yaml = expression.test(yaml) ? yaml.replace(expression, () => line)
         : yaml.trimEnd() + newline + line;

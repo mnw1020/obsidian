@@ -21,7 +21,7 @@ tags:
 imdb Id: tt3013602
 poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Superнянь]]"
-
+Кинопоиск ID: "777091"
 ---
 <!-- KINO:ROLES:EMBED:V1 -->
 ![[Кино/_system/Роли/Superнянь.роли]]

@@ -68,10 +68,32 @@ const ROLE_LINKS_BLOCK = [
 
 module.exports = async function updateKinoRoles(params) {
     const { app, obsidian: ob } = params;
-    const files = app.vault.getMarkdownFiles()
+    let files = app.vault.getMarkdownFiles()
         .filter(file => isMedia(file, app))
         .filter(file => !isTemplate(file, app))
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
+    const scope = params.variables?.kinoRolesScope || (params.quickAddApi?.suggester
+        ? await params.quickAddApi.suggester(
+            ["Только карточки из отчёта проверки", "Только открытая карточка", "Вся кинотека"],
+            ["report", "active", "all"], "Какие карточки обновить?")
+        : "report");
+    if (!scope) return;
+    if (scope === "active") files = files.filter(file => file.path === app.workspace.getActiveFile()?.path);
+    else if (scope === "report") {
+        const report = app.vault.getAbstractFileByPath(`${ROOT}/_system/Проверка кинотеки.md`);
+        if (!report) { new ob.Notice("Сначала запусти проверку кинотеки."); return; }
+        const selected = new Set();
+        for (const match of (await app.vault.read(report)).matchAll(/\[\[(Кино\/[^\]|]+)/g)) {
+            let target = match[1];
+            if (target.startsWith(`${ROOT}/_system/Роли/`)) {
+                target = `${ROOT}/` + target.split("/").pop().replace(/\.роли(?:\.md)?$/, ".md");
+            }
+            if (!target.endsWith(".md")) target += ".md";
+            selected.add(target);
+        }
+        files = files.filter(file => selected.has(file.path));
+    }
+    if (!files.length) { new ob.Notice("В выбранном списке нет карточек для обновления."); return; }
     const notice = new ob.Notice(`Кино: роли актёров 0/${files.length}…`, 0);
     let processed = 0;
     let changed = 0;
@@ -96,7 +118,7 @@ module.exports = async function updateKinoRoles(params) {
             const roleValue = roleFm["Роли актеров"] ?? fm["Роли актеров"] ?? [];
             const directorField = fm.Режисер !== undefined ? "Режисер" : "Режиссер";
             const directorValue = roleFm.Режисер ?? roleFm.Режиссер ?? fm[directorField] ?? [];
-            const storedKpId = explicitKpId(fm);
+            const storedKpId = explicitKpId(fm) || explicitKpId(roleFm);
             const progress = stage => notice.setMessage?.(
                 `Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`
             );
@@ -133,8 +155,8 @@ module.exports = async function updateKinoRoles(params) {
                 }
                 if (kp.length || kpDirectors.length) kpSources++;
 
-                const actorSource = chooseCreditSource([imdb, kp]);
-                const directorSource = chooseCreditSource([imdbDirectors, kpDirectors]);
+                const actorSource = chooseCreditSource([imdb, kp], "Актеры");
+                const directorSource = chooseCreditSource([imdbDirectors, kpDirectors], "Режисер");
                 const result = replacePeople(actorSource, "Актеры");
                 const directorResult = replacePeople(directorSource, "Режисер");
                 foundRoles += result.roles;
@@ -144,13 +166,18 @@ module.exports = async function updateKinoRoles(params) {
                 // Списки актёров и ролей теперь всегда живут во внешнем файле.
                 // Если источник временно недоступен, сохраняем уже известное
                 // значение из этого файла, а не затираем его пустым ответом.
-                const nextValue = hasActorSource ? result.values : asArray(actorValue);
-                const nextActorRoles = hasActorSource ? result.displayValues : asArray(roleValue);
+                const oldActors = replacePeople(asArray(actorValue), "Актеры");
+                const oldRoles = replacePeople(asArray(roleValue), "Актеры");
+                const nextValue = hasActorSource ? result.values : oldActors.values;
+                const nextActorRoles = hasActorSource ? result.displayValues : oldRoles.displayValues;
                 const nextDirectorValue = hasDirectorSource
                     ? directorResult.values
-                    : asArray(directorValue);
+                    : replacePeople(asArray(directorValue), "Режисер").values;
                 const hasNewKpId = Boolean(kpId && !explicitKpId(fm));
                 const roleChanged = !roleFile
+                    || explicitKpId(roleFm) !== (kpId || "")
+                    || extractImdbId(roleFm["imdb Id"]) !== imdbId
+                    || roleFm["Основная карточка"] !== file.path
                     || JSON.stringify(nextValue) !== JSON.stringify(asArray(roleFm.Актеры))
                     || JSON.stringify(nextActorRoles) !== JSON.stringify(asArray(roleFm["Роли актеров"]))
                     || JSON.stringify(nextDirectorValue) !== JSON.stringify(asArray(roleFm.Режисер ?? roleFm.Режиссер));
@@ -348,20 +375,8 @@ async function findKpId(ob, fm, file) {
         .map(row => row.kp?.value).filter(value => /^\d+$/.test(String(value || ""))))];
     if (wikiIds.length === 1) return wikiIds[0];
 
-    const title = String(fm.Название || file.basename || "").trim();
-    const year = String(fm.Релиз || "").match(/\d{4}/)?.[0] || "";
-    // В старых карточках мини-сериалы часто помечены как movies. Поэтому
-    // сначала учитываем год, затем предпочитаем тип, но не отбрасываем другой.
-    const type = tagsOf(fm).includes("serial") ? "series" : "film";
-    for (const query of [`${title} ${year}`.trim(), title].filter(Boolean)) {
-        const result = await getJson(ob, `${API}/search`, { q: query, limit: 24, person_limit: 0 });
-        const items = Array.isArray(result?.items) ? result.items : [];
-        const byYear = items.filter(item => !year || String(item.year || "") === year);
-        const preferred = byYear.filter(item => Boolean(item.is_series) === (type === "series"));
-        const candidates = preferred.length ? preferred : byYear;
-        const ids = [...new Set(candidates.map(item => String(item.kp_id || "")).filter(Boolean))];
-        if (ids.length === 1) return ids[0];
-    }
+    // Одного совпавшего года/типа недостаточно. Без точной связи по IMDb
+    // оставляем ID пустым: чужая карточка перезаписала бы весь состав.
     return "";
 }
 
@@ -918,7 +933,7 @@ function baseKey(value) {
 
 function roleValueParts(value) {
     const text = String(value || "").replace(/^\[\[([\s\S]+?)\]\]$/, "$1").trim();
-    const match = text.match(/^(.+?)\s+-\s+(.+)$/);
+    const match = text.match(/^(.+)\s+-\s+(.+)$/);
     return match
         ? { role: match[1].trim(), name: match[2].trim() }
         : { role: "", name: text };
@@ -958,13 +973,15 @@ function transliterate(value) {
     return String(value || "").toLocaleLowerCase("ru").split("").map(char => map[char] ?? char).join("");
 }
 function transliteratePersonName(value) {
-    return String(value || "").split(/([А-ЯЁа-яё]+)/u).map(part => {
-        if (!/[А-ЯЁа-яё]/u.test(part)) return part;
-        const latin = transliterate(part);
-        return /^[А-ЯЁ]/u.test(part)
+    const extra = { і:"i", ї:"yi", є:"ye", ґ:"g", ў:"u", ђ:"dj", ј:"j", љ:"lj", њ:"nj", ћ:"c", џ:"dz", ѕ:"dz", ѓ:"gj", ќ:"kj", ә:"a", ғ:"gh", қ:"q", ң:"ng", ө:"o", ұ:"u", ү:"u", һ:"h", ӓ:"a", ӧ:"o", ӱ:"u", ӂ:"zh" };
+    const result = String(value || "").split(/(\p{Script=Cyrillic}+)/u).map(part => {
+        if (!/\p{Script=Cyrillic}/u.test(part)) return part;
+        const latin = [...transliterate(part)].map(char => extra[char] ?? char).join("");
+        return /^\p{Lu}/u.test(part)
             ? latin.charAt(0).toUpperCase() + latin.slice(1)
             : latin;
     }).join("").replace(/\s+/g, " ").trim();
+    return /\p{Script=Cyrillic}/u.test(result) ? "" : result;
 }
 
 function personMatchKeys(value) {
@@ -1088,10 +1105,10 @@ function sourcePersonName(person) {
             person?.name, person?.name_ru];
     let fallback = "";
     for (const candidate of candidates.map(value => String(value || "").trim()).filter(Boolean)) {
-        const text = personName(candidate).replace(/^\[\[([\s\S]+?)\]\]$/, "$1").trim();
+        const text = (typeof person === "string" ? personName(candidate) : candidate).replace(/^\[\[([\s\S]+?)\]\]$/, "$1").trim();
         const parts = splitBilingualText(text);
-        if (parts.english && !/[а-яё]/i.test(parts.english)) return parts.english;
-        if (!/[а-яё]/i.test(text)) return text;
+        if (parts.english && !/\p{Script=Cyrillic}/u.test(parts.english)) return parts.english;
+        if (!/\p{Script=Cyrillic}/u.test(text)) return text;
         fallback ||= parts.russian || text;
     }
     return transliteratePersonName(fallback);
@@ -1112,14 +1129,12 @@ function sourcePersonValue(person, field) {
     return role ? `${role} - ${name}` : name;
 }
 
-function chooseCreditSource(sources) {
+function chooseCreditSource(sources, field = "Актеры") {
     const available = (sources || []).filter(source => Array.isArray(source) && source.length);
     if (!available.length) return [];
-    const primary = available[0];
-    // IMDb имеет приоритет при равном размере. Если КП /cast/ явно полнее,
-    // берём его целиком, а не смешиваем два разных написания имён.
-    return available.slice(1).reduce((best, source) =>
-        source.length > best.length ? source : best, primary);
+    return field === "Актеры"
+        ? available.find(source => source.some(person => sourcePersonRole(person, field))) || available[0]
+        : available[0];
 }
 
 function replacePeople(source, field) {
@@ -1200,9 +1215,9 @@ function setRawField(raw, key, value) {
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
     let yaml = match[2];
     const safe = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const expression = new RegExp("^" + safe + ":[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|(?=\\r?$)))*", "m");
+    const expression = new RegExp('^(?:'+safe+'|"'+safe+'"|\''+safe+'\'):[^\\r\\n]*(?:\\r?\\n(?:[ \\t]+[^\\r\\n]*|-(?:[ \\t]+[^\\r\\n]*)?|(?=\\r?$)))*', 'm');
     const line = `${key}: ${JSON.stringify(value)}`;
-    yaml = expression.test(yaml) ? yaml.replace(expression, line)
+    yaml = expression.test(yaml) ? yaml.replace(expression, () => line)
         : yaml.trimEnd() + newline + line;
     return match[1] + yaml + match[3] + raw.slice(match[0].length);
 }
