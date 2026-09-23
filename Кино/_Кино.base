@@ -9,6 +9,12 @@ formulas:
   rating: if(note.Оценка, number(note.Оценка), null)
   imdb_rating: if(note["Оценка Imdb"], number(note["Оценка Imdb"]), null)
   kp_rating: if(note["Оценка Кинопоиск"], number(note["Оценка Кинопоиск"]), null)
+  predicted_rating: if(note["Прогноз оценки"], number(note["Прогноз оценки"]), null)
+  predicted_local: if(note["Прогноз локальный"], number(note["Прогноз локальный"]), null)
+  predicted_movielens: if(note["Прогноз MovieLens"], number(note["Прогноз MovieLens"]), null)
+  rating_delta_prediction: if(formula.rating != null && formula.predicted_rating != null, (formula.rating - formula.predicted_rating).round(1), null)
+  rating_delta_local: if(formula.rating != null && formula.predicted_local != null, (formula.rating - formula.predicted_local).round(1), null)
+  rating_delta_movielens: if(formula.rating != null && formula.predicted_movielens != null, (formula.rating - formula.predicted_movielens).round(1), null)
   rating_delta: if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)
   rating_delta_kp: if(formula.rating != null && formula.kp_rating != null, (formula.rating - formula.kp_rating).round(1), null)
   imdb_kp_delta: if(formula.imdb_rating != null && formula.kp_rating != null, (formula.imdb_rating - formula.kp_rating).round(1), null)
@@ -41,6 +47,18 @@ properties:
     displayName: IMDb
   formula.kp_rating:
     displayName: КП
+  formula.predicted_rating:
+    displayName: Прогноз
+  formula.predicted_local:
+    displayName: Прогноз локальный
+  formula.predicted_movielens:
+    displayName: Прогноз MovieLens
+  formula.rating_delta_prediction:
+    displayName: Δ к прогнозу
+  formula.rating_delta_local:
+    displayName: Δ к локальному
+  formula.rating_delta_movielens:
+    displayName: Δ к MovieLens
   formula.rating_delta:
     displayName: Δ к IMDb
   formula.rating_delta_kp:
@@ -67,6 +85,7 @@ views:
     order:
       - file.name
       - formula.rating
+      - formula.predicted_rating
     sort:
       - property: Просмотрено
         direction: DESC
@@ -94,6 +113,7 @@ views:
     order:
       - file.name
       - formula.rating
+      - formula.predicted_rating
       - Сезон
     sort:
       - property: Просмотрено
@@ -122,21 +142,23 @@ views:
       - formula.type
       - formula.watched
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - formula.entity_director
-      - formula.entity_actor
     sort:
-      - property: formula.entity_actor
-        direction: DESC
+      - property: file.name
+        direction: ASC
       - property: formula.type
         direction: DESC
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: Фильмы
     filters:
@@ -146,13 +168,13 @@ views:
       - file.name
       - formula.watched
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - Описание
       - formula.entity_director
-      - formula.entity_actor
     sort:
       - property: Просмотрено
         direction: DESC
@@ -172,13 +194,13 @@ views:
       - file.name
       - formula.watched
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
       - Описание
       - formula.entity_director
-      - formula.entity_actor
     sort:
       - property: Просмотрено
         direction: DESC
@@ -202,12 +224,12 @@ views:
       - formula.type
       - formula.release_display
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
       - formula.watched
       - formula.entity_genre
       - formula.entity_director
-      - formula.entity_actor
     sort:
       - property: formula.release_date
         direction: DESC
@@ -217,20 +239,36 @@ views:
     name: Сравнение оценок
     filters:
       and:
-        - formula.rating != null || formula.imdb_rating != null || formula.kp_rating != null
+        - formula.rating != null || formula.predicted_rating != null || formula.predicted_local != null || formula.predicted_movielens != null || formula.imdb_rating != null || formula.kp_rating != null
     order:
       - file.name
       - formula.type
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
+      - formula.predicted_local
+      - formula.predicted_movielens
+      - formula.rating_delta_prediction
+      - formula.rating_delta_local
+      - formula.rating_delta_movielens
       - formula.rating_delta
       - formula.rating_delta_kp
       - formula.imdb_kp_delta
     sort:
-      - property: file.name
+      - property: formula.rating_delta_prediction
+        direction: ASC
+      - property: formula.rating
+        direction: DESC
+      - property: formula.rating_delta_local
         direction: ASC
     columnSize:
+      formula.predicted_rating: 82
+      formula.predicted_local: 168
+      formula.predicted_movielens: 169
+      formula.rating_delta_prediction: 130
+      formula.rating_delta_local: 164
+      formula.rating_delta_movielens: 136
       formula.imdb_rating: 67
       formula.rating_delta: 99
       formula.imdb_kp_delta: 108
@@ -243,6 +281,7 @@ views:
       - file.name
       - formula.watch_count
       - formula.rating
+      - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
       - formula.watched
@@ -277,7 +316,6 @@ views:
       - formula.type
       - formula.watched
       - formula.entity_director
-      - formula.entity_actor
       - formula.entity_genre
     sort:
       - property: file.name
