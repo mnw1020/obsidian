@@ -85,7 +85,6 @@ views:
     order:
       - file.name
       - formula.rating
-      - formula.predicted_rating
     sort:
       - property: Просмотрено
         direction: DESC
@@ -113,7 +112,6 @@ views:
     order:
       - file.name
       - formula.rating
-      - formula.predicted_rating
       - Сезон
     sort:
       - property: Просмотрено
