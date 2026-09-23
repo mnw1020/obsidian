@@ -1,7 +1,7 @@
 ---
 Название: "BBC: The Human Mind"
 Основная карточка: "Кино/BBC - Разум человека.md"
-imdb Id: ""
+imdb Id: "tt10073724"
 Кинопоиск ID: "690014"
 Жанр: ["Documentary"]
 Режисер: ["Johanna Woolford Gibbon","Nick Murphy"]

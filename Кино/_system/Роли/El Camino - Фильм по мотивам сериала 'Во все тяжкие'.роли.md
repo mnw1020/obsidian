@@ -2,7 +2,7 @@
 Название: "El Camino: A Breaking Bad Movie"
 Основная карточка: "Кино/El Camino - Фильм по мотивам сериала 'Во все тяжкие'.md"
 imdb Id: "tt9243946"
-Кинопоиск ID: ""
+Кинопоиск ID: "1209193"
 Жанр: ["Drama","Crime"]
 Режисер: ["Vince Gilligan"]
 Актеры: ["Aaron Paul","Alison Law","Brendan Sexton III","Bryan Cranston","Carlos Sepulveda","Charles Baker","Chris Bylsma","Cody Renee Cameron","Danielle Todesco","David Mattey","Gabriela Alicia Ortega","Gloria Sandoval","Gregory Steven Soliz","Jesse Plemons","Johnny Ortiz","Jonathan Banks","Julie Pearl","Kevin Rankin","Krysten Ritter","Larry Hankin","Marla Gibbs","Matt Jones","Matthew Van Wettering","Michael Bofshever","Robert Forster","Scott MacArthur","Scott Shepherd","Simon Drobik","Tess Harper","Todd Terry","Tom Bower","Yvette Fazio-Delaney"]
