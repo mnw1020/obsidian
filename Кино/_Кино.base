@@ -178,7 +178,6 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
-    limit: 100
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
@@ -204,7 +203,6 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
-    limit: 100
     image: note.poster
     imageAspectRatio: 0.67
     imageFit: contain
@@ -245,14 +243,14 @@ views:
       - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
+      - formula.rating_delta
+      - formula.rating_delta_kp
+      - formula.imdb_kp_delta
       - formula.predicted_local
       - formula.predicted_movielens
       - formula.rating_delta_prediction
       - formula.rating_delta_local
       - formula.rating_delta_movielens
-      - formula.rating_delta
-      - formula.rating_delta_kp
-      - formula.imdb_kp_delta
     sort:
       - property: formula.rating_delta_prediction
         direction: ASC
@@ -262,12 +260,12 @@ views:
         direction: ASC
     columnSize:
       formula.predicted_rating: 82
+      formula.imdb_rating: 67
       formula.predicted_local: 168
       formula.predicted_movielens: 169
-      formula.rating_delta_prediction: 130
+      formula.rating_delta_prediction: 146
       formula.rating_delta_local: 164
       formula.rating_delta_movielens: 136
-      formula.imdb_rating: 67
       formula.rating_delta: 99
       formula.imdb_kp_delta: 108
   - type: dynamic-views-grid
