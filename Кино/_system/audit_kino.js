@@ -242,8 +242,19 @@ module.exports = async (params) => {
     const possibleDuplicates = [];
     const info = [];
 
-    const addError = (file, message) => errors.push(`${fileLink(file)} - ${message}`);
-    const addWarning = (file, message) => warnings.push(`${fileLink(file)} - ${message}`);
+    const exclusionPath = `${ROOT}/_system/Проверка кинотеки исключения.md`;
+    const exclusionFile = app.vault.getAbstractFileByPath(exclusionPath);
+    const excludedPaths = new Set();
+    if (exclusionFile) {
+        const text = await app.vault.read(exclusionFile);
+        for (const match of text.matchAll(/\[\[(Кино\/[^\]|]+)(?:\|[^\]]+)?\]\]/g)) {
+            const path = match[1].endsWith(".md") ? match[1] : `${match[1]}.md`;
+            excludedPaths.add(path);
+        }
+    }
+    const isExcluded = file => Boolean(file?.path && excludedPaths.has(file.path));
+    const addError = (file, message) => { if (!isExcluded(file)) errors.push(`${fileLink(file)} - ${message}`); };
+    const addWarning = (file, message) => { if (!isExcluded(file)) warnings.push(`${fileLink(file)} - ${message}`); };
 
     const titleKeys = new Map();
     const imdbKeys = new Map();
@@ -588,12 +599,21 @@ module.exports = async (params) => {
         return `## ${title}\n\n${items.map(item => `- ${item}`).join("\n")}\n\n`;
     };
 
+    // Некоторые проверки добавляют сообщения напрямую; убираем их здесь,
+    // чтобы исключения одинаково работали для всех типов предупреждений.
+    const withoutExcluded = items => items.filter(item =>
+        ![...excludedPaths].some(path => item.includes(`[[${path}|`))
+    );
+    errors.splice(0, errors.length, ...withoutExcluded(errors));
+    warnings.splice(0, warnings.length, ...withoutExcluded(warnings));
+
     const checkUrl = encodeURIComponent("Кино - Проверить кинотеку");
     const fixUrl = encodeURIComponent("Кино - Исправить безопасное");
     const rolesUrl = encodeURIComponent("Кино - Обновить роли актёров");
     let report = `# Проверка кинотеки\n\n`;
     report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n`;
     report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl}) · [🎭 Обновить роли актёров](obsidian://quickadd?choice=${rolesUrl})\n\n`;
+    report += `Исключения: [[Кино/_system/Проверка кинотеки исключения|настроить список]] (${excludedPaths.size}).\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит ничего не исправляет. Безопасное исправление меняет только однозначные форматные ошибки.\n\n`;
     report += `## Состояние кинотеки\n\n`;
