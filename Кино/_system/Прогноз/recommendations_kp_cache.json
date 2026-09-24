@@ -616,31 +616,40 @@
     "year": ""
   },
   "m:tt0080684": {
-    "v": 4,
-    "found": false,
-    "checkedAt": 1790232618873,
-    "kpId": "",
-    "ruTitle": "",
-    "enTitle": "",
-    "year": ""
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233408582,
+    "kpId": "338",
+    "ruTitle": "Звёздные войны. Эпизод V: Империя наносит ответный удар",
+    "enTitle": "Star Wars: Episode V – The Empire Strikes Back",
+    "year": "1980",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   },
   "m:tt0076759": {
-    "v": 4,
-    "found": false,
-    "checkedAt": 1790232620035,
-    "kpId": "",
-    "ruTitle": "",
-    "enTitle": "",
-    "year": ""
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233415788,
+    "kpId": "333",
+    "ruTitle": "Звёздные войны. Эпизод IV: Новая надежда",
+    "enTitle": "Star Wars: Episode IV – A New Hope",
+    "year": "1977",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   },
   "m:tt3748528": {
-    "v": 4,
-    "found": false,
-    "checkedAt": 1790232621028,
-    "kpId": "",
-    "ruTitle": "",
-    "enTitle": "",
-    "year": ""
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233423103,
+    "kpId": "840152",
+    "ruTitle": "Изгой-один. Звёздные войны: Истории",
+    "enTitle": "Rogue One: A Star Wars Story",
+    "year": "2016",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   },
   "m:tt0241527": {
     "v": 4,
@@ -652,13 +661,16 @@
     "year": ""
   },
   "m:tt0086190": {
-    "v": 4,
-    "found": false,
-    "checkedAt": 1790232623238,
-    "kpId": "",
-    "ruTitle": "",
-    "enTitle": "",
-    "year": ""
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233430187,
+    "kpId": "447",
+    "ruTitle": "Звёздные войны. Эпизод VI: Возвращение джедая",
+    "enTitle": "Star Wars: Episode VI – Return of the Jedi",
+    "year": "1983",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   },
   "m:tt0060196": {
     "v": 4,
@@ -668,5 +680,29 @@
     "ruTitle": "",
     "enTitle": "",
     "year": ""
+  },
+  "m:tt0071853": {
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233449872,
+    "kpId": "375",
+    "ruTitle": "Монти Пайтон и Священный Грааль",
+    "enTitle": "Monty Python and the Holy Grail",
+    "year": "1975",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt0106308": {
+    "v": 5,
+    "found": true,
+    "checkedAt": 1790233462003,
+    "kpId": "2909",
+    "ruTitle": "Армия тьмы",
+    "enTitle": "Army of Darkness",
+    "year": "1992",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   }
 }
