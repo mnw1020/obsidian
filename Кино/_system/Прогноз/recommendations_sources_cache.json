@@ -1,6 +1,17 @@
 {
   "version": 3,
-  "similar": {},
+  "similar": {
+    "404263": {
+      "at": 1790236363558,
+      "items": [
+        {
+          "kpId": "966648",
+          "ruTitle": "Перейти к карточке «Abraham (2015)»"
+        }
+      ],
+      "source": "movie-planner"
+    }
+  },
   "details": {
     "333": {
       "at": 1790234059708,
@@ -420,6 +431,19 @@
       "data": {
         "kpId": "914527",
         "ruTitle": "Dragon",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "966648": {
+      "at": 1790236371033,
+      "data": {
+        "kpId": "966648",
+        "ruTitle": "Перейти к карточке «Abraham (2015)»",
         "enTitle": "",
         "year": "",
         "description": "",
