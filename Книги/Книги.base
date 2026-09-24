@@ -45,7 +45,6 @@ views:
     sort:
       - property: date
         direction: DESC
-    limit: 10
   - type: table
     name: По типу
     groupBy:
