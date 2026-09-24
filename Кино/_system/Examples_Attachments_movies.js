@@ -6590,6 +6590,52 @@ function queueFranchise(params,movie,file) {
     return job;
 }
 
+async function runRatingForecast(params,file) {
+    const {app,obsidian:ob}=params;
+    if (!file || app.vault.getAbstractFileByPath(file.path)!==file) return;
+    try {
+        await runRatingForecast(params,file);
+        let predictor=null;
+
+        // На настольном Obsidian сначала пробуем обычный CommonJS require.
+        // Это быстрее и использует тот же файл, что и отдельная команда прогноза.
+        try {
+            if (typeof require === 'function' && typeof app.vault.adapter?.getFullPath === 'function') {
+                const fullPath=app.vault.adapter.getFullPath(RATING_PREDICTOR);
+                try {
+                    const resolved=require.resolve(fullPath);
+                    if (require.cache?.[resolved]) delete require.cache[resolved];
+                } catch (_) {}
+                predictor=require(fullPath);
+            }
+        } catch (_) { predictor=null; }
+
+        // Запасной вариант: читаем тот же QuickAdd-скрипт из vault и выполняем
+        // как CommonJS-модуль. В predict_rating.js нет внешних require.
+        if (typeof predictor !== 'function') {
+            const scriptFile=app.vault.getAbstractFileByPath(RATING_PREDICTOR);
+            if (!scriptFile) throw new Error('не найден ' + RATING_PREDICTOR);
+            const source=await app.vault.read(scriptFile);
+            const mod={exports:{}};
+            const load=new Function('module','exports',source);
+            load(mod,mod.exports);
+            predictor=mod.exports;
+        }
+        if (typeof predictor !== 'function') throw new Error('скрипт прогноза не экспортирует функцию');
+
+        const result=await predictor({...params,targetFile:file,suppressNotice:true});
+        if (result && Number.isFinite(Number(result.prediction))) {
+            const ml=result.movielens===null || result.movielens===undefined ? 'без MovieLens' : `MovieLens ${Number(result.movielens).toFixed(1)}`;
+            new ob.Notice(`Карточка добавлена. Прогноз: ${Number(result.prediction).toFixed(1)}/10, ${result.confidence || 'уверенность не определена'}, ${ml}.`,9000);
+        } else {
+            new ob.Notice('Карточка добавлена. Прогноз не рассчитан - проверь, что в базе достаточно твоих оценок.',9000);
+        }
+    } catch (error) {
+        console.error('Kino rating forecast after add:', error);
+        new ob.Notice('Карточка добавлена, но прогноз не рассчитан: ' + String(error?.message || error),12000);
+    }
+}
+
 async function afterTemplateFranchise(params,movie,file) {
     const {app,obsidian:ob,quickAddApi:qa}=params;
     if(app.vault.getAbstractFileByPath(file.path)!==file)return;

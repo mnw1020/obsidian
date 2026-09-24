@@ -263,9 +263,6 @@ module.exports = async (params) => {
 
     await app.fileManager.processFrontMatter(active, fm => {
         fm["Прогноз оценки"] = finalPred.toFixed(1);
-        fm["Прогноз уверенность"] = confidenceText(confidence);
-        fm["Прогноз метод"] = method;
-        fm["Прогноз локальный"] = (Math.round(local.pred*10)/10).toFixed(1);
     });
 
     const result = {
