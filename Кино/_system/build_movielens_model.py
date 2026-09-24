@@ -194,6 +194,49 @@ def imdb_from_numeric(v: str) -> str:
         return ""
 
 
+
+def split_movie_title(raw: str):
+    """MovieLens titles normally end in (YYYY). Return clean title + optional year."""
+    raw = (raw or "").strip()
+    m = re.search(r"\s+\(((?:18|19|20)\d{2})\)\s*$", raw)
+    if not m:
+        return raw, None
+    return raw[:m.start()].strip(), int(m.group(1))
+
+
+def build_catalog(z: zipfile.ZipFile, needed_imdb: set[str]) -> dict[str, dict]:
+    """Build compact metadata only for IMDb ids present in selected-neighbor ratings."""
+    if not needed_imdb:
+        return {}
+    links_name = zip_member(z, "links.csv")
+    movies_name = zip_member(z, "movies.csv")
+    mid_to_iid = {}
+    with z.open(links_name) as raw:
+        rd = csv.DictReader(io.TextIOWrapper(raw, "utf-8", newline=""))
+        for row in rd:
+            iid = imdb_from_numeric(row.get("imdbId", ""))
+            if iid in needed_imdb:
+                try:
+                    mid_to_iid[int(row["movieId"])] = iid
+                except Exception:
+                    pass
+    catalog = {}
+    with z.open(movies_name) as raw:
+        rd = csv.DictReader(io.TextIOWrapper(raw, "utf-8", newline=""))
+        for row in rd:
+            try:
+                mid = int(row["movieId"])
+            except Exception:
+                continue
+            iid = mid_to_iid.get(mid)
+            if not iid:
+                continue
+            title, year = split_movie_title(row.get("title", ""))
+            genres = [g for g in (row.get("genres", "") or "").split("|") if g and g != "(no genres listed)"]
+            catalog[iid] = {"title": title, "year": year, "genres": genres}
+    return catalog
+
+
 def pearson_stat(st):
     n,sx,sy,sxx,syy,sxy = st
     if n < MIN_OVERLAP:
@@ -212,15 +255,31 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--movielens", type=Path, default=None, help="Path to ml-32m.zip")
     ap.add_argument("--candidates", type=int, default=CANDIDATES)
+    ap.add_argument("--catalog-only", action="store_true", help="Enrich existing neighbor model with MovieLens title/year/genre metadata without rescanning ratings.csv")
     args = ap.parse_args()
+
+    zpath = ensure_dataset(args.movielens or DEFAULT_ZIP)
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+
+    if args.catalog_only:
+        if not OUT.exists():
+            raise SystemExit(f"Existing model not found: {OUT}. Build the model normally first.")
+        model = json.loads(OUT.read_text("utf-8"))
+        needed = {p[0] for u in model.get("users", []) for p in u.get("ratings", []) if p and isinstance(p[0], str)}
+        print(f"Catalog-only mode: {len(needed)} unique IMDb ids in current neighbor model")
+        with zipfile.ZipFile(zpath) as z:
+            catalog = build_catalog(z, needed)
+        model["version"] = max(2, int(model.get("version", 1) or 1))
+        model["catalog"] = catalog
+        OUT.write_text(json.dumps(model, ensure_ascii=False, separators=(",", ":")), "utf-8")
+        mb = OUT.stat().st_size / 1024 / 1024
+        print(f"Done: added metadata for {len(catalog)} titles -> {OUT} ({mb:.1f} MB)")
+        return
 
     ratings = read_user_ratings()
     if len(ratings) < 30:
         raise SystemExit(f"Only {len(ratings)} personal IMDb-linked ratings found; need at least 30.")
     print(f"Personal IMDb-linked ratings: {len(ratings)}")
-
-    zpath = ensure_dataset(args.movielens or DEFAULT_ZIP)
-    OUTDIR.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(zpath) as z:
         links_name = zip_member(z, "links.csv")
@@ -290,6 +349,10 @@ def main():
                 data[uid].append([iid, r10])
                 sums[uid][0]+=r10; sums[uid][1]+=1
 
+        needed_imdb = {pair[0] for pairs in data.values() for pair in pairs}
+        print(f"Building compact recommendation catalog for {len(needed_imdb)} IMDb ids...")
+        catalog = build_catalog(z, needed_imdb)
+
     users=[]
     for uid,(adj,corr,n) in sorted(selected.items(), key=lambda kv: kv[1][0], reverse=True):
         pairs=data.get(uid,[])
@@ -306,11 +369,12 @@ def main():
         })
 
     payload={
-        "version": 1,
+        "version": 2,
         "source": "MovieLens 32M",
         "source_url": URL,
         "personal_ratings_at_build": len(ratings),
         "personal_movielens_matches_at_build": len(personal_by_mid),
+        "catalog": catalog,
         "users": users,
     }
     OUT.write_text(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), "utf-8")
