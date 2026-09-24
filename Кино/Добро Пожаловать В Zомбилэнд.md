@@ -21,7 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcw
 Франшиза: "[[Кино/Франшизы/Зомбилэнд]]"
 Кинопоиск ID: "427122"
 Прогноз оценки: "6.0"
-Прогноз уверенность: высокая
 ---
 проходной роад-мув, ничего особенного вообще.
 
@@ -71,5 +70,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcwMjA4Mjg3Mg@@._V1_SX300.jpg)
+
 
 

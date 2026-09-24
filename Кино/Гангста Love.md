@@ -20,7 +20,6 @@ imdb Id: tt2481480
 poster: https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgwMjIwNTgwMTE@._V1_.jpg
 Кинопоиск ID: "714718"
 Прогноз оценки: "5.7"
-Прогноз уверенность: высокая
 ---
 скука
 
@@ -70,4 +69,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgwMjIwNTgwMTE@._V1_.jpg)
+
 

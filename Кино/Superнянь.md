@@ -22,7 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMt
 Франшиза: "[[Кино/Франшизы/Superнянь]]"
 Кинопоиск ID: "777091"
 Прогноз оценки: "6.7"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -68,5 +67,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg)
+
 
 

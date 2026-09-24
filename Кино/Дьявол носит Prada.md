@@ -21,7 +21,6 @@ imdb Id: tt0458352
 poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "104992"
 Прогноз оценки: "6.2"
-Прогноз уверенность: высокая
 ---
 Успех всегда требует платы. Вопрос - готов ли ты платить именно такую цену? Работа мечты может оказаться ловушкой. Легко потерять себя в угоду "ценностям компании".  
 Компромисс с собой происходит незаметно - сначала мелочь, потом норма, а в конце ты уже не помнишь, где был твой выбор. Система редко ломает сразу - она приучает. И в этом ее главная сила.
@@ -72,5 +71,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg)
+
 
 

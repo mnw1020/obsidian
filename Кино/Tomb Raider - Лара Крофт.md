@@ -21,7 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2Ut
 Франшиза: "[[Кино/Франшизы/Лара Крофт]]"
 Кинопоиск ID: "446136"
 Прогноз оценки: "4.9"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -67,5 +66,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_.jpg)
+
 
 

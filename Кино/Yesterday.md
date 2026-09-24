@@ -20,7 +20,6 @@ imdb Id: tt8079248
 poster: https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgwNzY0MTE0NzM@._V1_.jpg
 Кинопоиск ID: "1144300"
 Прогноз оценки: "5.4"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -66,5 +65,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgwNzY0MTE0NzM@._V1_.jpg)
+
 
 

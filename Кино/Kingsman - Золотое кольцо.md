@@ -21,7 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgw
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "906654"
 Прогноз оценки: "5.4"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -67,5 +66,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg)
+
 
 

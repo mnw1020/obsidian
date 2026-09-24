@@ -22,7 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BNjY3YTY3MGMtMjVmYS00ZmM3LWIxMDAt
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "1045056"
 Прогноз оценки: "2.2"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -68,5 +67,6 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BNjY3YTY3MGMtMjVmYS00ZmM3LWIxMDAtYWVhZTAyZDMwNmMwXkEyXkFqcGc@._V1_SX300.jpg)
+
 
 

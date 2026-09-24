@@ -22,7 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGIt
 Франшиза: "[[Кино/Франшизы/Всё включено]]"
 Кинопоиск ID: "521637"
 Прогноз оценки: "4.5"
-Прогноз уверенность: высокая
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -68,4 +67,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGItN2VmNjk1NjBkYzRkXkEyXkFqcGc@._V1_.jpg)
+
 
