@@ -14,7 +14,7 @@ tags:
 Время: 49 min
 Режисер:
   - Diana Hill
-Роли файл: "Кино/_system/Роли/BBC - Разум человека.роли.md"
+Роли файл: Кино/_system/Роли/BBC - Разум человека.роли.md
 Описание: 📺 Почему один человек чувствует опасность, а другой нет? Как может опыт подсказать нам, стоит ли доверять людям? И как дети осваивают сложные движения, просто думая о них? Ответ кроется в самой удивительной части каждого из нас, в нашем разуме. Каждую секунду бодрствования, хотя мы даже и не осознаем этого, наш разум работает, изучая окружающий мир. Но наша способность к познанию даже больше, чем мы думаем. Изучая принципы работы разума мы можем улучшить нашу познавательную способность и раскрыть свой истинный потенциал. Человек добился огромных успехов в изучении своего тела. Но разум человека до сих пор остается загадкой. Новый документальный фильм ВВС попытается найти ответ, как работает разум человека, и как его можно использовать с максимальной эффективностью.
 imdb Id: tt10073724
 poster: https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMtMjc2MDFmMWYxNmY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg
@@ -24,12 +24,20 @@ poster: https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "6.3"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/BBC - Разум человека.роли]]
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -66,4 +74,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
+
 ![](https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMtMjc2MDFmMWYxNmY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg)

@@ -14,7 +14,7 @@ tags:
 Время: 38 min
 Режисер:
   - Evgeniy Sangadzhiev
-Роли файл: "Кино/_system/Роли/Happy End.роли.md"
+Роли файл: Кино/_system/Роли/Happy End.роли.md
 Описание: "Попасть в мир Webcam просто: достаточно нажать кнопку REC. в своем мобильном и начать снимать. С такого видео и начинается карьера 19-летних Леры и Влада, которые в поисках лучшей жизни и легких денег приходят к неожиданному решению — вебкам. Они совсем не подходят друг другу, их характеры противоположны, а ценности не совпадают: Лера — безрассудная оторва, которая легко идет по головам, Влад — замкнутый умник, готовый на все ради подруги. Но странным образом они дополняют друг друга, и, вместе преодолевая препятствия на пути к успеху, взрослеют и становятся все ближе.Но можно ли сохранить любовь, когда вся твоя личная жизнь — сплошное порно?"
 imdb Id: tt12908084
 poster: https://m.media-amazon.com/images/M/MV5BOWE4MDI4ZDQtZDM0NC00MzgyLWFiNzItY2EyZTI3NjIxM2QxXkEyXkFqcGc@._V1_SX300.jpg
@@ -24,12 +24,20 @@ poster: https://m.media-amazon.com/images/M/MV5BOWE4MDI4ZDQtZDM0NC00MzgyLWFiNzIt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "5.9"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Happy End.роли]]
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -66,4 +74,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
+
 ![](https://m.media-amazon.com/images/M/MV5BOWE4MDI4ZDQtZDM0NC00MzgyLWFiNzItY2EyZTI3NjIxM2QxXkEyXkFqcGc@._V1_SX300.jpg)

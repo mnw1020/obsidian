@@ -26,13 +26,24 @@ poster: https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgw
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "7.3"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Discovery - Во Вселенную со Стивеном Хокингом.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -69,7 +80,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
 
----
 ![](https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg)

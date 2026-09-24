@@ -25,13 +25,24 @@ poster: https://m.media-amazon.com/images/M/MV5BOTBjNTEyNjYtYjdkNi00YzE5LTljYzUt
 Прогноз локальный: "7.3"
 Прогноз MovieLens: "6.9"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Сильно. Но скучно. Кен Майлз единственная живая искорка в этом сером омуте корпоративной этики.
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Ford против Ferrari.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -68,7 +79,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Сильно. Но скучно. Кен Майлз единственная живая искорка в этом сером омуте корпоративной этики.
 
----
 ![](https://m.media-amazon.com/images/M/MV5BOTBjNTEyNjYtYjdkNi00YzE5LTljYzUtZjVlYmYwZmJmZWYxXkEyXkFqcGc@._V1_.jpg)

@@ -37,12 +37,20 @@ poster: https://m.media-amazon.com/images/M/MV5BMTYxNTQ5NTg2Ml5BMl5BanBnXkFtZTcw
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "6.1"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Vизитеры.роли]]
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -79,4 +87,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
+
 ![](https://m.media-amazon.com/images/M/MV5BMTYxNTQ5NTg2Ml5BMl5BanBnXkFtZTcwODUyNTY5Mg@@._V1_.jpg)

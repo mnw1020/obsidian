@@ -26,13 +26,25 @@ poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgt
 Прогноз локальный: "6.2"
 Прогноз MovieLens: "5.7"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Продолжение на порядок лучше. Сколько самоиронии и юморного
+ легкого сарказма, просто класс. Спецэффекты на уровне.
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Zомбилэнд - Контрольный выстрел.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -69,8 +81,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Продолжение на порядок лучше. Сколько самоиронии и юморного
- легкого сарказма, просто класс. Спецэффекты на уровне.
 
----
 ![](https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg)

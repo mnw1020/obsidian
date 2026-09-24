@@ -27,13 +27,24 @@ poster: https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQt
 Прогноз локальный: "6.5"
 Прогноз MovieLens: "6.1"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+ярко, но глуповато
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Kingsman - Секретная служба.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -70,7 +81,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-ярко, но глуповато
 
----
 ![](https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQtOWE4NDIxZmU2MjMwXkEyXkFqcGc@._V1_SX300.jpg)

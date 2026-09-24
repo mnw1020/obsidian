@@ -33,13 +33,24 @@ poster: https://m.media-amazon.com/images/M/MV5BMGQyNDAzNGItZWM5MC00ZDAxLTg1YjIt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "7.2"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Посмотрен s04ep10
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Discovery - Сквозь кротовую нору с Морганом Фрименом.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -76,7 +87,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Посмотрен s04ep10
 
----
 ![](https://m.media-amazon.com/images/M/MV5BMGQyNDAzNGItZWM5MC00ZDAxLTg1YjItYzhkZmU5NGQzMWEzXkEyXkFqcGc@._V1_.jpg)

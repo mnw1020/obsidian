@@ -25,13 +25,24 @@ poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "6.0"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Слабее конечно, чем сериал, но тоже неплохо. Эпизод в бангкоке огонь)
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Sheker - Последний шанс.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -68,7 +79,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Слабее конечно, чем сериал, но тоже неплохо. Эпизод в бангкоке огонь)
 
----
 ![](https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg)

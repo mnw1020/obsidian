@@ -26,13 +26,25 @@ poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEt
 Прогноз локальный: "7.0"
 Прогноз MovieLens: "6.0"
 ---
-<!-- KINO:ROLES:EMBED:V1 -->
+Успех всегда требует платы. Вопрос - готов ли ты платить именно такую цену? Работа мечты может оказаться ловушкой. Легко потерять себя в угоду "ценностям компании".  
+Компромисс с собой происходит незаметно - сначала мелочь, потом норма, а в конце ты уже не помнишь, где был твой выбор. Система редко ломает сразу - она приучает. И в этом ее главная сила.
+
+---
+
+<!-- KINO:ROLES:EMBED:V2 -->
+<details class="kino-roles-details">
+<summary>🎭 Роли</summary>
+
 ![[Кино/_system/Роли/Дьявол носит Prada.роли]]
 
-<!-- KINO:RECOMMEND:BUTTON:V1 -->
+</details>
+
+<!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
 const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });
+wrap.style.marginTop = "1em";
+wrap.style.marginBottom = "1em";
 const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });
 btn.style.cursor = "pointer";
 btn.style.padding = "6px 12px";
@@ -69,8 +81,5 @@ btn.onclick = async () => {
     btn.disabled = false;
 };
 ```
-Успех всегда требует платы. Вопрос - готов ли ты платить именно такую цену? Работа мечты может оказаться ловушкой. Легко потерять себя в угоду "ценностям компании".  
-Компромисс с собой происходит незаметно - сначала мелочь, потом норма, а в конце ты уже не помнишь, где был твой выбор. Система редко ломает сразу - она приучает. И в этом ее главная сила.
 
----
 ![](https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg)
