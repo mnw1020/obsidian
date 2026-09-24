@@ -155,3 +155,21 @@ views:
         direction: ASC
       - property: date
         direction: DESC
+  - type: table
+    name: Главная
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - formula.book_link
+      - formula.author_links
+      - formula.work_type
+      - rating
+      - date
+      - read_count
+      - formula.series_link
+      - series_index
+    sort:
+      - property: date
+        direction: DESC
+    limit: 20
