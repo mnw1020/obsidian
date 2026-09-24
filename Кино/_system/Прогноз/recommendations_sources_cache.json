@@ -2,7 +2,7 @@
   "version": 3,
   "similar": {
     "404263": {
-      "at": 1790236363558,
+      "at": 1790236363556,
       "items": [
         {
           "kpId": "966648",
@@ -13,6 +13,19 @@
     }
   },
   "details": {
+    "302": {
+      "at": 1790236447989,
+      "data": {
+        "kpId": "302",
+        "ruTitle": "Клад",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "333": {
       "at": 1790234059708,
       "data": {
@@ -83,6 +96,19 @@
       },
       "source": "kinopoisk"
     },
+    "458": {
+      "at": 1790236448196,
+      "data": {
+        "kpId": "458",
+        "ruTitle": "Корпорация монстров",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "518": {
       "at": 1790234769432,
       "data": {
@@ -118,6 +144,19 @@
         "source": "movie-planner"
       },
       "source": "movie-planner-api"
+    },
+    "719": {
+      "at": 1790236447803,
+      "data": {
+        "kpId": "719",
+        "ruTitle": "Джей и Молчаливый Боб наносят ответный удар",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
     },
     "1677": {
       "at": 1790234752303,
@@ -173,6 +212,19 @@
       },
       "source": "movie-planner-api"
     },
+    "3665": {
+      "at": 1790236518249,
+      "data": {
+        "kpId": "3665",
+        "ruTitle": "Царь скорпионов",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "3809": {
       "at": 1790234748833,
       "data": {
@@ -209,8 +261,21 @@
       },
       "source": "movie-planner-api"
     },
+    "4619": {
+      "at": 1790236453876,
+      "data": {
+        "kpId": "4619",
+        "ruTitle": "Я, снова я и Ирэн",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "5090": {
-      "at": 1790235548236,
+      "at": 1790236447782,
       "data": {
         "kpId": "5090",
         "ruTitle": "Евротур",
@@ -222,8 +287,21 @@
       },
       "source": "kinopoisk"
     },
+    "5908": {
+      "at": 1790236517858,
+      "data": {
+        "kpId": "5908",
+        "ruTitle": "Кинг-Конг",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "6035": {
-      "at": 1790235548429,
+      "at": 1790236457817,
       "data": {
         "kpId": "6035",
         "ruTitle": "Лемони Сникет: 33 несчастья",
@@ -307,6 +385,19 @@
       },
       "source": "movie-planner-api"
     },
+    "22399": {
+      "at": 1790236448539,
+      "data": {
+        "kpId": "22399",
+        "ruTitle": "Уоллес и Громит: Проклятие кролика-оборотня",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "22405": {
       "at": 1790234793569,
       "data": {
@@ -319,6 +410,32 @@
         "source": "movie-planner-page"
       },
       "source": "movie-planner-page"
+    },
+    "54824": {
+      "at": 1790236448113,
+      "data": {
+        "kpId": "54824",
+        "ruTitle": "Dish",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "81097": {
+      "at": 1790236517589,
+      "data": {
+        "kpId": "81097",
+        "ruTitle": "Затура: Космическое приключение",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
     },
     "90840": {
       "at": 1790234812953,
@@ -338,6 +455,19 @@
       },
       "source": "movie-planner-page"
     },
+    "195394": {
+      "at": 1790236517799,
+      "data": {
+        "kpId": "195394",
+        "ruTitle": "Принц Персии: Пески времени",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "221099": {
       "at": 1790234060356,
       "data": {
@@ -352,7 +482,7 @@
       "source": "kinopoisk"
     },
     "225633": {
-      "at": 1790234060181,
+      "at": 1790236516597,
       "data": {
         "kpId": "225633",
         "ruTitle": "Our Spirited Earth",
@@ -382,11 +512,115 @@
       },
       "source": "movie-planner-api"
     },
+    "285906": {
+      "at": 1790236452896,
+      "data": {
+        "kpId": "285906",
+        "ruTitle": "Little Miss Innocence",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "300826": {
+      "at": 1790236516499,
+      "data": {
+        "kpId": "300826",
+        "ruTitle": "ITV Special: Peter Pan",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "304802": {
+      "at": 1790236517025,
+      "data": {
+        "kpId": "304802",
+        "ruTitle": "Hero's Hero",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "339841": {
+      "at": 1790236517422,
+      "data": {
+        "kpId": "339841",
+        "ruTitle": "The Adventures Of Young Van Helsing: Quest For The Lost Scepter",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "340890": {
-      "at": 1790235548208,
+      "at": 1790236452611,
       "data": {
         "kpId": "340890",
         "ruTitle": "Costume Party Capers: The Incredibles",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "468904": {
+      "at": 1790236448566,
+      "data": {
+        "kpId": "468904",
+        "ruTitle": "Университет монстров",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "745631": {
+      "at": 1790236518272,
+      "data": {
+        "kpId": "745631",
+        "ruTitle": "The Count of Monte Cristo",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "755903": {
+      "at": 1790236518059,
+      "data": {
+        "kpId": "755903",
+        "ruTitle": "The Dark Knight Rises... In Therapy",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "794518": {
+      "at": 1790236453498,
+      "data": {
+        "kpId": "794518",
+        "ruTitle": "«Old School» Orientation",
         "enTitle": "",
         "year": "",
         "description": "",
@@ -426,6 +660,19 @@
       },
       "source": "kinopoisk"
     },
+    "840152": {
+      "at": 1790236516295,
+      "data": {
+        "kpId": "840152",
+        "ruTitle": "Изгой-один. Звёздные войны: Истории",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "914527": {
       "at": 1790234059493,
       "data": {
@@ -439,11 +686,37 @@
       },
       "source": "kinopoisk"
     },
+    "922175": {
+      "at": 1790236517232,
+      "data": {
+        "kpId": "922175",
+        "ruTitle": "The Second Uncanny Issue of X-Men! Making X2",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "966648": {
-      "at": 1790236371033,
+      "at": 1790236453326,
       "data": {
         "kpId": "966648",
         "ruTitle": "Перейти к карточке «Abraham (2015)»",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "995828": {
+      "at": 1790236517997,
+      "data": {
+        "kpId": "995828",
+        "ruTitle": "Lego Zombie Movie",
         "enTitle": "",
         "year": "",
         "description": "",
@@ -478,6 +751,58 @@
       },
       "source": "kinopoisk"
     },
+    "1058838": {
+      "at": 1790236452693,
+      "data": {
+        "kpId": "1058838",
+        "ruTitle": "Take That: Rule the World, Stardust Version",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "1167422": {
+      "at": 1790236516171,
+      "data": {
+        "kpId": "1167422",
+        "ruTitle": "Spider",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "1200300": {
+      "at": 1790236516825,
+      "data": {
+        "kpId": "1200300",
+        "ruTitle": "Armin van Buuren Feat. Jan Vayne: Serenity",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "1241750": {
+      "at": 1790236517393,
+      "data": {
+        "kpId": "1241750",
+        "ruTitle": "Castle",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "1383334": {
       "at": 1790234823162,
       "data": {
@@ -497,10 +822,23 @@
       "source": "movie-planner-page"
     },
     "1394431": {
-      "at": 1790234059461,
+      "at": 1790236517631,
       "data": {
         "kpId": "1394431",
         "ruTitle": "«Принцесса Мононоке» в США",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "1434154": {
+      "at": 1790236453725,
+      "data": {
+        "kpId": "1434154",
+        "ruTitle": "The Intern",
         "enTitle": "",
         "year": "",
         "description": "",
@@ -535,11 +873,37 @@
       },
       "source": "kinopoisk"
     },
+    "5401076": {
+      "at": 1790236452977,
+      "data": {
+        "kpId": "5401076",
+        "ruTitle": "On the Set: 'The Life Aquatic with Steve Zissou'",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "6766817": {
       "at": 1790234059918,
       "data": {
         "kpId": "6766817",
         "ruTitle": "Акира: Производственный отчёт",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "9307039": {
+      "at": 1790236453518,
+      "data": {
+        "kpId": "9307039",
+        "ruTitle": "Finding Dory: Fish Schticks",
         "enTitle": "",
         "year": "",
         "description": "",
