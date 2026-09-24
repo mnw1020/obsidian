@@ -275,9 +275,6 @@ module.exports = async (params) => {
             addError(file, "устаревший раскрывающийся блок ролей: используйте ссылку в YAML.");
         }
         if (recommendV2Count !== 1) addError(file, "кнопка `🔎 Найти похожие` V2 отсутствует или продублирована.");
-        if (recommendV2Count === 1 && !/\n\n<!-- KINO:RECOMMEND:BUTTON:V2 -->[\s\S]*?^```[ \t]*\r?\n\r?\n/m.test(rawCard)) {
-            addWarning(file, "до и после кнопки `🔎 Найти похожие` должна быть пустая строка.");
-        }
 
         if (!title) addError(file, "отсутствует свойство `Название`.");
         if (mediaTags.length > 1) addWarning(file, "одновременно стоят теги `movies` и `serial`.");
@@ -593,9 +590,10 @@ module.exports = async (params) => {
 
     const checkUrl = encodeURIComponent("Кино - Проверить кинотеку");
     const fixUrl = encodeURIComponent("Кино - Исправить безопасное");
+    const rolesUrl = encodeURIComponent("Кино - Обновить роли актёров");
     let report = `# Проверка кинотеки\n\n`;
     report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n`;
-    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl})\n\n`;
+    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl}) · [🎭 Обновить роли актёров](obsidian://quickadd?choice=${rolesUrl})\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит ничего не исправляет. Безопасное исправление меняет только однозначные форматные ошибки.\n\n`;
     report += `## Состояние кинотеки\n\n`;
@@ -609,7 +607,7 @@ module.exports = async (params) => {
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
     report += renderSection("ℹ️ Карточки без Кинопоиск ID", missingKinopoiskIds.map(file => fileLink(file)), "Все карточки содержат КП ID.");
     report += renderSection("🔎 Возможные дубли", possibleDuplicates, "Похожих дублей не найдено.");
-    report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n\n";
+    report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n- Кино - Обновить роли актёров -> `_system/update_kino_roles.js`.\n\n";
     report += `## Что проверяется\n\n`;
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
