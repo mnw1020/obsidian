@@ -1364,5 +1364,113 @@
     "kpRating": null,
     "description": "",
     "source": "movie-planner"
+  },
+  "m:tt1160419": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272821237,
+    "kpId": "409424",
+    "ruTitle": "Дюна",
+    "enTitle": "Dune",
+    "year": "2021",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt4633694": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272822366,
+    "kpId": "920265",
+    "ruTitle": "Человек-паук: Через вселенные",
+    "enTitle": "Spider-Man: Into the Spider-Verse",
+    "year": "2018",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt4154796": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272823658,
+    "kpId": "843650",
+    "ruTitle": "Мстители: Финал",
+    "enTitle": "Avengers: Endgame",
+    "year": "2019",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt3896198": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272826033,
+    "kpId": "841263",
+    "ruTitle": "Стражи Галактики. Часть 2",
+    "enTitle": "Guardians of the Galaxy Vol. 2",
+    "year": "2017",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt2660888": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272827520,
+    "kpId": "734349",
+    "ruTitle": "Стартрек: Бесконечность",
+    "enTitle": "Star Trek Beyond",
+    "year": "2016",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt1392190": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272841415,
+    "kpId": "915772",
+    "ruTitle": "Fury",
+    "enTitle": "Mad Max: Fury Road",
+    "year": "2015",
+    "kpRating": null,
+    "description": "",
+    "source": "movie-planner"
+  },
+  "m:tt1745960": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272848450,
+    "kpId": "4927391",
+    "ruTitle": "Maverick",
+    "enTitle": "Top Gun: Maverick",
+    "year": "2023",
+    "kpRating": null,
+    "description": "",
+    "source": "movie-planner"
+  },
+  "m:tt1408101": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272854699,
+    "kpId": "1360741",
+    "ruTitle": "Star Trek Into Darkness: Kirk and Spock",
+    "enTitle": "Star Trek Into Darkness",
+    "year": "2013",
+    "kpRating": null,
+    "description": "",
+    "source": "movie-planner"
+  },
+  "m:tt0316654": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790272858654,
+    "kpId": "980242",
+    "ruTitle": "Spider-Man 2: Rise of Electro",
+    "enTitle": "Spider-Man 2",
+    "year": "2004",
+    "kpRating": null,
+    "description": "",
+    "source": "movie-planner"
   }
 }
