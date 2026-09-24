@@ -15,9 +15,11 @@
 > **166 произведений** · **89 авторов** · **12 серий** · **62 оценено** · **0 перечитано**
 <!-- BOOK-HOME-STATS:END -->
 
-dv.table(["Название"], dv.pages('"Книги/Книги.base"') .limit(10) .map(p => [p.file.link]) )
+```dataviewjs
+const pages = dv.pages('"Книги"') .where(p => p.file.path.startsWith("Книги/Художественные/") || p.file.path.startsWith("Книги/Non-fiction/") ) .limit(10); dv.table( ["Название"], pages.map(p => [ dv.fileLink(p.file.path, false, p.title ?? p.file.name) ]) );
+```
 
- ![Все](Книги/Книги.base#Все)
+![Все](Книги/Книги.base#Все)
  
 ---
 # 🔁 Перечитанные
