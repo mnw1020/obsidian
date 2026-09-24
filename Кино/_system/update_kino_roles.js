@@ -133,13 +133,6 @@ module.exports = async function updateKinoRoles(params) {
 
             try {
                 const type = tagsOf(fm).includes("serial") ? "series" : "movie";
-                progress("IMDb fullcredits / API");
-                const imdbResult = imdbId
-                    ? await getImdbCredits(ob, imdbId)
-                    : { actors: [], directors: [] };
-                const imdb = imdbResult.actors;
-                const imdbDirectors = imdbResult.directors;
-                if (imdb.length || imdbDirectors.length) imdbSources++;
 
                 let kpId = storedKpId;
                 let kp = [];
@@ -149,17 +142,30 @@ module.exports = async function updateKinoRoles(params) {
                     kpId = await findKpId(ob, fm, file);
                 }
                 if (kpId) {
-                    // КП читается всегда, когда ID известен. Это нужно для
-                    // случая, когда IMDb вернул только часть fullcredits.
-                    progress("Кинопоиск: полный /cast/");
+                    progress("КП API: состав и режиссеры");
                     const direct = await getKinopoiskCredits(ob, kpId, type);
                     kp = direct.actors;
                     kpDirectors = direct.directors;
                 }
                 if (kp.length || kpDirectors.length) kpSources++;
 
-                const actorSource = chooseCreditSource([imdb, kp], "Актеры");
-                const directorSource = chooseCreditSource([imdbDirectors, kpDirectors], "Режисер");
+                // IMDb используем только как резерв, когда КП API не дал
+                // актеров/ролей или режиссера. Это заметно ускоряет массовое
+                // обновление и исключает лишние обращения к HTML IMDb.
+                const kpHasRoles = kp.some(person => Boolean(sourcePersonRole(person, "Актеры")));
+                const needImdb = Boolean(imdbId) && (!kp.length || !kpHasRoles || !kpDirectors.length);
+                let imdb = [];
+                let imdbDirectors = [];
+                if (needImdb) {
+                    progress("КП данные неполные, резерв IMDb");
+                    const imdbResult = await getImdbCredits(ob, imdbId);
+                    imdb = imdbResult.actors;
+                    imdbDirectors = imdbResult.directors;
+                    if (imdb.length || imdbDirectors.length) imdbSources++;
+                }
+
+                const actorSource = chooseCreditSource([kp, imdb], "Актеры");
+                const directorSource = chooseCreditSource([kpDirectors, imdbDirectors], "Режисер");
                 const result = replacePeople(actorSource, "Актеры");
                 const directorResult = replacePeople(directorSource, "Режисер");
                 foundRoles += result.roles;
@@ -978,6 +984,11 @@ async function getImdbCredits(ob, imdbId) {
 }
 
 async function getKinopoiskCredits(ob, kpId, type) {
+    // В первую очередь используем Kinopoisk Unofficial API. Если он вернул
+    // и актеров, и режиссера, HTML /cast/ не нужен и не вызывается.
+    const apiCredits = await getKpApiCredits(ob, kpId);
+    if (apiCredits.actors.length && apiCredits.directors.length) return apiCredits;
+
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
     let pageCredits = { actors: [], directors: [] };
     for (const path of paths) {
@@ -991,8 +1002,7 @@ async function getKinopoiskCredits(ob, kpId, type) {
             directors: cast.directors
         });
     }
-    const apiCredits = await getKpApiCredits(ob, kpId);
-    return mergeKpCredits(pageCredits, apiCredits);
+    return mergeKpCredits(apiCredits, pageCredits);
 }
 
 function baseKey(value) {

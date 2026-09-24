@@ -437,7 +437,16 @@ module.exports = async (params) => {
 
     for (const [id, files] of imdbKeys.entries()) {
         if (files.length > 1) {
-            errors.push(`Один IMDb ID используется в нескольких карточках: \`${id}\` - ${files.map(file => fileLink(file)).join(", ")}.`);
+            const kpIds = new Set(files.map(file => String(getFrontmatter(file)["Кинопоиск ID"] || "").trim()).filter(Boolean));
+            if (kpIds.size <= 1) {
+                // Один и тот же IMDb + тот же КП почти наверняка означает
+                // дублирующую карточку одного произведения.
+                errors.push(`Один IMDb ID используется в нескольких карточках: \`${id}\` - ${files.map(file => fileLink(file)).join(", ")}.`);
+            } else {
+                // IMDb иногда объединяет телефильм/мини-сериал и продолжение в
+                // одну страницу, тогда разные КП ID могут легитимно делить IMDb.
+                warnings.push(`IMDb ID \`${id}\` используется у разных КП ID (${[...kpIds].join(", ")}): ${files.map(file => fileLink(file)).join(", ")}. Проверь вручную, это может быть объединённая страница IMDb.`);
+            }
         }
     }
 

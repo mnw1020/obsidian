@@ -228,31 +228,61 @@ async function addMovieCore(params, settings, progress, handOff) {
             movie = await movieFromImdbOrKinopoisk(extractImdbId(imdbInput));
         }
     } else {
-        status(`ищу фильм в IMDb по названию "${queryText}"…`);
-        const result = await omdb({ s: queryText });
-        const items = result?.Search || [];
-        if (!items.length) {
-            status(`IMDb не нашел фильм, ищу через КП API: "${queryText}"…`);
-            kp = await kpApiSearchChoice(ob, qa, queryText);
-            if (!kp) {
-                status("КП API тоже не нашел фильм, жду ID или ссылку КП…");
-                const kpId = await askKinopoiskId(qa, "Вставь ссылку или ID Кинопоиска");
-                if (kpId === undefined) return;
-                if (kpId) kp = await kinopoiskById(get, kpId, ob);
-            }
-            if (!kp) { new ob.Notice("Не удалось определить фильм через IMDb или Кинопоиск."); return; }
+        // Для поиска по названию первым источником теперь всегда служит КП API.
+        // Это дает русское название, КП ID и обычно связанный IMDb ID без
+        // лишнего обращения к менее стабильным поисковым страницам.
+        status(`ищу фильм через КП API: "${queryText}"…`);
+        kp = await kpApiSearchChoice(ob, qa, queryText);
+        if (kp) {
             let linkedImdb = extractImdbId(kp?.imdb_id);
+            if (!linkedImdb) {
+                // Если КП API не вернул IMDb ID, пробуем OMDb по названию как
+                // резерв, а не просим пользователя вводить ID сразу.
+                status("КП API не дал IMDb ID, ищу резервную связь через OMDb…");
+                const fallback = await omdb({ s: kp?.title_en || queryText });
+                const candidates = (fallback?.Search || []).filter(item => {
+                    const kpYear = String(kp?.year || "").match(/\d{4}/)?.[0] || "";
+                    const itemYear = String(item?.Year || "").match(/\d{4}/)?.[0] || "";
+                    return !kpYear || !itemYear || kpYear === itemYear;
+                });
+                let selected = null;
+                if (candidates.length === 1) selected = candidates[0];
+                else if (candidates.length > 1) selected = await qa.suggester(
+                    candidates.map(x => `${x.Title} (${x.Year}, ${x.Type})`), candidates,
+                    "IMDb: выбери соответствие для выбранного фильма КП"
+                );
+                linkedImdb = extractImdbId(selected?.imdbID);
+            }
             if (!linkedImdb) {
                 const imdbInput = await qa.inputPrompt("IMDb ID", "КП API не вернул IMDb ID. Формат: tt1234567", "");
                 linkedImdb = extractImdbId(imdbInput);
             }
             if (!linkedImdb) { new ob.Notice("Для текущей структуры карточки нужен IMDb ID."); return; }
+            status(`КП выбран, дополняю данные по IMDb ${linkedImdb}…`);
             movie = await movieFromImdbOrKinopoisk(linkedImdb);
         } else {
-            const selected = await qa.suggester(items.map(x => `${x.Title} (${x.Year}, ${x.Type})`), items);
-            if (!selected) return;
-            status(`загружаю выбранную карточку IMDb (${selected.imdbID})…`);
-            movie = await omdb({ i: selected.imdbID, plot: "full" });
+            status(`КП API не нашел фильм, ищу в IMDb по названию "${queryText}"…`);
+            const result = await omdb({ s: queryText });
+            const items = result?.Search || [];
+            if (!items.length) {
+                status("IMDb тоже не нашел фильм, жду ID или ссылку КП…");
+                const kpId = await askKinopoiskId(qa, "Вставь ссылку или ID Кинопоиска");
+                if (kpId === undefined) return;
+                if (kpId) kp = await kinopoiskById(get, kpId, ob);
+                if (!kp) { new ob.Notice("Не удалось определить фильм через Кинопоиск или IMDb."); return; }
+                let linkedImdb = extractImdbId(kp?.imdb_id);
+                if (!linkedImdb) {
+                    const imdbInput = await qa.inputPrompt("IMDb ID", "КП API не вернул IMDb ID. Формат: tt1234567", "");
+                    linkedImdb = extractImdbId(imdbInput);
+                }
+                if (!linkedImdb) { new ob.Notice("Для текущей структуры карточки нужен IMDb ID."); return; }
+                movie = await movieFromImdbOrKinopoisk(linkedImdb);
+            } else {
+                const selected = await qa.suggester(items.map(x => `${x.Title} (${x.Year}, ${x.Type})`), items);
+                if (!selected) return;
+                status(`загружаю выбранную карточку IMDb (${selected.imdbID})…`);
+                movie = await omdb({ i: selected.imdbID, plot: "full" });
+            }
         }
     }
     if (!movie || movie.Response === "False" || !/^tt\d{7,12}$/.test(movie.imdbID || "")) {
@@ -1503,6 +1533,13 @@ async function getKpApiCredits(ob, kpId) {
 async function kinopoiskCredits(ob, kpId, type) {
     const id = String(kpId || "").match(/^\d{1,12}$/)?.[0] || "";
     if (!id) return { actors: [], directors: [] };
+
+    // КП API - основной источник состава. Если он вернул актеров и режиссера,
+    // не дергаем HTML Кинопоиска вообще: это быстрее и не упирается в антибот.
+    const apiCredits = await getKpApiCredits(ob, id);
+    if (apiCredits.actors.length && apiCredits.directors.length) return apiCredits;
+
+    // HTML остается только резервом для редких случаев неполного ответа API.
     const paths = type === "series" ? ["series", "film"] : ["film", "series"];
     let pageCredits = { actors: [], directors: [] };
     for (const path of paths) {
@@ -1516,20 +1553,24 @@ async function kinopoiskCredits(ob, kpId, type) {
             directors: cast.directors
         });
     }
-    const apiCredits = await getKpApiCredits(ob, id);
-    return mergeKpCredits(pageCredits, apiCredits);
+    return mergeKpCredits(apiCredits, pageCredits);
 }
 
 async function loadActorCredits(ob, imdbId, kpId, type, status) {
-    status?.("получаю роли актёров из IMDb…");
-    const imdbResult = await imdbCredits(ob, imdbId);
-    const imdb = imdbResult.actors;
-    if (!kpId) return { imdb, imdbDirectors: imdbResult.directors, kp: [], directors: [] };
-    // КП используется вторым источником, если IMDb дал пустой или более
-    // короткий список, а также как источник режиссера.
-    status?.("IMDb готов, проверяю состав через КП API…");
-    const kpCast = await kinopoiskCredits(ob, kpId, type);
-    return { imdb, imdbDirectors: imdbResult.directors,
+    let kpCast = { actors: [], directors: [] };
+    if (kpId) {
+        status?.("получаю состав через КП API…");
+        kpCast = await kinopoiskCredits(ob, kpId, type);
+    }
+
+    // IMDb - резерв и дополнение. Он нужен прежде всего для случаев, когда КП
+    // не вернул состав/роли, а также для совместимости со старыми карточками.
+    let imdbResult = { actors: [], directors: [] };
+    if (imdbId && (!kpCast.actors.length || !kpCast.directors.length)) {
+        status?.("КП состав неполный, проверяю IMDb…");
+        imdbResult = await imdbCredits(ob, imdbId);
+    }
+    return { imdb: imdbResult.actors, imdbDirectors: imdbResult.directors,
         kp: kpCast.actors, directors: kpCast.directors };
 }
 
