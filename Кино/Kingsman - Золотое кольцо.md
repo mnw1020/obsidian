@@ -1,4 +1,4 @@
----
+﻿---
 Название: "Kingsman: The Golden Circle"
 Просмотрено: 2017-12-29
 Оценка: "4"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgw
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "6.4"
-Прогноз MovieLens: "5.1"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,3 +69,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg)
+

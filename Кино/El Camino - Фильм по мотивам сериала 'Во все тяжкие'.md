@@ -1,4 +1,4 @@
----
+﻿---
 Название: "El Camino: A Breaking Bad Movie"
 Просмотрено: 2019-12-20
 Оценка: "8"
@@ -25,7 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzIt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "6.9"
-Прогноз MovieLens: "6.3"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -71,3 +70,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzItOTlkM2MyM2ExM2RlXkEyXkFqcGc@._V1_.jpg)
+

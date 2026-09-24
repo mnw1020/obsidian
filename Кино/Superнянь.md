@@ -1,4 +1,4 @@
----
+﻿---
 Название: Babysitting
 Просмотрено: 2016-01-03
 Оценка: "8"
@@ -25,7 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "6.4"
-Прогноз MovieLens: "6.8"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -71,3 +70,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg)
+

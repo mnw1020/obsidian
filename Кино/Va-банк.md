@@ -1,4 +1,4 @@
----
+﻿---
 Название: Runner Runner
 Просмотрено: 2014-03-30
 Оценка: "4"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgw
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "5.3"
-Прогноз MovieLens: "5.7"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,3 +69,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgwMTgxOTQwMDE@._V1_.jpg)
+

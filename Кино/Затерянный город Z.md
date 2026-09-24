@@ -1,4 +1,4 @@
----
+﻿---
 Название: The Lost City of Z
 Просмотрено: 2018-06-30
 Оценка: "5"
@@ -23,7 +23,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "5.9"
-Прогноз MovieLens: "3.4"
 ---
 растянуто и скучно
 
@@ -73,3 +72,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg)
+

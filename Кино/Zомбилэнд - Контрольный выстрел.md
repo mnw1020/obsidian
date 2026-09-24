@@ -1,4 +1,4 @@
----
+﻿---
 Название: "Zombieland: Double Tap"
 Просмотрено: 2024-01-11
 Оценка: "7"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "6.2"
-Прогноз MovieLens: "5.7"
 ---
 Продолжение на порядок лучше. Сколько самоиронии и юморного
  легкого сарказма, просто класс. Спецэффекты на уровне.
@@ -75,3 +74,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg)
+

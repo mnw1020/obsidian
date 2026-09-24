@@ -1,4 +1,4 @@
----
+﻿---
 Название: "Harry Potter and the Deathly Hallows: Part 2"
 Просмотрено: 2012-06-04
 Оценка: "7"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOTA1Mzc2N2ItZWRiNS00MjQzLTlmZDQt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "8.0"
-Прогноз MovieLens: "6.7"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,3 +69,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOTA1Mzc2N2ItZWRiNS00MjQzLTlmZDQtMjU0NmY1YWRkMGQ4XkEyXkFqcGc@._V1_SX300.jpg)
+

@@ -1,4 +1,4 @@
----
+﻿---
 Название: "Kingsman: The Secret Service"
 Просмотрено: 2015-05-21
 Оценка: "7"
@@ -25,7 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQt
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "6.5"
-Прогноз MovieLens: "6.1"
 ---
 ярко, но глуповато
 
@@ -75,3 +74,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQtOWE4NDIxZmU2MjMwXkEyXkFqcGc@._V1_SX300.jpg)
+

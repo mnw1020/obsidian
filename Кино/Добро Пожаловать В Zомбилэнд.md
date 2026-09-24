@@ -1,4 +1,4 @@
----
+﻿---
 Название: Zombieland
 Просмотрено: 2024-01-11
 Оценка: "5"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcw
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "7.4"
-Прогноз MovieLens: "5.6"
 ---
 проходной роад-мув, ничего особенного вообще.
 
@@ -74,3 +73,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcwMjA4Mjg3Mg@@._V1_SX300.jpg)
+

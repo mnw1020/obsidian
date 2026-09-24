@@ -1,4 +1,4 @@
----
+﻿---
 Название: Tomb Raider
 Просмотрено: 2018-06-20
 Оценка: "6"
@@ -24,7 +24,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2Ut
 Прогноз уверенность: высокая
 Прогноз метод: MovieLens + локальная интерполяция
 Прогноз локальный: "5.4"
-Прогноз MovieLens: "4.7"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,3 +69,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_.jpg)
+
