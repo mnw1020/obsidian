@@ -298,5 +298,190 @@
     "ruTitle": "",
     "enTitle": "",
     "year": ""
+  },
+  "tt0104346": {
+    "v": 3,
+    "found": true,
+    "checkedAt": 1790231533551,
+    "kpId": "1359777",
+    "ruTitle": "Gladiators",
+    "enTitle": "",
+    "year": "1992",
+    "kpRating": null
+  },
+  "tt0106856": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231534530,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt1745960": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231535352,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0227445": {
+    "v": 3,
+    "found": true,
+    "checkedAt": 1790231536624,
+    "kpId": "819",
+    "ruTitle": "Медвежатник",
+    "enTitle": "",
+    "year": "2001",
+    "kpRating": 7.2
+  },
+  "tt0112573": {
+    "v": 3,
+    "found": true,
+    "checkedAt": 1790231537253,
+    "kpId": "399",
+    "ruTitle": "Храброе сердце",
+    "enTitle": "",
+    "year": "1995",
+    "kpRating": 8.3
+  },
+  "tt0079817": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231539702,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0101393": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231540420,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0120815": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231541385,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0047478": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231543431,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0082096": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231544593,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0082949": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231545652,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0106770": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231546789,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0050083": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231547669,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0277434": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231548788,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0094226": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231549403,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0446059": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231550317,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0108358": {
+    "v": 3,
+    "found": true,
+    "checkedAt": 1790231550959,
+    "kpId": "2221",
+    "ruTitle": "Тумстоун: Легенда дикого запада",
+    "enTitle": "",
+    "year": "1993",
+    "kpRating": 7.2
+  },
+  "tt0105275": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231553050,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt1220719": {
+    "v": 3,
+    "found": false,
+    "checkedAt": 1790231554957,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "tt0046435": {
+    "v": 3,
+    "found": true,
+    "checkedAt": 1790231555608,
+    "kpId": "1135",
+    "ruTitle": "Титаник",
+    "enTitle": "",
+    "year": "1953",
+    "kpRating": 7.2
   }
 }
