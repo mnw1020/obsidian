@@ -15,7 +15,7 @@ tags:
 Время: 88 min
 Режисер:
   - Tulegenov Darkhan
-Роли файл: Кино/_system/Роли/Sheker - Последний шанс.роли.md
+Роли файл: "[[Кино/_system/Роли/Sheker - Последний шанс.роли.md]]"
 Описание: Алдик и Кана снова в центре рискованного бизнеса. Экшен-продолжение культового сериала. Смотрите онлайн фильм SHEKER. Последний шанс на Кинопоиске.
 imdb Id: tt37660303
 poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg
@@ -28,14 +28,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQt
 Слабее конечно, чем сериал, но тоже неплохо. Эпизод в бангкоке огонь)
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Sheker - Последний шанс.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

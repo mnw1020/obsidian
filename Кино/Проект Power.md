@@ -16,7 +16,7 @@ tags:
 Режисер:
   - Ariel Schulman
   - Henry Joost
-Роли файл: Кино/_system/Роли/Проект Power.роли.md
+Роли файл: "[[Кино/_system/Роли/Проект Power.роли.md]]"
 Описание: "В Новый Орлеан завозят капсулы, которые дают проглотившим их суперспособности на 5 минут. Но какие силы получит человек, предугадать невозможно: кого-то ждёт невидимость или суперскорость, а кого-то — мгновенная смерть. Старшеклассница Робин приторговывает этими пилюлями, чтобы сводить концы с концами и накопить на операцию для больной матери, и иногда снабжает ими знакомого полицейского Фрэнка. Однажды на Робин выходит бывший военный Арт и вынуждает её помочь ему отыскать источник загадочных капсул."
 imdb Id: tt7550000
 poster: https://m.media-amazon.com/images/M/MV5BM2QxNjM4YTAtMjY1Yi00YjMwLTlkOWUtZmIzYmZmNzUwNDU1XkEyXkFqcGc@._V1_SX300.jpg
@@ -26,14 +26,6 @@ poster: https://m.media-amazon.com/images/M/MV5BM2QxNjM4YTAtMjY1Yi00YjMwLTlkOWUt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "5.2"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Проект Power.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

@@ -14,7 +14,7 @@ tags:
 Время: 105 min
 Режисер:
   - Andrzej Bartkowiak
-Роли файл: Кино/_system/Роли/Doom.роли.md
+Роли файл: "[[Кино/_system/Роли/Doom.роли.md]]"
 Описание: 2045 год. После того как из далёкой научной лаборатории Олдуай был получен сигнал о помощи, на Марс прибывает отряд космического спецназа и обнаруживает разгромленную станцию. Вскоре выясняется, что на людей здесь охотятся полчища ужасных мутантов.
 imdb Id: tt0419706
 poster: https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYtNzgwNGE3MjQ0MzYyXkEyXkFqcGc@._V1_SX300.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYt
 Прогноз локальный: "5.7"
 Прогноз MovieLens: "4.3"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Doom.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

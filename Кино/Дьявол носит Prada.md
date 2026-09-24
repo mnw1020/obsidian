@@ -15,7 +15,7 @@ tags:
 Время: 109 min
 Режисер:
   - David Frankel
-Роли файл: Кино/_system/Роли/Дьявол носит Prada.роли.md
+Роли файл: "[[Кино/_system/Роли/Дьявол носит Prada.роли.md]]"
 Описание: Мечтающая стать журналисткой провинциальная девушка Энди по окончании университета получает должность помощницы всесильной Миранды Пристли, деспотичного редактора одного из крупнейших нью-йоркских журналов мод. Энди всегда мечтала о такой работе, не зная, с каким нервным напряжением это будет связано...
 imdb Id: tt0458352
 poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEtZWM3ZDY2ZWNjOGRiXkEyXkFqcGc@._V1_SX300.jpg
@@ -30,14 +30,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOWM3NTI3YWEtYjJmMy00M2U5LWI1NzEt
 Компромисс с собой происходит незаметно - сначала мелочь, потом норма, а в конце ты уже не помнишь, где был твой выбор. Система редко ломает сразу - она приучает. И в этом ее главная сила.
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Дьявол носит Prada.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

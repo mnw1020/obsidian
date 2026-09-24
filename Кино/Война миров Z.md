@@ -14,7 +14,7 @@ tags:
 Время: 116 min
 Режисер:
   - Marc Forster
-Роли файл: Кино/_system/Роли/Война миров Z.роли.md
+Роли файл: "[[Кино/_system/Роли/Война миров Z.роли.md]]"
 Описание: Бывший сотрудник ООН Джерри Лэйн оказывается в эпицентре эпидемии неизвестного вируса, который за считанные секунды превращает людей в зомби. Пытаясь найти противоядие против вируса, Лэйн путешествует вместе со своей группой почти по всему миру, поражённому эпидемией. Теперь судьба всего мира висит на волоске, и Джерри — его единственная надежда.
 imdb Id: tt0816711
 poster: https://m.media-amazon.com/images/M/MV5BODg3ZTM2YWQtZDE5Ny00NGNiLTkzYjgtYWVlYjNkOTg5NDI1XkEyXkFqcGc@._V1_SX300.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BODg3ZTM2YWQtZDE5Ny00NGNiLTkzYjgt
 Прогноз локальный: "6.5"
 Прогноз MovieLens: "6.0"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Война миров Z.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

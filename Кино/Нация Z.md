@@ -33,7 +33,7 @@ tags:
   - Stuart Acher
   - Tim Andrew
   - Youssef Delara
-Роли файл: Кино/_system/Роли/Нация Z.роли.md
+Роли файл: "[[Кино/_system/Роли/Нация Z.роли.md]]"
 Описание: Спустя три года после того, как вирус зомби распространился и уничтожил почти всю страну, команда должна перевезти оставшегося в живых от действия чумы из Нью-Йорка в Калифорнию, где последняя функционирующая вирусная лаборатория ждет его кровь. Хотя антитела, которыми он обладает, являются последней надеждой мира получить вакцину, этот человек скрывает мрачную тайну.
 imdb Id: tt3843168
 poster: https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg
@@ -46,14 +46,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYt
 Просмотрено s02ep05
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Нация Z.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

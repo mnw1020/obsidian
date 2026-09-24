@@ -153,7 +153,7 @@ const selected = kinoPersonDisplay(selectedValue);`
 const ROLE_AWARE_PAGE_TEXT = FIXED_PAGE_TEXT.replace(
     /    const rows = dv\.pages\('\"Кино\"'\)\.array\(\)\.filter\(p => \{[\s\S]*?    \}\);\n    const ratings =/,
     `    const rows = dv.pages('"Кино/_system/Роли"').array().map(rolePage => {
-        const path = String(rolePage["Основная карточка"] || "").replace(/\\.md$/, "");
+        const path = String(rolePage["Основная карточка"]?.path || rolePage["Основная карточка"] || "").replace(/^\[\[|\]\]$/g, "").replace(/\\.md$/, "");
         const movie = path ? dv.page(path) : null;
         return { rolePage, movie };
     }).filter(({rolePage, movie}) => {

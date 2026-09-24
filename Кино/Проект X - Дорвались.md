@@ -14,7 +14,7 @@ tags:
 Время: 88 min
 Режисер:
   - Nima Nourizadeh
-Роли файл: Кино/_system/Роли/Проект X - Дорвались.роли.md
+Роли файл: "[[Кино/_system/Роли/Проект X - Дорвались.роли.md]]"
 Описание: "Сюжет фильма рассказывает историю трех поначалу никому не известных старшеклассников, которые пытаются заявить о себе. Их задумка выглядит вполне невинно: надо просто организовать незабываемую вечеринку… но к такому они готовы не были. Молва разлетается слишком быстро, рушатся мечты, уже испорчена репутация, но одновременно зарождаются легенды."
 imdb Id: tt1636826
 poster: https://m.media-amazon.com/images/M/MV5BMTc1MTk0Njg4OF5BMl5BanBnXkFtZTcwODc0ODkyNw@@._V1_.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTc1MTk0Njg4OF5BMl5BanBnXkFtZTcw
 Прогноз локальный: "6.8"
 Прогноз MovieLens: "5.1"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Проект X - Дорвались.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

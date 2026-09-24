@@ -14,7 +14,7 @@ tags:
 Время: 105 min
 Режисер:
   - Jon Turteltaub
-Роли файл: Кино/_system/Роли/Starперцы.роли.md
+Роли файл: "[[Кино/_system/Роли/Starперцы.роли.md]]"
 Описание: Билли, Пэдди, Арчи и Сэм дружат больше полувека. И когда убежденный холостяк Билли наконец-то делает предложение своей юной подружке, великолепная четверка отправляется в Лас-Вегас, чтобы скинуть с себя груз прожитого и зажечь как в последний раз. Великовозрастные гуляки и не подозревают, как за десятилетия эволюционировал Город Грехов…
 imdb Id: tt1204975
 poster: https://m.media-amazon.com/images/M/MV5BMTQ2ODg2MTIyNF5BMl5BanBnXkFtZTgwMzU2NjgwMDE@._V1_.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTQ2ODg2MTIyNF5BMl5BanBnXkFtZTgw
 Прогноз локальный: "6.6"
 Прогноз MovieLens: "5.2"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Starперцы.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

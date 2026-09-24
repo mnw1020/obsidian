@@ -14,7 +14,7 @@ tags:
 Время: 146 min
 Режисер:
   - David Yates
-Роли файл: Кино/_system/Роли/Гарри Поттер и Дары Смерти - Часть I.роли.md
+Роли файл: "[[Кино/_system/Роли/Гарри Поттер и Дары Смерти - Часть I.роли.md]]"
 Описание: Гарри Поттера ждёт самое страшное испытание в жизни — смертельная схватка с Волан-де-Мортом. Ждать помощи не от кого — Гарри одинок, как никогда… Друзья и враги Гарри предстают в совершенно неожиданном свете. Граница между Добром и Злом становится всё призрачнее…
 imdb Id: tt0926084
 poster: https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcwODE3MDAwNA@@._V1_SX300.jpg
@@ -26,14 +26,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcw
 Прогноз локальный: "7.6"
 Прогноз MovieLens: "6.5"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Гарри Поттер и Дары Смерти - Часть I.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

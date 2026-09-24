@@ -14,7 +14,7 @@ tags:
 Время: 100 min
 Режисер:
   - Raymond De Felitta
-Роли файл: Кино/_system/Роли/Гангста Love.роли.md
+Роли файл: "[[Кино/_system/Роли/Гангста Love.роли.md]]"
 Описание: Парочка молодых влюбленных, мечтая скопить деньги на свадьбу, решает совершить серию дерзких ограблений клубов, где собираются мафиози. Их план прост – чтобы они ни натворили, мафия не будет жаловаться в полицию. Местные «братаны» не могут поверить своим глазам, когда их обчищают до нитки какие-то «сопляки». Больше того, случайно, у них похищают важную улику, которой очень интересуется ФБР. Теперь за налетчиками начинается настоящая охота...
 imdb Id: tt2481480
 poster: https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgwMjIwNTgwMTE@._V1_.jpg
@@ -27,14 +27,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgw
 скука
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Гангста Love.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

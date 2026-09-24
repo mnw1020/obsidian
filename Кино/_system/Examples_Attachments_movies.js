@@ -200,7 +200,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         const fromImdb = await omdb({ i: imdbId, plot: "full" });
         return fromImdb && fromImdb.Response !== "False" && /^tt\d{7,12}$/.test(fromImdb.imdbID || "")
             ? fromImdb
-            : movieFromKinopoisk(kp, imdbId);
+            : kp ? movieFromKinopoisk(kp, imdbId) : null;
     };
     let movie;
     let kp = null;
@@ -208,8 +208,9 @@ async function addMovieCore(params, settings, progress, handOff) {
     const inputKpId = extractKinopoiskId(queryText);
 
     if (inputImdbId) {
-        status(`получаю данные IMDb (${inputImdbId})…`);
-        movie = await omdb({ i: inputImdbId, plot: "full" });
+        status(`ищу точную связь IMDb ${inputImdbId} с Кинопоиском…`);
+        kp = await kinopoiskByImdbId(get, inputImdbId, ob);
+        movie = await movieFromImdbOrKinopoisk(inputImdbId);
     }
     else if (inputKpId) {
         status(`загружаю данные Кинопоиска (${inputKpId})…`);
@@ -307,7 +308,7 @@ async function addMovieCore(params, settings, progress, handOff) {
     const existing = await findMovie(app, ob, movie.imdbID);
     if (existing) { await app.workspace.getLeaf(false).openFile(existing); new ob.Notice("Этот фильм уже есть в кинотеке."); return; }
 
-    // Используем Wikidata и поиск по названию. Связь IMDb-КП не сохраняем.
+    // Точная связь API имеет приоритет перед Wikidata и поиском по названию.
     status("проверяю связь IMDb с Кинопоиском…");
     const wiki = await wikidata(get, movie.imdbID);
     if (!kp) {
@@ -1605,6 +1606,8 @@ function parseWikidata(data) {
 
 async function kinopoisk(get, qa, movie, wiki, ob) {
     const base = "https://movie-planner.ru/api/public";
+    const byImdb = await kinopoiskByImdbId(get, movie.imdbID, ob);
+    if (byImdb) return byImdb;
     if (wiki.kp) {
         const fromWiki = await kinopoiskById(get, wiki.kp, ob);
         if (fromWiki) return fromWiki;
@@ -1650,6 +1653,23 @@ async function kinopoisk(get, qa, movie, wiki, ob) {
     const details = await kinopoiskById(get, chosen.kp_id, ob);
     return details || {...chosen, cast:{}};
 }
+async function kinopoiskByImdbId(get, imdbId, ob) {
+    const id = extractImdbId(imdbId);
+    if (!id || !ob) return null;
+    const result = await kpApiJson(ob, "/v2.2/films", { imdbId: id, page: 1 });
+    const exact = (result?.items || []).filter(film =>
+        extractImdbId(film.imdbId) === id && extractKinopoiskId(film.kinopoiskId));
+    const ids = [...new Set(exact.map(film => String(film.kinopoiskId)))];
+    if (ids.length !== 1) return null;
+    const summary = kpApiFilmLegacy(exact[0]);
+    const details = await kinopoiskById(get, ids[0], ob);
+    // Противоречащий IMDb ID нельзя заменять результатом поиска по названию.
+    if (details?.imdb_id && extractImdbId(details.imdb_id) !== id) return null;
+    return details && !details.detailsUnavailable
+        ? { ...details, imdb_id: id }
+        : { ...summary, imdb_id: id, detailsUnavailable: true };
+}
+
 async function kinopoiskById(get, kpId, ob = null) {
     const id = String(kpId || "").trim();
     if (!/^\d{1,12}$/.test(id)) return null;
@@ -6854,7 +6874,7 @@ function setRawYamlField(raw, key, value) {
 }
 
 function ensureRoleEmbed(raw, rolePath) {
-    const withPath = setRawYamlField(raw, "Роли файл", rolePath);
+    const withPath = setRawYamlField(raw, "Роли файл", `[[${rolePath}]]`);
     const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!match) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
@@ -6864,18 +6884,7 @@ function ensureRoleEmbed(raw, rolePath) {
     let body = withPath.slice(match[0].length)
         .replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
         .replace(/^(?:\r?\n)+/, "");
-    const target = rolePath.replace(/\.md$/i, "");
-    const embed = [
-        "<!-- KINO:ROLES:EMBED:V2 -->",
-        '<details class="kino-roles-details">',
-        "<summary>🎭 Роли</summary>",
-        "",
-        `![[${target}]]`,
-        "",
-        "</details>",
-        ""
-    ].join(newline);
-    return match[0] + embed + newline + body;
+    return match[0] + newline + body;
 }
 
 function ensureRecommendationButton(raw) {
@@ -6950,7 +6959,7 @@ async function writeRoleFile(app, ob, mainFile, movie = {}, kinopoiskId = "", pe
     const lines = [
         "---",
         `Название: ${JSON.stringify(title)}`,
-        `Основная карточка: ${JSON.stringify(mainFile.path)}`,
+        `Основная карточка: ${JSON.stringify(`[[${mainFile.path}]]`)}`,
         `imdb Id: ${JSON.stringify(imdbId)}`,
         `Кинопоиск ID: ${JSON.stringify(kpId)}`,
         `Жанр: ${yamlArray(genres)}`,

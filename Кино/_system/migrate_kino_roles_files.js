@@ -168,7 +168,7 @@ function roleCard(fm, mainFile, actors, actorRoles, directors) {
     return [
         "---",
         `Название: ${JSON.stringify(title)}`,
-        `Основная карточка: ${JSON.stringify(mainFile.path)}`,
+        `Основная карточка: ${JSON.stringify(`[[${mainFile.path}]]`)}`,
         `imdb Id: ${JSON.stringify(imdbId)}`,
         `Кинопоиск ID: ${JSON.stringify(kpId)}`,
         `Жанр: ${yamlArray(genres)}`,
@@ -211,7 +211,7 @@ function setRawField(raw, key, value) {
 }
 
 function ensureRoleEmbed(raw, rolePath) {
-    const withPath = setRawField(raw, "Роли файл", rolePath);
+    const withPath = setRawField(raw, "Роли файл", `[[${rolePath}]]`);
     const parsed = parseFrontmatterForRewrite(withPath);
     if (!parsed) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
@@ -220,10 +220,7 @@ function ensureRoleEmbed(raw, rolePath) {
     const oldRoleV2 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>[ \t]*(?:\r?\n|$)/m;
     let body = parsed.body.replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
         .replace(/^(?:\r?\n)+/, "");
-    const target = rolePath.replace(/\.md$/i, "");
-    const embed = ["<!-- KINO:ROLES:EMBED:V2 -->", '<details class="kino-roles-details">',
-        "<summary>🎭 Роли</summary>", "", `![[${target}]]`, "", "</details>", ""].join(newline);
-    return parsed.prefix + parsed.yaml + parsed.end + embed + newline + body;
+    return parsed.prefix + parsed.yaml + parsed.end + newline + body;
 }
 
 async function makeFolders(app, path) {

@@ -15,7 +15,7 @@ tags:
 Время: 100 min
 Режисер:
   - Todd Phillips
-Роли файл: Кино/_system/Роли/Мальчишник - Часть III.роли.md
+Роли файл: "[[Кино/_system/Роли/Мальчишник - Часть III.роли.md]]"
 Описание: В этот раз никакой свадьбы. Никакого мальчишника. Казалось бы, что могло пойти не так? Но когда Волчья стая оказывается на дороге, все ставки снимаются.
 imdb Id: tt1951261
 poster: https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3MDY4MTQ3Mzk@._V1_.jpg
@@ -27,14 +27,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3
 Прогноз локальный: "5.7"
 Прогноз MovieLens: "4.7"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Мальчишник - Часть III.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

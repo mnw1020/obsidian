@@ -15,7 +15,7 @@ tags:
 Режисер:
   - Nicolas Benamou
   - Philippe Lacheau
-Роли файл: Кино/_system/Роли/Superнянь.роли.md
+Роли файл: "[[Кино/_system/Роли/Superнянь.роли.md]]"
 Описание: Клэр и Марк уезжают на все выходные, оставив своего сына под присмотром «хорошего парня» Фрэнка. На следующее утро парочку будит звонок полицейского, который сообщает, что их дом перевернут верх дном, а сын исчез! На месте происшествия полиция находит камеру, на которой запечатлены все события предыдущей ночи. Только посмотрев видео родители смогут узнать куда исчез их сын и что случилось в эту ночь… когда Фрэнк праздновал 30-летие.
 imdb Id: tt3013602
 poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg
@@ -27,14 +27,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMt
 Прогноз локальный: "6.4"
 Прогноз MovieLens: "6.8"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Superнянь.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

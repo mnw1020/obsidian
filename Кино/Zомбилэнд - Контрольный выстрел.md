@@ -14,7 +14,7 @@ tags:
 Время: 99 min
 Режисер:
   - Ruben Fleischer
-Роли файл: Кино/_system/Роли/Zомбилэнд - Контрольный выстрел.роли.md
+Роли файл: "[[Кино/_system/Роли/Zомбилэнд - Контрольный выстрел.роли.md]]"
 Описание: Беспощадная и бесстрашная четверка охотников на зомби продолжает свое путешествие в глубь страны. На этот раз им предстоит сразиться не только с новыми видами живых мертвецов, но и познакомиться с другими выжившими. Кроме того, в собственных рядах наших героев намечается серьезный разлад.
 imdb Id: tt1560220
 poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg
@@ -30,14 +30,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgt
  легкого сарказма, просто класс. Спецэффекты на уровне.
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Zомбилэнд - Контрольный выстрел.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

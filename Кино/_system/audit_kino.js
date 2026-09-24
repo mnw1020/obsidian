@@ -271,8 +271,8 @@ module.exports = async (params) => {
         const rawCard = await app.vault.read(file);
         const roleV2Count = (rawCard.match(/<!-- KINO:ROLES:EMBED:V2 -->/g) || []).length;
         const recommendV2Count = (rawCard.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g) || []).length;
-        if (roleV2Count !== 1 || !/<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<summary>🎭 Роли<\/summary>[\s\S]*?<\/details>/m.test(rawCard)) {
-            addError(file, "блок ролей должен быть ровно один и скрываться в раскрывающемся списке V2.");
+        if (roleV2Count !== 0) {
+            addError(file, "устаревший раскрывающийся блок ролей: используйте ссылку в YAML.");
         }
         if (recommendV2Count !== 1) addError(file, "кнопка `🔎 Найти похожие` V2 отсутствует или продублирована.");
         if (recommendV2Count === 1 && !/\n\n<!-- KINO:RECOMMEND:BUTTON:V2 -->[\s\S]*?^```[ \t]*\r?\n\r?\n/m.test(rawCard)) {
@@ -307,7 +307,7 @@ module.exports = async (params) => {
             missingActors++;
         } else {
             if (!Object.keys(roleFm).length) addError(roleFile, "файл ролей пуст или не содержит YAML.");
-            if (asText(fm["Роли файл"]) !== rolePath) {
+            if (asText(fm["Роли файл"]).replace(/^\[\[|\]\]$/g, "") !== rolePath) {
                 addWarning(file, `поле \`Роли файл\` не совпадает с сопровождающим файлом: \`${rolePath}\`.`);
             }
             if (asText(roleFm["Основная карточка"]).replace(/^\[\[|\]\]$/g, "") !== file.path) {

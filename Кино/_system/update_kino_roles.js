@@ -186,7 +186,7 @@ module.exports = async function updateKinoRoles(params) {
                 const roleChanged = !roleFile
                     || explicitKpId(roleFm) !== (kpId || "")
                     || extractImdbId(roleFm["imdb Id"]) !== imdbId
-                    || roleFm["Основная карточка"] !== file.path
+                    || String(roleFm["Основная карточка"] || "").replace(/^\[\[|\]\]$/g, "") !== file.path
                     || JSON.stringify(nextValue) !== JSON.stringify(asArray(roleFm.Актеры))
                     || JSON.stringify(nextActorRoles) !== JSON.stringify(asArray(roleFm["Роли актеров"]))
                     || JSON.stringify(nextDirectorValue) !== JSON.stringify(asArray(roleFm.Режисер ?? roleFm.Режиссер));
@@ -1272,7 +1272,7 @@ async function writeRoleFile(app, mainFile, fm, values) {
     const content = [
         "---",
         `Название: ${JSON.stringify(title)}`,
-        `Основная карточка: ${JSON.stringify(mainFile.path)}`,
+        `Основная карточка: ${JSON.stringify(`[[${mainFile.path}]]`)}`,
         `imdb Id: ${JSON.stringify(String(fm["imdb Id"] || "").trim())}`,
         `Кинопоиск ID: ${JSON.stringify(String(values.kpId || fm["Кинопоиск ID"] || "").trim())}`,
         `Жанр: ${yamlArray(asArray(values.genre ?? fm.Жанр))}`,
@@ -1303,7 +1303,7 @@ function setRawField(raw, key, value) {
 }
 
 function ensureRoleEmbed(raw, rolePath) {
-    const withPath = setRawField(raw, "Роли файл", rolePath);
+    const withPath = setRawField(raw, "Роли файл", `[[${rolePath}]]`);
     const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!match) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
@@ -1313,18 +1313,7 @@ function ensureRoleEmbed(raw, rolePath) {
     let body = withPath.slice(match[0].length)
         .replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
         .replace(/^(?:\r?\n)+/, "");
-    const target = rolePath.replace(/\.md$/i, "");
-    const embed = [
-        "<!-- KINO:ROLES:EMBED:V2 -->",
-        '<details class="kino-roles-details">',
-        "<summary>🎭 Роли</summary>",
-        "",
-        `![[${target}]]`,
-        "",
-        "</details>",
-        ""
-    ].join(newline);
-    return match[0] + embed + newline + body;
+    return match[0] + newline + body;
 }
 
 function ensureRoleLinksBlock(raw) {

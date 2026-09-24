@@ -14,7 +14,7 @@ tags:
 Время: 141 min
 Режисер:
   - James Gray
-Роли файл: Кино/_system/Роли/Затерянный город Z.роли.md
+Роли файл: "[[Кино/_system/Роли/Затерянный город Z.роли.md]]"
 Описание: Эльдорадо, таинственная столица инков, загадочный Город Z. Вымысел или реальность? В 1925 году экспедиция полковника Фоссета, члена Королевского Географического общества, бесследно исчезла в джунглях Амазонии в поисках Города Z.
 imdb Id: tt1212428
 poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg
@@ -28,14 +28,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAt
 растянуто и скучно
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Затерянный город Z.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

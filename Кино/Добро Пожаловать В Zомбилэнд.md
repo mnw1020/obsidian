@@ -14,7 +14,7 @@ tags:
 Время: 88 min
 Режисер:
   - Ruben Fleischer
-Роли файл: Кино/_system/Роли/Добро Пожаловать В Zомбилэнд.роли.md
+Роли файл: "[[Кино/_system/Роли/Добро Пожаловать В Zомбилэнд.роли.md]]"
 Описание: После нашествия зомби в США небольшая группа выживших скитается по стране от побережья к побережью, сражаясь с живыми мертвецами. Они решают остановиться в парке развлечений, надеясь, что там будут в безопасности.
 imdb Id: tt1156398
 poster: https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcwMjA4Mjg3Mg@@._V1_SX300.jpg
@@ -29,14 +29,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5MDg0NTQ1N15BMl5BanBnXkFtZTcw
 проходной роад-мув, ничего особенного вообще.
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Добро Пожаловать В Zомбилэнд.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

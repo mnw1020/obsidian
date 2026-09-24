@@ -15,7 +15,7 @@ tags:
 Время: 131 min
 Режисер:
   - Matthew Vaughn
-Роли файл: Кино/_system/Роли/King’s Man - Начало.роли.md
+Роли файл: "[[Кино/_system/Роли/King’s Man - Начало.роли.md]]"
 Описание: 1914 год. Несколько лет назад герцог Оксфордский потерял любимую жену, поэтому теперь трясётся над единственным сыном Конрадом и пытается уберечь его ото всякого рода опасностей. Но парень горит желанием служить короне и напрашивается с отцом в командировку в Сараево, где прямо у них на глазах убивают эрцгерцога австрийского Франца Фердинанда. Начинается Первая мировая. Получив письмо от шпиона при дворе императора Николая II, Оксфорды с верными помощниками отправляются в Россию ликвидировать Распутина, который имеет на монарха сильное влияние и убеждает его не вступать в войну.
 imdb Id: tt6856242
 poster: https://m.media-amazon.com/images/M/MV5BNjY3YTY3MGMtMjVmYS00ZmM3LWIxMDAtYWVhZTAyZDMwNmMwXkEyXkFqcGc@._V1_SX300.jpg
@@ -27,14 +27,6 @@ poster: https://m.media-amazon.com/images/M/MV5BNjY3YTY3MGMtMjVmYS00ZmM3LWIxMDAt
 Прогноз локальный: "4.8"
 Прогноз MovieLens: "1.0"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/King’s Man - Начало.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

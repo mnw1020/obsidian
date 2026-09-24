@@ -14,7 +14,7 @@ tags:
 Время: 116 min
 Режисер:
   - Danny Boyle
-Роли файл: Кино/_system/Роли/Yesterday.роли.md
+Роли файл: "[[Кино/_system/Роли/Yesterday.роли.md]]"
 Описание: Ещё месяц назад Джек был обычным неудачником. Теперь он суперзвезда, миллионы людей слушают его песни, билеты на концерты раскупаются за секунду. В чём секрет? Всё просто. Джек — единственный человек в мире, кто помнит о существовании The Beatles.
 imdb Id: tt8079248
 poster: https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgwNzY0MTE0NzM@._V1_.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjQ0NTI0NjkyN15BMl5BanBnXkFtZTgw
 Прогноз локальный: "6.1"
 Прогноз MovieLens: "5.1"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Yesterday.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

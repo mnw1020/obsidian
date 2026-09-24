@@ -27,7 +27,7 @@ tags:
   - Robert Duncan McNeill
   - Steve Shill
   - Yves Simoneau
-Роли файл: Кино/_system/Роли/Vизитеры.роли.md
+Роли файл: "[[Кино/_system/Роли/Vизитеры.роли.md]]"
 Описание: Сегодня весь мир проснулся и увидел, что над каждым городом парят космические корабли. Прибывшие утверждают что пришли с миром, и предлагают подарки в виде медицинских открытий и технологических усовершенствований. Они обещают, что не навредят. Они лгут. Большинство человечества верит, что чужие прибыли как раз тогда, когда мы в них нуждались. Люди с радостью принимают их помощь.
 imdb Id: tt1307824
 poster: https://m.media-amazon.com/images/M/MV5BMTYxNTQ5NTg2Ml5BMl5BanBnXkFtZTcwODUyNTY5Mg@@._V1_.jpg
@@ -37,14 +37,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTYxNTQ5NTg2Ml5BMl5BanBnXkFtZTcw
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "6.1"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Vизитеры.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

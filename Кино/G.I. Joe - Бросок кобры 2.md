@@ -14,7 +14,7 @@ tags:
 Время: 110 min
 Режисер:
   - Jon M. Chu
-Роли файл: Кино/_system/Роли/G.I. Joe - Бросок кобры 2.роли.md
+Роли файл: "[[Кино/_system/Роли/G.I. Joe - Бросок кобры 2.роли.md]]"
 Описание: Во второй части отряд «G.I. Joe» вновь объявит вызов группировке «Кобра» и вступит в противостояние с правительством.
 imdb Id: tt1583421
 poster: https://m.media-amazon.com/images/M/MV5BNzk5ODM0OTQ0N15BMl5BanBnXkFtZTcwODg2ODE4OA@@._V1_.jpg
@@ -26,14 +26,6 @@ poster: https://m.media-amazon.com/images/M/MV5BNzk5ODM0OTQ0N15BMl5BanBnXkFtZTcw
 Прогноз локальный: "5.2"
 Прогноз MovieLens: "5.1"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/G.I. Joe - Бросок кобры 2.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

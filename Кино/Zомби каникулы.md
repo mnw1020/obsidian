@@ -15,7 +15,7 @@ tags:
 Время: 95 min
 Режисер:
   - Kirill Kemnits
-Роли файл: Кино/_system/Роли/Zомби каникулы.роли.md
+Роли файл: "[[Кино/_system/Роли/Zомби каникулы.роли.md]]"
 Описание: Группа молодых людей собирается на главную тусовку лета. Как и полагается, подготовка идёт полным ходом, но никто не догадывается, что судьба готовит им совершенно другую программу на афтепати. Оказавшись в эпицентре зомбоапокалипсиса, друзья обнаруживают, что «ходячие» охотятся только за теми, кто испытывает страх…
 imdb Id: tt3039378
 poster: https://m.media-amazon.com/images/M/MV5BZWU0NTRmMmYtNDA0Ni00ZmE1LTlmMWYtN2Y1NGRhNDNiMTI5XkEyXkFqcGc@._V1_.jpg
@@ -25,14 +25,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZWU0NTRmMmYtNDA0Ni00ZmE1LTlmMWYt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "1.0"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Zомби каникулы.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

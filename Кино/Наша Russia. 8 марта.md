@@ -22,7 +22,7 @@ tags:
   - Katya Yak
   - Sasha Abdullaev
   - Shabad Jonathan
-Роли файл: Кино/_system/Роли/Наша Russia. 8 марта.роли.md
+Роли файл: "[[Кино/_system/Роли/Наша Russia. 8 марта.роли.md]]"
 Описание: Бородач, честный гаишник и нечестные чиновники возвращаются. Комедия со звездными гостями. Смотрите онлайн фильм Наша Russia. 8 марта на Кинопоиске.
 imdb Id: tt33094176
 poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg
@@ -32,14 +32,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgt
 Прогноз метод: локальная интерполяция
 Прогноз локальный: "4.0"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Наша Russia. 8 марта.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

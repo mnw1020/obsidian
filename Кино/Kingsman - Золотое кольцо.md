@@ -14,7 +14,7 @@ tags:
 Время: 141 min
 Режисер:
   - Matthew Vaughn
-Роли файл: Кино/_system/Роли/Kingsman - Золотое кольцо.роли.md
+Роли файл: "[[Кино/_system/Роли/Kingsman - Золотое кольцо.роли.md]]"
 Описание: Когда штаб-квартиры секретной службы Kingsman уничтожены, и весь мир оказался в заложниках у неизвестных, британские суперагенты обнаруживают, что в один день вместе с их организацией была еще создана американская разведка — Statesman. Теперь эти две элитные спецслужбы должны объединиться и бросить вызов общему безжалостному врагу, чтобы спасти мир, то есть заняться тем, что для Эггси становится обычным делом…
 imdb Id: tt4649466
 poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg
@@ -26,14 +26,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgw
 Прогноз локальный: "6.4"
 Прогноз MovieLens: "5.1"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Kingsman - Золотое кольцо.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

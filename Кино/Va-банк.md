@@ -15,7 +15,7 @@ tags:
 Время: 88 min
 Режисер:
   - Brad Furman
-Роли файл: Кино/_system/Роли/Va-банк.роли.md
+Роли файл: "[[Кино/_system/Роли/Va-банк.роли.md]]"
 Описание: Чтобы оплачивать учёбу в колледже, Ричи погружается в мир азартных игр онлайн. Когда удача изменяет ему, он отправляется на Коста-Рику, чтобы помериться силами с настоящим асом игрового бизнеса. Тот видит в Ричи родственную душу и вводит его в свою игру. Но когда степень опасности возрастает, а ставки достигают невероятных высот, Ричи вдруг отчётливо понимает, что его новый босс вот-вот совершит непоправимое, и пытается поменяться с ним ролями.
 imdb Id: tt2364841
 poster: https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgwMTgxOTQwMDE@._V1_.jpg
@@ -26,14 +26,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgw
 Прогноз локальный: "5.3"
 Прогноз MovieLens: "5.7"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Va-банк.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";

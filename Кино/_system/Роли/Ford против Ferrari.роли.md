@@ -1,6 +1,6 @@
 ---
 Название: "Ford v Ferrari"
-Основная карточка: "Кино/Ford против Ferrari.md"
+Основная карточка: "[[Кино/Ford против Ferrari.md]]"
 imdb Id: "tt1950186"
 Кинопоиск ID: "835086"
 Жанр: ["Biography"]

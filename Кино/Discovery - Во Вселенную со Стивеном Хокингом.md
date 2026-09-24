@@ -16,7 +16,7 @@ tags:
   - Iain Riddick
   - Martin Williams
   - Nathan Williams
-Роли файл: Кино/_system/Роли/Discovery - Во Вселенную со Стивеном Хокингом.роли.md
+Роли файл: "[[Кино/_system/Роли/Discovery - Во Вселенную со Стивеном Хокингом.роли.md]]"
 Описание: Знаменитый физик, профессор Стивен Хокинг, который в 30 лет оказался практически полностью парализован из-за прогрессирующей болезни, делится мыслями о самых интригующих загадках Вселенной, таких как инопланетная жизнь или путешествие во времени.
 imdb Id: tt1655078
 poster: https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg
@@ -29,14 +29,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgw
 Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
 
 ---
-
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/Discovery - Во Вселенную со Стивеном Хокингом.роли]]
-
-</details>
 
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

@@ -15,7 +15,7 @@ tags:
 Время: 122 min
 Режисер:
   - Vince Gilligan
-Роли файл: Кино/_system/Роли/El Camino - Фильм по мотивам сериала 'Во все тяжкие'.роли.md
+Роли файл: "[[Кино/_system/Роли/El Camino - Фильм по мотивам сериала 'Во все тяжкие'.роли.md]]"
 Описание: Джесси Пинкман сбежал от неонацистов. Не зная, куда ему податься, он скрывается от полиции, похитителей и прошлого. Теперь он должен понять, как ему жить дальше.
 imdb Id: tt9243946
 poster: https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzItOTlkM2MyM2ExM2RlXkEyXkFqcGc@._V1_.jpg
@@ -27,14 +27,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzIt
 Прогноз локальный: "6.9"
 Прогноз MovieLens: "6.3"
 ---
-<!-- KINO:ROLES:EMBED:V2 -->
-<details class="kino-roles-details">
-<summary>🎭 Роли</summary>
-
-![[Кино/_system/Роли/El Camino - Фильм по мотивам сериала 'Во все тяжкие'.роли]]
-
-</details>
-
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
 const currentPath = dv.current()?.file?.path || "";
