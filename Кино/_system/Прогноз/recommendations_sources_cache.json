@@ -198,6 +198,32 @@
       },
       "source": "movie-planner-api"
     },
+    "5090": {
+      "at": 1790235548236,
+      "data": {
+        "kpId": "5090",
+        "ruTitle": "Евротур",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
+    "6035": {
+      "at": 1790235548429,
+      "data": {
+        "kpId": "6035",
+        "ruTitle": "Лемони Сникет: 33 несчастья",
+        "enTitle": "",
+        "year": "",
+        "description": "",
+        "kpRating": null,
+        "source": "kinopoisk-direct"
+      },
+      "source": "kinopoisk"
+    },
     "6527": {
       "at": 1790234739289,
       "data": {
@@ -346,7 +372,7 @@
       "source": "movie-planner-api"
     },
     "340890": {
-      "at": 1790234059966,
+      "at": 1790235548208,
       "data": {
         "kpId": "340890",
         "ruTitle": "Costume Party Capers: The Incredibles",
