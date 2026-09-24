@@ -200,6 +200,17 @@ module.exports = async (params) => {
         };
     }
 
+
+    function extractPersistentCardBlocks(body) {
+        const text = String(body ?? "");
+        const blocks = [];
+        const role = text.match(/<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>/m);
+        const recommend = text.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*$/m);
+        if (role?.[0]) blocks.push(role[0].trim());
+        if (recommend?.[0]) blocks.push(recommend[0].trim());
+        return blocks.join("\n\n");
+    }
+
     function yamlString(value) {
         return JSON.stringify(String(value ?? ""));
     }
@@ -342,6 +353,9 @@ module.exports = async (params) => {
 
     function removeOldGeneratedBlocks(body) {
         let result = String(body ?? "");
+
+        result = result.replace(/<!-- KINO:ROLES:EMBED:V2 -->[\s\S]*?<\/details>/gi, "");
+        result = result.replace(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\s*```dataviewjs[\s\S]*?```/gi, "");
 
         // Старый DataviewJS-блок из предыдущей версии.
         result = result.replace(
@@ -965,6 +979,8 @@ module.exports = async (params) => {
                 originalText
             );
 
+        const persistent = extractPersistentCardBlocks(parts.body);
+
         if (!parts.frontmatterText) {
             throw new Error(
                 "В оригинальном файле не найден YAML frontmatter."
@@ -1044,6 +1060,10 @@ module.exports = async (params) => {
                   chunks.join("\n\n") +
                   "\n"
                 : "\n";
+
+        if (persistent) {
+            body += "\n" + persistent + "\n";
+        }
 
         if (poster) {
             body +=

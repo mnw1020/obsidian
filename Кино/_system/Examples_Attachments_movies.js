@@ -1,12 +1,14 @@
 /* QuickAdd: User Script ПЕРЕД существующим Template/Capture. Шаблон сохраняется.
- * OMDb API Key сохраняется в прежних настройках. Для КП и Wikidata ключи не нужны.
+ * OMDb API Key сохраняется в прежних настройках. Ключ Kinopoisk Unofficial API встроен в скрипт.
  * Название в YAML остаётся оригинальным; имя файла берётся на русском.
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
- * Актеры и режиссеры сначала берутся из IMDb fullcredits/GraphQL, затем из КП /cast/.
+ * Данные КП и состав сначала берутся через Kinopoisk Unofficial API; IMDb и резервные источники дополняют данные.
  * Успешный источник полностью заменяет поле. Имена в YAML всегда латиницей;
  * строки с ролями хранятся отдельно и выводятся по одной на строку в формате Role - Name.
  */
 const API_KEY_OPTION = "OMDb API Key";
+const KP_API_BASE = "https://kinopoiskapiunofficial.tech/api";
+const KP_API_KEY = '18560e74-f0bf-4ca5-9efc-5a9ebb547268';
 const ROOT = "Кино";
 const SERIES = "Кино/Франшизы";
 const RATING_PREDICTOR = "Кино/_system/predict_rating.js";
@@ -211,35 +213,41 @@ async function addMovieCore(params, settings, progress, handOff) {
     }
     else if (inputKpId) {
         status(`загружаю данные Кинопоиска (${inputKpId})…`);
-        kp = await kinopoiskById(get, inputKpId);
+        kp = await kinopoiskById(get, inputKpId, ob);
         if (!kp) { new ob.Notice("Не удалось получить карточку по ID Кинопоиска."); return; }
-        status("жду IMDb ID для объединения данных…");
-        const imdbInput = await qa.inputPrompt("IMDb ID", "Формат: tt1234567", "");
-        if (imdbInput == null || !extractImdbId(imdbInput)) {
-            new ob.Notice("Нужен корректный IMDb ID формата tt1234567."); return;
+        const linkedImdb = extractImdbId(kp?.imdb_id);
+        if (linkedImdb) {
+            status(`КП API дал IMDb ID ${linkedImdb}, объединяю данные…`);
+            movie = await movieFromImdbOrKinopoisk(linkedImdb);
+        } else {
+            status("КП API не дал IMDb ID, жду ввод…");
+            const imdbInput = await qa.inputPrompt("IMDb ID", "Формат: tt1234567", "");
+            if (imdbInput == null || !extractImdbId(imdbInput)) {
+                new ob.Notice("Нужен корректный IMDb ID формата tt1234567."); return;
+            }
+            movie = await movieFromImdbOrKinopoisk(extractImdbId(imdbInput));
         }
-        movie = await movieFromImdbOrKinopoisk(extractImdbId(imdbInput));
     } else {
         status(`ищу фильм в IMDb по названию "${queryText}"…`);
         const result = await omdb({ s: queryText });
         const items = result?.Search || [];
         if (!items.length) {
-            status("IMDb не нашел фильм, жду ID или ссылку КП…");
-            const kpId = await askKinopoiskId(qa, "IMDb не нашел фильм. Вставь ссылку или ID Кинопоиска");
-            if (kpId === undefined) return;
-            if (kpId) {
-                status(`загружаю данные Кинопоиска (${kpId})…`);
-                kp = await kinopoiskById(get, kpId);
-                if (!kp) { new ob.Notice("Не удалось получить карточку по ID Кинопоиска."); return; }
-                status("жду IMDb ID для объединения данных…");
-                const imdbInput = await qa.inputPrompt("IMDb ID", "Формат: tt1234567", "");
-                if (imdbInput == null || !extractImdbId(imdbInput)) {
-                    new ob.Notice("Нужен корректный IMDb ID формата tt1234567."); return;
-                }
-                movie = await movieFromImdbOrKinopoisk(extractImdbId(imdbInput));
-            } else {
-                new ob.Notice("Введи IMDb ID для точного поиска."); return;
+            status(`IMDb не нашел фильм, ищу через КП API: "${queryText}"…`);
+            kp = await kpApiSearchChoice(ob, qa, queryText);
+            if (!kp) {
+                status("КП API тоже не нашел фильм, жду ID или ссылку КП…");
+                const kpId = await askKinopoiskId(qa, "Вставь ссылку или ID Кинопоиска");
+                if (kpId === undefined) return;
+                if (kpId) kp = await kinopoiskById(get, kpId, ob);
             }
+            if (!kp) { new ob.Notice("Не удалось определить фильм через IMDb или Кинопоиск."); return; }
+            let linkedImdb = extractImdbId(kp?.imdb_id);
+            if (!linkedImdb) {
+                const imdbInput = await qa.inputPrompt("IMDb ID", "КП API не вернул IMDb ID. Формат: tt1234567", "");
+                linkedImdb = extractImdbId(imdbInput);
+            }
+            if (!linkedImdb) { new ob.Notice("Для текущей структуры карточки нужен IMDb ID."); return; }
+            movie = await movieFromImdbOrKinopoisk(linkedImdb);
         } else {
             const selected = await qa.suggester(items.map(x => `${x.Title} (${x.Year}, ${x.Type})`), items);
             if (!selected) return;
@@ -252,10 +260,14 @@ async function addMovieCore(params, settings, progress, handOff) {
         const kpId = await askKinopoiskId(qa, "IMDb не вернул полную карточку. Вставь ссылку или ID Кинопоиска");
         if (kpId === undefined) return;
         if (!kpId) { new ob.Notice("Проверь IMDb ID или укажи ID Кинопоиска."); return; }
-        kp = await kinopoiskById(get, kpId);
+        kp = await kinopoiskById(get, kpId, ob);
         if (!kp) { new ob.Notice("Не удалось получить карточку по ID Кинопоиска."); return; }
-        const imdbId = inputImdbId || extractImdbId(queryText);
-        if (!imdbId) { new ob.Notice("Для объединения нужен IMDb ID."); return; }
+        let imdbId = inputImdbId || extractImdbId(queryText) || extractImdbId(kp?.imdb_id);
+        if (!imdbId) {
+            const imdbInput = await qa.inputPrompt("IMDb ID", "КП API не вернул IMDb ID. Формат: tt1234567", "");
+            imdbId = extractImdbId(imdbInput);
+        }
+        if (!imdbId) { new ob.Notice("Для текущей структуры карточки нужен IMDb ID."); return; }
         movie = await movieFromImdbOrKinopoisk(imdbId);
     }
     if (!["movie", "series"].includes(movie.Type)) {
@@ -270,7 +282,7 @@ async function addMovieCore(params, settings, progress, handOff) {
     const wiki = await wikidata(get, movie.imdbID);
     if (!kp) {
         status("загружаю данные Кинопоиска…");
-        kp = await kinopoisk(get, qa, movie, wiki);
+        kp = await kinopoisk(get, qa, movie, wiki, ob);
     }
     if (kpNeedsManualId(kp)) {
         status("данные Кинопоиска неполные, жду ID или ссылку КП…");
@@ -279,7 +291,7 @@ async function addMovieCore(params, settings, progress, handOff) {
             : "КП не найден. Вставь ссылку или ID карточки КП");
         if (manualKpId === undefined) return;
         if (manualKpId) {
-            const directKp = await kinopoiskById(get, manualKpId);
+            const directKp = await kinopoiskById(get, manualKpId, ob);
             if (directKp) kp = directKp;
             else new ob.Notice("ID КП не найден. Продолжаю с доступными данными.");
         }
@@ -292,7 +304,7 @@ async function addMovieCore(params, settings, progress, handOff) {
     status("собираю русское название и описание…");
     let russianTitle = russian(kp?.title) || russian(wiki.title);
     let description = russian(kp?.description) || russian(kp?.overview_ru) || russian(movie.Plot);
-    let descriptionSource = description && kp?.kp_id ? `https://movie-planner.ru/f/${kp.kp_id}` : "";
+    let descriptionSource = description && kp?.kp_id ? `https://www.kinopoisk.ru/film/${kp.kp_id}/` : "";
     if (!description && wiki.article) {
         description = await wikiDescription(get, wiki.article);
         if (description) descriptionSource = wiki.article;
@@ -329,7 +341,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         );
         if (manualKpId === undefined) return;
         if (manualKpId) {
-            const directKp = await kinopoiskById(get, manualKpId);
+            const directKp = await kinopoiskById(get, manualKpId, ob);
             if (directKp) {
                 if (directKp.imdb_id && extractImdbId(directKp.imdb_id) !== movie.imdbID) {
                     new ob.Notice("КП ID относится к другому IMDb ID. Добавление остановлено.", 10000);
@@ -856,6 +868,99 @@ async function getJson(ob, base, params = {}) {
         finally { clearTimeout(timer); }
     }
     return null;
+}
+
+async function kpApiJson(ob, path, params = {}) {
+    const url = new URL(KP_API_BASE + path);
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
+    });
+    const hostKey = "kp-api:" + url.host;
+    for (let attempt = 0; attempt < 2; attempt++) {
+        await sleep(Math.max(0, (cooldown.get(hostKey) || 0) - Date.now()));
+        cooldown.set(hostKey, Date.now() + 280);
+        let timer;
+        try {
+            const response = await Promise.race([
+                ob.requestUrl({
+                    url: url.href, method: "GET", throw: false,
+                    headers: { Accept: "application/json", "X-API-KEY": KP_API_KEY }
+                }),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 15000); })
+            ]);
+            if ([429, 503].includes(response.status)) {
+                cooldown.set(hostKey, Date.now() + 2500);
+                if (attempt === 0) continue;
+                return null;
+            }
+            if (response.status !== 200) return null;
+            return response.json || null;
+        } catch {
+            cooldown.set(hostKey, Date.now() + 1500);
+            if (attempt === 0) continue;
+            return null;
+        } finally { clearTimeout(timer); }
+    }
+    return null;
+}
+
+function kpApiFilmLegacy(film) {
+    if (!film?.kinopoiskId) return null;
+    const premiere = film.premiereRu || film.premiereWorld || film.premiereDigital || "";
+    return {
+        kp_id: String(film.kinopoiskId),
+        imdb_id: String(film.imdbId || ""),
+        title: film.nameRu || film.nameOriginal || film.nameEn || "",
+        title_en: film.nameOriginal || film.nameEn || film.nameRu || "",
+        description: film.description || film.shortDescription || "",
+        overview_ru: film.description || film.shortDescription || "",
+        overview_en: "",
+        year: film.year || "",
+        is_series: Boolean(film.serial || film.type === "TV_SERIES" || film.type === "MINI_SERIES" || film.type === "TV_SHOW"),
+        premiere_date: premiere,
+        rating_kp: film.ratingKinopoisk,
+        rating_kp_votes: film.ratingKinopoiskVoteCount,
+        rating_imdb: film.ratingImdb,
+        rating_imdb_votes: film.ratingImdbVoteCount,
+        poster_url: film.posterUrl || film.posterUrlPreview || "",
+        genres: (film.genres || []).map(x => x.genre).filter(Boolean).join(", "),
+        country: (film.countries || []).map(x => x.country).filter(Boolean).join(", "),
+        film_length: film.filmLength || "",
+        cast: {},
+        source: "kinopoisk-api"
+    };
+}
+
+async function kpApiSearchChoice(ob, qa, query) {
+    const found = await kpApiJson(ob, "/v2.1/films/search-by-keyword", { keyword: query, page: 1 });
+    const items = (found?.films || []).slice(0, 20);
+    if (!items.length) return null;
+    const selected = await qa.suggester(
+        items.map(x => `${x.nameRu || x.nameEn || "Без названия"} (${x.year || "?"}) - КП ${x.filmId}`),
+        items,
+        `Кинопоиск: выбери фильм для "${query}"`
+    );
+    if (!selected) return null;
+    return await kinopoiskById((url, values) => getJson(ob, url, values), selected.filmId, ob);
+}
+
+function kpApiStaffCredits(items) {
+    const actors = [], directors = [];
+    for (const person of Array.isArray(items) ? items : []) {
+        const profession = String(person.professionKey || "").toUpperCase();
+        const rawName = String(person.nameEn || person.nameRu || "").trim();
+        const name = /[A-Za-z]/.test(rawName) ? rawName : transliteratePersonName(rawName);
+        if (!name) continue;
+        const credit = {
+            name, name_en: name, name_ru: String(person.nameRu || "").trim(),
+            display_name: name,
+            role: String(person.description || "").trim(),
+            role_en: String(person.description || "").trim(), role_ru: ""
+        };
+        if (profession === "DIRECTOR") directors.push(credit);
+        else if (["ACTOR", "VOICE_MALE", "VOICE_FEMALE", "HIMSELF", "HERSELF"].includes(profession)) actors.push(credit);
+    }
+    return { actors: uniqueRoleCredits(actors), directors: uniquePeople(directors) };
 }
 
 async function getText(ob, url, headers = {}) {
@@ -1389,6 +1494,8 @@ function mergeKpCredits(left, right) {
 async function getKpApiCredits(ob, kpId) {
     const id = String(kpId || "").match(/^\d{1,12}$/)?.[0] || "";
     if (!id) return { actors: [], directors: [] };
+    const officialLike = kpApiStaffCredits(await kpApiJson(ob, "/v1/staff", { filmId: id }));
+    if (officialLike.actors.length || officialLike.directors.length) return officialLike;
     const result = await getJson(ob, `https://movie-planner.ru/api/public/film/${id}`);
     return normalizeKpApiCast(result?.cast);
 }
@@ -1420,7 +1527,7 @@ async function loadActorCredits(ob, imdbId, kpId, type, status) {
     if (!kpId) return { imdb, imdbDirectors: imdbResult.directors, kp: [], directors: [] };
     // КП используется вторым источником, если IMDb дал пустой или более
     // короткий список, а также как источник режиссера.
-    status?.("IMDb готов, проверяю КП /cast/…");
+    status?.("IMDb готов, проверяю состав через КП API…");
     const kpCast = await kinopoiskCredits(ob, kpId, type);
     return { imdb, imdbDirectors: imdbResult.directors,
         kp: kpCast.actors, directors: kpCast.directors };
@@ -1455,11 +1562,22 @@ function parseWikidata(data) {
         article:unique("article").find(x=>x.startsWith("https://ru.wikipedia.org/wiki/")) || "", series:[...series.values()] };
 }
 
-async function kinopoisk(get, qa, movie, wiki) {
+async function kinopoisk(get, qa, movie, wiki, ob) {
     const base = "https://movie-planner.ru/api/public";
     if (wiki.kp) {
-        const fromWiki = await kinopoiskById(get, wiki.kp);
+        const fromWiki = await kinopoiskById(get, wiki.kp, ob);
         if (fromWiki) return fromWiki;
+    }
+    // КП API особенно полезен для русских названий и новых фильмов.
+    const apiQuery = russian(movie.Title) || movie.Title;
+    const apiFound = await kpApiJson(ob, "/v2.1/films/search-by-keyword", { keyword: apiQuery, page: 1 });
+    const apiCandidates = (apiFound?.films || []).filter(item => {
+        const yearOk = !movie.Year || !item.year || String(item.year).slice(0,4) === String(movie.Year).slice(0,4);
+        return yearOk;
+    });
+    if (apiCandidates.length === 1) {
+        const apiDetails = await kinopoiskById(get, apiCandidates[0].filmId, ob);
+        if (apiDetails) return apiDetails;
     }
     // Сначала проверяем точную связь по IMDb ID. Поиск только по названию
     // ломался на локализованных названиях вроде tt2395385.
@@ -1470,7 +1588,7 @@ async function kinopoisk(get, qa, movie, wiki) {
         extractImdbId(item.imdb_id || item.imdbID) === extractImdbId(movie.imdbID));
     const exactIds = [...new Set(exact.map(item => String(item.kp_id || "")).filter(Boolean))];
     if (exactIds.length === 1) {
-        const exactDetails = await kinopoiskById(get, exactIds[0]);
+        const exactDetails = await kinopoiskById(get, exactIds[0], ob);
         if (exactDetails) return exactDetails;
     }
     const year = Number(String(movie.Year || "").match(/\d{4}/)?.[0]);
@@ -1488,17 +1606,19 @@ async function kinopoisk(get, qa, movie, wiki) {
     const skip = {skip:true};
     const chosen = await qa.suggester([...items.map(x=>`${x.title} (${x.year}) - КП ${x.kp_id}`),"Пропустить"],[...items,skip],`Подтверди фильм КП: ${movie.Title} (${movie.Year})`);
     if (!chosen || chosen.skip) return null;
-    const details = await kinopoiskById(get, chosen.kp_id);
+    const details = await kinopoiskById(get, chosen.kp_id, ob);
     return details || {...chosen, cast:{}};
 }
-async function kinopoiskById(get, kpId) {
+async function kinopoiskById(get, kpId, ob = null) {
     const id = String(kpId || "").trim();
     if (!/^\d{1,12}$/.test(id)) return null;
+    if (ob) {
+        const apiFilm = kpApiFilmLegacy(await kpApiJson(ob, `/v2.2/films/${id}`));
+        if (apiFilm) return apiFilm;
+    }
     let result;
     try { result = await get(`https://movie-planner.ru/api/public/film/${id}`); } catch { result = null; }
     const film = result?.film;
-    // Недоступность данных не отменяет ID, уже введенный пользователем
-    // или подтвержденный точной связью IMDb/Wikidata.
     if (!film) {
         if (result && (result.found === false || result.status === 404 || /not.found|не найден/i.test(String(result.error || "")))) return null;
         return { kp_id: id, cast: {}, detailsUnavailable: true };
@@ -6697,24 +6817,37 @@ function ensureRoleEmbed(raw, rolePath) {
     const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!match) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
-    const oldBlock = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
-    const oldEmbed = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
-    let body = withPath.slice(match[0].length).replace(oldBlock, "").replace(oldEmbed, "");
-    body = body.replace(/^(?:\r?\n)+/, "");
+    const oldEntity = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const oldRoleV1 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
+    const oldRoleV2 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>[ \t]*(?:\r?\n|$)/m;
+    let body = withPath.slice(match[0].length)
+        .replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
+        .replace(/^(?:\r?\n)+/, "");
     const target = rolePath.replace(/\.md$/i, "");
-    const embed = `<!-- KINO:ROLES:EMBED:V1 -->${newline}![[${target}]]${newline}`;
-    return match[0] + embed + body;
+    const embed = [
+        "<!-- KINO:ROLES:EMBED:V2 -->",
+        '<details class="kino-roles-details">',
+        "<summary>🎭 Роли</summary>",
+        "",
+        `![[${target}]]`,
+        "",
+        "</details>",
+        ""
+    ].join(newline);
+    return match[0] + embed + newline + body;
 }
 
 function ensureRecommendationButton(raw) {
-    const marker = "<!-- KINO:RECOMMEND:BUTTON:V1 -->";
-    if (raw.includes(marker)) return raw;
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
+    const oldButton = /(?:\r?\n)*^[ \t]*<!-- KINO:RECOMMEND:BUTTON:V(?:1|2) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n)*/m;
+    raw = raw.replace(oldButton, newline);
     const block = [
-        marker,
+        "<!-- KINO:RECOMMEND:BUTTON:V2 -->",
         "```dataviewjs",
         'const currentPath = dv.current()?.file?.path || "";',
         'const wrap = dv.container.createDiv({ cls: "kino-recommend-action" });',
+        'wrap.style.marginTop = "1em";',
+        'wrap.style.marginBottom = "1em";',
         'const btn = wrap.createEl("button", { text: "🔎 Найти похожие" });',
         'btn.style.cursor = "pointer";',
         'btn.style.padding = "6px 12px";',
@@ -6735,7 +6868,7 @@ function ensureRecommendationButton(raw) {
         '            stateFile = await app.vault.create(statePath, payload);',
         '        }',
         '        const page = app.vault.getAbstractFileByPath(pagePath);',
-        '        if (!page) throw new Error("Не найдена страница рекомендаций");',
+        '        if (!page) throw new Error("Не найдена Кино/_system/рекомендации.md");',
         '        await app.workspace.getLeaf(false).openFile(page);',
         '    } catch (e) {',
         '        console.error("Кино: рекомендации", e);',
@@ -6747,18 +6880,19 @@ function ensureRecommendationButton(raw) {
         '    btn.textContent = original;',
         '    btn.disabled = false;',
         '};',
-        "```",
-        ""
+        "```"
     ].join(newline);
-    const role = /^<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\n]+\]\]\s*\r?\n/m;
-    const m = raw.match(role);
-    if (m && m.index !== undefined) {
-        const at = m.index + m[0].length;
-        return raw.slice(0, at) + block + raw.slice(at);
+    const roleV2 = /<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>[ \t]*/m;
+    const role = raw.match(roleV2);
+    if (role && role.index !== undefined) {
+        const at = role.index + role[0].length;
+        return raw.slice(0, at).trimEnd() + newline + newline + block + newline + newline + raw.slice(at).replace(/^(?:\r?\n)+/, "");
     }
     const poster = raw.match(/^!\[[^\]]*\]\(https?:\/\/[^\n]+\)\s*$/m);
-    if (poster && poster.index !== undefined) return raw.slice(0, poster.index) + block + raw.slice(poster.index);
-    return raw.trimEnd() + newline + newline + block;
+    if (poster && poster.index !== undefined) {
+        return raw.slice(0, poster.index).trimEnd() + newline + newline + block + newline + newline + raw.slice(poster.index);
+    }
+    return raw.trimEnd() + newline + newline + block + newline;
 }
 
 async function writeRoleFile(app, ob, mainFile, movie = {}, kinopoiskId = "", people = {}) {

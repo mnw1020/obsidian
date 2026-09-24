@@ -105,6 +105,17 @@ module.exports = async (params) => {
         };
     }
 
+
+    function extractPersistentCardBlocks(body) {
+        const text = String(body ?? "");
+        const blocks = [];
+        const role = text.match(/<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>/m);
+        const recommend = text.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*$/m);
+        if (role?.[0]) blocks.push(role[0].trim());
+        if (recommend?.[0]) blocks.push(recommend[0].trim());
+        return blocks.join("\n\n");
+    }
+
     async function readFm(file) {
         const raw = await app.vault.read(file);
         const parts = splitFrontmatter(raw);
@@ -275,6 +286,7 @@ module.exports = async (params) => {
 
         const freshOriginal = await app.vault.read(serialFile);
         const parts = splitFrontmatter(freshOriginal);
+        const persistent = extractPersistentCardBlocks(parts.body);
 
         if (!parts.frontmatterText) {
             throw new Error("В оригинальном сериале нет YAML.");
@@ -306,6 +318,10 @@ module.exports = async (params) => {
             "\n\n" +
             body.join("\n\n") +
             "\n";
+
+        if (persistent) {
+            result += `\n${persistent}\n`;
+        }
 
         if (poster) {
             result += `\n---\n![](${poster})\n`;

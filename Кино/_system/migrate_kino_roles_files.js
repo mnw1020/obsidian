@@ -215,12 +215,15 @@ function ensureRoleEmbed(raw, rolePath) {
     const parsed = parseFrontmatterForRewrite(withPath);
     if (!parsed) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
-    const oldBlock = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
-    const oldEmbed = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
-    let body = parsed.body.replace(oldBlock, "").replace(oldEmbed, "").replace(/^(?:\r?\n)+/, "");
-    return parsed.prefix + parsed.yaml + parsed.end
-        + `<!-- KINO:ROLES:EMBED:V1 -->${newline}![[${rolePath.replace(/\.md$/i, "")}]]${newline}`
-        + body;
+    const oldEntity = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const oldRoleV1 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
+    const oldRoleV2 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>[ \t]*(?:\r?\n|$)/m;
+    let body = parsed.body.replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
+        .replace(/^(?:\r?\n)+/, "");
+    const target = rolePath.replace(/\.md$/i, "");
+    const embed = ["<!-- KINO:ROLES:EMBED:V2 -->", '<details class="kino-roles-details">',
+        "<summary>🎭 Роли</summary>", "", `![[${target}]]`, "", "</details>", ""].join(newline);
+    return parsed.prefix + parsed.yaml + parsed.end + embed + newline + body;
 }
 
 async function makeFolders(app, path) {

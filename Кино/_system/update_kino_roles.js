@@ -1,5 +1,5 @@
 // QuickAdd: Кино - обновить роли актёров.
-// Порядок источников: IMDb fullcredits/GraphQL, затем КП /cast/.
+// Порядок источников: Kinopoisk Unofficial API + IMDb; прямой КП и Movie Planner остаются резервом.
 // В основной карточке остается только короткий индекс режиссера.
 // "Актеры" и строки Role - Name хранятся в companion-файле _system/Роли.
 // Постоянного HTTP-кэша нет. Успешный источник полностью заменяет поле;
@@ -7,8 +7,11 @@
 
 const ROOT = "Кино";
 const API = "https://movie-planner.ru/api/public";
+const KP_API_BASE = "https://kinopoiskapiunofficial.tech/api";
+const KP_API_KEY = '18560e74-f0bf-4ca5-9efc-5a9ebb547268';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let nextRequestAt = 0;
+let nextKpApiAt = 0;
 
 const ROLE_LINKS_BLOCK = [
     '<!-- KINO:ENTITY:LINKS:V3 -->',
@@ -359,6 +362,67 @@ async function postJson(ob, url, body, headers = {}) {
     return null;
 }
 
+async function kpApiJson(ob, path, params = {}) {
+    const url = new URL(KP_API_BASE + path);
+    Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
+    });
+    for (let attempt = 0; attempt < 2; attempt++) {
+        await sleep(Math.max(0, nextKpApiAt - Date.now()));
+        nextKpApiAt = Date.now() + 280;
+        let timer;
+        try {
+            const response = await Promise.race([
+                ob.requestUrl({ url: url.href, method: "GET", throw: false,
+                    headers: { Accept: "application/json", "X-API-KEY": KP_API_KEY } }),
+                new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 15000); })
+            ]);
+            if ([429, 503].includes(response.status)) {
+                nextKpApiAt = Date.now() + 2500;
+                if (attempt === 0) continue;
+                return null;
+            }
+            if (response.status !== 200) return null;
+            return response.json || null;
+        } catch {
+            nextKpApiAt = Date.now() + 1500;
+            if (attempt === 0) continue;
+            return null;
+        } finally { clearTimeout(timer); }
+    }
+    return null;
+}
+
+function kpApiLegacyFilm(film) {
+    if (!film?.kinopoiskId) return null;
+    return {
+        kp_id: String(film.kinopoiskId), imdb_id: String(film.imdbId || ""),
+        title: film.nameRu || film.nameOriginal || film.nameEn || "",
+        title_en: film.nameOriginal || film.nameEn || film.nameRu || "",
+        description: film.description || film.shortDescription || "",
+        overview_ru: film.description || film.shortDescription || "",
+        year: film.year || "", is_series: Boolean(film.serial || /SERIES|TV_SHOW/.test(String(film.type || ""))),
+        rating_kp: film.ratingKinopoisk, rating_kp_votes: film.ratingKinopoiskVoteCount,
+        poster_url: film.posterUrl || film.posterUrlPreview || "", cast: {}
+    };
+}
+
+function kpApiStaff(items) {
+    const actors = [], directors = [];
+    for (const person of Array.isArray(items) ? items : []) {
+        const profession = String(person.professionKey || "").toUpperCase();
+        const nameRu = String(person.nameRu || "").trim();
+        const rawName = String(person.nameEn || nameRu).trim();
+        const name = /[A-Za-z]/.test(rawName) ? rawName : transliteratePersonName(rawName);
+        if (!name) continue;
+        const item = { name, name_en: name, name_ru: nameRu, display_name: name,
+            role: String(person.description || "").trim(), role_en: String(person.description || "").trim(), role_ru: "" };
+        if (profession === "DIRECTOR") directors.push(item);
+        else if (["ACTOR", "VOICE_MALE", "VOICE_FEMALE", "HIMSELF", "HERSELF"].includes(profession)) actors.push(item);
+    }
+    return { actors: uniqueRoleCredits(actors), directors: uniquePeople(directors) };
+}
+
 async function findKpId(ob, fm, file) {
     const imdbId = extractImdbId(fm["imdb Id"]);
     if (!imdbId) return "";
@@ -382,6 +446,12 @@ async function findKpId(ob, fm, file) {
 
 async function getKpDetails(ob, kpId) {
     if (!/^\d{1,12}$/.test(String(kpId || ""))) return null;
+    const apiFilm = kpApiLegacyFilm(await kpApiJson(ob, `/v2.2/films/${kpId}`));
+    if (apiFilm) {
+        const staff = kpApiStaff(await kpApiJson(ob, "/v1/staff", { filmId: kpId }));
+        apiFilm.cast = { actors: staff.actors, director: staff.directors, directors: staff.directors };
+        return apiFilm;
+    }
     const result = await getJson(ob, `${API}/film/${kpId}`);
     return result?.film ? { ...result.film, cast: result.cast || {} } : null;
 }
@@ -1227,11 +1297,24 @@ function ensureRoleEmbed(raw, rolePath) {
     const match = withPath.match(/^(\ufeff?---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$))/);
     if (!match) return withPath;
     const newline = withPath.includes("\r\n") ? "\r\n" : "\n";
-    const oldBlock = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
-    const oldEmbed = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
-    const body = withPath.slice(match[0].length)
-        .replace(oldBlock, "").replace(oldEmbed, "").replace(/^(?:\r?\n)+/, "");
-    return match[0] + `<!-- KINO:ROLES:EMBED:V1 -->${newline}![[${rolePath.replace(/\.md$/i, "")}]]${newline}` + body;
+    const oldEntity = /(?:\r?\n)?^[ \t]*<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*(?:\r?\n|$)/m;
+    const oldRoleV1 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V1 -->\r?\n!\[\[[^\]]+\]\][ \t]*(?:\r?\n|$)/m;
+    const oldRoleV2 = /(?:\r?\n)?^[ \t]*<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>[ \t]*(?:\r?\n|$)/m;
+    let body = withPath.slice(match[0].length)
+        .replace(oldEntity, "").replace(oldRoleV1, "").replace(oldRoleV2, "")
+        .replace(/^(?:\r?\n)+/, "");
+    const target = rolePath.replace(/\.md$/i, "");
+    const embed = [
+        "<!-- KINO:ROLES:EMBED:V2 -->",
+        '<details class="kino-roles-details">',
+        "<summary>🎭 Роли</summary>",
+        "",
+        `![[${target}]]`,
+        "",
+        "</details>",
+        ""
+    ].join(newline);
+    return match[0] + embed + newline + body;
 }
 
 function ensureRoleLinksBlock(raw) {

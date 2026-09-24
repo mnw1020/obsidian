@@ -66,6 +66,17 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         };
     }
 
+
+    function extractPersistentCardBlocks(body) {
+        const text = String(body ?? "");
+        const blocks = [];
+        const role = text.match(/<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>/m);
+        const recommend = text.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*$/m);
+        if (role?.[0]) blocks.push(role[0].trim());
+        if (recommend?.[0]) blocks.push(recommend[0].trim());
+        return blocks.join("\n\n");
+    }
+
     async function readFm(file) {
         const raw = await app.vault.read(file);
         const parts = splitFrontmatter(raw);
@@ -234,6 +245,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
 
         const raw = await app.vault.read(mediaFile);
         const parts = splitFrontmatter(raw);
+        const persistent = extractPersistentCardBlocks(parts.body);
         const fm = await readFm(mediaFile);
         const poster = String(fm.poster ?? "").trim();
 
@@ -257,6 +269,10 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             "\n\n" +
             body.join("\n\n") +
             "\n";
+
+        if (persistent) {
+            result += `\n${persistent}\n`;
+        }
 
         if (poster) {
             result += `\n---\n![](${poster})\n`;
@@ -350,6 +366,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
 
         const raw = await app.vault.read(mediaFile);
         const parts = splitFrontmatter(raw);
+        const persistent = extractPersistentCardBlocks(parts.body);
         const fm = await readFm(mediaFile);
         const poster = String(fm.poster ?? "").trim();
 
@@ -358,6 +375,10 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             "\n\n" +
             HISTORY_BLOCK +
             "\n";
+
+        if (persistent) {
+            result += `\n${persistent}\n`;
+        }
 
         if (poster) {
             result += `\n![](${poster})\n`;

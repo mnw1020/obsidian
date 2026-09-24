@@ -268,6 +268,16 @@ module.exports = async (params) => {
         const rolePath = `${ROOT}/_system/Роли/${file.basename}.роли.md`;
         const roleFile = app.vault.getAbstractFileByPath(rolePath);
         const roleFm = roleFile ? getFrontmatter(roleFile) : {};
+        const rawCard = await app.vault.read(file);
+        const roleV2Count = (rawCard.match(/<!-- KINO:ROLES:EMBED:V2 -->/g) || []).length;
+        const recommendV2Count = (rawCard.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g) || []).length;
+        if (roleV2Count !== 1 || !/<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<summary>🎭 Роли<\/summary>[\s\S]*?<\/details>/m.test(rawCard)) {
+            addError(file, "блок ролей должен быть ровно один и скрываться в раскрывающемся списке V2.");
+        }
+        if (recommendV2Count !== 1) addError(file, "кнопка `🔎 Найти похожие` V2 отсутствует или продублирована.");
+        if (recommendV2Count === 1 && !/\n\n<!-- KINO:RECOMMEND:BUTTON:V2 -->[\s\S]*?^```[ \t]*\r?\n\r?\n/m.test(rawCard)) {
+            addWarning(file, "до и после кнопки `🔎 Найти похожие` должна быть пустая строка.");
+        }
 
         if (!title) addError(file, "отсутствует свойство `Название`.");
         if (mediaTags.length > 1) addWarning(file, "одновременно стоят теги `movies` и `serial`.");
@@ -598,8 +608,9 @@ module.exports = async (params) => {
     report += "- КП ID, если он указан; отсутствие КП ID допустимо и показывается отдельным списком;\n";
     report += "- только латинские имена режиссёров и актёров; любая кириллица считается ошибкой;\n";
     report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер` и `Жанр`, а также в файлах ролей;\n";
-    report += "- наличие пары карточка + `_system/Роли/<название>.роли.md` и корректную обратную ссылку;\n";
+    report += "- наличие пары карточка + `_system/Роли/<название>.роли.md`, раскрывающегося блока ролей V2 и корректной обратной ссылки;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
+    report += "- наличие единственной кнопки `🔎 Найти похожие` V2 и пустых строк вокруг неё;\n";
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";
     report += "- исходное написание имён и ролей, скобки, wikilink-ссылки и дубли в карточках.\n";
