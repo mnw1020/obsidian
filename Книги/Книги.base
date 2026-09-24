@@ -43,8 +43,9 @@ views:
       - formula.series_link
       - series_index
     sort:
-      - property: formula.book_link
-        direction: ASC
+      - property: date
+        direction: DESC
+    limit: 10
   - type: table
     name: По типу
     groupBy:
