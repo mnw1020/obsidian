@@ -483,5 +483,190 @@
     "enTitle": "",
     "year": "1953",
     "kpRating": 7.2
+  },
+  "m:tt0104346": {
+    "v": 4,
+    "found": true,
+    "checkedAt": 1790232506258,
+    "kpId": "1359777",
+    "ruTitle": "Gladiators",
+    "enTitle": "Gladiator",
+    "year": "1992",
+    "kpRating": null
+  },
+  "m:tt0106856": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232507267,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0112573": {
+    "v": 4,
+    "found": true,
+    "checkedAt": 1790232507997,
+    "kpId": "399",
+    "ruTitle": "Храброе сердце",
+    "enTitle": "Braveheart",
+    "year": "1995",
+    "kpRating": 8.3
+  },
+  "m:tt0120815": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232509315,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0047478": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232511430,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0082096": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232512248,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0082949": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232513094,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0050083": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232514073,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0277434": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232515132,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0094226": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232516324,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0091203": {
+    "v": 4,
+    "found": true,
+    "checkedAt": 1790232611702,
+    "kpId": "17475",
+    "ruTitle": "Горец",
+    "enTitle": "Highlander",
+    "year": "1986",
+    "kpRating": 7.4
+  },
+  "m:tt0093779": {
+    "v": 4,
+    "found": true,
+    "checkedAt": 1790232613914,
+    "kpId": "798611",
+    "ruTitle": "The Princess Bride",
+    "enTitle": "Princess Bride, The",
+    "year": "2012",
+    "kpRating": null
+  },
+  "m:tt0119698": {
+    "v": 4,
+    "found": true,
+    "checkedAt": 1790232616263,
+    "kpId": "1394431",
+    "ruTitle": "«Принцесса Мононоке» в США",
+    "enTitle": "Princess Mononoke (Mononoke-hime)",
+    "year": "1997",
+    "kpRating": null
+  },
+  "m:tt0082971": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232617748,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0080684": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232618873,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0076759": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232620035,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt3748528": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232621028,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0241527": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232622139,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0086190": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232623238,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
+  },
+  "m:tt0060196": {
+    "v": 4,
+    "found": false,
+    "checkedAt": 1790232624292,
+    "kpId": "",
+    "ruTitle": "",
+    "enTitle": "",
+    "year": ""
   }
 }
