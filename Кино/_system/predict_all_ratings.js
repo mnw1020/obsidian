@@ -3,14 +3,12 @@ QuickAdd user script: bulk personal rating forecast for ALL movie/series cards.
 Writes forecast YAML properties to every root card in Кино/.
 Does NOT overwrite the user's real field "Оценка".
 Automatically includes cards added later: just run this script again.
-Optional collaborative layer: Кино/_system/Прогноз/movielens_neighbors.json
 */
 module.exports = async (params) => {
     const { app, obsidian } = params;
     const { Notice } = obsidian;
 
     const ROOT = "Кино";
-    const MODEL_PATH = `${ROOT}/_system/Прогноз/movielens_neighbors.json`;
     const K_LOCAL = 55;
     const MIN_SIM = 0.055;
 
@@ -309,7 +307,6 @@ module.exports = async (params) => {
                 const wc=0.50+0.30*collab.confidence, wl=1-wc;
                 finalPred=clamp(wc*collab.pred+wl*local.pred,1,10);
                 confidence=clamp(0.55*collab.confidence+0.45*local.confidence,0,1);
-                method="MovieLens + локальная интерполяция";
                 withMl++;
             }else localOnly++;
 
@@ -318,14 +315,12 @@ module.exports = async (params) => {
                 "Прогноз уверенность":confidenceText(confidence),
                 "Прогноз метод":method,
                 "Прогноз локальный":fixed1(local.pred),
-                "Прогноз MovieLens":collab?fixed1(collab.pred):null
             };
             const fm=target.fm||{};
             const same=asText(fm["Прогноз оценки"])===desired["Прогноз оценки"] &&
                 asText(fm["Прогноз уверенность"])===desired["Прогноз уверенность"] &&
                 asText(fm["Прогноз метод"])===desired["Прогноз метод"] &&
                 asText(fm["Прогноз локальный"])===desired["Прогноз локальный"] &&
-                (desired["Прогноз MovieLens"]===null ? !asText(fm["Прогноз MovieLens"]) : asText(fm["Прогноз MovieLens"])===desired["Прогноз MovieLens"]);
 
             if(same){
                 unchanged++;
@@ -335,8 +330,6 @@ module.exports = async (params) => {
                     frontmatter["Прогноз уверенность"]=desired["Прогноз уверенность"];
                     frontmatter["Прогноз метод"]=desired["Прогноз метод"];
                     frontmatter["Прогноз локальный"]=desired["Прогноз локальный"];
-                    if(desired["Прогноз MovieLens"]!==null) frontmatter["Прогноз MovieLens"]=desired["Прогноз MovieLens"];
-                    else delete frontmatter["Прогноз MovieLens"];
                 });
                 updated++;
             }
@@ -347,5 +340,4 @@ module.exports = async (params) => {
         if((i+1)%50===0) await new Promise(r=>setTimeout(r,0));
     }
 
-    new Notice(`Готово. Карточек: ${items.length}. Обновлено: ${updated}. Без изменений: ${unchanged}. MovieLens: ${withMl}. Только интерполяция: ${localOnly}. Ошибок: ${failed}.`,15000);
 };

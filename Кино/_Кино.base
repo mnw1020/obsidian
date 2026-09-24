@@ -11,10 +11,8 @@ formulas:
   kp_rating: if(note["Оценка Кинопоиск"], number(note["Оценка Кинопоиск"]), null)
   predicted_rating: if(note["Прогноз оценки"], number(note["Прогноз оценки"]), null)
   predicted_local: if(note["Прогноз локальный"], number(note["Прогноз локальный"]), null)
-  predicted_movielens: if(note["Прогноз MovieLens"], number(note["Прогноз MovieLens"]), null)
   rating_delta_prediction: if(formula.rating != null && formula.predicted_rating != null, (formula.rating - formula.predicted_rating).round(1), null)
   rating_delta_local: if(formula.rating != null && formula.predicted_local != null, (formula.rating - formula.predicted_local).round(1), null)
-  rating_delta_movielens: if(formula.rating != null && formula.predicted_movielens != null, (formula.rating - formula.predicted_movielens).round(1), null)
   rating_delta: if(formula.rating != null && formula.imdb_rating != null, (formula.rating - formula.imdb_rating).round(1), null)
   rating_delta_kp: if(formula.rating != null && formula.kp_rating != null, (formula.rating - formula.kp_rating).round(1), null)
   imdb_kp_delta: if(formula.imdb_rating != null && formula.kp_rating != null, (formula.imdb_rating - formula.kp_rating).round(1), null)
@@ -51,14 +49,10 @@ properties:
     displayName: Прогноз
   formula.predicted_local:
     displayName: Прогноз локальный
-  formula.predicted_movielens:
-    displayName: Прогноз MovieLens
   formula.rating_delta_prediction:
     displayName: Δ к прогнозу
   formula.rating_delta_local:
     displayName: Δ к локальному
-  formula.rating_delta_movielens:
-    displayName: Δ к MovieLens
   formula.rating_delta:
     displayName: Δ к IMDb
   formula.rating_delta_kp:
@@ -235,7 +229,6 @@ views:
     name: Сравнение оценок
     filters:
       and:
-        - formula.rating != null || formula.predicted_rating != null || formula.predicted_local != null || formula.predicted_movielens != null || formula.imdb_rating != null || formula.kp_rating != null
     order:
       - file.name
       - formula.type
@@ -247,10 +240,8 @@ views:
       - formula.rating_delta_kp
       - formula.imdb_kp_delta
       - formula.predicted_local
-      - formula.predicted_movielens
       - formula.rating_delta_prediction
       - formula.rating_delta_local
-      - formula.rating_delta_movielens
     sort:
       - property: formula.rating_delta_prediction
         direction: ASC
@@ -262,10 +253,8 @@ views:
       formula.predicted_rating: 82
       formula.imdb_rating: 67
       formula.predicted_local: 168
-      formula.predicted_movielens: 169
       formula.rating_delta_prediction: 146
       formula.rating_delta_local: 164
-      formula.rating_delta_movielens: 136
       formula.rating_delta: 99
       formula.imdb_kp_delta: 108
   - type: dynamic-views-grid

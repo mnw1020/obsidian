@@ -1,7 +1,6 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Updating compact MovieLens recommendation catalog...
 
 where py >nul 2>nul
 if not errorlevel 1 goto :use_py
@@ -15,12 +14,10 @@ set "RC=9009"
 goto :done
 
 :use_py
-py -3 "%~dp0build_movielens_model.py" --catalog-only
 set "RC=%ERRORLEVEL%"
 goto :done
 
 :use_python
-python "%~dp0build_movielens_model.py" --catalog-only
 set "RC=%ERRORLEVEL%"
 goto :done
 

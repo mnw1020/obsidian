@@ -29,8 +29,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgt
 Кинопоиск ID: "8370937"
 Прогноз оценки: "4.0"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "4.0"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
