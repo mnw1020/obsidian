@@ -1,4 +1,4 @@
----
+﻿---
 Название: Through the Wormhole
 Просмотрено: 2014-02-06
 Оценка: "9"
@@ -30,8 +30,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMGQyNDAzNGItZWM5MC00ZDAxLTg1YjIt
 Кинопоиск ID: "542041"
 Прогноз оценки: "7.2"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "7.2"
 ---
 Посмотрен s04ep10
 
@@ -81,3 +79,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMGQyNDAzNGItZWM5MC00ZDAxLTg1YjItYzhkZmU5NGQzMWEzXkEyXkFqcGc@._V1_.jpg)
+

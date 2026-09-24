@@ -23,8 +23,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOGQzY2QxY2EtMzM0NS00NzgzLWI1YzEt
 Кинопоиск ID: "887519"
 Прогноз оценки: "6.3"
 Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "6.4"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,4 +68,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOGQzY2QxY2EtMzM0NS00NzgzLWI1YzEtMDNiODBkYTk1MjQ3XkEyXkFqcGc@._V1_SX300.jpg)
+
 

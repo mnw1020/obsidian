@@ -22,8 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2Ut
 Кинопоиск ID: "446136"
 Прогноз оценки: "4.9"
 Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.4"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -69,4 +67,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_.jpg)
+
 

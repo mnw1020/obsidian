@@ -22,8 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgw
 Кинопоиск ID: "677880"
 Прогноз оценки: "5.6"
 Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.3"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -69,4 +67,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgwMTgxOTQwMDE@._V1_.jpg)
+
 

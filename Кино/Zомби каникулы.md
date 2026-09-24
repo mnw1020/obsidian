@@ -1,4 +1,4 @@
----
+﻿---
 Название: Zомби каникулы
 Просмотрено: 2013-10-09
 Оценка: "1"
@@ -22,8 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZWU0NTRmMmYtNDA0Ni00ZmE1LTlmMWYt
 Кинопоиск ID: "659213"
 Прогноз оценки: "1.0"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "1.0"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -69,3 +67,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BZWU0NTRmMmYtNDA0Ni00ZmE1LTlmMWYtN2Y1NGRhNDNiMTI5XkEyXkFqcGc@._V1_.jpg)
+

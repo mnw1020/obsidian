@@ -1,4 +1,4 @@
----
+﻿---
 Название: All inclusive, или Всё включено
 Просмотрено: 2012-11-15
 Оценка: "3"
@@ -23,8 +23,6 @@ poster: https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGIt
 Кинопоиск ID: "521637"
 Прогноз оценки: "4.5"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "4.5"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -70,3 +68,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGItN2VmNjk1NjBkYzRkXkEyXkFqcGc@._V1_.jpg)
+

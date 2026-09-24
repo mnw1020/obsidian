@@ -4,7 +4,7 @@ $root = 'E:\_flashPhone_\_Sync\obsidian\Кино'
 Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.md' | ForEach-Object {
     $path = $_.FullName
     $text = Get-Content -LiteralPath $path -Raw
-    $next = [regex]::Replace($text, '(?m)^Прогноз MovieLens:\s*.*\r?\n', '')
+    $next = [regex]::Replace($text, '(?m)^(Прогноз MovieLens|Прогноз локальный|Прогноз метод):\s*.*\r?\n', '')
     if ($next -ne $text) { Set-Content -LiteralPath $path -Value $next -Encoding utf8 }
 }
 
@@ -28,6 +28,14 @@ foreach ($path in $files) {
     $text = Get-Content -LiteralPath $path -Raw
     $text = [regex]::Replace($text, '(?im)^.*movielens.*(?:\r?\n|$)', '')
     Set-Content -LiteralPath $path -Value $text -Encoding utf8
+}
+
+# Убираем остатки кнопки/подписи MovieLens в рекомендации.
+$recommend = "$root\_system\рекомендации.md"
+if (Test-Path -LiteralPath $recommend) {
+    $text = Get-Content -LiteralPath $recommend -Raw
+    $text = [regex]::Replace($text, '(?im)^.*MovieLens.*(?:\r?\n|$)', '')
+    Set-Content -LiteralPath $recommend -Value $text -Encoding utf8
 }
 
 Remove-Item -LiteralPath "$root\_system\Прогноз\movielens_neighbors.json" -Force -ErrorAction SilentlyContinue

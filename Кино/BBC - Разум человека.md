@@ -1,4 +1,4 @@
----
+﻿---
 Название: "BBC: The Human Mind"
 Просмотрено: 2013-10-27
 Оценка: "4"
@@ -21,8 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMt
 Кинопоиск ID: "690014"
 Прогноз оценки: "6.3"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "6.3"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -68,3 +66,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMtMjc2MDFmMWYxNmY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg)
+

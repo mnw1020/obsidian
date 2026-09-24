@@ -21,8 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAt
 Кинопоиск ID: "432794"
 Прогноз оценки: "4.2"
 Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.9"
 ---
 растянуто и скучно
 
@@ -72,4 +70,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg)
+
 

@@ -22,8 +22,6 @@ poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgt
 Кинопоиск ID: "489414"
 Прогноз оценки: "5.8"
 Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "6.2"
 ---
 Продолжение на порядок лучше. Сколько самоиронии и юморного
  легкого сарказма, просто класс. Спецэффекты на уровне.
@@ -74,4 +72,5 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg)
+
 

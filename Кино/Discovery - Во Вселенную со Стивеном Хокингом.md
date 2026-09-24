@@ -1,4 +1,4 @@
----
+﻿---
 Название: Into the Universe with Stephen Hawking
 Просмотрено: 2013-12-20
 Оценка: "6"
@@ -23,8 +23,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgw
 Кинопоиск ID: "542489"
 Прогноз оценки: "7.3"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "7.3"
 ---
 Красиво, спору нет, но слишком все «по детски» что-ли.. ничего нового.. кроме того, его сильно заносит временами.
 
@@ -74,3 +72,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTkyNTAwMTk2Ml5BMl5BanBnXkFtZTgwMDA2NjE0MzE@._V1_.jpg)
+

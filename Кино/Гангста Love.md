@@ -1,4 +1,4 @@
----
+﻿---
 Название: Rob the Mob
 Просмотрено: 2014-12-03
 Оценка: "4"
@@ -21,8 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgw
 Кинопоиск ID: "714718"
 Прогноз оценки: "5.7"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "5.7"
 ---
 скука
 
@@ -72,3 +70,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMjE4MTE4MTEyNl5BMl5BanBnXkFtZTgwMjIwNTgwMTE@._V1_.jpg)
+

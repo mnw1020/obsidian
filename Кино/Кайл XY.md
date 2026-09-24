@@ -1,4 +1,4 @@
----
+﻿---
 Название: Kyle XY
 Просмотрено: 2014-08-11
 Оценка: "8"
@@ -21,8 +21,6 @@ poster: https://m.media-amazon.com/images/M/MV5BNjlmNDU4ZWYtZDZjNy00OTA0LWFiOGQt
 Кинопоиск ID: "279077"
 Прогноз оценки: "7.4"
 Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "7.4"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -68,3 +66,4 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BNjlmNDU4ZWYtZDZjNy00OTA0LWFiOGQtYzRmMDc2MmRiNzdmXkEyXkFqcGc@._V1_.jpg)
+
