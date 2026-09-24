@@ -1472,5 +1472,89 @@
     "kpRating": null,
     "description": "",
     "source": "movie-planner"
+  },
+  "m:tt6791350": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273214003,
+    "kpId": "1044280",
+    "ruTitle": "Стражи Галактики. Часть 3",
+    "enTitle": "Guardians of the Galaxy Vol. 3",
+    "year": "2023",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt9362722": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273215043,
+    "kpId": "1219177",
+    "ruTitle": "Человек-паук: Паутина вселенных",
+    "enTitle": "Spider-Man: Across the Spider-Verse",
+    "year": "2022",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt12361974": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273216045,
+    "kpId": "1387021",
+    "ruTitle": "Лига справедливости Зака Снайдера",
+    "enTitle": "Zack Snyder's Justice League",
+    "year": "2021",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt3606756": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273216969,
+    "kpId": "839650",
+    "ruTitle": "Суперсемейка 2",
+    "enTitle": "Incredibles 2",
+    "year": "2018",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt0121766": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273219734,
+    "kpId": "5619",
+    "ruTitle": "Звёздные войны. Эпизод III: Месть ситхов",
+    "enTitle": "Star Wars: Episode III – Revenge of the Sith",
+    "year": "2005",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt1951264": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273221332,
+    "kpId": "602373",
+    "ruTitle": "Голодные игры: И вспыхнет пламя",
+    "enTitle": "The Hunger Games: Catching Fire",
+    "year": "2013",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
+  },
+  "m:tt0796366": {
+    "v": 7,
+    "found": true,
+    "checkedAt": 1790273226399,
+    "kpId": "229272",
+    "ruTitle": "Звёздный путь: Оригинальный сериал",
+    "enTitle": "Star Trek: The Original Series",
+    "year": "2009",
+    "kpRating": null,
+    "description": "",
+    "source": "wikidata"
   }
 }
