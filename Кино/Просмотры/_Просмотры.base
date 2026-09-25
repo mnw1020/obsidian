@@ -38,9 +38,11 @@ views:
       - formula.rating
       - Комментарий
     sort:
-      - property: Год
-        direction: DESC
+      - property: Фильм
+        direction: ASC
       - property: Дата
+        direction: ASC
+      - property: Год
         direction: DESC
       - property: Просмотр
         direction: DESC
