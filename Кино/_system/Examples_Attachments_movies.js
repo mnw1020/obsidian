@@ -6625,8 +6625,7 @@ async function runRatingForecast(params,file) {
 
         const result=await predictor({...params,targetFile:file,suppressNotice:true});
         if (result && Number.isFinite(Number(result.prediction))) {
-            const ml=result.movielens===null || result.movielens===undefined ? 'без MovieLens' : `MovieLens ${Number(result.movielens).toFixed(1)}`;
-            new ob.Notice(`Карточка добавлена. Прогноз: ${Number(result.prediction).toFixed(1)}/10, ${result.confidence || 'уверенность не определена'}, ${ml}.`,9000);
+            new ob.Notice(`Карточка добавлена. Прогноз: ${Number(result.prediction).toFixed(1)}/10.`,9000);
         } else {
             new ob.Notice('Карточка добавлена. Прогноз не рассчитан - проверь, что в базе достаточно твоих оценок.',9000);
         }

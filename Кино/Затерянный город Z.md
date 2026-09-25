@@ -19,11 +19,8 @@ tags:
 imdb Id: tt1212428
 poster: https://m.media-amazon.com/images/M/MV5BZmU2ODIyMWItMjU3Zi00ZmVhLWIyNDAtMWE5OWU2ZDExMGFiXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "432794"
-Прогноз оценки: "4.2"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.9"
-Прогноз MovieLens: "3.4"
+Прогноз оценки: "5.9"
+
 ---
 растянуто и скучно
 

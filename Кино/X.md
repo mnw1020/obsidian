@@ -21,9 +21,7 @@ imdb Id: tt13560574
 poster: https://m.media-amazon.com/images/M/MV5BODUwYTNhMTMtYWQ5Ny00YTdmLWIxOTAtNDczNzVlYzg2NDFkXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "4382899"
 Прогноз оценки: "5.3"
-Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "5.3"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

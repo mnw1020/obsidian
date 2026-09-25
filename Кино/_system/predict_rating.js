@@ -1,14 +1,12 @@
 /*
 QuickAdd user script: personal rating forecast for the active movie/series card.
 Works with the user's current Kino vault structure and automatically includes cards added later.
-Optional collaborative layer: Кино/_system/Прогноз/movielens_neighbors.json
 */
 module.exports = async (params) => {
     const { app, obsidian } = params;
     const { Notice } = obsidian;
 
     const ROOT = "Кино";
-    const MODEL_PATH = `${ROOT}/_system/Прогноз/movielens_neighbors.json`;
     const K_LOCAL = 55;
     const MIN_SIM = 0.055;
 
@@ -184,50 +182,6 @@ module.exports = async (params) => {
         return {pred,base:targetBase,correction,confidence:conf,neighbors:top};
     }
 
-    async function loadCollaborativeModel(){
-        const f=app.vault.getAbstractFileByPath(MODEL_PATH);
-        if(!f) return null;
-        try { return JSON.parse(await app.vault.read(f)); } catch (_) { return null; }
-    }
-    function pearsonCommon(userMap, neighborPairs){
-        const xs=[],ys=[];
-        for(const pair of neighborPairs||[]){
-            const id=pair[0], r=Number(pair[1]);
-            if(userMap.has(id) && Number.isFinite(r)){ xs.push(userMap.get(id)); ys.push(r); }
-        }
-        const n=xs.length;
-        if(n<4) return {n,corr:0,weight:0};
-        const mx=mean(xs), my=mean(ys); let nume=0,vx=0,vy=0;
-        for(let i=0;i<n;i++){ const dx=xs[i]-mx,dy=ys[i]-my; nume+=dx*dy;vx+=dx*dx;vy+=dy*dy; }
-        const corr=(vx>0&&vy>0)?nume/Math.sqrt(vx*vy):0;
-        const shrink=n/(n+12);
-        return {n,corr,weight:corr*shrink};
-    }
-    function collaborativePrediction(target, rated, model){
-        if(!model || !target.imdbId || !Array.isArray(model.users)) return null;
-        const userMap=new Map(rated.filter(x=>x.imdbId && x.rating!==null).map(x=>[x.imdbId,x.rating]));
-        const userMean=mean([...userMap.values()]) || 6;
-        let nume=0,den=0,count=0,overlapTotal=0;
-        const contributors=[];
-        for(const u of model.users){
-            const pairs=u.ratings || [];
-            let targetRating=null;
-            for(const p of pairs){ if(p[0]===target.imdbId){ targetRating=Number(p[1]); break; } }
-            if(targetRating===null || !Number.isFinite(targetRating)) continue;
-            const sim=pearsonCommon(userMap,pairs);
-            if(sim.n<4 || sim.weight<=0.02) continue;
-            const um=Number(u.mean);
-            const centered=targetRating-(Number.isFinite(um)?um:mean(pairs.map(p=>Number(p[1])).filter(Number.isFinite))||6);
-            nume+=sim.weight*centered; den+=Math.abs(sim.weight); count++; overlapTotal+=sim.n;
-            contributors.push({w:sim.weight,n:sim.n,r:targetRating});
-        }
-        if(count<3 || den<0.08) return null;
-        const pred=clamp(userMean+nume/den,1,10);
-        contributors.sort((a,b)=>Math.abs(b.w)-Math.abs(a.w));
-        const conf=clamp((Math.log1p(count)/Math.log(80))*0.65 + (Math.min(40,overlapTotal/count)/40)*0.35,0,1);
-        return {pred,confidence:conf,count,contributors:contributors.slice(0,10)};
-    }
-
     function confidenceText(x){ return x>=0.72?"высокая":x>=0.46?"средняя":"низкая"; }
 
     const active=params?.targetFile || app.workspace.getActiveFile();
@@ -251,41 +205,11 @@ module.exports = async (params) => {
     }
 
     const local=await localPrediction(target,rated);
-    const model=await loadCollaborativeModel();
-    const collab=collaborativePrediction(target,rated,model);
-
-    let finalPred=local.pred, method="локальная интерполяция", confidence=local.confidence;
-    if(collab){
-        const wc=0.50 + 0.30*collab.confidence;
-        const wl=1-wc;
-        finalPred=clamp(wc*collab.pred + wl*local.pred,1,10);
-        confidence=clamp(0.55*collab.confidence+0.45*local.confidence,0,1);
-        method="MovieLens + локальная интерполяция";
-    }
-    finalPred=Math.round(finalPred*10)/10;
+    const finalPred=Math.round(local.pred*10)/10;
 
     await app.fileManager.processFrontMatter(active, fm => {
         fm["Прогноз оценки"] = finalPred.toFixed(1);
-        fm["Прогноз уверенность"] = confidenceText(confidence);
-        fm["Прогноз метод"] = method;
-        fm["Прогноз локальный"] = (Math.round(local.pred*10)/10).toFixed(1);
-        if(collab) fm["Прогноз MovieLens"] = (Math.round(collab.pred*10)/10).toFixed(1);
-        else delete fm["Прогноз MovieLens"];
     });
-
-    const result = {
-        prediction: finalPred,
-        local: Math.round(local.pred*10)/10,
-        movielens: collab ? Math.round(collab.pred*10)/10 : null,
-        confidence: confidenceText(confidence),
-        method,
-        movielensNeighbors: collab?.count || 0,
-        real: target.rating
-    };
-    if(!params?.suppressNotice){
-        const real = target.rating!==null ? ` Реальная оценка: ${target.rating.toFixed(1)}.` : "";
-        const ml = collab ? ` MovieLens: ${collab.pred.toFixed(1)} (${collab.count} соседей).` : " MovieLens: данных нет, использована интерполяция.";
-        new Notice(`Прогноз: ${finalPred.toFixed(1)}/10. Уверенность: ${confidenceText(confidence)}. Локальный: ${local.pred.toFixed(1)}.${ml}${real}`,12000);
-    }
-    return result;
+    if (!params?.suppressNotice) new Notice(`Прогноз: ${finalPred.toFixed(1)}/10.`, 9000);
+    return {prediction: finalPred, real: target.rating};
 };

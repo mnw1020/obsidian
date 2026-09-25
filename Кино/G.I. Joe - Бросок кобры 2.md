@@ -20,11 +20,8 @@ imdb Id: tt1583421
 poster: https://m.media-amazon.com/images/M/MV5BNzk5ODM0OTQ0N15BMl5BanBnXkFtZTcwODg2ODE4OA@@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/G.I. Joe]]"
 Кинопоиск ID: "494839"
-Прогноз оценки: "5.1"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.2"
-Прогноз MovieLens: "5.1"
+Прогноз оценки: "5.3"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

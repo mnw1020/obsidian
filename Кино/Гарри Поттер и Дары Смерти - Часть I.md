@@ -20,11 +20,8 @@ imdb Id: tt0926084
 poster: https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcwODE3MDAwNA@@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Волшебный мир Гарри Поттера]]"
 Кинопоиск ID: "276762"
-Прогноз оценки: "6.7"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "7.6"
-Прогноз MovieLens: "6.5"
+Прогноз оценки: "7.6"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

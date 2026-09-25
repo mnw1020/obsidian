@@ -21,9 +21,7 @@ imdb Id: tt3039378
 poster: https://m.media-amazon.com/images/M/MV5BZWU0NTRmMmYtNDA0Ni00ZmE1LTlmMWYtN2Y1NGRhNDNiMTI5XkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "659213"
 Прогноз оценки: "1.0"
-Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "1.0"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

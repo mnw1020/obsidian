@@ -20,11 +20,8 @@ imdb Id: tt4649466
 poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "906654"
-Прогноз оценки: "5.4"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "6.4"
-Прогноз MovieLens: "5.1"
+Прогноз оценки: "6.4"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

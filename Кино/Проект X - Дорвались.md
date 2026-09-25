@@ -19,11 +19,8 @@ tags:
 imdb Id: tt1636826
 poster: https://m.media-amazon.com/images/M/MV5BMTc1MTk0Njg4OF5BMl5BanBnXkFtZTcwODc0ODkyNw@@._V1_.jpg
 Кинопоиск ID: "507440"
-Прогноз оценки: "5.6"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "6.8"
-Прогноз MovieLens: "5.1"
+Прогноз оценки: "6.8"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

@@ -20,11 +20,8 @@ imdb Id: tt1365519
 poster: https://m.media-amazon.com/images/M/MV5BMTIwNWU2NTEtMDQ0Yi00MjFkLThhN2UtMjJhOGVjN2UyYzFkXkEyXkFqcGc@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Лара Крофт]]"
 Кинопоиск ID: "446136"
-Прогноз оценки: "4.9"
-Прогноз уверенность: высокая
-Прогноз метод: MovieLens + локальная интерполяция
-Прогноз локальный: "5.4"
-Прогноз MovieLens: "4.7"
+Прогноз оценки: "5.4"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

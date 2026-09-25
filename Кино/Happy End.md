@@ -20,9 +20,7 @@ imdb Id: tt12908084
 poster: https://m.media-amazon.com/images/M/MV5BOWE4MDI4ZDQtZDM0NC00MzgyLWFiNzItY2EyZTI3NjIxM2QxXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "1328036"
 Прогноз оценки: "5.9"
-Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "5.9"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs

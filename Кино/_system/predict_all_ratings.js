@@ -3,14 +3,12 @@ QuickAdd user script: bulk personal rating forecast for ALL movie/series cards.
 Writes forecast YAML properties to every root card in Кино/.
 Does NOT overwrite the user's real field "Оценка".
 Automatically includes cards added later: just run this script again.
-Optional collaborative layer: Кино/_system/Прогноз/movielens_neighbors.json
 */
 module.exports = async (params) => {
     const { app, obsidian } = params;
     const { Notice } = obsidian;
 
     const ROOT = "Кино";
-    const MODEL_PATH = `${ROOT}/_system/Прогноз/movielens_neighbors.json`;
     const K_LOCAL = 55;
     const MIN_SIM = 0.055;
 
@@ -202,76 +200,6 @@ module.exports = async (params) => {
         return {pred,confidence:conf};
     }
 
-    async function loadCollaborativeModel(){
-        const f=app.vault.getAbstractFileByPath(MODEL_PATH);
-        if(!f) return null;
-        try{return JSON.parse(await app.vault.read(f));}catch(_){return null;}
-    }
-
-    function buildCollaborativeCache(ratedAll,model){
-        if(!model || !Array.isArray(model.users)) return null;
-        const personal=new Map(ratedAll.filter(x=>x.imdbId).map(x=>[x.imdbId,x.rating]));
-        const targetIndex=new Map();
-        const users=[];
-        for(const u of model.users){
-            let n=0,sx=0,sy=0,sxx=0,syy=0,sxy=0;
-            const clean=[];
-            for(const p of (u.ratings||[])){
-                const id=p[0], y=Number(p[1]);
-                if(!id || !Number.isFinite(y)) continue;
-                clean.push([id,y]);
-                if(!targetIndex.has(id)) targetIndex.set(id,[]);
-                targetIndex.get(id).push({idx:users.length,r:y});
-                const x=personal.get(id);
-                if(Number.isFinite(x)){
-                    n++; sx+=x; sy+=y; sxx+=x*x; syy+=y*y; sxy+=x*y;
-                }
-            }
-            users.push({
-                mean:Number.isFinite(Number(u.mean))?Number(u.mean):(mean(clean.map(p=>p[1]))||6),
-                n,sx,sy,sxx,syy,sxy
-            });
-        }
-        return {personal,targetIndex,users};
-    }
-
-    function pearsonFromStats(st,excludeX=null,excludeY=null){
-        let {n,sx,sy,sxx,syy,sxy}=st;
-        if(Number.isFinite(excludeX) && Number.isFinite(excludeY)){
-            n--; sx-=excludeX; sy-=excludeY; sxx-=excludeX*excludeX; syy-=excludeY*excludeY; sxy-=excludeX*excludeY;
-        }
-        if(n<4) return {n,corr:0,weight:0};
-        const nume=sxy-(sx*sy/n);
-        const vx=sxx-(sx*sx/n), vy=syy-(sy*sy/n);
-        const corr=(vx>1e-9&&vy>1e-9)?nume/Math.sqrt(vx*vy):0;
-        const shrink=n/(n+12);
-        return {n,corr,weight:corr*shrink};
-    }
-
-    function collaborativePrediction(target,ratedAll,cache,summary){
-        if(!cache || !target.imdbId) return null;
-        const refs=cache.targetIndex.get(target.imdbId);
-        if(!refs || !refs.length) return null;
-        const excludeReal=target.rating!==null && target.rating>=1 && target.rating<=10;
-        const ratingN=summary.ratingN-(excludeReal?1:0);
-        const ratingSum=summary.ratingSum-(excludeReal?target.rating:0);
-        const userMean=ratingN>0?ratingSum/ratingN:6;
-        let nume=0,den=0,count=0,overlapTotal=0;
-        for(const ref of refs){
-            const u=cache.users[ref.idx];
-            const sim=pearsonFromStats(u,excludeReal?target.rating:null,excludeReal?ref.r:null);
-            if(sim.n<4 || sim.weight<=0.02) continue;
-            const centered=ref.r-u.mean;
-            nume+=sim.weight*centered;
-            den+=Math.abs(sim.weight);
-            count++; overlapTotal+=sim.n;
-        }
-        if(count<3 || den<0.08) return null;
-        const pred=clamp(userMean+nume/den,1,10);
-        const conf=clamp((Math.log1p(count)/Math.log(80))*0.65+(Math.min(40,overlapTotal/count)/40)*0.35,0,1);
-        return {pred,confidence:conf,count};
-    }
-
     function confidenceText(x){return x>=0.72?"высокая":x>=0.46?"средняя":"низкая";}
     function fixed1(x){return (Math.round(x*10)/10).toFixed(1);}
 
@@ -293,50 +221,20 @@ module.exports = async (params) => {
     const vectors=new Map();
     for(const item of items) vectors.set(item.file.path,tfidfMap(item,idf));
     const summary=calibrationSummary(ratedAll);
-    const model=await loadCollaborativeModel();
-    const collabCache=buildCollaborativeCache(ratedAll,model);
-
-    let updated=0,unchanged=0,withMl=0,localOnly=0,failed=0;
+    let updated=0,unchanged=0,failed=0;
     new Notice(`Считаю прогнозы для ${items.length} карточек. Это может занять несколько минут...`,8000);
 
     for(let i=0;i<items.length;i++){
         const target=items[i];
         try{
             const local=localPrediction(target,ratedAll,vectors,summary);
-            const collab=collaborativePrediction(target,ratedAll,collabCache,summary);
-            let finalPred=local.pred,method="локальная интерполяция",confidence=local.confidence;
-            if(collab){
-                const wc=0.50+0.30*collab.confidence, wl=1-wc;
-                finalPred=clamp(wc*collab.pred+wl*local.pred,1,10);
-                confidence=clamp(0.55*collab.confidence+0.45*local.confidence,0,1);
-                method="MovieLens + локальная интерполяция";
-                withMl++;
-            }else localOnly++;
-
-            const desired={
-                "Прогноз оценки":fixed1(finalPred),
-                "Прогноз уверенность":confidenceText(confidence),
-                "Прогноз метод":method,
-                "Прогноз локальный":fixed1(local.pred),
-                "Прогноз MovieLens":collab?fixed1(collab.pred):null
-            };
-            const fm=target.fm||{};
-            const same=asText(fm["Прогноз оценки"])===desired["Прогноз оценки"] &&
-                asText(fm["Прогноз уверенность"])===desired["Прогноз уверенность"] &&
-                asText(fm["Прогноз метод"])===desired["Прогноз метод"] &&
-                asText(fm["Прогноз локальный"])===desired["Прогноз локальный"] &&
-                (desired["Прогноз MovieLens"]===null ? !asText(fm["Прогноз MovieLens"]) : asText(fm["Прогноз MovieLens"])===desired["Прогноз MovieLens"]);
-
+            const desired=fixed1(local.pred);
+            const same=asText(target.fm?.["Прогноз оценки"])===desired;
             if(same){
                 unchanged++;
             }else{
                 await app.fileManager.processFrontMatter(target.file, frontmatter=>{
-                    frontmatter["Прогноз оценки"]=desired["Прогноз оценки"];
-                    frontmatter["Прогноз уверенность"]=desired["Прогноз уверенность"];
-                    frontmatter["Прогноз метод"]=desired["Прогноз метод"];
-                    frontmatter["Прогноз локальный"]=desired["Прогноз локальный"];
-                    if(desired["Прогноз MovieLens"]!==null) frontmatter["Прогноз MovieLens"]=desired["Прогноз MovieLens"];
-                    else delete frontmatter["Прогноз MovieLens"];
+                    frontmatter["Прогноз оценки"]=desired;
                 });
                 updated++;
             }
@@ -347,5 +245,5 @@ module.exports = async (params) => {
         if((i+1)%50===0) await new Promise(r=>setTimeout(r,0));
     }
 
-    new Notice(`Готово. Карточек: ${items.length}. Обновлено: ${updated}. Без изменений: ${unchanged}. MovieLens: ${withMl}. Только интерполяция: ${localOnly}. Ошибок: ${failed}.`,15000);
+    new Notice(`Готово. Карточек: ${items.length}. Обновлено: ${updated}. Без изменений: ${unchanged}. Ошибок: ${failed}.`,15000);
 };

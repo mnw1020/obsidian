@@ -19,10 +19,8 @@ tags:
 imdb Id: tt10073724
 poster: https://m.media-amazon.com/images/M/MV5BMTM5NzRiYjEtZmQwMC00YmVhLWI1NTMtMjc2MDFmMWYxNmY5XkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg
 Кинопоиск ID: "690014"
-Прогноз оценки: "6.3"
-Прогноз уверенность: высокая
-Прогноз метод: локальная интерполяция
-Прогноз локальный: "6.3"
+Прогноз оценки: "5.6"
+
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
