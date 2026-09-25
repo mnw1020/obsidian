@@ -148,7 +148,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            file = await app.vault.create(path, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`);
+            file = await app.vault.create(path, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`);
             return;
         }
         const current = await app.vault.read(file);

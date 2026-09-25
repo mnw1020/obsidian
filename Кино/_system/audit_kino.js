@@ -3,7 +3,7 @@ module.exports = async (params) => {
     const { Notice, normalizePath } = obsidian;
 
     const ROOT = "Кино";
-    const REPORT_PATH = `${ROOT}/_system/Проверка кинотеки.md`;
+    const REPORT_PATH = `${ROOT}/_Проверка кинотеки.md`;
     const CHANGELOG_PATH = `${ROOT}/_system/Журнал изменений.md`;
     const VIEWINGS_PREFIX = `${ROOT}/Просмотры/`;
     const SEASONS_PREFIX = `${ROOT}/Сезоны/`;

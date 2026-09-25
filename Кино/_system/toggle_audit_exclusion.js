@@ -53,7 +53,7 @@ module.exports = async params => {
     else await app.vault.create(normalizePath(EXCLUSION_PATH), next);
 
     new Notice(exclude ? `Исключено из проверки: ${file.basename}` : `Возвращено в проверку: ${file.basename}`, 5000);
-    const report = app.vault.getAbstractFileByPath(normalizePath(`${ROOT}/_system/Проверка кинотеки.md`));
+    const report = app.vault.getAbstractFileByPath(normalizePath(`${ROOT}/_Проверка кинотеки.md`));
     const command = Object.values(app.commands?.commands || {}).find(c =>
         /Кино - Проверить кинотеку/i.test(String(c.name || c.id || "")));
     if (command?.id) app.commands.executeCommandById(command.id);
