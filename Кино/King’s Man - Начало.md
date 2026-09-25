@@ -21,7 +21,7 @@ imdb Id: tt6856242
 poster: https://m.media-amazon.com/images/M/MV5BNjY3YTY3MGMtMjVmYS00ZmM3LWIxMDAtYWVhZTAyZDMwNmMwXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "1045056"
-Прогноз оценки: "4.8"
+Прогноз оценки: "4.6"
 
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->

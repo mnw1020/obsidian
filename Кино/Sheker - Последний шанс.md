@@ -20,7 +20,7 @@ tags:
 imdb Id: tt37660303
 poster: https://m.media-amazon.com/images/M/MV5BZWIzZjc3ZjEtMDRhZS00YjY4LWI0OGQtODEyYWIwYWZlOWUzXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "6264285"
-Прогноз оценки: "6.0"
+Прогноз оценки: "5.7"
 
 ---
 Слабее конечно, чем сериал, но тоже неплохо. Эпизод в бангкоке огонь)

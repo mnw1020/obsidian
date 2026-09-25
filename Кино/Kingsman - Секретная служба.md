@@ -21,7 +21,7 @@ imdb Id: tt2802144
 poster: https://m.media-amazon.com/images/M/MV5BODk1MTYwNTAtYmI5Zi00OWYyLWE0MzQtOWE4NDIxZmU2MjMwXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "749540"
-Прогноз оценки: "6.5"
+Прогноз оценки: "6.4"
 
 ---
 ярко, но глуповато

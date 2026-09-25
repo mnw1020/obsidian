@@ -21,7 +21,7 @@ imdb Id: tt3013602
 poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Superнянь]]"
 Кинопоиск ID: "777091"
-Прогноз оценки: "6.4"
+Прогноз оценки: "6.3"
 
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->

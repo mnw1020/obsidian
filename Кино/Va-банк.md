@@ -20,7 +20,7 @@ tags:
 imdb Id: tt2364841
 poster: https://m.media-amazon.com/images/M/MV5BMTU5OTA0MjI4Ml5BMl5BanBnXkFtZTgwMTgxOTQwMDE@._V1_.jpg
 Кинопоиск ID: "677880"
-Прогноз оценки: "5.3"
+Прогноз оценки: "5.2"
 
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->

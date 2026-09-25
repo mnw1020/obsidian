@@ -19,7 +19,7 @@ tags:
 imdb Id: tt2369135
 poster: https://m.media-amazon.com/images/M/MV5BMTQ3ODY4NzYzOF5BMl5BanBnXkFtZTgwNjI3OTE4MDE@._V1_.jpg
 Кинопоиск ID: "678975"
-Прогноз оценки: "6.3"
+Прогноз оценки: "6.4"
 
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->

@@ -28,7 +28,7 @@ tags:
 imdb Id: tt1513168
 poster: https://m.media-amazon.com/images/M/MV5BMGQyNDAzNGItZWM5MC00ZDAxLTg1YjItYzhkZmU5NGQzMWEzXkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "542041"
-Прогноз оценки: "7.2"
+Прогноз оценки: "7.0"
 
 ---
 Посмотрен s04ep10

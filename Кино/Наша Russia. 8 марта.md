@@ -27,7 +27,7 @@ tags:
 imdb Id: tt33094176
 poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "8370937"
-Прогноз оценки: "4.0"
+Прогноз оценки: "3.8"
 
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
