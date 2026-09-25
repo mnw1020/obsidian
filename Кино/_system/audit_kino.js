@@ -622,8 +622,6 @@ module.exports = async (params) => {
     let report = `# Проверка кинотеки\n\n`;
     report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]] · [[Кино/_system/Исключения|⛔ Исключения]]\n\n`;
     report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl})\n\n`;
-    report += `> Последняя проверка: **${timestamp}**  \n`;
-    report += `> Аудит ничего не исправляет. Безопасное исправление меняет только однозначные форматные ошибки.\n\n`;
     report += `## Состояние кинотеки\n\n`;
     report += `**${media.length} карточек** · **${movies} фильмов** · **${serials} сериалов** · **${viewFiles.length} просмотров** · **${seasonFiles.length} сезонов**\n\n`;
     report += `- Последняя проверка: **${timestamp}**.\n`;
