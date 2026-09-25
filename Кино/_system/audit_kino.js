@@ -227,8 +227,30 @@ module.exports = async (params) => {
         return `${base}|${normalizeText(personRole(value))}`;
     }
 
+    const exclusionPath = `${ROOT}/_system/Исключения.md`;
+    let excludedPaths = new Set();
+    const exclusionFile = app.vault.getAbstractFileByPath(exclusionPath);
+    if (exclusionFile) {
+        const exclusionText = await app.vault.read(exclusionFile);
+        for (const match of exclusionText.matchAll(/\[\[(Кино\/[^\]|]+)(?:\|[^\]]+)?\]\]/g)) {
+            const path = match[1].endsWith(".md") ? match[1] : `${match[1]}.md`;
+            excludedPaths.add(path);
+        }
+    }
+    const toggleChoice = encodeURIComponent("Кино - Переключить исключение аудита");
+    const exclusionAction = file => ` [\\[ исключить \\]](obsidian://quickadd?choice=${toggleChoice}&value-path=${encodeURIComponent(file.path)}&value-action=exclude)`;
+    const exclusionTarget = file => {
+        if (isMedia(file)) return file;
+        if (file?.path?.startsWith(`${ROOT}/_system/Роли/`) && file.basename.endsWith(".роли")) {
+            const main = app.vault.getAbstractFileByPath(`${ROOT}/${file.basename.slice(0, -5)}.md`);
+            if (isMedia(main)) return main;
+        }
+        return null;
+    };
     const allMarkdown = app.vault.getMarkdownFiles();
-    const mediaFiles = allMarkdown.filter(isMedia).sort((a, b) => a.path.localeCompare(b.path, "ru"));
+    const mediaFiles = allMarkdown.filter(isMedia)
+        .filter(file => !excludedPaths.has(file.path))
+        .sort((a, b) => a.path.localeCompare(b.path, "ru"));
     const media = mediaFiles.filter(file => !isTemplate(file, getFrontmatter(file)));
     const templates = mediaFiles.filter(file => isTemplate(file, getFrontmatter(file)));
     const viewFiles = allMarkdown.filter(isViewing);
@@ -241,9 +263,13 @@ module.exports = async (params) => {
     const warnings = [];
     const possibleDuplicates = [];
     const info = [];
+    if (excludedPaths.size) info.push(`Исключено из проверки: **${excludedPaths.size}**.`);
 
     const addError = (file, message) => errors.push(`${fileLink(file)} - ${message}`);
-    const addWarning = (file, message) => warnings.push(`${fileLink(file)} - ${message}`);
+    const addWarning = (file, message) => {
+        const target = exclusionTarget(file);
+        warnings.push(`${fileLink(file)} - ${message}${target ? exclusionAction(target) : ""}`);
+    };
 
     const titleKeys = new Map();
     const imdbKeys = new Map();
@@ -470,6 +496,7 @@ module.exports = async (params) => {
     for (const file of viewFiles) {
         const fm = getFrontmatter(file);
         const target = resolveLink(fm.Фильм, file.path);
+        if (target && excludedPaths.has(target.path)) continue;
         const mediaFile = target && mediaByPath.get(target.path);
         if (!mediaFile) {
             addError(file, "поле `Фильм` не ведёт на карточку фильма или сериала.");
@@ -521,6 +548,7 @@ module.exports = async (params) => {
     for (const file of seasonFiles) {
         const fm = getFrontmatter(file);
         const target = resolveLink(fm.Сериал, file.path);
+        if (target && excludedPaths.has(target.path)) continue;
         const mediaFile = target && mediaByPath.get(target.path);
         if (!mediaFile) {
             addError(file, "поле `Сериал` не ведёт на карточку сериала.");
@@ -592,7 +620,7 @@ module.exports = async (params) => {
     const checkUrl = encodeURIComponent("Кино - Проверить кинотеку");
     const fixUrl = encodeURIComponent("Кино - Исправить безопасное");
     let report = `# Проверка кинотеки\n\n`;
-    report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n`;
+    report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]] · [[Кино/_system/Исключения|⛔ Исключения]]\n\n`;
     report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl})\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит ничего не исправляет. Безопасное исправление меняет только однозначные форматные ошибки.\n\n`;
@@ -606,19 +634,19 @@ module.exports = async (params) => {
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
     report += renderSection("🔎 Возможные дубли", possibleDuplicates, "Похожих дублей не найдено.");
+
     report += `## Что проверяется\n\n`;
-    report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
-    report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
-    report += `- IMDb ID и повторное использование одного ID;\n`;
-    report += "- корректность КП ID; отсутствие КП ID показывается в предупреждениях;\n";
-    report += "- только латинские имена режиссёров и актёров; любая кириллица считается ошибкой;\n";
-    report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер` и `Жанр`, а также в файлах ролей;\n";
-    report += "- наличие пары карточка + `_system/Роли/<название>.роли.md`, раскрывающегося блока ролей V2 и корректной обратной ссылки;\n";
-    report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
-    report += "- наличие единственной кнопки `🔎 Найти похожие` V2;\n";
-    report += "- записи просмотров и соответствие `Количество просмотров`;\n";
-    report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";
-    report += "- исходное написание имён и ролей, скобки, wikilink-ссылки и дубли в карточках.\n";
+    report += "- карточки фильмов и сериалов: название, теги, релиз, личные/внешние оценки, число голосов, длительность, часть и счётчики;\n";
+    report += "- IMDb ID и КП ID: формат, повторное использование IMDb ID; отсутствие ID отмечается предупреждением;\n";
+    report += "- постер, режиссёр, актёры, жанры и роли: заполненность, допустимое написание, формат, скобки, wikilinks и дубли;\n";
+    report += "- файлы ролей: наличие и непустой YAML, ссылка на основную карточку, совпадение людей/жанров с карточкой;\n";
+    report += "- шаблонный блок ролей и кнопка рекомендаций: устаревший блок и отсутствие или дублирование кнопки;\n";
+    report += "- ссылки на франшизы и связанные карточки: формат, повторения, существование цели и тип страницы франшизы;\n";
+    report += "- записи просмотров: ссылка на фильм/сериал, номер, дата, оценка и флаг последнего просмотра;\n";
+    report += "- история просмотров: повторяющиеся и пропущенные номера, количество записей и отметка последнего просмотра;\n";
+    report += "- записи сезонов: ссылка на сериал, тег `serial`, номер, дата и оценка;\n";
+    report += "- сезоны сериала: повторяющиеся и пропущенные номера, количество файлов сезонов и номер последнего сезона;\n";
+    report += "- карточки-шаблоны без названия, пропуски IMDb ID/постера и возможные дубли названий.\n";
 
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);

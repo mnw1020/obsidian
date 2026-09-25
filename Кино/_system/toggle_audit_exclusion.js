@@ -1,5 +1,5 @@
 const ROOT = "Кино";
-const EXCLUSION_PATH = `${ROOT}/_system/исключения.md`;
+const EXCLUSION_PATH = `${ROOT}/_system/Исключения.md`;
 const AUDIT_CHOICE = "Кино - Проверить кинотеку";
 
 module.exports = async params => {
@@ -45,7 +45,7 @@ module.exports = async params => {
         const basename = p.split("/").pop().replace(/\.md$/i, "");
         const encoded = encodeURIComponent(p);
         const verb = paths.has(p) ? "include" : "exclude";
-        return `- [[${p}|${basename}]] [${verb === "include" ? "вернуть" : "исключить"}](obsidian://quickadd?choice=${choice}&value-path=${encoded}&value-action=${verb})`;
+        return `- [[${p}|${basename}]] [\\[ ${verb === "include" ? "вернуть" : "исключить"} \\]](obsidian://quickadd?choice=${choice}&value-path=${encoded}&value-action=${verb})`;
     });
     const header = "# Исключения проверки кинотеки\n\nКарточки в этом списке аудит пропускает. Ссылка «вернуть» удаляет карточку из исключений.\n\n";
     const next = header + (lines.length ? lines.join("\n") + "\n" : "Список пуст.\n");
