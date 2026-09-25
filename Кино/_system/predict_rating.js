@@ -116,6 +116,40 @@ module.exports = async (params) => {
         return globalMean;
     }
 
+    function categoryResidualCorrection(target, rated, calibration, globalMean) {
+        const groups = ["genres", "decade", "duration", "franchise"];
+        const residuals = new Map(groups.map(group => [group, new Map()]));
+        const keysFor = item => ({
+            genres: [...item.genres],
+            decade: item.releaseYear === null ? [] : [`${Math.floor(item.releaseYear / 10) * 10}s`],
+            duration: item.duration === null ? [] : [item.duration < 90 ? "short" : item.duration < 130 ? "medium" : "long"],
+            franchise: item.franchise ? [item.franchise] : []
+        });
+
+        for (const item of rated) {
+            const residual = item.rating - baseline(item, calibration, globalMean);
+            for (const [group, keys] of Object.entries(keysFor(item))) {
+                const values = residuals.get(group);
+                for (const key of keys) {
+                    const current = values.get(key) || {sum: 0, count: 0};
+                    current.sum += residual;
+                    current.count++;
+                    values.set(key, current);
+                }
+            }
+        }
+
+        const featureEffects = [];
+        for (const [group, keys] of Object.entries(keysFor(target))) {
+            const effects = keys
+                .map(key => residuals.get(group).get(key))
+                .filter(Boolean)
+                .map(value => value.sum / (value.count + 10));
+            if (effects.length) featureEffects.push(mean(effects));
+        }
+        return featureEffects.length ? mean(featureEffects) : 0;
+    }
+
     function buildIdf(items) {
         const df = new Map();
         for (const item of items) {
@@ -176,10 +210,11 @@ module.exports = async (params) => {
         let sw=0,sr=0;
         for(const x of top){ const w=Math.pow(x.sim,3); sw+=w; sr+=w*x.resid; }
         const correction=sw>1e-9 ? sr/sw : 0;
-        const pred=clamp(targetBase+correction,1,10);
+        const categoryCorrection=categoryResidualCorrection(target,rated,calibration,globalMean);
+        const pred=clamp(targetBase+correction+0.75*categoryCorrection,1,10);
         const topMean=top.length ? mean(top.slice(0,10).map(x=>x.sim)) : 0;
         const conf=clamp((top.length/35)*0.5 + topMean*0.7,0,1);
-        return {pred,base:targetBase,correction,confidence:conf,neighbors:top};
+        return {pred,base:targetBase,correction,categoryCorrection,confidence:conf,neighbors:top};
     }
 
     function confidenceText(x){ return x>=0.72?"высокая":x>=0.46?"средняя":"низкая"; }
