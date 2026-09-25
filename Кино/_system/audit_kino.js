@@ -275,9 +275,6 @@ module.exports = async (params) => {
             addError(file, "устаревший раскрывающийся блок ролей: используйте ссылку в YAML.");
         }
         if (recommendV2Count !== 1) addError(file, "кнопка `🔎 Найти похожие` V2 отсутствует или продублирована.");
-        if (recommendV2Count === 1 && !/\n\n<!-- KINO:RECOMMEND:BUTTON:V2 -->[\s\S]*?^```[ \t]*\r?\n\r?\n/m.test(rawCard)) {
-            addWarning(file, "до и после кнопки `🔎 Найти похожие` должна быть пустая строка.");
-        }
 
         if (!title) addError(file, "отсутствует свойство `Название`.");
         if (mediaTags.length > 1) addWarning(file, "одновременно стоят теги `movies` и `serial`.");
@@ -296,6 +293,7 @@ module.exports = async (params) => {
         if (!kinopoiskId || /^(none|null|n\/a)$/i.test(kinopoiskId)) {
             // КП ID необязателен: роли и другие данные могут быть получены по IMDb.
             missingKinopoiskIds.push(file);
+            addWarning(file, "не указан Кинопоиск ID.");
         } else if (!/^\d+$/.test(kinopoiskId)) {
             addError(file, `некорректный Кинопоиск ID: \`${kinopoiskId}\`.`);
         }
@@ -607,19 +605,17 @@ module.exports = async (params) => {
     report += `## Итог\n\n- Ошибок: **${errors.length}**.\n- Предупреждений: **${warnings.length}**.\n${info.map(item => `- ${item}`).join("\n")}\n\n`;
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
-    report += renderSection("ℹ️ Карточки без Кинопоиск ID", missingKinopoiskIds.map(file => fileLink(file)), "Все карточки содержат КП ID.");
     report += renderSection("🔎 Возможные дубли", possibleDuplicates, "Похожих дублей не найдено.");
-    report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n\n";
     report += `## Что проверяется\n\n`;
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;
     report += `- IMDb ID и повторное использование одного ID;\n`;
-    report += "- КП ID, если он указан; отсутствие КП ID допустимо и показывается отдельным списком;\n";
+    report += "- корректность КП ID; отсутствие КП ID показывается в предупреждениях;\n";
     report += "- только латинские имена режиссёров и актёров; любая кириллица считается ошибкой;\n";
     report += "- вложенные скобки, повторяющиеся имена, wikilinks и дубли в `Режисер` и `Жанр`, а также в файлах ролей;\n";
     report += "- наличие пары карточка + `_system/Роли/<название>.роли.md`, раскрывающегося блока ролей V2 и корректной обратной ссылки;\n";
     report += `- связи с франшизами, первоисточниками и другими карточками;\n`;
-    report += "- наличие единственной кнопки `🔎 Найти похожие` V2 и пустых строк вокруг неё;\n";
+    report += "- наличие единственной кнопки `🔎 Найти похожие` V2;\n";
     report += "- записи просмотров и соответствие `Количество просмотров`;\n";
     report += "- записи сезонов, номера, пропуски и соответствие `Количество сезонов`;\n";
     report += "- исходное написание имён и ролей, скобки, wikilink-ссылки и дубли в карточках.\n";
