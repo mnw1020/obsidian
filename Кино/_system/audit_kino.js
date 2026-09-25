@@ -619,15 +619,15 @@ module.exports = async (params) => {
 
     const checkUrl = encodeURIComponent("Кино - Проверить кинотеку");
     const fixUrl = encodeURIComponent("Кино - Исправить безопасное");
+    const rolesUrl = encodeURIComponent("Кино - Обновить роли актёров");
     let report = `# Проверка кинотеки\n\n`;
-    report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]] · [[Кино/_system/Исключения|⛔ Исключения]]\n\n`;
-    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl})\n\n`;
+    report += `[[Кино/_index|← Кино]] · [[Кино/_system/Журнал изменений|📜 Журнал]] · [[Кино/_system/Исключения|⛔ Исключения]]\n\n`;
+    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl}) · [Обновить роли](obsidian://quickadd?choice=${rolesUrl})\n\n`;
     report += `## Состояние кинотеки\n\n`;
     report += `**${media.length} карточек** · **${movies} фильмов** · **${serials} сериалов** · **${viewFiles.length} просмотров** · **${seasonFiles.length} сезонов**\n\n`;
     report += `- Последняя проверка: **${timestamp}**.\n`;
     report += `- Последнее безопасное исправление: **${structureState}**.\n`;
     report += `- Текущее состояние: **${errors.length} ошибок**, **${warnings.length} предупреждений**.\n\n`;
-    report += `Журнал изменений: [[Кино/_system/Журнал изменений|открыть журнал]].\n\n`;
     report += `## Итог\n\n- Ошибок: **${errors.length}**.\n- Предупреждений: **${warnings.length}**.\n${info.map(item => `- ${item}`).join("\n")}\n\n`;
     report += renderSection("❌ Ошибки", errors, "Ошибок не найдено.");
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
