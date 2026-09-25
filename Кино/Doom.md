@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Doom
 Просмотрено: 2015-05-26
 Оценка: "5"
@@ -20,6 +20,10 @@ imdb Id: tt0419706
 poster: https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYtNzgwNGE3MjQ0MzYyXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "84140"
 Прогноз оценки: "4.7"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "5.7"
+Прогноз MovieLens: "4.3"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -65,6 +69,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYjA5ZGQ1MDQtMGI0ZC00ZDY4LTg1NmYtNzgwNGE3MjQ0MzYyXkEyXkFqcGc@._V1_SX300.jpg)
-
-
-

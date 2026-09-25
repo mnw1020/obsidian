@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Z Nation
 Просмотрено: 2015-10-14
 Оценка: "6"
@@ -39,6 +39,9 @@ imdb Id: tt3843168
 poster: https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "841371"
 Прогноз оценки: "6.0"
+Прогноз уверенность: высокая
+Прогноз метод: локальная интерполяция
+Прогноз локальный: "6.0"
 ---
 Просмотрено s02ep05
 
@@ -88,4 +91,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg)
-

@@ -75,13 +75,11 @@ module.exports = async function updateKinoRoles(params) {
         .filter(file => isMedia(file, app))
         .filter(file => !isTemplate(file, app))
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
-    const activeFile = app.workspace.getActiveFile?.();
-    const defaultScope = isMedia(activeFile, app) ? "active" : "report";
     const scope = params.variables?.kinoRolesScope || (params.quickAddApi?.suggester
         ? await params.quickAddApi.suggester(
-            ["Только открытую карточку", "Только карточки из отчёта проверки", "Всю кинотеку"],
-            ["active", "report", "all"], "Какие карточки обновить?", defaultScope)
-        : defaultScope);
+            ["Только карточки из отчёта проверки", "Только открытая карточка", "Вся кинотека"],
+            ["report", "active", "all"], "Какие карточки обновить?")
+        : "report");
     if (!scope) return;
     if (scope === "active") files = files.filter(file => file.path === app.workspace.getActiveFile()?.path);
     else if (scope === "report") {

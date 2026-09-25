@@ -1,4 +1,4 @@
-﻿/* QuickAdd: User Script ПЕРЕД существующим Template/Capture. Шаблон сохраняется.
+/* QuickAdd: User Script ПЕРЕД существующим Template/Capture. Шаблон сохраняется.
  * OMDb API Key сохраняется в прежних настройках. Ключ Kinopoisk Unofficial API встроен в скрипт.
  * Название в YAML остаётся оригинальным; имя файла берётся на русском.
  * Если OMDb/Wikidata/КП не дают полную карточку, запрашивается ID или ссылка КП.
@@ -6585,6 +6585,7 @@ function queueFranchise(params,movie,file) {
         }
         // Прогноз считаем уже для готовой карточки. Если пользователь выбрал франшизу,
         // она тоже попадет в признаки модели. Если пропустил - прогноз все равно будет.
+        await runRatingForecast(params,file);
     });
     franchiseJobs.set(params.app,job);
     return job;
@@ -6594,7 +6595,6 @@ async function runRatingForecast(params,file) {
     const {app,obsidian:ob}=params;
     if (!file || app.vault.getAbstractFileByPath(file.path)!==file) return;
     try {
-        await runRatingForecast(params,file);
         let predictor=null;
 
         // На настольном Obsidian сначала пробуем обычный CommonJS require.
@@ -7012,5 +7012,3 @@ async function writeRoleFile(app, ob, mainFile, movie = {}, kinopoiskId = "", pe
     else await app.vault.create(rolePath, content);
     return rolePath;
 }
-
-

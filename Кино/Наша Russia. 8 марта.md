@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Наша Russia. 8 марта
 Просмотрено: 2025-03-21
 Оценка: "1"
@@ -28,6 +28,9 @@ imdb Id: tt33094176
 poster: https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "8370937"
 Прогноз оценки: "4.0"
+Прогноз уверенность: высокая
+Прогноз метод: локальная интерполяция
+Прогноз локальный: "4.0"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -73,4 +76,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BZjhjNzEyMWMtNWVmMC00N2JhLTk4ODgtOTI1ZmEyZDc1NjAxXkEyXkFqcGc@._V1_SX300.jpg)
-

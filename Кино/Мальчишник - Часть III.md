@@ -1,4 +1,4 @@
-﻿---
+---
 Название: The Hangover Part III
 Просмотрено: 2013-10-13
 Оценка: "5"
@@ -22,6 +22,10 @@ poster: https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3
 Франшиза: "[[Кино/Франшизы/Мальчишник]]"
 Кинопоиск ID: "600847"
 Прогноз оценки: "4.9"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "5.7"
+Прогноз MovieLens: "4.7"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -67,6 +71,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTA0NjE1MzMzODheQTJeQWpwZ15BbWU3MDY4MTQ3Mzk@._V1_.jpg)
-
-
-

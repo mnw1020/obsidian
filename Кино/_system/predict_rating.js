@@ -1,12 +1,14 @@
 /*
 QuickAdd user script: personal rating forecast for the active movie/series card.
 Works with the user's current Kino vault structure and automatically includes cards added later.
+Optional collaborative layer: Кино/_system/Прогноз/movielens_neighbors.json
 */
 module.exports = async (params) => {
     const { app, obsidian } = params;
     const { Notice } = obsidian;
 
     const ROOT = "Кино";
+    const MODEL_PATH = `${ROOT}/_system/Прогноз/movielens_neighbors.json`;
     const K_LOCAL = 55;
     const MIN_SIM = 0.055;
 
@@ -258,22 +260,31 @@ module.exports = async (params) => {
         const wl=1-wc;
         finalPred=clamp(wc*collab.pred + wl*local.pred,1,10);
         confidence=clamp(0.55*collab.confidence+0.45*local.confidence,0,1);
+        method="MovieLens + локальная интерполяция";
     }
     finalPred=Math.round(finalPred*10)/10;
 
     await app.fileManager.processFrontMatter(active, fm => {
         fm["Прогноз оценки"] = finalPred.toFixed(1);
+        fm["Прогноз уверенность"] = confidenceText(confidence);
+        fm["Прогноз метод"] = method;
+        fm["Прогноз локальный"] = (Math.round(local.pred*10)/10).toFixed(1);
+        if(collab) fm["Прогноз MovieLens"] = (Math.round(collab.pred*10)/10).toFixed(1);
+        else delete fm["Прогноз MovieLens"];
     });
 
     const result = {
         prediction: finalPred,
         local: Math.round(local.pred*10)/10,
+        movielens: collab ? Math.round(collab.pred*10)/10 : null,
         confidence: confidenceText(confidence),
         method,
+        movielensNeighbors: collab?.count || 0,
         real: target.rating
     };
     if(!params?.suppressNotice){
         const real = target.rating!==null ? ` Реальная оценка: ${target.rating.toFixed(1)}.` : "";
+        const ml = collab ? ` MovieLens: ${collab.pred.toFixed(1)} (${collab.count} соседей).` : " MovieLens: данных нет, использована интерполяция.";
         new Notice(`Прогноз: ${finalPred.toFixed(1)}/10. Уверенность: ${confidenceText(confidence)}. Локальный: ${local.pred.toFixed(1)}.${ml}${real}`,12000);
     }
     return result;

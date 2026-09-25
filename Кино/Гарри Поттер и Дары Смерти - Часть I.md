@@ -1,4 +1,4 @@
-﻿---
+---
 Название: "Harry Potter and the Deathly Hallows: Part 1"
 Просмотрено: 2012-06-04
 Оценка: "7"
@@ -21,6 +21,10 @@ poster: https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcw
 Франшиза: "[[Кино/Франшизы/Волшебный мир Гарри Поттера]]"
 Кинопоиск ID: "276762"
 Прогноз оценки: "6.7"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "7.6"
+Прогноз MovieLens: "6.5"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -66,6 +70,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTQ2OTE1Mjk0N15BMl5BanBnXkFtZTcwODE3MDAwNA@@._V1_SX300.jpg)
-
-
-

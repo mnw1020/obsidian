@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Need for Speed
 Просмотрено: 2014-10-14
 Оценка: "9"
@@ -20,6 +20,10 @@ imdb Id: tt2369135
 poster: https://m.media-amazon.com/images/M/MV5BMTQ3ODY4NzYzOF5BMl5BanBnXkFtZTgwNjI3OTE4MDE@._V1_.jpg
 Кинопоиск ID: "678975"
 Прогноз оценки: "6.0"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "6.3"
+Прогноз MovieLens: "5.9"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -65,6 +69,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTQ3ODY4NzYzOF5BMl5BanBnXkFtZTgwNjI3OTE4MDE@._V1_.jpg)
-
-
-

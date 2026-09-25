@@ -242,19 +242,8 @@ module.exports = async (params) => {
     const possibleDuplicates = [];
     const info = [];
 
-    const exclusionPath = `${ROOT}/_system/Проверка кинотеки исключения.md`;
-    const exclusionFile = app.vault.getAbstractFileByPath(exclusionPath);
-    const excludedPaths = new Set();
-    if (exclusionFile) {
-        const text = await app.vault.read(exclusionFile);
-        for (const match of text.matchAll(/\[\[(Кино\/[^\]|]+)(?:\|[^\]]+)?\]\]/g)) {
-            const path = match[1].endsWith(".md") ? match[1] : `${match[1]}.md`;
-            excludedPaths.add(path);
-        }
-    }
-    const isExcluded = file => Boolean(file?.path && excludedPaths.has(file.path));
-    const addError = (file, message) => { if (!isExcluded(file)) errors.push(`${fileLink(file)} - ${message}`); };
-    const addWarning = (file, message) => { if (!isExcluded(file)) warnings.push(`${fileLink(file)} - ${message}`); };
+    const addError = (file, message) => errors.push(`${fileLink(file)} - ${message}`);
+    const addWarning = (file, message) => warnings.push(`${fileLink(file)} - ${message}`);
 
     const titleKeys = new Map();
     const imdbKeys = new Map();
@@ -286,6 +275,9 @@ module.exports = async (params) => {
             addError(file, "устаревший раскрывающийся блок ролей: используйте ссылку в YAML.");
         }
         if (recommendV2Count !== 1) addError(file, "кнопка `🔎 Найти похожие` V2 отсутствует или продублирована.");
+        if (recommendV2Count === 1 && !/\n\n<!-- KINO:RECOMMEND:BUTTON:V2 -->[\s\S]*?^```[ \t]*\r?\n\r?\n/m.test(rawCard)) {
+            addWarning(file, "до и после кнопки `🔎 Найти похожие` должна быть пустая строка.");
+        }
 
         if (!title) addError(file, "отсутствует свойство `Название`.");
         if (mediaTags.length > 1) addWarning(file, "одновременно стоят теги `movies` и `serial`.");
@@ -599,21 +591,11 @@ module.exports = async (params) => {
         return `## ${title}\n\n${items.map(item => `- ${item}`).join("\n")}\n\n`;
     };
 
-    // Некоторые проверки добавляют сообщения напрямую; убираем их здесь,
-    // чтобы исключения одинаково работали для всех типов предупреждений.
-    const withoutExcluded = items => items.filter(item =>
-        ![...excludedPaths].some(path => item.includes(`[[${path}|`))
-    );
-    errors.splice(0, errors.length, ...withoutExcluded(errors));
-    warnings.splice(0, warnings.length, ...withoutExcluded(warnings));
-
     const checkUrl = encodeURIComponent("Кино - Проверить кинотеку");
     const fixUrl = encodeURIComponent("Кино - Исправить безопасное");
-    const rolesUrl = encodeURIComponent("Кино - Обновить роли актёров");
     let report = `# Проверка кинотеки\n\n`;
     report += `[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n`;
-    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl}) · [🎭 Обновить роли актёров](obsidian://quickadd?choice=${rolesUrl})\n\n`;
-    report += `Исключения: [[Кино/_system/Проверка кинотеки исключения|настроить список]] (${excludedPaths.size}).\n\n`;
+    report += `[🔎 Проверить](obsidian://quickadd?choice=${checkUrl}) · [🛠 Исправить безопасное](obsidian://quickadd?choice=${fixUrl})\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
     report += `> Аудит ничего не исправляет. Безопасное исправление меняет только однозначные форматные ошибки.\n\n`;
     report += `## Состояние кинотеки\n\n`;
@@ -627,7 +609,7 @@ module.exports = async (params) => {
     report += renderSection("⚠️ Предупреждения", warnings, "Предупреждений нет.");
     report += renderSection("ℹ️ Карточки без Кинопоиск ID", missingKinopoiskIds.map(file => fileLink(file)), "Все карточки содержат КП ID.");
     report += renderSection("🔎 Возможные дубли", possibleDuplicates, "Похожих дублей не найдено.");
-    report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n- Кино - Обновить роли актёров -> `_system/update_kino_roles.js`.\n\n";
+    report += "## Подключение QuickAdd\n\n- Кино - Проверить кинотеку -> `_system/audit_kino.js`.\n- Кино - Исправить безопасное -> `_system/safe_fix_kino.js`.\n\n";
     report += `## Что проверяется\n\n`;
     report += "- обязательное название карточки и корректные теги `movies` / `serial`;\n";
     report += `- даты релиза, просмотра и сезонов; личные и внешние оценки; счётчики;\n`;

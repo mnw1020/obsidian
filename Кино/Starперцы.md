@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Last Vegas
 Просмотрено: 2014-01-28
 Оценка: "7"
@@ -20,6 +20,10 @@ imdb Id: tt1204975
 poster: https://m.media-amazon.com/images/M/MV5BMTQ2ODg2MTIyNF5BMl5BanBnXkFtZTgwMzU2NjgwMDE@._V1_.jpg
 Кинопоиск ID: "468571"
 Прогноз оценки: "5.6"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "6.6"
+Прогноз MovieLens: "5.2"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -65,6 +69,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BMTQ2ODg2MTIyNF5BMl5BanBnXkFtZTgwMzU2NjgwMDE@._V1_.jpg)
-
-
-

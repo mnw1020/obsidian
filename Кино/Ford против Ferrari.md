@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Ford v Ferrari
 Просмотрено: 2021-02-22
 Оценка: "8"
@@ -20,6 +20,10 @@ imdb Id: tt1950186
 poster: https://m.media-amazon.com/images/M/MV5BOTBjNTEyNjYtYjdkNi00YzE5LTljYzUtZjVlYmYwZmJmZWYxXkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "835086"
 Прогноз оценки: "7.0"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "7.3"
+Прогноз MovieLens: "6.9"
 ---
 Сильно. Но скучно. Кен Майлз единственная живая искорка в этом сером омуте корпоративной этики.
 
@@ -69,6 +73,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BOTBjNTEyNjYtYjdkNi00YzE5LTljYzUtZjVlYmYwZmJmZWYxXkEyXkFqcGc@._V1_.jpg)
-
-
-

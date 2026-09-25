@@ -1,4 +1,4 @@
-﻿---
+---
 Название: Духless
 Просмотрено: 2013-01-07
 Оценка: "6"
@@ -21,6 +21,10 @@ imdb Id: tt1826660
 poster: https://m.media-amazon.com/images/M/MV5BNDk1NGJhOWQtZGNmMi00ZDI1LThiMmQtZjI3OGFhN2UyNzQwXkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "395372"
 Прогноз оценки: "5.7"
+Прогноз уверенность: высокая
+Прогноз метод: MovieLens + локальная интерполяция
+Прогноз локальный: "6.2"
+Прогноз MovieLens: "5.5"
 ---
 <!-- KINO:RECOMMEND:BUTTON:V2 -->
 ```dataviewjs
@@ -66,6 +70,3 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BNDk1NGJhOWQtZGNmMi00ZDI1LThiMmQtZjI3OGFhN2UyNzQwXkEyXkFqcGc@._V1_.jpg)
-
-
-
