@@ -32815,5 +32815,1088 @@
         }
       ]
     }
+  },
+  "imdbKpResolve": {
+    "t:avatar 4:2029": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540128558,
+      "kpId": "783486",
+      "ruTitle": "Аватар 4",
+      "enTitle": "Avatar 4",
+      "year": "2029",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt3095356": {
+      "at": 1790540128558,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540128558,
+        "kpId": "783486",
+        "ruTitle": "Аватар 4",
+        "enTitle": "Avatar 4",
+        "year": "2029",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:dune part one:2021": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540128951,
+      "kpId": "409424",
+      "ruTitle": "Дюна",
+      "enTitle": "Dune",
+      "year": "2021",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt1160419": {
+      "at": 1790540128951,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540128951,
+        "kpId": "409424",
+        "ruTitle": "Дюна",
+        "enTitle": "Dune",
+        "year": "2021",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:avatar 5:2031": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540129114,
+      "kpId": "973064",
+      "ruTitle": "Аватар 5",
+      "enTitle": "Avatar 5",
+      "year": "2031",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt5637536": {
+      "at": 1790540129114,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540129114,
+        "kpId": "973064",
+        "ruTitle": "Аватар 5",
+        "enTitle": "Avatar 5",
+        "year": "2031",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:titanic:1997": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540129464,
+      "kpId": "2213",
+      "ruTitle": "Титаник",
+      "enTitle": "Titanic",
+      "year": "1997",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt0120338": {
+      "at": 1790540129464,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540129464,
+        "kpId": "2213",
+        "ruTitle": "Титаник",
+        "enTitle": "Titanic",
+        "year": "1997",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:ghosts of hiroshima:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540132917,
+      "kpId": "496889",
+      "ruTitle": "Последний поезд из Хиросимы: Выжившие оглядываются назад",
+      "enTitle": "Ghosts of Hiroshima",
+      "year": "",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1582272": {
+      "at": 1790540132917,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540132917,
+        "kpId": "496889",
+        "ruTitle": "Последний поезд из Хиросимы: Выжившие оглядываются назад",
+        "enTitle": "Ghosts of Hiroshima",
+        "year": "",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:dune part two:2024": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540134002,
+      "kpId": "6604188",
+      "ruTitle": "DUNE: The Definitive History of the Franchise",
+      "enTitle": "Dune: Part Two",
+      "year": "2024",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt15239678": {
+      "at": 1790540134002,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540134002,
+        "kpId": "6604188",
+        "ruTitle": "DUNE: The Definitive History of the Franchise",
+        "enTitle": "Dune: Part Two",
+        "year": "2024",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:wolf of wall street:2013": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540134576,
+      "kpId": "829337",
+      "ruTitle": "Wall Street",
+      "enTitle": "The Wolf of Wall Street",
+      "year": "2014",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0993846": {
+      "at": 1790540134576,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540134576,
+        "kpId": "829337",
+        "ruTitle": "Wall Street",
+        "enTitle": "The Wolf of Wall Street",
+        "year": "2014",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:oppenheimer:2023": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540135862,
+      "kpId": "12080542",
+      "ruTitle": "Oppenheimer: The Real Story",
+      "enTitle": "Oppenheimer",
+      "year": "2023",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt15398776": {
+      "at": 1790540135862,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540135862,
+        "kpId": "12080542",
+        "ruTitle": "Oppenheimer: The Real Story",
+        "enTitle": "Oppenheimer",
+        "year": "2023",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:joker:2019": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540136214,
+      "kpId": "5111017",
+      "ruTitle": "Joker",
+      "enTitle": "Joker",
+      "year": "2019",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt7286456": {
+      "at": 1790540136214,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540136214,
+        "kpId": "5111017",
+        "ruTitle": "Joker",
+        "enTitle": "Joker",
+        "year": "2019",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:riverrun:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540136578,
+      "kpId": "268767",
+      "ruTitle": "Riverrun",
+      "enTitle": "Riverrun",
+      "year": "1968",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt39229635": {
+      "at": 1790540136578,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540136578,
+        "kpId": "268767",
+        "ruTitle": "Riverrun",
+        "enTitle": "Riverrun",
+        "year": "1968",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt37158941": {
+      "at": 1790540137717,
+      "data": null
+    },
+    "t:shutter island:2010": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540138699,
+      "kpId": "1363835",
+      "ruTitle": "Shutter Island: Behind the Shutters",
+      "enTitle": "Shutter Island",
+      "year": "2010",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1130884": {
+      "at": 1790540138699,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540138699,
+        "kpId": "1363835",
+        "ruTitle": "Shutter Island: Behind the Shutters",
+        "enTitle": "Shutter Island",
+        "year": "2010",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:informationist:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540139376,
+      "kpId": "714189",
+      "ruTitle": "The Informationist",
+      "enTitle": "The Informationist",
+      "year": "",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt2475426": {
+      "at": 1790540139376,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540139376,
+        "kpId": "714189",
+        "ruTitle": "The Informationist",
+        "enTitle": "The Informationist",
+        "year": "",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt6404142": {
+      "at": 1790540141687,
+      "data": null
+    },
+    "t:untitled avatar animation project:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540142832,
+      "kpId": "122872",
+      "ruTitle": "Project",
+      "enTitle": "Untitled Avatar Animation Project",
+      "year": "1986",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt37727227": {
+      "at": 1790540142832,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540142832,
+        "kpId": "122872",
+        "ruTitle": "Project",
+        "enTitle": "Untitled Avatar Animation Project",
+        "year": "1986",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:10 things i hate about you:1999": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540142957,
+      "kpId": "1280909",
+      "ruTitle": "Things",
+      "enTitle": "10 Things I Hate About You",
+      "year": "1999",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0147800": {
+      "at": 1790540142957,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540142957,
+        "kpId": "1280909",
+        "ruTitle": "Things",
+        "enTitle": "10 Things I Hate About You",
+        "year": "1999",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:arrival:2016": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540143948,
+      "kpId": "1059237",
+      "ruTitle": "Arrival",
+      "enTitle": "Arrival",
+      "year": "2016",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt2543164": {
+      "at": 1790540143948,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540143948,
+        "kpId": "1059237",
+        "ruTitle": "Arrival",
+        "enTitle": "Arrival",
+        "year": "2016",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:barbie:2023": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540144677,
+      "kpId": "5282198",
+      "ruTitle": "Barbie Dreamhouse Challenge",
+      "enTitle": "Barbie",
+      "year": "2023",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1517268": {
+      "at": 1790540144677,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540144677,
+        "kpId": "5282198",
+        "ruTitle": "Barbie Dreamhouse Challenge",
+        "enTitle": "Barbie",
+        "year": "2023",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:blade runner 2049:2017": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540145875,
+      "kpId": "1032946",
+      "ruTitle": "Runner",
+      "enTitle": "Blade Runner 2049",
+      "year": "2017",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1856101": {
+      "at": 1790540145875,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540145875,
+        "kpId": "1032946",
+        "ruTitle": "Runner",
+        "enTitle": "Blade Runner 2049",
+        "year": "2017",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt1853728": {
+      "at": 1790540146931,
+      "data": null
+    },
+    "t:blood diamond:2006": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540148060,
+      "kpId": "293823",
+      "ruTitle": "Blood Diamonds",
+      "enTitle": "Blood Diamond",
+      "year": "2006",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0450259": {
+      "at": 1790540148060,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540148060,
+        "kpId": "293823",
+        "ruTitle": "Blood Diamonds",
+        "enTitle": "Blood Diamond",
+        "year": "2006",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:dune:1984": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540148293,
+      "kpId": "978920",
+      "ruTitle": "Destination Dune",
+      "enTitle": "Dune",
+      "year": "1984",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0087182": {
+      "at": 1790540148293,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540148293,
+        "kpId": "978920",
+        "ruTitle": "Destination Dune",
+        "enTitle": "Dune",
+        "year": "1984",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:batman begins:2005": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540149491,
+      "kpId": "47237",
+      "ruTitle": "Бэтмен: Начало",
+      "enTitle": "Batman Begins",
+      "year": "2005",
+      "kpRating": 7.9,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0372784": {
+      "at": 1790540149491,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540149491,
+        "kpId": "47237",
+        "ruTitle": "Бэтмен: Начало",
+        "enTitle": "Batman Begins",
+        "year": "2005",
+        "kpRating": 7.9,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt10466872": {
+      "at": 1790540150086,
+      "data": null
+    },
+    "tt31378509": {
+      "at": 1790540150682,
+      "data": null
+    },
+    "t:frozen iv:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540152334,
+      "kpId": "6544759",
+      "ruTitle": "Холодное Сердце 4",
+      "enTitle": "Frozen IV",
+      "year": "",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt33255411": {
+      "at": 1790540152334,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540152334,
+        "kpId": "6544759",
+        "ruTitle": "Холодное Сердце 4",
+        "enTitle": "Frozen IV",
+        "year": "",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:frankenstein:2025": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540152669,
+      "kpId": "10422034",
+      "ruTitle": "Frankenstein: The Anatomy Lesson",
+      "enTitle": "Frankenstein",
+      "year": "2025",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1312221": {
+      "at": 1790540152669,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540152669,
+        "kpId": "10422034",
+        "ruTitle": "Frankenstein: The Anatomy Lesson",
+        "enTitle": "Frankenstein",
+        "year": "2025",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:forrest gump:1994": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540153386,
+      "kpId": "448",
+      "ruTitle": "Форрест Гамп",
+      "enTitle": "Forrest Gump",
+      "year": "1994",
+      "kpRating": 8.9,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0109830": {
+      "at": 1790540153386,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540153386,
+        "kpId": "448",
+        "ruTitle": "Форрест Гамп",
+        "enTitle": "Forrest Gump",
+        "year": "1994",
+        "kpRating": 8.9,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:good will hunting:1997": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540154321,
+      "kpId": "1174626",
+      "ruTitle": "Hunting",
+      "enTitle": "Good Will Hunting",
+      "year": "1997",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0119217": {
+      "at": 1790540154321,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540154321,
+        "kpId": "1174626",
+        "ruTitle": "Hunting",
+        "enTitle": "Good Will Hunting",
+        "year": "1997",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:jurassic park:1993": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540155443,
+      "kpId": "1363978",
+      "ruTitle": "The Making of «Jurassic Park»",
+      "enTitle": "Jurassic Park",
+      "year": "1993",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0107290": {
+      "at": 1790540155443,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540155443,
+        "kpId": "1363978",
+        "ruTitle": "The Making of «Jurassic Park»",
+        "enTitle": "Jurassic Park",
+        "year": "1993",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt11982392": {
+      "at": 1790540155869,
+      "data": null
+    },
+    "t:michael:2026": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540156077,
+      "kpId": "9806261",
+      "ruTitle": "Michael Caton-Jones: This Broxburn Boy's Life",
+      "enTitle": "Michael",
+      "year": "2026",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt11378946": {
+      "at": 1790540156077,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540156077,
+        "kpId": "9806261",
+        "ruTitle": "Michael Caton-Jones: This Broxburn Boy's Life",
+        "enTitle": "Michael",
+        "year": "2026",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:my boyfriend is a demon:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540157307,
+      "kpId": "12913804",
+      "ruTitle": "My Boyfriend is a Demon",
+      "enTitle": "My Boyfriend is a Demon",
+      "year": "",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt38353633": {
+      "at": 1790540157307,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540157307,
+        "kpId": "12913804",
+        "ruTitle": "My Boyfriend is a Demon",
+        "enTitle": "My Boyfriend is a Demon",
+        "year": "",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:once upon a time in hollywood:2019": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540157873,
+      "kpId": "1161321",
+      "ruTitle": "Hollywood",
+      "enTitle": "Once Upon a Time in... Hollywood",
+      "year": "2019",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt7131622": {
+      "at": 1790540157873,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540157873,
+        "kpId": "1161321",
+        "ruTitle": "Hollywood",
+        "enTitle": "Once Upon a Time in... Hollywood",
+        "year": "2019",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:avatar:2010": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540158917,
+      "kpId": "589955",
+      "ruTitle": "Avatar Spirits",
+      "enTitle": "Avatar",
+      "year": "2010",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt16492516": {
+      "at": 1790540158917,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540158917,
+        "kpId": "589955",
+        "ruTitle": "Avatar Spirits",
+        "enTitle": "Avatar",
+        "year": "2010",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:star wars episode ii attack of the clones:2002": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540159986,
+      "kpId": "844",
+      "ruTitle": "Звёздные войны. Эпизод II: Атака клонов",
+      "enTitle": "Star Wars: Episode II – Attack of the Clones",
+      "year": "2002",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt0121765": {
+      "at": 1790540159986,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540159986,
+        "kpId": "844",
+        "ruTitle": "Звёздные войны. Эпизод II: Атака клонов",
+        "enTitle": "Star Wars: Episode II – Attack of the Clones",
+        "year": "2002",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:star wars episode i the phantom menace:1999": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540160089,
+      "kpId": "13562658",
+      "ruTitle": "Menace",
+      "enTitle": "Star Wars: Episode I - The Phantom Menace",
+      "year": "1999",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0120915": {
+      "at": 1790540160089,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540160089,
+        "kpId": "13562658",
+        "ruTitle": "Menace",
+        "enTitle": "Star Wars: Episode I - The Phantom Menace",
+        "year": "1999",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "tt31227572": {
+      "at": 1790540160607,
+      "data": null
+    },
+    "t:star wars episode iii revenge of the sith:2005": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540160706,
+      "kpId": "5619",
+      "ruTitle": "Звёздные войны. Эпизод III: Месть ситхов",
+      "enTitle": "Star Wars: Episode III – Revenge of the Sith",
+      "year": "2005",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt0121766": {
+      "at": 1790540160706,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540160706,
+        "kpId": "5619",
+        "ruTitle": "Звёздные войны. Эпизод III: Месть ситхов",
+        "enTitle": "Star Wars: Episode III – Revenge of the Sith",
+        "year": "2005",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:star wars episode vi return of the jedi:1983": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540161051,
+      "kpId": "447",
+      "ruTitle": "Звёздные войны. Эпизод VI: Возвращение джедая",
+      "enTitle": "Star Wars: Episode VI – Return of the Jedi",
+      "year": "1983",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt0086190": {
+      "at": 1790540161051,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540161051,
+        "kpId": "447",
+        "ruTitle": "Звёздные войны. Эпизод VI: Возвращение джедая",
+        "enTitle": "Star Wars: Episode VI – Return of the Jedi",
+        "year": "1983",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:fantastic four first steps:2025": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540161374,
+      "kpId": "1287545",
+      "ruTitle": "Фантастическая четвёрка: Первые шаги",
+      "enTitle": "The Fantastic Four: First Steps",
+      "year": "2025",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt10676052": {
+      "at": 1790540161374,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540161374,
+        "kpId": "1287545",
+        "ruTitle": "Фантастическая четвёрка: Первые шаги",
+        "enTitle": "The Fantastic Four: First Steps",
+        "year": "2025",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:dark knight rises:2012": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540161584,
+      "kpId": "437410",
+      "ruTitle": "Тёмный рыцарь: Возрождение легенды",
+      "enTitle": "The Dark Knight Rises",
+      "year": "2012",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "tt1345836": {
+      "at": 1790540161584,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540161584,
+        "kpId": "437410",
+        "ruTitle": "Тёмный рыцарь: Возрождение легенды",
+        "enTitle": "The Dark Knight Rises",
+        "year": "2012",
+        "kpRating": null,
+        "description": "",
+        "source": "wikidata"
+      }
+    },
+    "t:green mile:1999": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540163826,
+      "kpId": "401074",
+      "ruTitle": "Green",
+      "enTitle": "The Green Mile",
+      "year": "2000",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt0120689": {
+      "at": 1790540163826,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540163826,
+        "kpId": "401074",
+        "ruTitle": "Green",
+        "enTitle": "The Green Mile",
+        "year": "2000",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:martian:2020": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540163827,
+      "kpId": "1436456",
+      "ruTitle": "The Martian Broadcast",
+      "enTitle": "The Martian",
+      "year": "2020",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt24248830": {
+      "at": 1790540163827,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540163827,
+        "kpId": "1436456",
+        "ruTitle": "The Martian Broadcast",
+        "enTitle": "The Martian",
+        "year": "2020",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:hateful eight:2015": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540164919,
+      "kpId": "928414",
+      "ruTitle": "Eight",
+      "enTitle": "The Hateful Eight",
+      "year": "2015",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt3460252": {
+      "at": 1790540164919,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540164919,
+        "kpId": "928414",
+        "ruTitle": "Eight",
+        "enTitle": "The Hateful Eight",
+        "year": "2015",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    },
+    "t:untitled pirates of the caribbean project:": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1790540167725,
+      "kpId": "1392472",
+      "ruTitle": "Untitled Pirates of the Caribbean/Margot Robbie Project",
+      "enTitle": "Untitled Pirates of the Caribbean Project",
+      "year": "",
+      "kpRating": null,
+      "description": "",
+      "source": "movie-planner"
+    },
+    "tt1790810": {
+      "at": 1790540167725,
+      "data": {
+        "v": 7,
+        "found": true,
+        "checkedAt": 1790540167725,
+        "kpId": "1392472",
+        "ruTitle": "Untitled Pirates of the Caribbean/Margot Robbie Project",
+        "enTitle": "Untitled Pirates of the Caribbean Project",
+        "year": "",
+        "kpRating": null,
+        "description": "",
+        "source": "movie-planner"
+      }
+    }
   }
 }
