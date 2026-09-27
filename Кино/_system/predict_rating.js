@@ -219,6 +219,39 @@ module.exports = async (params) => {
 
     function confidenceText(x){ return x>=0.72?"высокая":x>=0.46?"средняя":"низкая"; }
 
+    // Read-only batch forecast for the recommendations page. It uses the same
+    // model as a card forecast and never writes to a movie file.
+    if (Array.isArray(params?.forecastCandidates)) {
+        const files=app.vault.getMarkdownFiles().filter(isMedia);
+        const items=[];
+        for (const f of files) items.push(await buildFeature(f));
+        const rated=items.filter(x=>x.rating!==null && x.rating>=1 && x.rating<=10);
+        if(rated.length<30) return params.forecastCandidates.map(()=>null);
+        const byPath=new Map(items.map(x=>[x.file.path,x]));
+        const asSet=v=>new Set((v instanceof Set?[...v]:list(v)).map(normKey).filter(Boolean));
+        const results=[];
+        for(const candidate of params.forecastCandidates){
+            const path=asText(candidate?.localPath||candidate?.local?.localPath);
+            const stored=num(candidate?.storedPrediction??candidate?.local?.storedPrediction);
+            if(stored!==null&&stored>=1&&stored<=10){results.push(stored);continue;}
+            const local=byPath.get(path);
+            const kp=num(candidate?.kpRating),imdb=num(candidate?.imdbRating);
+            const publicVals=[imdb,kp].filter(x=>x!==null&&x>=0&&x<=10);
+            const target=local||{
+                file:null,rating:null,imdbId:normalizeImdb(candidate?.imdbId),
+                genres:asSet(candidate?.genres),directors:asSet(candidate?.directors),actors:asSet(candidate?.actors),
+                type:candidate?.type==="series"?"serial":"movies",
+                franchise:normKey(candidate?.franchise||""),releaseYear:year(candidate?.year),
+                duration:num(candidate?.duration),imdb,kp,publicMean:mean(publicVals),
+                votes:0,descTokens:tokens(candidate?.description||"")
+            };
+            const peers=local?rated.filter(x=>x.file.path!==local.file.path):rated;
+            const estimate=await localPrediction(target,peers);
+            results.push(Math.round(estimate.pred*10)/10);
+        }
+        return results;
+    }
+
     const active=params?.targetFile || app.workspace.getActiveFile();
     if(!active || !isMedia(active)) {
         if(!params?.suppressNotice) new Notice("Открой основную карточку фильма или сериала в папке Кино.",7000);
