@@ -3,7 +3,6 @@
 `button-books-add` `button-books-reading` `button-books-edit-reading`
 
 ## Обзор
-
 `button-books-authors` `button-books-series` `button-books-adaptations`
 
 ## Коллекции
