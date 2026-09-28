@@ -1190,9 +1190,15 @@ function recommendationDetailsMarkdown(list,reference){
     const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
     const html=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/\s+/g," ").trim()||"-";
     for(const [parent,films] of groups){
-        lines.push(`## ${inline(parent)}`,"");
+        lines.push(`# ${inline(parent)}`,"");
         lines.push("**Почему предложены:**","");
-        for(const {film,reasons} of films.values())for(const reason of reasons)lines.push(`- ${reason}`);
+        for(const {film,reasons} of films.values()){
+            const label=inline(film.ruTitle||film.enTitle||film.kpId||"Фильм");
+            for(const reason of reasons){
+                const clean=String(reason).replace(/^\*\*[^*]+:\*\*\s*/,"").trim();
+                if(clean)lines.push(`- **${label}:** ${clean}`);
+            }
+        }
         lines.push("",'<table class="kino-recommendation-table" style="width:100%;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
         for(const {film} of films.values()){
             const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
