@@ -1193,16 +1193,24 @@ function recommendationDetailsMarkdown(list,reference){
     const lines=[];
     const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
     const html=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/\s+/g," ").trim()||"-";
+    const emitted=new Set();
     for(const [parent,films] of groups){
+        const groupFilms=[];
+        for(const entry of films.values()){
+            const identity=recommendationIdentity(entry.film)[0]||`${titleKey(entry.film.ruTitle||entry.film.enTitle)}:${entry.film.year||""}`;
+            if(emitted.has(identity))continue;
+            emitted.add(identity);groupFilms.push(entry);
+        }
+        if(!groupFilms.length)continue;
         lines.push(`# ${inline(parent)}`,"");
         lines.push("**Почему предложены:**","");
-        for(const {film,reasons} of films.values()){
+        for(const {film,reasons} of groupFilms){
             const label=inline(film.ruTitle||film.enTitle||film.kpId||"Фильм");
             const sourceReasons=[...reasons].filter(Boolean);
             if(sourceReasons.length)lines.push(`- **${label}:** ${sourceReasons.join("; ")}`);
         }
         lines.push("",'<div class="kino-recommendation-scroll" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch">','<table class="kino-recommendation-table" style="width:1100px;min-width:1100px;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
-        for(const {film} of films.values()){
+        for(const {film} of groupFilms){
             const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
             const target=film.sourceUrl||kinopoiskUrl(film);
             const title=`<a href="${html(target)}" target="_blank">${html(label)}</a>${film.year?` (${html(film.year)})`:""}`;
