@@ -57,8 +57,13 @@ if (!/^tt\d{7,12}$/.test(id)) {
       for (const candidate of parentResults[index] || []) {
         if (directIds.has(candidate.imdbId)) continue;
         const existing = second.get(candidate.imdbId);
-        if (existing) { existing.votes++; continue; }
-        second.set(candidate.imdbId, { ...candidate, viaTitle: films[index].title, votes: 1 });
+        const parentTitle = films[index].title;
+        if (existing) {
+          existing.votes++;
+          existing.viaTitles = [...new Set([...(existing.viaTitles || [existing.viaTitle]), parentTitle])];
+          continue;
+        }
+        second.set(candidate.imdbId, { ...candidate, viaTitle: parentTitle, viaTitles: [parentTitle], votes: 1 });
       }
     }
     const secondLevel = [...second.values()]
