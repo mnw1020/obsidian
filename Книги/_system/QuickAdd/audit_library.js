@@ -1264,7 +1264,7 @@ module.exports = async (params) => {
     // Обновляем компактную статистику на главной теми же проверенными счетчиками.
     const homeFile = app.vault.getAbstractFileByPath(normalizePath("Книги/_index.md"));
     if (homeFile) {
-        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
         const homeText = await app.vault.read(homeFile);
         if (/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(homeText)) {
             await app.vault.modify(homeFile, homeText.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, homeBlock));

@@ -58,7 +58,7 @@ module.exports = async (params) => {
             const count = Number(fm.read_count);
             if (Number.isInteger(count) && count > 1) reread++;
         }
-        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!abstract] Библиотека\n> **${allBooks.length} произведений** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${allBooks.length} произведений** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
         const current = await app.vault.read(home);
         const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
             ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
@@ -424,13 +424,13 @@ module.exports = async (params) => {
     if (!section) return;
 
     const inputs = [
-        { id: "title", label: "Название произведения", type: "text" },
         {
             id: "authors",
             label: "Автор(ы), через запятую",
             type: "text",
             defaultValue: defaultAuthor
         },
+        { id: "title", label: "Название произведения", type: "text" },
         {
             id: "date",
             label: "Дата чтения",
