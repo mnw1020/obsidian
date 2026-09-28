@@ -123,10 +123,10 @@ module.exports = async (params) => {
         const rows = authors.map(item => {
             if (!includeRatings) return `| ${authorLink(item.author)} | ${item.books.size} |`;
             const average = item.ratingCount > 0 ? (item.ratingSum / item.ratingCount).toFixed(1) : "—";
-            return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${item.sympathyPoints} |`;
+            return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.favoriteCount} | ${item.sympathyPoints} |`;
         });
         const header = includeRatings
-            ? `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | Баллы симпатии |\n| --- | ---: | ---: | ---: | ---: | ---: |`
+            ? `| Автор | Произведений | ⭐ ср. | Любимые 8–10 | Баллы симпатии |\n| --- | ---: | ---: | ---: | ---: |`
             : `| Автор | Произведений |\n| --- | ---: |`;
         return `## ${title}\n\n${header}\n${rows.join("\n")}\n\n`;
     }
