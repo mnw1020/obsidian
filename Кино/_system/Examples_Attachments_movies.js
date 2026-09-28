@@ -1705,7 +1705,13 @@ async function kinopoiskByImdbId(get, imdbId, ob) {
     const exact = (result?.items || []).filter(film =>
         extractImdbId(film.imdbId) === id && extractKinopoiskId(film.kinopoiskId));
     const ids = [...new Set(exact.map(film => String(film.kinopoiskId)))];
-    if (ids.length !== 1) return null;
+    if (ids.length !== 1) {
+        const wiki = await wikidata(get, id);
+        if (!wiki.kp) return null;
+        const film = await kinopoiskById(get, wiki.kp, ob);
+        if (film?.imdb_id && extractImdbId(film.imdb_id) !== id) return null;
+        return film ? { ...film, imdb_id: id, title: film.title || wiki.title } : null;
+    }
     const summary = kpApiFilmLegacy(exact[0]);
     const details = await kinopoiskById(get, ids[0], ob);
     // Противоречащий IMDb ID нельзя заменять результатом поиска по названию.
@@ -1715,12 +1721,53 @@ async function kinopoiskByImdbId(get, imdbId, ob) {
         : { ...summary, imdb_id: id, detailsUnavailable: true };
 }
 
+function parseKpPageFilm(html, id) {
+    const text = String(html || "");
+    const clean = s => String(s || "").replace(/<[^>]*>/g, " ").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+    if (/<title[^>]*>[^<]*(?:captcha|подтвердите|робот)/i.test(text)) return null;
+    const entries = [];
+    for (const m of text.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+        try { const data = JSON.parse(m[1]); entries.push(...(Array.isArray(data) ? data : data['@graph'] || [data])); } catch (_) {}
+    }
+    const film = entries.find(x => /^(Movie|TVSeries|TVMiniSeries)$/.test(String(x?.['@type'] || '')) &&
+        (!x.url || !/kinopoisk\.ru\/(?:film|series)\/(\d+)/.test(String(x.url)) || String(x.url).match(/\/(?:film|series)\/(\d+)/)?.[1] === String(id)));
+    const meta = name => {
+        for (const m of text.matchAll(/<meta\b[^>]*>/gi)) {
+            const attrs = {}; for (const a of m[0].matchAll(/([\w:-]+)\s*=\s*(["'])([\s\S]*?)\2/g)) attrs[a[1].toLowerCase()] = a[3];
+            if ((attrs.property || attrs.name) === name) return clean(attrs.content);
+        }
+        return '';
+    };
+    const pageId = meta('og:url').match(/\/(?:film|series)\/(\d+)/)?.[1];
+    if (pageId && pageId !== String(id)) return null;
+    if (!film && pageId !== String(id)) return null;
+    const title = clean(film?.name || meta('og:title')).replace(/\s*[—–-]\s*Кинопоиск.*$/i,'').replace(/\s*\((?:фильм,?\s*)?\d{4}[^)]*\).*$/i,'');
+    if (!title || /captcha|подтвердите|робот/i.test(title)) return null;
+    const imdb = text.match(/imdb\.com\/title\/(tt\d+)/i)?.[1] || '';
+    const rating = Number(String(film?.aggregateRating?.ratingValue || '').replace(',','.')) || null;
+    return {kp_id:String(id),imdb_id:imdb,title,title_en:clean(film?.alternateName || ''),
+        description:clean(film?.description || meta('og:description')),year:String(film?.datePublished || meta('og:title')).match(/(?:18|19|20)\d{2}/)?.[0] || '',
+        is_series:/Series/.test(String(film?.['@type'])),rating_kp:rating,
+        genres:(Array.isArray(film?.genre)?film.genre:[film?.genre]).filter(Boolean).join(', '),cast:{},source:'kinopoisk-page'};
+}
 async function kinopoiskById(get, kpId, ob = null) {
     const id = String(kpId || "").trim();
     if (!/^\d{1,12}$/.test(id)) return null;
     if (ob) {
         const apiFilm = kpApiFilmLegacy(await kpApiJson(ob, `/v2.2/films/${id}`));
         if (apiFilm) return apiFilm;
+        for (const type of ["film", "series"]) {
+            const page = await getText(ob, `https://www.kinopoisk.ru/${type}/${id}/`);
+            const film = parseKpPageFilm(page, id);
+            if (film) {
+                if (!film.imdb_id) {
+                    const data = await get("https://query.wikidata.org/sparql", {format:"json",query:`SELECT DISTINCT ?imdb WHERE { ?item wdt:P2603 "${id}"; wdt:P345 ?imdb. } LIMIT 2`});
+                    const matches = data?.results?.bindings || [];
+                    if(matches.length === 1) film.imdb_id = extractImdbId(matches[0].imdb?.value);
+                }
+                return film;
+            }
+        }
     }
     let result;
     try { result = await get(`https://movie-planner.ru/api/public/film/${id}`); } catch { result = null; }

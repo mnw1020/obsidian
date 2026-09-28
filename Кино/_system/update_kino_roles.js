@@ -2,8 +2,8 @@
 // IMDb задаёт имена и роли; КП добавляет отсутствующих людей и заполняет пустые роли.
 // В основной карточке остается только короткий индекс режиссера.
 // "Актеры" и строки Role - Name хранятся в companion-файле _system/Роли.
-// Постоянного HTTP-кэша нет. Объединённые данные заменяют поле;
-// старое значение используется только если источник для этого поля недоступен.
+// Постоянного HTTP-кэша нет. Новые сведения дополняют сохранённые роли;
+// доступность API не блокирует результаты HTML/IMDb.
 
 const ROOT = "Кино";
 const API = "https://movie-planner.ru/api/public";
@@ -161,15 +161,9 @@ module.exports = async function updateKinoRoles(params) {
                     if (imdb.length || imdbDirectors.length) imdbSources++;
                 }
 
-                const actorSource = chooseCreditSource([imdb, kp], "Актеры");
-                const directorSource = chooseCreditSource([imdbDirectors, kpDirectors], "Режисер");
-                // A partial response during an outage must not replace existing credits.
-                if ((globalThis.__kinoApiFailures?.[KP_API_BASE]?.until > Date.now()) ||
-                    (imdbId && !imdb.length && !imdbDirectors.length) ||
-                    (!actorSource.length && !directorSource.length)) {
-                    skipped++;
-                    continue;
-                }
+                // Continue with HTML/IMDb and merge saved credits last to retain gaps.
+                const actorSource = chooseCreditSource([imdb, kp, asArray(roleValue), asArray(actorValue)], "Актеры");
+                const directorSource = chooseCreditSource([imdbDirectors, kpDirectors, asArray(directorValue)], "Режисер");
                 const result = replacePeople(actorSource, "Актеры");
                 const directorResult = replacePeople(directorSource, "Режисер");
                 foundRoles += result.roles;
