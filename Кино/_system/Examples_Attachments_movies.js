@@ -301,6 +301,9 @@ async function addMovieCore(params, settings, progress, handOff) {
         if (!imdbId) { new ob.Notice("Для текущей структуры карточки нужен IMDb ID."); return; }
         movie = await movieFromImdbOrKinopoisk(imdbId);
     }
+    if (!movie || movie.Response === "False") {
+        new ob.Notice("Источники временно недоступны. Карточка не создана; повтори добавление позже."); return;
+    }
     if (!["movie", "series"].includes(movie.Type)) {
         new ob.Notice("Выбери фильм или сериал целиком, а не отдельный эпизод."); return;
     }
@@ -942,6 +945,8 @@ async function getJson(ob, base, params = {}) {
 }
 
 async function kpApiJson(ob, path, params = {}) {
+    const failures = globalThis.__kinoApiFailures ||= {};
+    if (failures[KP_API_BASE]?.until > Date.now()) return null;
     const url = new URL(KP_API_BASE + path);
     Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
@@ -959,6 +964,11 @@ async function kpApiJson(ob, path, params = {}) {
                 }),
                 new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 15000); })
             ]);
+            if ([401, 402, 403, 429].includes(response.status) || response.status >= 500) {
+                failures[KP_API_BASE] = { status: response.status,
+                    until: Date.now() + (response.status === 402 ? 900000 : response.status === 429 ? 60000 : 30000) };
+                return null;
+            }
             if ([429, 503].includes(response.status)) {
                 cooldown.set(hostKey, Date.now() + 2500);
                 if (attempt === 0) continue;
@@ -968,7 +978,7 @@ async function kpApiJson(ob, path, params = {}) {
             return response.json || null;
         } catch {
             cooldown.set(hostKey, Date.now() + 1500);
-            if (attempt === 0) continue;
+            failures[KP_API_BASE] = { status: 0, until: Date.now() + 30000 };
             return null;
         } finally { clearTimeout(timer); }
     }

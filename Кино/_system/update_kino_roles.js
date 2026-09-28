@@ -163,6 +163,13 @@ module.exports = async function updateKinoRoles(params) {
 
                 const actorSource = chooseCreditSource([imdb, kp], "Актеры");
                 const directorSource = chooseCreditSource([imdbDirectors, kpDirectors], "Режисер");
+                // A partial response during an outage must not replace existing credits.
+                if ((globalThis.__kinoApiFailures?.[KP_API_BASE]?.until > Date.now()) ||
+                    (imdbId && !imdb.length && !imdbDirectors.length) ||
+                    (!actorSource.length && !directorSource.length)) {
+                    skipped++;
+                    continue;
+                }
                 const result = replacePeople(actorSource, "Актеры");
                 const directorResult = replacePeople(directorSource, "Режисер");
                 foundRoles += result.roles;
@@ -366,6 +373,8 @@ async function postJson(ob, url, body, headers = {}) {
 }
 
 async function kpApiJson(ob, path, params = {}) {
+    const failures = globalThis.__kinoApiFailures ||= {};
+    if (failures[KP_API_BASE]?.until > Date.now()) return null;
     const url = new URL(KP_API_BASE + path);
     Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
@@ -380,6 +389,11 @@ async function kpApiJson(ob, path, params = {}) {
                     headers: { Accept: "application/json", "X-API-KEY": KP_API_KEY } }),
                 new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("timeout")), 15000); })
             ]);
+            if ([401, 402, 403, 429].includes(response.status) || response.status >= 500) {
+                failures[KP_API_BASE] = { status: response.status,
+                    until: Date.now() + (response.status === 402 ? 900000 : response.status === 429 ? 60000 : 30000) };
+                return null;
+            }
             if ([429, 503].includes(response.status)) {
                 nextKpApiAt = Date.now() + 2500;
                 if (attempt === 0) continue;
@@ -389,7 +403,7 @@ async function kpApiJson(ob, path, params = {}) {
             return response.json || null;
         } catch {
             nextKpApiAt = Date.now() + 1500;
-            if (attempt === 0) continue;
+            failures[KP_API_BASE] = { status: 0, until: Date.now() + 30000 };
             return null;
         } finally { clearTimeout(timer); }
     }
@@ -429,6 +443,9 @@ function kpApiStaff(items) {
 async function findKpId(ob, fm, file) {
     const imdbId = extractImdbId(fm["imdb Id"]);
     if (!imdbId) return "";
+    const api = await kpApiJson(ob, "/v2.2/films", { imdbId, page: 1 });
+    const apiMatches = (api?.items || []).filter(x => extractImdbId(x.imdbId) === imdbId);
+    if (apiMatches.length === 1 && apiMatches[0].kinopoiskId) return String(apiMatches[0].kinopoiskId);
     const directSearch = await getJson(ob, `${API}/search`, { q: imdbId, limit: 24, person_limit: 0 });
     const exact = (directSearch?.items || []).filter(item => extractImdbId(item.imdb_id || item.imdbID) === imdbId);
     const exactIds = [...new Set(exact.map(item => String(item.kp_id || "")).filter(Boolean))];
