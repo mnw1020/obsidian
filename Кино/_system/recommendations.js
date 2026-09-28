@@ -1,0 +1,1577 @@
+const ROOT = "Кино";
+const STATE_PATH = `${ROOT}/_system/Прогноз/рекомендации_state.json`;
+const FORECAST_SCRIPT_PATH = `${ROOT}/_system/predict_rating.js`;
+const KP_CACHE_PATH = `${ROOT}/_system/Прогноз/recommendations_kp_cache.json`;
+const SOURCE_CACHE_PATH = `${ROOT}/_system/Прогноз/recommendations_sources_cache_v7.json`;
+const KP_TIMEOUT_MS = 3500;
+const KP_DETAIL_TIMEOUT_MS = 3000;
+const KP_GAP_MS = 450;
+const KP_API_GAP_MS = 220;
+const SIMILAR_TTL = 30 * 24 * 3600 * 1000;
+const DETAIL_TTL = 180 * 24 * 3600 * 1000;
+const MOVIETON_TTL = 30 * 24 * 3600 * 1000;
+const LIKEFILM_TTL = 30 * 24 * 3600 * 1000;
+const LIKEFILM_KP_RATING_TTL = 30 * 24 * 3600 * 1000;
+const KP_SEARCH_TTL = 30 * 24 * 3600 * 1000;
+const SOURCE_CACHE_VERSION = 5;
+const KP_CACHE_VERSION = 7;
+const KP_DIRECT_TIMEOUT_MS = 6500;
+const KP_PAGE_TIMEOUT_MS = 6500;
+const KP_DESC_CONCURRENCY = 2;
+const SEARCH_ENGINE_TIMEOUT_MS = 5000;
+const WIKIDATA_TIMEOUT_MS = 5500;
+const KP_API_BASE = "https://kinopoiskapiunofficial.tech/api";
+// API-ключ встроен по запросу владельца базы. Не публикуй этот файл в открытом репозитории.
+const KP_API_KEY = "18560e74-f0bf-4ca5-9efc-5a9ebb547268";
+const KP_DIAG = { api:"ключ встроен", direct:"не проверялся", fallback:"не проверялся", lastSimilar:"", lastDetail:"" };
+
+const clamp = (x,a,b) => Math.max(a, Math.min(b,x));
+const num = v => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = Number(String(v).replace(",",".").replace(/[^0-9+\-.]/g,""));
+    return Number.isFinite(n) ? n : null;
+};
+const arr = v => Array.isArray(v) ? v : (v === null || v === undefined || v === "" ? [] : [v]);
+const mean = xs => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : null;
+const norm = s => String(s ?? "").normalize("NFC").toLocaleLowerCase("ru").replace(/ё/g,"е").replace(/[^a-zа-я0-9]+/gi," ").trim();
+const fmt = v => Number.isFinite(v) ? Number(v).toFixed(1) : "-";
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+function titleKey(s) {
+    let t=String(s??"").trim().replace(/\s*\((?:18|19|20)\d{2}\)\s*$/," ").trim();
+    t=t.replace(/^(.+),\s*(the|a|an)$/i,"$2 $1");
+    t=norm(t).replace(/^(the|a|an)\s+/,"");
+    return t;
+}
+function watchedIndex(items){
+    const kp=new Set(),imdb=new Set(),titles=new Set(),paths=new Set();
+    for(const x of items){
+        if(x.kpId)kp.add(String(x.kpId));
+        if(x.imdbId)imdb.add(String(x.imdbId).toLowerCase());
+        if(x.localPath)paths.add(x.localPath);
+        const year=String(x.year||"");
+        for(const title of [x.ruTitle,x.enTitle]){
+            const key=titleKey(title);if(key)titles.add(`${key}:${year}`);
+        }
+    }
+    return {kp,imdb,titles,paths};
+}
+function isWatched(x,index){
+    if(!index)return false;
+    if(x?.localPath&&index.paths.has(x.localPath))return true;
+    if(x?.local?.localPath&&index.paths.has(x.local.localPath))return true;
+    if(x?.kpId&&index.kp.has(String(x.kpId)))return true;
+    if(x?.imdbId&&index.imdb.has(String(x.imdbId).toLowerCase()))return true;
+    const year=String(x?.year||"");
+    for(const title of [x?.ruTitle,x?.enTitle,x?.local?.ruTitle,x?.local?.enTitle]){
+        const key=titleKey(title);if(key&&year&&index.titles.has(`${key}:${year}`))return true;
+    }
+    return false;
+}
+function genreSet(v){
+    const raw=[];
+    for(const x of arr(v)){
+        if(x && typeof x === "object") raw.push(x.name_ru||x.name||x.title||x.value||"");
+        else raw.push(...String(x??"").split(/[,;/|]+/));
+    }
+    return new Set(raw.map(norm).filter(Boolean).map(value=>{
+        if(/^(sci fi|science fiction|фантастика|научная фантастика)$/.test(value))return "sci-fi";
+        if(/^(horror|ужасы|ужас)$/.test(value))return "horror";
+        if(/^(thriller|триллер)$/.test(value))return "thriller";
+        if(/^(comedy|комедия)$/.test(value))return "comedy";
+        if(/^(drama|драма)$/.test(value))return "drama";
+        if(/^(crime|криминал)$/.test(value))return "crime";
+        if(/^(action|боевик)$/.test(value))return "action";
+        return value;
+    }));
+}
+const STOP = new Set(("и в во на по с со к ко от до из у о об за для при не но а это как что или его ее их он она они фильм фильма фильмы сериал сериала the a an and or of to in on for with from by is are was were this that movie film series").split(/\s+/));
+function tokenSet(v){
+    return new Set(norm(v).split(/\s+/).filter(x=>x.length>=3&&!STOP.has(x)).slice(0,240));
+}
+function stripWiki(v){ return String(v??"").replace(/^\[\[/,"").replace(/\]\]$/g,"").replace(/^Кино\/Франшизы\//,""); }
+function fmOf(file) { return app.metadataCache.getFileCache(file)?.frontmatter || {}; }
+function isMedia(file) {
+    if (!file || file.extension !== "md" || !file.path.startsWith(ROOT + "/")) return false;
+    const rel=file.path.slice(ROOT.length+1); if (rel.includes("/")) return false;
+    const tags=arr(fmOf(file).tags).map(x=>String(x).replace(/^#/,""));
+    return tags.includes("movies") || tags.includes("serial");
+}
+function featureFromFile(file) {
+    const fm=fmOf(file);
+    const tags=arr(fm?.tags).map(x=>String(x).replace(/^#/,""));
+    return {
+        file, localPath:file.path,
+        ruTitle:file.basename,
+        enTitle:String(fm?.["Название"] || file.basename),
+        imdbId:String(fm?.["imdb Id"]||"").trim().toLowerCase(),
+        rating:num(fm?.["Оценка"]),
+        watched:Boolean(fm?.["Просмотрено"]) || num(fm?.["Оценка"])!==null,
+        storedPrediction:num(fm?.["Прогноз оценки"]),
+        kpRating:num(fm?.["Оценка Кинопоиск"]),
+        kpId:String(fm?.["Кинопоиск ID"]||"").replace(/\D/g,""),
+        genres:genreSet(fm?.["Жанр"]),
+        directors:new Set(arr(fm?.["Режисер"] ?? fm?.["Режиссер"]).map(norm).filter(Boolean)),
+        description:String(fm?.["Описание"]||"").trim(),
+        descTokens:tokenSet(fm?.["Описание"]||""),
+        franchise:norm(stripWiki(fm?.["Франшиза"]||"")),
+        year:(String(fm?.["Релиз"]||"").match(/(?:18|19|20)\d{2}/)||[])[0] || "",
+        type:tags.includes("serial") ? "series" : "movie",
+    };
+}
+async function loadJson(path) {
+    const f=app.vault.getAbstractFileByPath(path); if(!f) return null;
+    try { return JSON.parse(await app.vault.read(f)); } catch(_) { return null; }
+}
+function sourceCacheJson(cache,protectedKpId="") {
+    const maxBytes=10*1024*1024,targetBytes=9*1024*1024;
+    const replacer=(_,value)=>value instanceof Set?[...value]:value;
+    const encode=new TextEncoder();
+    const byteLength=value=>encode.encode(value).length;
+    const serialize=()=>JSON.stringify(cache,replacer,2);
+    let text=serialize(),bytes=byteLength(text);
+    if(bytes<=maxBytes)return text;
+    const groups=["details","likeFilmKpRatings","similar","secondDegree","imdbSimilar","imdbKpResolve","movieTonSimilar","likeFilmSimilar","likeFilmSimilarPages"];
+    const entries=[];
+    for(const group of groups)for(const [key,value] of Object.entries(cache[group]||{})){
+        entries.push({group,key,at:Number(value?.at)||0,protected:Boolean(protectedKpId&&key===String(protectedKpId)),
+            estimatedBytes:byteLength(JSON.stringify({[key]:value},replacer,2))});
+    }
+    entries.sort((a,b)=>Number(a.protected)-Number(b.protected)||a.at-b.at);
+    let next=0,estimated=bytes;
+    while(estimated>targetBytes&&next<entries.length){
+        const entry=entries[next++];delete cache[entry.group][entry.key];estimated-=entry.estimatedBytes;
+    }
+    text=serialize();bytes=byteLength(text);
+    while(bytes>maxBytes&&next<entries.length){
+        for(let i=0;i<50&&next<entries.length;i++){
+            const entry=entries[next++];delete cache[entry.group][entry.key];
+        }
+        text=serialize();bytes=byteLength(text);
+    }
+    if(bytes>maxBytes){for(const key of Object.keys(cache))delete cache[key];text="{}";}
+    return text;
+}
+async function saveJson(path,obj,protectedKpId="") {
+    const text=path===SOURCE_CACHE_PATH?sourceCacheJson(obj,protectedKpId):JSON.stringify(obj,(_,value)=>value instanceof Set?[...value]:value,2);
+    const f=app.vault.getAbstractFileByPath(path);
+    try {
+        if(f) await app.vault.modify(f,text);
+        else {
+            const folder=path.split("/").slice(0,-1).join("/");
+            if(!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
+            await app.vault.create(path,text);
+        }
+    } catch(_) {}
+}
+function calibration(items) {
+    const pts=items.filter(x=>x.rating!==null&&x.kpRating!==null).map(x=>[x.kpRating,x.rating]);
+    if(pts.length<20) return {a:0,b:1};
+    const mx=mean(pts.map(x=>x[0])), my=mean(pts.map(x=>x[1])); let cov=0,vx=0;
+    for(const [x,y] of pts){cov+=(x-mx)*(y-my);vx+=(x-mx)*(x-mx);}
+    const b=vx>1e-9?cov/vx:1; return {a:my-b*mx,b};
+}
+function publicPred(rating,cal,globalMean){return rating===null?globalMean:clamp(cal.a+cal.b*rating,1,10);}
+
+function setSimilarity(a,b){
+    const left=a instanceof Set?a:new Set(),right=b instanceof Set?b:new Set();
+    if(!left.size||!right.size)return null;
+    let common=0;for(const value of left)if(right.has(value))common++;
+    return common/Math.sqrt(left.size*right.size);
+}
+function plotSimilarity(ref,candidate){
+    const left=ref?.descTokens instanceof Set?ref.descTokens:tokenSet(ref?.description||"");
+    const right=candidate?.descTokens instanceof Set?candidate.descTokens:tokenSet(candidate?.description||"");
+    if(left.size<4||right.size<4)return null;
+    let common=0;for(const token of left)if(right.has(token))common++;
+    return common/Math.sqrt(left.size*right.size);
+}
+function recommendationMatch(ref,candidate){
+    const genre=setSimilarity(ref?.genres,candidate?.genres),plot=plotSimilarity(ref,candidate);
+    const year=(ref?.year&&candidate?.year)?eraScore(ref,candidate):null;
+    const franchise=Boolean(ref?.franchise&&candidate?.franchise&&ref.franchise===candidate.franchise);
+    const director=setSimilarity(ref?.directors,candidate?.directors);
+    const parts=[];
+    if(genre!==null)parts.push([genre,.52]);
+    if(plot!==null)parts.push([plot,.23]);
+    if(year!==null)parts.push([year,.12]);
+    if(director!==null)parts.push([director,.13]);
+    const metadata=parts.length?parts.reduce((sum,[value,weight])=>sum+value*weight,0)/parts.reduce((sum,[,weight])=>sum+weight,0):.5;
+    return {genre,plot,year,director,franchise,metadata};
+}
+function recommendationReason(ref,candidate,seed,match){
+    const route=seed.hop===2?`КП: похож на «${seed.viaTitle||"фильм из списка"}» (2-й уровень${seed.votes>1?`, найден у ${seed.votes} фильмов`:""})`:
+        seed.hop===1?(seed.reason||"КП: похожий фильм"):"Локальная база";
+    const signals=[];
+    if(match?.genre!==null&&match?.genre>=.25)signals.push("жанры");
+    if(match?.plot!==null&&match?.plot>=.08)signals.push("описание сюжета");
+    if(match?.franchise)signals.push("франшиза");
+    return signals.length?`${route} · близки ${signals.join(", ")}`:route;
+}
+function eraScore(ref,c){
+    const ry=Number(ref?.year)||0, cy=Number(c?.year)||0;
+    if(!ry||!cy)return 0.55;
+    const d=Math.abs(cy-ry);
+    let s=d<=4?1:d<=8?0.90:d<=14?0.75:d<=22?0.52:d<=35?0.28:0.10;
+    // Для современных референсов не даем популярным классическим фильмам
+    // вытеснить новые фильмы из выдачи.
+    if(ry>=2000){
+        if(cy>=Math.max(2000,ry-10))s=Math.min(1,s+0.10);
+        if(cy<ry-25)s*=0.62;
+    }
+    return clamp(s,0,1);
+}
+
+function titleAliases(raw){
+    const out=new Set();
+    const add=v=>{const k=titleKey(v);if(k)out.add(k);};
+    let s=String(raw??"").trim().replace(/\s*\((?:18|19|20)\d{2}\)\s*$/," ").trim();
+    if(!s)return [];
+    add(s);
+    add(s.replace(/^(.+),\s*(the|a|an)$/i,"$2 $1"));
+    const base=s.replace(/\s*\([^)]*\)/g," ").replace(/\s+/g," ").trim();
+    add(base);
+    for(const m of s.matchAll(/\(([^()]{2,160})\)/g)){
+        const inner=m[1];
+        for(const part of inner.split(/\s*(?:\/|\||;|\ba\.?k\.?a\.?\b|\baka\b|\balso known as\b)\s*/i)) add(part);
+    }
+    for(const part of s.split(/\s*(?:\/|\||\ba\.?k\.?a\.?\b|\baka\b|\balso known as\b)\s*/i)) add(part);
+    return [...out];
+}
+function titleWordSet(v){return new Set(titleKey(v).split(/\s+/).filter(Boolean));}
+function titleSimilarity(a,b){
+    a=titleKey(a);b=titleKey(b);if(!a||!b)return 0;if(a===b)return 1;
+    if((a.includes(b)||b.includes(a))&&Math.min(a.length,b.length)>=6)return 0.94;
+    const A=titleWordSet(a),B=titleWordSet(b);if(!A.size||!B.size)return 0;
+    let inter=0;for(const x of A)if(B.has(x))inter++;
+    const union=A.size+B.size-inter,j=union?inter/union:0;
+    const cover=inter/Math.min(A.size,B.size);
+    return clamp(0.55*j+0.45*cover,0,1);
+}
+const http=(typeof requestUrl!=="undefined"&&requestUrl)||((typeof obsidian!=="undefined"&&obsidian.requestUrl)?obsidian.requestUrl:null);
+async function withTimeout(p,ms){return await Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]);}
+let kpNextRequestAt=0;
+let kpApiNextRequestAt=0;
+async function kpApiGet(path, timeout=6000){
+    const failures=globalThis.__kinoApiFailures ||= {};
+    const blocked=failures[KP_API_BASE];
+    if(blocked?.until>Date.now()){KP_DIAG.api=`HTTP ${blocked.status}: временно недоступен`;return {ok:false,status:blocked.status,data:null,reason:"cooldown"};}
+    if(!KP_API_KEY){ KP_DIAG.api="нет API-ключа"; return {ok:false,status:0,data:null,reason:"no-key"}; }
+    if(!http){ KP_DIAG.api="requestUrl недоступен"; return {ok:false,status:0,data:null,reason:"no-http"}; }
+    for(let attempt=0;attempt<2;attempt++){
+        const wait=Math.max(0,kpApiNextRequestAt-Date.now());
+        if(wait)await sleep(wait);
+        kpApiNextRequestAt=Date.now()+KP_API_GAP_MS;
+        try{
+            const r=await withTimeout(http({
+                url:`${KP_API_BASE}${path}`, method:"GET", throw:false,
+                headers:{"X-API-KEY":KP_API_KEY,Accept:"application/json"}
+            }),timeout);
+            const status=Number(r?.status||0);
+            if(status===200){ KP_DIAG.api="HTTP 200"; return {ok:true,status,data:r?.json||null}; }
+            if([401,402,403,429].includes(status)||status>=500){
+                failures[KP_API_BASE]={status,until:Date.now()+(status===402?900000:status===429?60000:30000)};
+                KP_DIAG.api=`HTTP ${status}: ${status===402?"исчерпана квота":"временно недоступен"}`;
+                return {ok:false,status,data:null,reason:"unavailable"};
+            }
+            if(status===401||status===403){
+                KP_DIAG.api=`HTTP ${status}: ключ неверный/нет доступа`;
+                return {ok:false,status,data:r?.json||null,reason:"auth"};
+            }
+            if(status===429||status===503){
+                KP_DIAG.api=`HTTP ${status}: ${status===429?"лимит запросов":"временная ошибка"}`;
+                if(attempt===0){await sleep(status===429?1200:700);continue;}
+            } else KP_DIAG.api=`HTTP ${status||0}`;
+            return {ok:false,status,data:r?.json||null,reason:"http"};
+        }catch(e){
+            failures[KP_API_BASE]={status:0,until:Date.now()+30000};
+            KP_DIAG.api=`ошибка: ${String(e?.message||e).slice(0,80)}`;
+            return {ok:false,status:0,data:null,reason:"exception"};
+        }
+    }
+    return {ok:false,status:0,data:null,reason:"unknown"};
+}
+function parseKpUnofficialDetail(data,kpId,fallbackTitle=""){
+    if(!data||typeof data!=="object")return null;
+    const id=String(data.kinopoiskId||data.kinopoisk_id||data.filmId||kpId||"").replace(/\D/g,"");
+    if(!id)return null;
+    const ru=String(data.nameRu||data.name_ru||fallbackTitle||"").trim();
+    const en=String(data.nameEn||data.nameOriginal||data.name_en||data.name_original||"").trim();
+    const year=String(data.year||"").match(/(?:18|19|20)\d{2}/)?.[0]||"";
+    const description=String(data.description||data.shortDescription||data.short_description||"").trim();
+    const genres=genreSet(arr(data.genres).map(g=>g?.genre||g?.name||g));
+    const type=/TV|SERIES/i.test(String(data.type||""))?"series":"movie";
+    return {kpId:id,ruTitle:ru,enTitle:en,year,description,genres,descTokens:tokenSet(description),directors:new Set(),franchise:"",kpRating:num(data.ratingKinopoisk??data.rating_kp??data.rating),type,source:"kp-unofficial-api"};
+}
+function parseKpUnofficialSimilars(data,refId){
+    const rows=arr(data?.items||data?.films||data); const out=[]; const seen=new Set([String(refId)]);
+    for(const z of rows){
+        const id=String(z?.filmId||z?.kinopoiskId||z?.kinopoisk_id||z?.id||"").replace(/\D/g,"");
+        if(!id||seen.has(id))continue; seen.add(id);
+        out.push({kpId:id,ruTitle:String(z?.nameRu||z?.name_ru||z?.nameEn||z?.nameOriginal||"").trim(),enTitle:String(z?.nameEn||z?.nameOriginal||"").trim()});
+        if(out.length>=40)break;
+    }
+    return out;
+}
+async function kpHttpJson(url,timeout=KP_DETAIL_TIMEOUT_MS){
+    if(!http)return {ok:false,status:0,data:null,transient:true};
+    const wait=Math.max(0,kpNextRequestAt-Date.now());if(wait)await sleep(wait);
+    kpNextRequestAt=Date.now()+KP_GAP_MS;
+    try{
+        const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"application/json","User-Agent":"ObsidianKinoteka/2.7"}}),timeout);
+        const status=Number(r?.status||0);
+        return {ok:status===200,status,data:r?.json||null,transient:status===0||status===429||status===503||status>=500};
+    }catch(_){return {ok:false,status:0,data:null,transient:true};}
+}
+async function kpHttpText(url,timeout=KP_TIMEOUT_MS){
+    if(!http)return {ok:false,status:0,text:"",transient:true};
+    try{
+        const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"ObsidianKinoteka/2.7"}}),timeout);
+        const status=Number(r?.status||0);
+        return {ok:status===200,status,text:String(r?.text||""),transient:status===0||status===429||status===503||status>=500};
+    }catch(_){return {ok:false,status:0,text:"",transient:true};}
+}
+
+function isBlockedHtml(html){
+    const t=norm(String(html||"").slice(0,160000));
+    return !t || /captcha|проверка браузера|подтвердите что вы не робот|access denied|robot check/.test(t);
+}
+function decodeJsonString(v){
+    try{return JSON.parse('"'+String(v||"").replace(/"/g,'\\"')+'"');}catch(_){
+        try{return JSON.parse('"'+String(v||"")+'"');}catch(__){return String(v||"").replace(/\\n/g,' ').replace(/\\"/g,'"').replace(/\\u([0-9a-fA-F]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16)));}
+    }
+}
+function cleanPlotText(v){
+    return String(v||"").replace(/\\n/g," ").replace(/\s+/g," ").replace(/^Описание\s*/i,"").trim();
+}
+function goodPlot(v){
+    const t=cleanPlotText(v); if(t.length<70||t.length>2200)return false;
+    const n=norm(t);
+    if(/рейтинг кинопоиска|оценить фильм|трейлер|реценз|в главных ролях|год производства|премьера|билеты в кино|подписка на обновления/.test(n))return false;
+    return /[.!?…]/.test(t);
+}
+function parseKinopoiskFilmPage(html,kpId,fallbackTitle=""){
+    if(!html||isBlockedHtml(html))return null;
+    let doc=null; try{doc=new DOMParser().parseFromString(String(html),"text/html");}catch(_){}
+    let ruTitle="",year="",description="",kpRating=null;
+    for(const m of String(html).matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)){
+        try{
+            const data=JSON.parse(m[1]),list=Array.isArray(data)?data:data['@graph']||[data];
+            const film=list.find(x=>/^(Movie|TVSeries|TVMiniSeries)$/.test(String(x?.['@type']||''))&&(!x.url||!String(x.url).match(/\/(?:film|series)\/(\d+)/)||String(x.url).match(/\/(?:film|series)\/(\d+)/)?.[1]===String(kpId)));
+            if(!film)continue;
+            ruTitle=String(film.name||'');description=String(film.description||'');
+            year=String(film.datePublished||'').match(/(?:18|19|20)\d{2}/)?.[0]||'';
+            kpRating=num(film.aggregateRating?.ratingValue);
+        }catch(_){}
+    }
+    if(doc){
+        const h1=doc.querySelector("h1");
+        const h1t=String(h1?.textContent||"").replace(/\s+/g," ").trim();
+        const ym=h1t.match(/\((?:18|19|20)\d{2}\)\s*$/); year=ym?ym[0].replace(/\D/g,""):year;
+        ruTitle=h1t.replace(/\s*\((?:18|19|20)\d{2}\)\s*$/,"").trim()||ruTitle;
+
+        // Stable-ish semantic selectors first.
+        const semantic=[
+            '[itemprop="description"]','[data-tid*="description" i]','[class*="description" i]'
+        ];
+        for(const sel of semantic){
+            for(const el of doc.querySelectorAll(sel)){
+                const t=cleanPlotText(el.textContent||"");
+                if(goodPlot(t)&&(t.length>(description?.length||0)))description=t;
+            }
+        }
+        // On current Kinopoisk layout, the full plot is usually immediately before "Рейтинг фильма".
+        const ratingHead=[...doc.querySelectorAll("h2,h3,h4")].find(e=>/^Рейтинг фильма/i.test(String(e.textContent||"").trim()));
+        if(ratingHead){
+            let n=ratingHead.previousElementSibling,guard=0;
+            while(n&&guard++<8){
+                const t=cleanPlotText(n.textContent||"");
+                if(goodPlot(t)&&t.length>(description?.length||0))description=t;
+                n=n.previousElementSibling;
+            }
+        }
+        // Metadata is a useful last-resort Kinopoisk description/tagline.
+        for(const sel of ['meta[property="og:description"]','meta[name="description"]']){
+            const t=cleanPlotText(doc.querySelector(sel)?.getAttribute("content")||"");
+            if(!description&&goodPlot(t))description=t;
+        }
+        // rating text
+        const body=String(doc.body?.textContent||"").replace(/\s+/g," ");
+        const rm=body.match(/Рейтинг Кинопоиска\s*([0-9]+(?:[.,][0-9]+)?)/i); if(rm)kpRating=num(rm[1]);
+    }
+    // Kinopoisk embeds the actual plot in JSON on some layouts. Pick the longest plausible description.
+    const jsonDesc=[]; const re=/"description"\s*:\s*"((?:\\.|[^"\\]){50,3500})"/g; let m;
+    while((m=re.exec(String(html)))&&jsonDesc.length<80){
+        const t=cleanPlotText(decodeJsonString(m[1])); if(goodPlot(t))jsonDesc.push(t);
+    }
+    if(jsonDesc.length){jsonDesc.sort((a,b)=>b.length-a.length); if(jsonDesc[0].length>(description?.length||0))description=jsonDesc[0];}
+    return {kpId:String(kpId||"").replace(/\D/g,""),ruTitle:ruTitle||fallbackTitle||"",enTitle:"",year,description:description||"",kpRating,source:"kinopoisk-direct"};
+}
+function parseKinopoiskSimilar(html,refId){
+    if(!html||isBlockedHtml(html))return [];
+    const found=[],seen=new Set([String(refId)]);
+    const add=(href,text)=>{
+        const m=String(href||"").match(/kinopoisk\.ru\/(?:film|series)\/(\d{1,12})|\/(?:film|series)\/(\d{1,12})/i); if(!m)return;
+        const id=m[1]||m[2]; if(!id||seen.has(id))return; seen.add(id);
+        let title=cleanPlotText(text).replace(/(?:18|19|20)\d{2}.*$/,"").trim(); if(!title||title.length>180)return;
+        found.push({kpId:id,ruTitle:title});
+    };
+    try{
+        const doc=new DOMParser().parseFromString(String(html),"text/html");
+        const heads=[...doc.querySelectorAll("h2,h3,h4")];
+        const h=heads.find(x=>/если вам понравился этот фильм|похожие фильмы/i.test(String(x.textContent||"")));
+        if(h){
+            let root=h.parentElement,up=0;
+            while(root&&up++<4){
+                const links=[...root.querySelectorAll('a[href*="/film/"],a[href*="/series/"]')];
+                if(links.length>=3){for(const a of links)add(a.href||a.getAttribute("href"),a.textContent);break;}
+                root=root.parentElement;
+            }
+        }
+        if(found.length<3){
+            const all=[...doc.querySelectorAll('a[href*="/film/"],a[href*="/series/"]')];
+            const body=String(doc.body?.textContent||"");
+            const start=body.search(/Если вам понравился этот фильм/i);
+            if(start>=0){
+                for(const a of all){const t=String(a.textContent||"").trim(); if(t) add(a.href||a.getAttribute("href"),t); if(found.length>=30)break;}
+            }
+        }
+    }catch(_){}
+    // Raw HTML fallback scoped to the recommendation section.
+    if(found.length<3){
+        const low=String(html); const i=low.search(/Если вам понравился этот фильм/i); const seg=i>=0?low.slice(i,i+160000):"";
+        const re=/<a\b[^>]*href=["']([^"']*\/(?:film|series)\/\d+[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
+        while((m=re.exec(seg))&&found.length<30)add(m[1],decodeHtmlText(m[2]));
+    }
+    return found.slice(0,30);
+}
+let kpDirectPageUnavailable=false;
+async function getKinopoiskPage(kpId){
+    if(!http||!kpId||kpDirectPageUnavailable)return {ok:false,status:0,text:"",transient:true,blocked:kpDirectPageUnavailable};
+    const urls=[`https://www.kinopoisk.ru/film/${kpId}/`,`https://www.kinopoisk.ru/series/${kpId}/`];
+    for(const url of urls){
+        try{
+            const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/150 Safari/537.36","Accept-Language":"ru-RU,ru;q=0.9,en;q=0.6","Referer":"https://www.kinopoisk.ru/"}}),KP_PAGE_TIMEOUT_MS);
+            const status=Number(r?.status||0),text=String(r?.text||"");
+            if(status===200&&!isBlockedHtml(text)){KP_DIAG.direct="HTTP 200";return {ok:true,status,text,url};}
+            if([401,403,429].includes(status)||isBlockedHtml(text)){KP_DIAG.direct=status?`HTTP ${status}: антибот/ограничение`:"антибот/CAPTCHA";kpDirectPageUnavailable=true;return {ok:false,status,text,transient:true,blocked:true};}
+            KP_DIAG.direct=`HTTP ${status||0}`;
+        }catch(_){}
+    }
+    return {ok:false,status:0,text:"",transient:true};
+}
+async function mapLimit(list,limit,fn){
+    const out=new Array(list.length); let next=0;
+    async function worker(){while(true){const i=next++;if(i>=list.length)return;try{out[i]=await fn(list[i],i);}catch(e){out[i]=null;}}}
+    await Promise.all(Array.from({length:Math.min(limit,list.length)},()=>worker())); return out;
+}
+function decodeHtmlText(s){
+    try{const el=document.createElement("textarea");el.innerHTML=String(s||"");return el.value.replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();}
+    catch(_){return String(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();}
+}
+function parseSimilarHtml(html,refId){
+    const found=[];const seen=new Set([String(refId)]);
+    const add=(href,text)=>{
+        const m=String(href||"").match(/(?:movie-planner\.ru)?\/f\/(?:movie-|tv-)?(\d{1,12})/i);if(!m)return;
+        const id=m[1];if(seen.has(id))return;seen.add(id);
+        const title=decodeHtmlText(text);if(!title)return;
+        found.push({kpId:id,ruTitle:title});
+    };
+    try{
+        const doc=new DOMParser().parseFromString(html,"text/html");
+        const hs=[...doc.querySelectorAll("h2,h3,h4")];
+        const h=hs.find(x=>/похожие\s+на/i.test(x.textContent||""));
+        if(h){
+            let n=h.nextElementSibling,guard=0;
+            while(n&&guard++<14){
+                if(/^H[234]$/.test(n.tagName))break;
+                for(const a of n.querySelectorAll('a[href*="/f/"]'))add(a.getAttribute("href"),a.textContent);
+                n=n.nextElementSibling;
+            }
+            if(!found.length){
+                const box=h.closest("section")||h.parentElement;
+                if(box)for(const a of box.querySelectorAll('a[href*="/f/"]'))add(a.getAttribute("href"),a.textContent);
+            }
+        }
+    }catch(_){}
+    if(!found.length){
+        const i=html.search(/похожие\s+на/i);const seg=i>=0?html.slice(i,i+50000):html;
+        const re=/<a\b[^>]*href=["']([^"']*\/f\/(?:movie-|tv-)?\d+[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;let m;
+        while((m=re.exec(seg))&&found.length<40)add(m[1],m[2]);
+    }
+    return found.slice(0,30);
+}
+async function getSimilarKp(kpId,sourceCache){
+    if(!kpId)return {items:[],source:"no-id",diag:"у референса нет КП ID"};
+    sourceCache.similar ||= {};
+    const old=sourceCache.similar[kpId];
+    if(old&&Date.now()-Number(old.at||0)<SIMILAR_TTL&&Array.isArray(old.items)&&old.items.length){
+        KP_DIAG.lastSimilar=`кэш: ${old.items.length}`;
+        return {items:old.items,source:"cache",diag:`кэш: ${old.items.length}`};
+    }
+
+    // 1) Надежный путь: API, который возвращает именно список похожих по Кинопоиск ID.
+    if(KP_API_KEY){
+        const api=await kpApiGet(`/v2.2/films/${kpId}/similars`,6500);
+        if(api.ok){
+            const items=parseKpUnofficialSimilars(api.data,kpId);
+            KP_DIAG.lastSimilar=`KP API HTTP 200: ${items.length}`;
+            if(items.length){
+                sourceCache.similar[kpId]={at:Date.now(),items,source:"kp-api"};
+                return {items,source:"kp-api",diag:`KP API: ${items.length}`};
+            }
+            // Пустой список API не считаем окончательным ответом: у HTML КП
+            // или резервного источника похожие иногда все же присутствуют.
+            KP_DIAG.lastSimilar="KP API HTTP 200: похожих 0, проверяю резерв";
+        }
+    }
+
+    // 2) Прямая страница Кинопоиска. Может блокироваться антиботом.
+    const kp=await getKinopoiskPage(kpId);
+    if(kp.ok){
+        const items=parseKinopoiskSimilar(kp.text,kpId);
+        KP_DIAG.lastSimilar=`страница КП HTTP 200: ${items.length}`;
+        if(items.length){sourceCache.similar[kpId]={at:Date.now(),items,source:"kinopoisk"};return {items,source:"kinopoisk",diag:`страница КП: ${items.length}`};}
+        KP_DIAG.direct="HTTP 200, блок похожих не распознан";
+    }
+
+    // 3) Старый успешный кэш лучше временной сетевой ошибки.
+    if(old?.items?.length){KP_DIAG.lastSimilar=`старый кэш: ${old.items.length}`;return {items:old.items,source:"cache-stale",diag:`старый кэш: ${old.items.length}`};}
+
+    // 4) Резерв Movie Planner.
+    const urls=[
+        `https://movie-planner.ru/f/${kpId}`,
+        `https://movie-planner.ru/f/movie-${kpId}`,
+        `https://movie-planner.ru/f/tv-${kpId}`
+    ];
+    let last="";
+    for(const url of urls){
+        const mp=await kpHttpText(url,6500);
+        if(!mp.ok){last=`HTTP ${mp.status||0}`;continue;}
+        const items=parseSimilarHtml(mp.text,kpId);
+        if(items.length){
+            KP_DIAG.fallback=`Movie Planner: ${items.length}`;
+            sourceCache.similar[kpId]={at:Date.now(),items,source:"movie-planner"};
+            return {items,source:"movie-planner",diag:`Movie Planner: ${items.length}`};
+        }
+        last="HTTP 200, блок похожих не найден";
+    }
+    KP_DIAG.fallback=`Movie Planner: ${last||"нет результата"}`;
+    const diag=[KP_API_KEY?`KP API ${KP_DIAG.api}`:"KP API: ключ отсутствует",`страница КП: ${KP_DIAG.direct}`,KP_DIAG.fallback].join("; ");
+    KP_DIAG.lastSimilar=diag;
+    return {items:[],source:kp.blocked?"kp-blocked":"unavailable",diag};
+}
+function parseKpDetail(data,kpId,fallbackTitle=""){
+    const f=data?.film||data?.item||null;if(!f)return null;
+    const id=String(f.kp_id||kpId||"").replace(/\D/g,"");if(!id)return null;
+    const ru=String(f.title_ru||f.ru_name||f.name_ru||f.title||fallbackTitle||"").trim();
+    const en=String(f.title_en||f.original_title||f.name_en||f.originalName||"").trim();
+    const year=String(f.year||f.release_year||"").match(/(?:18|19|20)\d{2}/)?.[0]||"";
+    const description=String(f.description||f.overview_ru||f.overview||"").trim();
+    return {kpId:id,ruTitle:ru,enTitle:en,year,description,genres:genreSet(f.genres),descTokens:tokenSet(description),directors:new Set(),franchise:"",kpRating:num(f.rating_kp??f.kp_rating??f.rating),type:f.is_series?"series":"movie",source:"movie-planner"};
+}
+async function getKpDetail(kpId,fallbackTitle,sourceCache){
+    if(!kpId)return null;
+    sourceCache.details ||= {};
+    const old=sourceCache.details[kpId];
+    if(old&&Date.now()-Number(old.at||0)<DETAIL_TTL&&old.data?.description&&old.data?.kpRating!=null)return old.data;
+
+    let apiBase=null;
+    // Primary: KP API by exact Kinopoisk ID.
+    if(KP_API_KEY){
+        const api=await kpApiGet(`/v2.2/films/${kpId}`,6500);
+        if(api.ok){
+            const d=parseKpUnofficialDetail(api.data,kpId,fallbackTitle);
+            if(d){
+                apiBase=d;
+                KP_DIAG.lastDetail=`KP API: ${d.description?"описание есть":"описания нет, проверяю резерв"}`;
+                if(d.description){sourceCache.details[kpId]={at:Date.now(),data:d,source:"kp-api"};return d;}
+            }
+        }
+    }
+
+    // Second: actual Kinopoisk page. Используем ее в основном для описания,
+    // если API вернул метаданные без текста.
+    const kp=await getKinopoiskPage(kpId);
+    if(kp.ok){
+        const d=parseKinopoiskFilmPage(kp.text,kpId,fallbackTitle);
+        if(d?.description){
+            const merged={...(apiBase||{}),...d,kpRating:apiBase?.kpRating??d.kpRating??old?.data?.kpRating??null,kpId:String(kpId),ruTitle:d.ruTitle||apiBase?.ruTitle||fallbackTitle||"",enTitle:d.enTitle||apiBase?.enTitle||"",year:d.year||apiBase?.year||"",genres:apiBase?.genres||d.genres||new Set(),descTokens:tokenSet(d.description)};
+            KP_DIAG.lastDetail="страница КП: описание есть";
+            sourceCache.details[kpId]={at:Date.now(),data:merged,source:"kinopoisk"};return merged;
+        }
+    }
+
+    if(old?.data?.description)return old.data;
+
+    // Last fallback: Movie Planner API.
+    const r=await kpHttpJson(`https://movie-planner.ru/api/public/film/${kpId}`,4500);
+    if(r.ok){
+        const d=parseKpDetail(r.data,kpId,fallbackTitle);
+        if(d){
+            const merged={...(apiBase||{}),...d,kpId:String(kpId),ruTitle:d.ruTitle||apiBase?.ruTitle||fallbackTitle||"",enTitle:d.enTitle||apiBase?.enTitle||"",year:d.year||apiBase?.year||"",description:d.description||apiBase?.description||"",genres:d.genres?.size?d.genres:(apiBase?.genres||new Set()),descTokens:tokenSet(d.description||apiBase?.description||"")};
+            KP_DIAG.lastDetail=`Movie Planner: ${merged.description?"описание есть":"описания нет"}`;
+            sourceCache.details[kpId]={at:Date.now(),data:merged,source:"movie-planner"};return merged;
+        }
+    }
+    if(apiBase){apiBase={...(old?.data||{}),...apiBase,kpRating:apiBase.kpRating??old?.data?.kpRating??null};sourceCache.details[kpId]={at:Date.now(),data:apiBase,source:"kp-api"};return apiBase;}
+    return old?.data||null;
+}
+function parseMovieTonSimilar(html,refId){
+    const chunks=[];
+    for(const match of String(html||"").matchAll(/self\.__next_f\.push\(\[1,"((?:\\.|[^"\\])*)"\]\)/g)){
+        try{chunks.push(JSON.parse(`"${match[1]}"`));}catch(_){}
+    }
+    const flight=chunks.join(""), arrays=[];
+    for(const match of flight.matchAll(/"similars"\s*:\s*\[/g)){
+        const start=match.index+match[0].lastIndexOf("[");let depth=0,inString=false,escaped=false,end=-1;
+        for(let i=start;i<flight.length;i++){
+            const c=flight[i];
+            if(inString){if(escaped)escaped=false;else if(c==="\\")escaped=true;else if(c==='"')inString=false;continue;}
+            if(c==='"'){inString=true;continue;}
+            if(c==="[")depth++;
+            else if(c==="]"&&--depth===0){end=i+1;break;}
+        }
+        if(end<0)continue;
+        try{const value=JSON.parse(flight.slice(start,end));if(Array.isArray(value))arrays.push(value);}catch(_){}
+    }
+    // MovieTon serializes a compact list and a richer list. Merge both by KP ID.
+    const merged=new Map();
+    for(const list of arrays)for(const item of list){
+        const id=String(item?.filmId||item?.kinopoiskId||item?.kinopoisk_id||item?.id||"").replace(/\D/g,"");
+        if(!id||id===String(refId))continue;
+        const old=merged.get(id)||{};
+        for(const [key,value] of Object.entries(item||{}))if(value!==null&&value!==undefined&&value!=="")old[key]=value;
+        old.kpId=id;merged.set(id,old);
+    }
+    return [...merged.values()].map(item=>{
+        const description=String(item.description||item.shortDescription||item.short_description||item.overview||item.overviewRu||"").trim();
+        return {kpId:item.kpId,sourceUrl:`https://movieton.org/similar/${item.kpId}`,ruTitle:String(item.nameRu||item.name_ru||item.title||item.nameEn||"").trim(),
+            enTitle:String(item.nameEn||item.nameOriginal||item.name_original||"").trim(),
+            year:String(item.yearNumeric||item.year||item.yearText||"").match(/(?:18|19|20)\d{2}/)?.[0]||"",
+            description,kpRating:num(item.ratingKinopoisk??item.rating_kp??item.rating),
+            genres:genreSet(item.genres),type:/TV|SERIES/i.test(String(item.type||""))?"series":"movie"};
+    }).filter(x=>x.ruTitle||x.enTitle);
+}
+async function movieTonRecommendations(ref,items,sourceCache){
+    if(!ref.kpId)return {items:[],diag:"MovieTon: у карточки нет Кинопоиск ID"};
+    if(!http)return {items:[],diag:"MovieTon: requestUrl недоступен"};
+    sourceCache.movieTonSimilar ||= {};
+    const cached=sourceCache.movieTonSimilar[ref.kpId];let seeds=[];
+    const directFromCache=Boolean(cached?.items?.length&&Date.now()-Number(cached.at||0)<MOVIETON_TTL);
+    if(directFromCache)seeds=cached.items;
+    else try{
+        const response=await withTimeout(http({url:`https://movieton.org/similar/${ref.kpId}`,method:"GET",throw:false,
+            headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"Mozilla/5.0"}}),10000);
+        if(Number(response?.status)!==200)return {items:[],diag:`MovieTon: HTTP ${response?.status||0}`};
+        seeds=parseMovieTonSimilar(response?.text||"",ref.kpId);
+        if(!seeds.length)return {items:[],diag:"MovieTon: HTTP 200, список похожих не распознан"};
+        sourceCache.movieTonSimilar[ref.kpId]={at:Date.now(),items:seeds};
+    }catch(error){return {items:[],diag:`MovieTon: ${String(error?.message||error).slice(0,80)}`};}
+
+    const directIds=new Set(seeds.map(x=>String(x.kpId)));
+    const secondById=new Map();let cachedSecondIds=new Set(),failedParents=0;
+    await mapLimit(seeds,4,async parent=>{
+        const parentId=String(parent.kpId||"");
+        if(!parentId||parentId===String(ref.kpId))return;
+        let list=[];const entry=sourceCache.movieTonSimilar[parentId];
+        const fromCache=Boolean(entry?.items?.length&&Date.now()-Number(entry.at||0)<MOVIETON_TTL);
+        if(fromCache)list=entry.items;
+        else try{
+            const response=await withTimeout(http({url:`https://movieton.org/similar/${parentId}`,method:"GET",throw:false,
+                headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"Mozilla/5.0"}}),10000);
+            if(Number(response?.status)===200)list=parseMovieTonSimilar(response?.text||"",parentId);
+            if(list.length)sourceCache.movieTonSimilar[parentId]={at:Date.now(),items:list};
+            else failedParents++;
+        }catch(_){failedParents++;}
+        for(const film of list){
+            const id=String(film.kpId||"");
+            if(!id||id===String(ref.kpId)||directIds.has(id))continue;
+            if(fromCache)cachedSecondIds.add(id);
+            const old=secondById.get(id);
+            const parentTitle=parent.ruTitle||parent.enTitle||parentId;
+            if(old){old.votes++;old.viaTitles=[...new Set([...(old.viaTitles||[old.viaTitle]),parentTitle])];continue;}
+            secondById.set(id,{...film,hop:2,viaTitle:parentTitle,viaTitles:[parentTitle],votes:1});
+        }
+    });
+    const second=[...secondById.values()].sort((a,b)=>b.votes-a.votes||(b.kpRating||0)-(a.kpRating||0)||String(a.kpId).localeCompare(String(b.kpId))).slice(0,100);
+    const localByKp=new Map(items.filter(x=>x.kpId).map(x=>[String(x.kpId),x]));
+    const watchedItems=watchedIndex(items);
+    const candidates=[...seeds.map(x=>({...x,hop:1})),...second];
+    const enriched=await mapLimit(candidates,3,async seed=>{
+        const local=localByKp.get(String(seed.kpId));
+        let detail=null;
+        if(!seed.description&&!local?.description)detail=await getKpDetail(seed.kpId,seed.ruTitle,sourceCache);
+        const description=seed.description||local?.description||detail?.description||"";
+        const priority=seed.hop===2?0.52:0.76;
+        return {...(detail||{}),...seed,local,sourceUrl:`https://movieton.org/similar/${seed.kpId}`,sourceName:"MovieTon",description,descTokens:tokenSet(description),
+            ruTitle:seed.ruTitle||local?.ruTitle||detail?.ruTitle||"",enTitle:seed.enTitle||local?.enTitle||detail?.enTitle||"",
+            year:seed.year||local?.year||detail?.year||"",kpRating:seed.kpRating??local?.kpRating??detail?.kpRating??null,
+            genres:seed.genres?.size?seed.genres:(local?.genres||detail?.genres||new Set()),type:local?.type||seed.type||ref.type,
+            reason:seed.hop===2?`MovieTon: похож на «${seed.viaTitle}» (2-й уровень${seed.votes>1?`, найден у ${seed.votes} фильмов`:""})`:"MovieTon: похожий фильм",
+            priority,score:priority,watched:isWatched({...seed,local},watchedItems)};
+    });
+    const cachedCount=(directFromCache?seeds.length:0)+second.filter(x=>cachedSecondIds.has(String(x.kpId))).length;
+    return {items:enriched.filter(Boolean),diag:`MovieTon: **${seeds.length}**; 2-й уровень: **${second.length}** · из кэша **${cachedCount}**${failedParents?`; ошибок ${failedParents}`:""}`};
+}
+function parseLikeFilmSearch(html){
+    const rows=[];
+    for(const match of String(html||"").matchAll(/<article\b[^>]*class=["'][^"']*searchV2-card[^"']*["'][^>]*>([\s\S]*?)<\/article>/gi)){
+        const card=match[1];
+        const href=card.match(/<a\b[^>]*class=["'][^"']*searchV2-card__link[^"']*["'][^>]*href=["']([^"']+)["']/i)?.[1]
+            ||card.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*searchV2-card__link/i)?.[1];
+        if(!href||!/^\/film\/|^https:\/\/likefilm\.ru\/film\//i.test(href))continue;
+        const title=decodeHtmlText(card.match(/<h3\b[^>]*>([\s\S]*?)<\/h3>/i)?.[1]||"");
+        const original=decodeHtmlText(card.match(/<div\b[^>]*class=["'][^"']*searchV2-card__original[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1]||"");
+        const meta=decodeHtmlText(card.match(/<div\b[^>]*class=["'][^"']*searchV2-card__meta[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1]||"");
+        const year=meta.match(/(?:18|19|20)\d{2}/)?.[0]||"";
+        let url="";try{url=new URL(href,"https://likefilm.ru").href;}catch(_){}
+        if(title&&url)rows.push({url,title,original,year});
+    }
+    return rows;
+}
+function parseLikeFilmSimilar(html,referenceUrl){
+    const text=String(html||""),starts=[...text.matchAll(/<div\b[^>]*\bid=["']movieSection\d+["'][^>]*class=["'][^"']*uiMovieListSimpleSection[^"']*["'][^>]*>/gi)];
+    const rows=[],seen=new Set();
+    for(let i=0;i<starts.length;i++){
+        const card=text.slice(starts[i].index,starts[i+1]?.index||text.length);
+        const titleLink=card.match(/<a\b[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*uiH2[^"']*["'][^>]*>([\s\S]*?)<\/a>/i);
+        if(!titleLink)continue;
+        let sourceUrl="";try{sourceUrl=new URL(titleLink[1],"https://likefilm.ru").href;}catch(_){}
+        if(!/^https:\/\/likefilm\.ru\/film\//i.test(sourceUrl)||sourceUrl===referenceUrl||seen.has(sourceUrl))continue;
+        const rawTitle=decodeHtmlText(titleLink[2]);const year=rawTitle.match(/\((?:18|19|20)\d{2}\)\s*$/)?.[0].replace(/\D/g,"")||"";
+        const ruTitle=rawTitle.replace(/\s*\((?:18|19|20)\d{2}\)\s*$/,"").trim();
+        const enTitle=decodeHtmlText(card.match(/<span\b[^>]*class=["'][^"']*uiFilmCardAltName[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1]||"");
+        const description=decodeHtmlText(card.match(/<p\b[^>]*class=["'][^"']*uiFilmCardDescription[^"']*["'][^>]*>([\s\S]*?)<\/p>/i)?.[1]||"");
+        const siteRating=num(card.match(/<span\b[^>]*class=["'][^"']*uiFilmCardRatingCompact[^"']*["'][^>]*>[\s\S]*?<span\b[^>]*>([\d.,]+)<\/span>/i)?.[1]);
+        if(!ruTitle)continue;
+        seen.add(sourceUrl);rows.push({sourceUrl,ruTitle,enTitle,year,description,siteRating});
+    }
+    return rows;
+}
+async function likeFilmRecommendations(ref,items,sourceCache){
+    if(!http)return {items:[],diag:"LikeFilm: requestUrl недоступен"};
+    sourceCache.likeFilmSimilar ||= {};
+    const key=String(ref.kpId||`${titleKey(ref.ruTitle)}:${ref.year||""}`),cached=sourceCache.likeFilmSimilar[key];
+    const directFromCache=Boolean(cached?.items?.length&&Date.now()-Number(cached.at||0)<LIKEFILM_TTL);
+    let seeds=directFromCache?cached.items:null,referenceUrl=cached?.referenceUrl||"";
+    if(!seeds){
+        const referenceTitles=[ref.ruTitle,ref.enTitle].map(x=>String(x||"").trim()).filter((x,i,a)=>x&&a.findIndex(y=>titleKey(y)===titleKey(x))===i);
+        const matches=new Map();let searchStatus="";
+        for(const title of referenceTitles){
+            const url=new URL("https://likefilm.ru/ajax/");
+            url.searchParams.set("act","site_search");url.searchParams.set("q",title);
+            url.searchParams.set("type",ref.type==="series"?"series":"film");url.searchParams.set("page","1");
+            try{
+                const response=await withTimeout(http({url:url.href,method:"GET",throw:false,headers:{Accept:"text/html","User-Agent":"Mozilla/5.0"}}),8000);
+                searchStatus=`HTTP ${response?.status||0}`;
+                if(Number(response?.status)!==200)continue;
+                for(const found of parseLikeFilmSearch(response?.text||"")){
+                    const sameTitle=[ref.ruTitle,ref.enTitle].some(q=>q&&(titleKey(q)===titleKey(found.title)||titleKey(q)===titleKey(found.original)));
+                    if(!sameTitle||ref.year&&found.year!==ref.year)continue;
+                    matches.set(found.url,found);
+                }
+            }catch(error){searchStatus=String(error?.message||error).slice(0,70);}
+            if(matches.size)break;
+        }
+        if(!matches.size)return {items:[],diag:`LikeFilm: точная карточка не найдена (${searchStatus||"нет ответа поиска"})`};
+        if(!ref.year&&matches.size>1)return {items:[],diag:"LikeFilm: несколько одноимённых фильмов, нужен год релиза"};
+        const reference=[...matches.values()][0];
+        referenceUrl=reference.url;
+        try{
+            const response=await withTimeout(http({url:`${reference.url}similar/`,method:"GET",throw:false,headers:{Accept:"text/html","User-Agent":"Mozilla/5.0"}}),10000);
+            if(Number(response?.status)!==200)return {items:[],diag:`LikeFilm: страница похожих HTTP ${response?.status||0}`};
+            seeds=parseLikeFilmSimilar(response?.text||"",reference.url);
+            if(!seeds.length)return {items:[],diag:"LikeFilm: HTTP 200, карточки похожих не распознаны"};
+            sourceCache.likeFilmSimilar[key]={at:Date.now(),referenceUrl:reference.url,items:seeds};
+        }catch(error){return {items:[],diag:`LikeFilm: ${String(error?.message||error).slice(0,80)}`};}
+    }
+    sourceCache.likeFilmSimilarPages ||= {};
+    const directUrls=new Set(seeds.map(x=>x.sourceUrl));
+    const secondByUrl=new Map(),cachedSecondUrls=new Set();let failedParents=0;
+    await mapLimit(seeds,4,async parent=>{
+        const parentUrl=String(parent.sourceUrl||"");
+        if(!/^https:\/\/likefilm\.ru\/film\//i.test(parentUrl)||parentUrl===referenceUrl)return;
+        const entry=sourceCache.likeFilmSimilarPages[parentUrl];
+        const fromCache=Boolean(entry?.items?.length&&Date.now()-Number(entry.at||0)<LIKEFILM_TTL);
+        let list=fromCache?entry.items:[];
+        if(!fromCache)try{
+            const response=await withTimeout(http({url:`${parentUrl}similar/`,method:"GET",throw:false,
+                headers:{Accept:"text/html","User-Agent":"Mozilla/5.0"}}),10000);
+            if(Number(response?.status)===200)list=parseLikeFilmSimilar(response?.text||"",parentUrl);
+            if(list.length)sourceCache.likeFilmSimilarPages[parentUrl]={at:Date.now(),items:list};
+            else failedParents++;
+        }catch(_){failedParents++;}
+        for(const film of list){
+            const url=String(film.sourceUrl||"");
+            if(!url||url===referenceUrl||directUrls.has(url))continue;
+            if(fromCache)cachedSecondUrls.add(url);
+            const old=secondByUrl.get(url);
+            const parentTitle=parent.ruTitle||parent.enTitle||"фильм из списка";
+            if(old){old.votes++;old.viaTitles=[...new Set([...(old.viaTitles||[old.viaTitle]),parentTitle])];continue;}
+            secondByUrl.set(url,{...film,hop:2,viaTitle:parentTitle,viaTitles:[parentTitle],votes:1});
+        }
+    });
+    const second=[...secondByUrl.values()].sort((a,b)=>b.votes-a.votes||(b.siteRating||0)-(a.siteRating||0)||a.sourceUrl.localeCompare(b.sourceUrl)).slice(0,100);
+    const localByTitle=new Map();
+    for(const x of items)for(const title of [x.ruTitle,x.enTitle]){
+        const key=titleKey(title);if(key&&x.year)localByTitle.set(`${key}:${x.year}`,x);
+    }
+    const watchedItems=watchedIndex(items);
+    const rows=[...seeds.map(x=>({...x,hop:1})),...second].map(seed=>{
+        const local=localByTitle.get(`${titleKey(seed.ruTitle)}:${seed.year}`)||localByTitle.get(`${titleKey(seed.enTitle)}:${seed.year}`);
+        const description=seed.description||local?.description||"";
+        const priority=seed.hop===2?0.5:0.74;
+        return {...seed,local,kpId:local?.kpId||"",imdbId:local?.imdbId||"",kpRating:local?.kpRating??null,sourceName:"LikeFilm",
+            description,descTokens:tokenSet(description),genres:local?.genres||new Set(),directors:local?.directors||new Set(),
+            type:local?.type||ref.type,reason:seed.hop===2?`LikeFilm: похож на «${seed.viaTitle}» (2-й уровень${seed.votes>1?`, найден у ${seed.votes} фильмов`:""})`:"LikeFilm: похожий фильм",priority,score:priority,
+            watched:isWatched({...seed,local,kpId:local?.kpId||""},watchedItems)};
+    });
+    sourceCache.likeFilmKpRatings ||= {};
+    let kpUnavailable=false;
+    const rated=await mapLimit(rows,2,async row=>{
+        if(row.kpRating!==null)return row;
+        if(!row.year)return row;
+        const ratingKey=`${titleKey(row.ruTitle)}:${titleKey(row.enTitle)}:${row.year}`;
+        const old=sourceCache.likeFilmKpRatings[ratingKey];
+        const fallback=()=>old?.found?{...row,kpId:old.kpId||row.kpId,kpRating:old.kpRating??row.kpRating}:row;
+        const pageFallback=async()=>{
+            try{
+                sourceCache.imdbKpResolve ||= {};
+                const match=row.kpId||old?.kpId?{kpId:row.kpId||old.kpId}:await resolveKinopoisk(row,sourceCache.imdbKpResolve);
+                if(!match?.kpId)return fallback();
+                const detail=await getKpDetail(match.kpId,row.ruTitle,sourceCache);
+                if(!detail)return fallback();
+                return {...fallback(),kpId:match.kpId,kpRating:detail.kpRating??fallback().kpRating,
+                    ruTitle:detail.ruTitle||row.ruTitle,description:row.description||detail.description||''};
+            }catch(_){return fallback();}
+        };
+        if(old?.found&&old.kpRating!=null&&Date.now()-Number(old.at||0)<LIKEFILM_KP_RATING_TTL)
+            return {...row,kpId:old.kpId||row.kpId,kpRating:old.kpRating??null};
+        if(kpUnavailable)return pageFallback();
+        const save=(filmId,rating,found)=>{
+            sourceCache.likeFilmKpRatings[ratingKey]={at:Date.now(),found,kpId:filmId||"",kpRating:rating};
+            return {...row,kpId:filmId||row.kpId,kpRating:rating};
+        };
+        if(row.kpId){
+            const cached=sourceCache.details?.[row.kpId]?.data;
+            if(cached?.kpRating!==null&&cached?.kpRating!==undefined)return save(row.kpId,num(cached.kpRating),true);
+            const detail=await kpApiGet(`/v2.2/films/${row.kpId}`,6500);
+            if(!detail.ok){kpUnavailable=true;return pageFallback();}
+            return save(row.kpId,num(detail.data?.ratingKinopoisk),true);
+        }
+        let searched=false;
+        const queries=[row.ruTitle,row.enTitle].map(x=>String(x||"").trim())
+            .filter((x,i,a)=>x&&a.findIndex(y=>titleKey(y)===titleKey(x))===i);
+        for(const query of queries){
+            const yearFilter=row.year?`&yearFrom=${row.year}&yearTo=${row.year}`:"";
+            const path=`/v2.2/films?keyword=${encodeURIComponent(query)}&page=1&type=FILM${yearFilter}`;
+            const result=await kpApiGet(path,6500);
+            if(!result.ok){kpUnavailable=true;break;}
+            searched=true;
+            const titles=[row.ruTitle,row.enTitle].map(titleKey).filter(Boolean);
+            const matches=arr(result.data?.items).filter(item=>{
+                const itemTitles=[item?.nameRu,item?.nameEn,item?.nameOriginal].map(titleKey).filter(Boolean);
+                return (!row.year||String(item?.year||"")===row.year)&&itemTitles.some(t=>titles.includes(t));
+            });
+            const unique=[...new Map(matches.map(item=>[String(item.kinopoiskId||""),item])).values()].filter(item=>item.kinopoiskId);
+            if(unique.length===1)return save(String(unique[0].kinopoiskId),num(unique[0].ratingKinopoisk),true);
+            if(unique.length>1)break;
+        }
+        if(searched&&!kpUnavailable)return save("",null,false);
+        return kpUnavailable?pageFallback():fallback();
+    });
+    const complete=rated.map((x,i)=>x||rows[i]);
+    const cachedCount=(directFromCache?seeds.length:0)+second.filter(x=>cachedSecondUrls.has(x.sourceUrl)).length;
+    return {items:complete,diag:`LikeFilm: **${seeds.length}**; 2-й уровень: **${second.length}** · из кэша **${cachedCount}**${failedParents?`; ошибок ${failedParents}`:""}`};
+}
+function kpSearchApiUrl(params={}){
+    const u=new URL("https://movie-planner.ru/api/public/search");
+    for(const [k,v] of Object.entries(params))if(v!==null&&v!==undefined&&v!=="")u.searchParams.set(k,String(v));
+    return u.href;
+}
+function rawTitleVariants(v){
+    const out=[];const add=s=>{s=String(s||"").replace(/\s*\((?:18|19|20)\d{2}\)\s*$/," ").trim();if(s&&!out.some(x=>norm(x)===norm(s)))out.push(s);};
+    const s=String(v||"").trim();add(s);add(s.replace(/^(.+),\s*(The|A|An)$/i,"$2 $1"));add(s.replace(/\s*\([^)]*\)/g," ").replace(/\s+/g," "));
+    for(const m of s.matchAll(/\(([^()]{2,160})\)/g))add(m[1]);
+    return out;
+}
+function searchCandidateScore(item,x,index=0){
+    const iy=Number(item?.year)||0,yr=Number(x.year)||0;
+    const names=[item?.title_en,item?.original_title,item?.name_en,item?.alternativeName,item?.title,item?.name].filter(Boolean);
+    const queries=[...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)];
+    let ts=0;for(const a of names)for(const b of queries)ts=Math.max(ts,titleSimilarity(a,b));
+    let s=10*ts;
+    if(yr&&iy)s+=iy===yr?6:Math.abs(iy-yr)===1?2:-5;
+    if(Boolean(item?.is_series)===(x.type==="series"))s+=1;
+    s+=Math.max(0,2.5-index*0.35);
+    return s;
+}
+function kpResultFromSearch(item,x,extra={}){
+    if(!item)return null;const id=String(item.kp_id||item.kpId||"").replace(/\D/g,"");if(!id)return null;
+    return {v:KP_CACHE_VERSION,found:true,checkedAt:Date.now(),kpId:id,ruTitle:String(item.title||item.name||item.ruTitle||x.ruTitle||"").trim(),enTitle:String(item.title_en||item.original_title||item.enTitle||x.enTitle||"").trim(),year:String(item.year||x.year||""),kpRating:num(item.rating_kp??item.rating),description:String(extra.description||item.description||"").trim(),source:extra.source||""};
+}
+async function genericJson(url,timeout=WIKIDATA_TIMEOUT_MS){
+    if(!http)return null;
+    try{const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"application/json","User-Agent":"ObsidianKinoteka/2.8"}}),timeout);return Number(r?.status||0)===200?(r?.json||null):null;}catch(_){return null;}
+}
+function extractKpIdFromUrl(v){return String(v||"").match(/kinopoisk\.ru\/(?:film|series)\/(\d{1,12})/i)?.[1]||"";}
+function parseDirectKinopoiskHtml(html,x){
+    try{
+        const doc=new DOMParser().parseFromString(String(html||""),"text/html");
+        const canon=doc.querySelector('link[rel="canonical"]')?.getAttribute("href")||doc.querySelector('meta[property="og:url"]')?.getAttribute("content")||"";
+        const directId=extractKpIdFromUrl(canon);
+        if(directId){
+            const h1=doc.querySelector("h1")?.textContent?.trim()||"";
+            const og=doc.querySelector('meta[property="og:title"]')?.getAttribute("content")||"";
+            const desc=doc.querySelector('meta[property="og:description"]')?.getAttribute("content")||doc.querySelector('meta[name="description"]')?.getAttribute("content")||"";
+            const title=(h1||og).replace(/\s*[—-]\s*Кинопоиск.*$/i,"").replace(/\s*фильм.*$/i,"").trim();
+            return {kpId:directId,ruTitle:title,enTitle:x.enTitle||"",year:x.year||"",description:desc.trim(),source:"kinopoisk-direct"};
+        }
+        const rows=[];const seen=new Set();
+        const anchors=[...doc.querySelectorAll('a[href*="/film/"],a[href*="/series/"]')];
+        for(let i=0;i<anchors.length;i++){
+            const a=anchors[i],id=extractKpIdFromUrl(a.getAttribute("href")||"");if(!id||seen.has(id))continue;seen.add(id);
+            const box=a.closest("article,li")||a.parentElement?.parentElement||a.parentElement||a;
+            const text=String(box?.textContent||a.textContent||"").replace(/\s+/g," ").trim();
+            let ts=0;for(const q of [...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)]){ts=Math.max(ts,titleSimilarity(q,a.textContent||""));if(norm(text).includes(norm(q))&&norm(q).length>4)ts=Math.max(ts,0.96);}
+            const yearHit=x.year&&new RegExp(`\\b${String(x.year).replace(/\D/g,"")}\\b`).test(text);
+            const score=10*ts+(yearHit?6:0)+Math.max(0,3-i*0.15);
+            rows.push({kpId:id,ruTitle:String(a.textContent||"").trim(),enTitle:x.enTitle||"",year:x.year||"",description:"",score,source:"kinopoisk-search"});
+        }
+        rows.sort((a,b)=>b.score-a.score);
+        if(rows.length&&(rows[0].score>=11||(rows[0].score>=8&&(!rows[1]||rows[0].score-rows[1].score>=2))))return rows[0];
+    }catch(_){}
+    return null;
+}
+let directKpUnavailable=false;
+async function searchKinopoiskDirect(x){
+    if(directKpUnavailable||!http)return null;
+    const qs=[...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)].filter(Boolean).slice(0,3);
+    for(const q0 of qs){
+        const q=[q0,x.year].filter(Boolean).join(" ");
+        try{
+            const url=`https://www.kinopoisk.ru/index.php?kp_query=${encodeURIComponent(q)}`;
+            const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"text/html,application/xhtml+xml","User-Agent":"Mozilla/5.0","Referer":"https://www.kinopoisk.ru/"}}),KP_DIRECT_TIMEOUT_MS);
+            const status=Number(r?.status||0);
+            if([401,403,429].includes(status)){directKpUnavailable=true;return null;}
+            if(status!==200)continue;
+            const got=parseDirectKinopoiskHtml(r?.text||"",x);if(got)return got;
+        }catch(_){/* fallback below */}
+    }
+    return null;
+}
+async function searchMoviePlanner(x){
+    const queries=[];const add=q=>{q=String(q||"").trim();if(q&&!queries.some(z=>norm(z)===norm(q)))queries.push(q);};
+    for(const t of [...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)]){add([t,x.year].filter(Boolean).join(" "));add(t);}
+    for(const q of queries.slice(0,5)){
+        const r=await kpHttpJson(kpSearchApiUrl({q,limit:24,type:x.type==="series"?"series":"film",person_limit:0}));
+        if(!r.ok){if(r.transient)return {result:null,transient:true};continue;}
+        const items=arr(r.data?.items);
+        const ranked=items.map((it,i)=>({it,score:searchCandidateScore(it,x,i),i})).filter(z=>{
+            const iy=Number(z.it?.year)||0,yr=Number(x.year)||0;return !yr||!iy||Math.abs(iy-yr)<=1;
+        }).sort((a,b)=>b.score-a.score);
+        let chosen=null;
+        if(ranked.length){
+            const exactYear=ranked.filter(z=>Number(z.it?.year)===Number(x.year));
+            if(exactYear.length===1)chosen=exactYear[0].it;
+            else if(ranked[0].score>=9&&(ranked.length===1||ranked[0].score-ranked[1].score>=1.2||ranked[0].score>=14))chosen=ranked[0].it;
+            else if(ranked[0].i===0&&Number(ranked[0].it?.year)===Number(x.year)&&ranked[0].score>=7.5)chosen=ranked[0].it;
+        }
+        if(chosen)return {result:kpResultFromSearch(chosen,x,{source:"movie-planner"}),transient:false};
+    }
+    return {result:null,transient:false};
+}
+function claimValue(entity,p){return entity?.claims?.[p]?.[0]?.mainsnak?.datavalue?.value??null;}
+function wikidataYear(entity){const v=claimValue(entity,"P577");const t=typeof v==="object"?v?.time:"";return Number(String(t||"").match(/(?:18|19|20)\d{2}/)?.[0])||0;}
+async function searchWikidataKpByImdb(imdbId){
+    const id=String(imdbId||"").toLowerCase().match(/^tt\d{7,12}$/)?.[0];if(!id)return null;
+    const query=`SELECT ?kp WHERE { ?item wdt:P345 "${id}"; wdt:P2603 ?kp. } LIMIT 1`;
+    const url=`https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json`;
+    const data=await genericJson(url);
+    const kp=String(data?.results?.bindings?.[0]?.kp?.value||"").replace(/\D/g,"");
+    return kp?{kpId:kp,ruTitle:"",enTitle:"",year:"",description:"",source:"wikidata-imdb"}:null;
+}
+async function searchWikidataKp(x){
+    const q=rawTitleVariants(x.enTitle)[0]||rawTitleVariants(x.ruTitle)[0]||"";if(!q)return null;
+    const u1=new URL("https://www.wikidata.org/w/api.php");for(const [k,v] of Object.entries({action:"wbsearchentities",search:q,language:"en",uselang:"ru",format:"json",limit:8,origin:"*"}))u1.searchParams.set(k,v);
+    const s=await genericJson(u1.href);const ids=arr(s?.search).map(z=>z.id).filter(Boolean).slice(0,8);if(!ids.length)return null;
+    const u2=new URL("https://www.wikidata.org/w/api.php");for(const [k,v] of Object.entries({action:"wbgetentities",ids:ids.join("|"),props:"claims|labels",languages:"ru|en",format:"json",origin:"*"}))u2.searchParams.set(k,v);
+    const data=await genericJson(u2.href);let best=null,bestScore=-1e9;
+    for(const id of ids){const e=data?.entities?.[id];const kp=String(claimValue(e,"P2603")||"").replace(/\D/g,"");if(!kp)continue;
+        const ru=e?.labels?.ru?.value||"",en=e?.labels?.en?.value||"",ey=wikidataYear(e),yr=Number(x.year)||0;
+        let ts=0;for(const a of [ru,en].filter(Boolean))for(const b of [...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)])ts=Math.max(ts,titleSimilarity(a,b));
+        const yd=(yr&&ey)?Math.abs(yr-ey):0;if(ts<0.85||yr&&ey&&yd>0)continue;
+        const score=10*ts+(yr&&ey?(yd===0?6:2):0);if(score>bestScore){bestScore=score;best={kpId:kp,ruTitle:ru,enTitle:en||x.enTitle||"",year:String(ey||x.year||""),description:"",source:"wikidata"};}
+    }
+    return best&&bestScore>=9?best:null;
+}
+async function searchWebForKinopoisk(x){
+    if(!http)return null;
+    const q=[...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)][0]||""; if(!q)return null;
+    const query=`site:kinopoisk.ru/film/ "${q}" ${x.year||""}`.trim();
+    const urls=[`https://www.google.com/search?q=${encodeURIComponent(query)}`,`https://www.bing.com/search?q=${encodeURIComponent(query)}`];
+    for(const url of urls){
+        try{
+            const r=await withTimeout(http({url,method:"GET",throw:false,headers:{Accept:"text/html","User-Agent":"Mozilla/5.0"}}),SEARCH_ENGINE_TIMEOUT_MS);
+            if(Number(r?.status||0)!==200)continue;
+            const html=String(r?.text||""); const ids=[];
+            const re=/kinopoisk\.ru\/(?:film|series)\/(\d{1,12})/gi; let m; while((m=re.exec(html))&&ids.length<8)if(!ids.includes(m[1]))ids.push(m[1]);
+            for(const id of ids){
+                const d=await getKinopoiskPage(id); if(!d.ok)continue;
+                const parsed=parseKinopoiskFilmPage(d.text,id,""); if(!parsed)continue;
+                const ts=Math.max(...[...rawTitleVariants(x.enTitle),...rawTitleVariants(x.ruTitle)].map(t=>titleSimilarity(t,parsed.ruTitle||"")),0);
+                const yd=(x.year&&parsed.year)?Math.abs(Number(x.year)-Number(parsed.year)):0;
+                if((!x.year||!parsed.year||yd<=1)&&(ts>=0.45||ids.length===1))return {...parsed,source:"web-search"};
+            }
+        }catch(_){}
+    }
+    return null;
+}
+async function resolveKinopoisk(x,cache){
+    if(x.kpId)return {found:true,kpId:x.kpId,ruTitle:x.ruTitle,enTitle:x.enTitle,year:x.year,kpRating:x.kpRating,description:x.description||"",source:"local"};
+    const cacheKey=`t:${titleKey(x.enTitle||x.ruTitle)}:${x.year}`;
+    const old=cache?.[cacheKey];if(!x.imdbId&&old?.found&&old?.kpId)return old;
+
+    // Cheap / stable sources first. A failing auxiliary service no longer marks the whole lookup as an error.
+    let found=null;
+    if(/^tt\d{7,12}$/i.test(String(x.imdbId||""))){
+        const api=await kpApiGet(`/v2.2/films?imdbId=${encodeURIComponent(x.imdbId)}&page=1`);
+        const exact=arr(api.data?.items).filter(z=>String(z.imdbId||"").toLowerCase()===String(x.imdbId).toLowerCase());
+        if(exact.length===1)found=parseKpUnofficialDetail(exact[0],exact[0].kinopoiskId);
+    }
+    if(!found)found=await searchWikidataKpByImdb(x.imdbId);
+    if(x.imdbId&&!found){
+        const mp=await kpHttpJson(kpSearchApiUrl({q:x.imdbId,limit:24,person_limit:0}));
+        const matches=arr(mp.data?.items).filter(z=>String(z.imdb_id||z.imdbId||'').toLowerCase()===String(x.imdbId).toLowerCase());
+        if(matches.length===1)found=kpResultFromSearch(matches[0],x,{source:'movie-planner-imdb'});
+        if(!found){
+            const candidate=await searchWikidataKp(x);
+            if(candidate?.kpId){
+                const page=await getKinopoiskPage(candidate.kpId);
+                if(String(page.text||'').includes(`imdb.com/title/${x.imdbId}`))found=candidate;
+            }
+        }
+        if(!found)return {found:false,transient:true};
+    }
+    if(!found)found=await searchWikidataKp(x);
+    if(!found)found=await searchKinopoiskDirect(x);
+    if(!found)found=await searchWebForKinopoisk(x);
+    if(!found){const mp=await searchMoviePlanner(x);if(mp.result)found=mp.result;}
+    if(found?.kpId){
+        const result={v:KP_CACHE_VERSION,found:true,checkedAt:Date.now(),kpId:found.kpId,ruTitle:found.ruTitle||x.ruTitle||"",enTitle:found.enTitle||x.enTitle||"",year:found.year||x.year||"",kpRating:found.kpRating??null,description:found.description||"",source:found.source||""};
+        cache[cacheKey]=result;return result;
+    }
+    return {found:false,transient:false};
+}
+
+function kinopoiskUrl(x){
+    if(x.kpId)return `https://www.kinopoisk.ru/${x.type==="series"?"series":"film"}/${x.kpId}/`;
+    const q=[x.ruTitle||x.enTitle||"",x.year||""].filter(Boolean).join(" ").trim();
+    return `https://www.kinopoisk.ru/index.php?kp_query=${encodeURIComponent(q)}`;
+}
+function makeUi(container){
+    const box=container.createDiv();box.style.margin="10px 0 14px";box.style.padding="9px 11px";box.style.border="1px solid var(--background-modifier-border)";box.style.borderRadius="8px";
+    const text=box.createDiv();text.style.whiteSpace="pre-line";const bar=box.createEl("progress");bar.max=100;bar.value=0;bar.style.width="100%";bar.style.marginTop="7px";
+    const actions=box.createDiv();actions.style.marginTop="7px";actions.style.display="flex";actions.style.gap="8px";actions.style.alignItems="center";
+    const tableWrap=container.createDiv();return {box,text,bar,actions,tableWrap};
+}
+function addKpApiControl(ui){
+    const label=ui.actions.createEl("span",{text:`КП API: ${KP_DIAG.api}`});
+    label.style.opacity="0.8";
+    label.title="API-ключ встроен в страницу рекомендаций";
+}
+function setProgress(ui,text,pct){
+    ui.text.empty();
+    for(const part of String(text).split(/(\*\*[^*]+\*\*)/g)){
+        if(part.startsWith("**")&&part.endsWith("**"))ui.text.createEl("strong",{text:part.slice(2,-2)});
+        else ui.text.appendText(part);
+    }
+    ui.bar.value=clamp(pct,0,100);
+}
+const SORT_COLUMNS=[
+    ["ruTitle","Русское название"],["enTitle","English"],["kpRating","Рейтинг КП"],
+    ["forecast","Мой прогноз"],["description","Описание"]
+];
+function sortRecommendationRows(rows,sort){
+    if(!sort.key)return rows;
+    const numeric=sort.key==="kpRating"||sort.key==="forecast";
+    const collator=new Intl.Collator("ru",{sensitivity:"base",numeric:true});
+    const value=x=>sort.key==="ruTitle"?(x.ruTitle||x.local?.ruTitle||""):
+        sort.key==="description"?(x.description||x.local?.description||""):x[sort.key];
+    return rows.map((row,index)=>({row,index})).sort((a,b)=>{
+        const av=value(a.row),bv=value(b.row);
+        const emptyA=av===null||av===undefined||av==="",emptyB=bv===null||bv===undefined||bv==="";
+        if(emptyA!==emptyB)return emptyA?1:-1;
+        const compared=emptyA?0:numeric?Number(av)-Number(bv):collator.compare(String(av),String(bv));
+        return compared?compared*sort.direction:a.index-b.index;
+    }).map(x=>x.row);
+}
+async function loadForecastPredictor(){
+    const file=app.vault.getAbstractFileByPath(FORECAST_SCRIPT_PATH);
+    if(!file)throw new Error(`не найден ${FORECAST_SCRIPT_PATH}`);
+    const source=await app.vault.read(file),mod={exports:{}};
+    new Function("module","exports",source)(mod,mod.exports);
+    if(typeof mod.exports!=="function")throw new Error("скрипт прогноза не экспортирует функцию");
+    return mod.exports;
+}
+function renderTable(ui,list,sort,onSort,reference){
+    ui.tableWrap.empty();if(!list.length){ui.tableWrap.createEl("p",{text:"Кандидаты пока не найдены."});return;}
+    const table=ui.tableWrap.createEl("table");table.style.width="100%";table.style.borderCollapse="collapse";
+    const hr=table.createEl("tr");SORT_COLUMNS.forEach(([key,label])=>{
+        const th=hr.createEl("th");th.style.textAlign="left";th.style.padding="7px 8px";
+        th.setAttribute("aria-sort",sort.key===key?(sort.direction===1?"ascending":"descending"):"none");
+        const button=th.createEl("button",{text:`${label} ${sort.key===key?(sort.direction===1?"↑":"↓"):"↕"}`});
+        button.type="button";button.title=`Сортировать: ${label}`;
+        button.style.border="0";button.style.background="transparent";button.style.padding="0";
+        button.style.color="inherit";button.style.font="inherit";button.style.fontWeight="bold";
+        button.style.cursor="pointer";button.addEventListener("click",()=>onSort(key));
+    });
+    for(const x of list){
+        const row=table.createEl("tr");
+        const ru=row.createEl("td");ru.style.padding="8px";ru.style.minWidth="280px";
+        const text=x.ruTitle||x.local?.ruTitle||(x.kpId?`КП ${x.kpId}`:"Найти на Кинопоиске");
+        const a=ru.createEl("a",{text});a.href=x.sourceUrl||kinopoiskUrl(x);a.target="_blank";
+        a.title=x.sourceUrl?`Открыть фильм на ${x.sourceName||"сайте источника"}`:x.kpId?`Кинопоиск ID ${x.kpId}`:"Открыть поиск Кинопоиска";
+        if(x.year){const y=ru.createEl("span",{text:` (${x.year})`});y.style.opacity="0.65";}
+        const en=row.createEl("td");en.style.padding="8px";en.textContent=x.enTitle||"-";
+        const pr=row.createEl("td",{text:fmt(x.kpRating)});pr.style.padding="8px";pr.style.fontWeight="700";pr.style.fontSize="1.05em";
+        const forecast=row.createEl("td",{text:fmt(x.forecast)});forecast.style.padding="8px";forecast.style.fontWeight="700";
+        const ds=row.createEl("td");ds.style.padding="8px";ds.style.minWidth="320px";ds.style.maxWidth="560px";
+        const full=String(x.description||x.local?.description||"").trim();const short=full.length>280?full.slice(0,277).trim()+"…":full;ds.textContent=short||"-";if(full)ds.title=full;
+    }
+}
+function recommendationIdentity(x){
+    return [x.kpId?`kp:${x.kpId}`:"",x.imdbId?`imdb:${String(x.imdbId).toLowerCase()}`:"",
+        x.localPath?`path:${x.localPath}`:"",x.local?.localPath?`path:${x.local.localPath}`:"",
+        ...[x.ruTitle,x.enTitle].map(t=>t&&x.year?`title:${titleKey(t)}:${x.year}`:"")].filter(Boolean);
+}
+function recommendationDetailsMarkdown(list,reference){
+    const groups=new Map();
+    for(const film of list){
+        const evidences=film.evidence||[film];
+        for(const evidence of evidences){
+            if(evidence.hop!==0&&evidence.hop!==1&&evidence.hop!==2)continue;
+            const parents=evidence.hop===2
+                ?[...new Set(evidence.viaTitles?.length?evidence.viaTitles:[evidence.viaTitle].filter(Boolean))]
+                :[reference?.ruTitle||reference?.enTitle||"Исходный фильм"];
+            for(const parent of parents){
+                if(!groups.has(parent))groups.set(parent,new Map());
+                const key=recommendationIdentity(film)[0]||`${titleKey(film.ruTitle)}:${film.year||""}`;
+                const byFilm=groups.get(parent),current=byFilm.get(key)||{film,sources:[],votes:0,why:new Set(),routes:new Set()};
+                const source=evidence.sourceName||String(evidence.reason||"").split(":")[0]||"Источник";
+                if(!current.sources.includes(source))current.sources.push(source);
+                current.votes=Math.max(current.votes,Number(evidence.votes)||0);
+                current.routes.add(evidence.hop===2?"второй уровень":evidence.hop===1?"прямой похожий":"локальная база");
+                const explanation=String(evidence.reason||"").split("·").slice(1).join("·").trim();
+                if(explanation)current.why.add(explanation);
+                byFilm.set(key,current);
+            }
+        }
+    }
+    if(!groups.size)return "_Для выбранных источников рекомендаций второго уровня нет._";
+    const lines=[];
+    const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
+    for(const [parent,films] of groups){
+        lines.push(`## ${inline(parent)}`,"");
+        for(const {film,sources,votes,why,routes} of films.values()){
+            const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
+            const target=film.sourceUrl||kinopoiskUrl(film);
+            lines.push(`### [${inline(label)}](${target})${film.year?` (${inline(film.year)})`:""}`,"");
+            const explanations=[...why];
+            const match=recommendationMatch(reference,film),signals=[];
+            if(match.genre!==null&&match.genre>=.25)signals.push("совпадают жанры");
+            if(match.plot!==null&&match.plot>=.08)signals.push("похоже описание сюжета");
+            if(match.franchise)signals.push("та же франшиза");
+            if(match.director!==null&&match.director>0)signals.push("совпадает режиссёр");
+            lines.push(`- **Почему предложен:** ${[...routes].join(" и ")}; основание — «${inline(parent)}»; источники: ${sources.map(inline).join(", ")}${votes>1?`; найден у ${votes} фильмов`:""}.`);
+            if(explanations.length||signals.length)lines.push(`- **Совпадения:** ${[...explanations,...signals].map(inline).join(", ")}.`);
+            const description=String(film.description||film.local?.description||"").trim();
+            lines.push(`- **Описание:** ${description.replace(/\s+/g," ").trim()||"описание источника недоступно."}`);
+            const ratings=[];
+            if(film.kpRating!==null&&film.kpRating!==undefined)ratings.push(`КП ${fmt(film.kpRating)}`);
+            if(film.forecast!==null&&film.forecast!==undefined)ratings.push(`мой прогноз ${fmt(film.forecast)}`);
+            if(ratings.length)lines.push(`- **Оценки:** ${ratings.join(" · ")}.`);
+            lines.push("");
+        }
+    }
+    return lines.join("\n").trim();
+}
+async function saveNativeRecommendationDetails(list,reference){
+    const path=dv.current()?.file?.path||`${ROOT}/_system/рекомендации.md`;
+    const file=app.vault.getAbstractFileByPath(path);
+    if(!file)return;
+    const start="<!-- KINO:RECOMMENDATION-DETAILS:START -->",end="<!-- KINO:RECOMMENDATION-DETAILS:END -->";
+    const current=await app.vault.read(file);
+    const section=`${start}\n\n${recommendationDetailsMarkdown(list,reference)}\n\n${end}`;
+    const startAt=current.indexOf(start),endAt=startAt<0?-1:current.indexOf(end,startAt+start.length);
+    const updated=startAt>=0&&endAt>=0
+        ?`${current.slice(0,startAt)}${section}${current.slice(endAt+end.length)}`
+        :`${current.trimEnd()}\n\n${section}\n`;
+    if(updated!==current)await app.vault.modify(file,updated);
+}
+function restoreRecommendation(x) {
+    return {...x,genres:x.genres instanceof Set?x.genres:new Set(Array.isArray(x.genres)?x.genres:[]),
+        descTokens:tokenSet(x.description||""),directors:new Set(),franchise:x.franchise||""};
+}
+function localTopicMatch(ref,x) {
+    return !(ref.type&&x.type&&ref.type!==x.type);
+}
+async function recommendationSeeds(kpId,cache) {
+    const cached=cache.similar?.[kpId];
+    if(cached?.items?.length&&Date.now()-cached.at<SIMILAR_TTL) return {...cached,diag:cached.diag+" · кэш",cacheHit:true};
+    const result=await kpApiGet(`/v2.2/films/${kpId}/similars`,6500);
+    if(!result.ok){
+        const fallback=await getSimilarKp(kpId,cache);
+        if(fallback.items.length)return {items:fallback.items.map(x=>({...x,priority:1,reason:"КП: похожий фильм"})),diag:`КП: ${fallback.diag}`,cacheHit:/cache/.test(fallback.source)};
+    }
+    const direct=result.ok?parseKpUnofficialSimilars(result.data,kpId):[];
+    const items=direct.map(x=>({...x,priority:1,reason:"КП: похожий фильм"}));
+    const seen=new Set([kpId,...items.map(x=>x.kpId)]);
+    let diag=result.ok?`КП: прямых похожих ${direct.length}`:`КП: запрос похожих не выполнен (HTTP ${result.status||0})`;
+    if(items.length<6) {
+        const related=await kpApiGet(`/v2.2/films/${kpId}/relations`,6500);
+        const relatives=related.ok?arr(related.data?.items||related.data).filter(x=>["PREQUEL","SEQUEL"].includes(x.relationType)).slice(0,3):[];
+        for(const parent of relatives) {
+            const id=String(parent.kinopoiskId||parent.filmId||"");
+            if(!/^\d+$/.test(id)||id===kpId) continue;
+            const sub=await kpApiGet(`/v2.2/films/${id}/similars`,6500);
+            const list=sub.ok?parseKpUnofficialSimilars(sub.data,kpId):[];
+            diag+=` · похожие «${parent.nameRu||parent.nameEn||id}»: ${list.length}`;
+            for(const x of list) if(!seen.has(x.kpId)) {
+                seen.add(x.kpId);items.push({...x,priority:0.8,reason:`КП: похожие «${parent.nameRu||parent.nameEn||id}»`});
+            }
+        }
+        if(!related.ok) diag+=` · связанные части недоступны (HTTP ${related.status||0})`;
+    }
+    // Do not convert an empty HTTP 200 into an error or a taste-based fallback.
+    const value={at:Date.now(),items,diag};
+    if(items.length) {cache.similar ||= {};cache.similar[kpId]=value;}
+    return {...value,cacheHit:false};
+}
+async function expandSecondDegree(kpId,direct,cache){
+    cache.secondDegree ||= {};
+    const seeds=[...new Map(direct.filter(x=>x.kpId&&x.hop!==2).map(x=>[String(x.kpId),x])).values()];
+    const parentFingerprint=seeds.map(x=>String(x.kpId)).join(",");
+    const cached=cache.secondDegree[kpId];
+    if(cached?.sourceVersion===2&&cached.parentFingerprint===parentFingerprint&&cached.items?.length&&Date.now()-cached.at<SIMILAR_TTL)return {...cached,diag:`2-й уровень: кэш ${cached.items.length} от ${seeds.length} фильмов`,cacheHit:true,
+        parentCount:Number(cached.parentCount??cached.diag?.match(/от (\d+)/)?.[1]??seeds.length)};
+    const found=new Map(),parents=[];
+    for(const parent of seeds){
+        const result=await getSimilarKp(parent.kpId,cache);
+        if(!result.items.length)continue;
+        const title=parent.ruTitle||parent.enTitle||parent.kpId;
+        parents.push(title);
+        for(const item of result.items){
+            if(item.kpId===kpId)continue;
+            const previous=found.get(item.kpId);
+            if(previous){previous.votes++;previous.viaTitles=[...new Set([...(previous.viaTitles||[previous.viaTitle]),title])];continue;}
+            found.set(item.kpId,{...item,hop:2,viaTitle:title,viaTitles:[title],votes:1,priority:0.62,reason:`КП: похож на «${title}» (2-й уровень)`});
+        }
+    }
+    const directIds=new Set(direct.map(x=>x.kpId));
+    const items=[...found.values()].filter(x=>!directIds.has(x.kpId))
+        .sort((a,b)=>(b.votes-a.votes)||((b.kpRating||0)-(a.kpRating||0))||String(a.kpId).localeCompare(String(b.kpId)))
+        .slice(0,100);
+    const value={at:Date.now(),sourceVersion:2,parentFingerprint,items,parentCount:parents.length,diag:`2-й уровень: ${items.length} кандидатов от ${parents.length}/${seeds.length} прямых фильмов`};
+    if(parents.length<seeds.length&&cached?.items?.length)return {...cached,cacheHit:true};
+    if(items.length&&parents.length===seeds.length)cache.secondDegree[kpId]=value;
+    return {...value,cacheHit:false};
+}
+function combineRecommendationLists(sourceGroups,showWatched,watchedItems) {
+    const seen=new Map(),unique=[];
+    const groups=sourceGroups.filter(group=>group.length);
+    const ordered=[];for(let i=0;i<Math.max(0,...groups.map(group=>group.length));i++)for(const group of groups)if(i<group.length)ordered.push(group[i]);
+    for(const x of ordered) {
+        const keys=[x.kpId?`kp:${x.kpId}`:"",x.imdbId?`imdb:${String(x.imdbId).toLowerCase()}`:"",
+            x.localPath?`path:${x.localPath}`:"",x.local?.localPath?`path:${x.local.localPath}`:"",
+            ...[x.ruTitle,x.enTitle].map(title=>title&&x.year?`title:${titleKey(title)}:${x.year}`:"")].filter(Boolean);
+        const existingIndex=keys.map(key=>seen.get(key)).find(index=>index!==undefined);
+        if(existingIndex!==undefined){
+            const existing=unique[existingIndex];
+            existing.evidence||=[existing];
+            if(!existing.evidence.some(e=>e.sourceName===x.sourceName&&e.reason===x.reason&&e.viaTitle===x.viaTitle))existing.evidence.push(x);
+            keys.forEach(key=>{if(!seen.has(key))seen.set(key,existingIndex);});
+            continue;
+        }
+        const index=unique.length;keys.forEach(key=>seen.set(key,index));unique.push({...x,evidence:[x]});
+    }
+    const hidden=unique.filter(x=>isWatched(x,watchedItems)).length;
+    return {items:showWatched?unique:unique.filter(x=>!isWatched(x,watchedItems)),hidden};
+}
+async function imdbSimilarRecommendations(ref,items,sourceCache) {
+    const id=String(ref.imdbId||"").match(/^tt\d{7,12}$/i)?.[0];
+    if(!id)return {items:[],diag:"IMDb: у референса нет IMDb ID"};
+    try {
+        sourceCache.imdbSimilar ||= {};
+        const cached=sourceCache.imdbSimilar[id];
+        const fromCache=Boolean(cached?.films?.length&&Array.isArray(cached.secondLevel)&&Date.now()-Number(cached.at||0)<(cached.failedParents?24*3600*1000:SIMILAR_TTL));
+        let data=cached;
+        if(!fromCache){
+            if(typeof require!=="function")throw new Error("Node.js require недоступен в DataviewJS");
+            const {execFile}=require("child_process"),path=require("path"),fs=require("fs");
+            const relative=dv.current().file.path.replace(/[^/]+$/,"imdb_similar.js");
+            const script=path.join(app.vault.adapter.basePath,...relative.split("/"));
+            if(!fs.existsSync(script))throw new Error(`Не найден внешний скрипт: ${relative}`);
+            data=await new Promise((resolve,reject)=>{
+                execFile("node",[script,id,"--two-level"],{windowsHide:true,timeout:45000,maxBuffer:2*1024*1024},(error,stdout,stderr)=>{
+                    if(error){reject(new Error(String(stderr||error.message).trim()));return;}
+                    try{resolve(JSON.parse(stdout));}catch(parseError){reject(new Error(`Скрипт вернул не JSON: ${String(stdout).slice(0,120)}`));}
+                });
+            }).catch(error=>{if(cached?.films?.length)return {...cached,stale:true};throw error;});
+            if(!data.stale&&data?.films?.length&&(!data.failedParents||!cached?.films?.length))sourceCache.imdbSimilar[id]={...data,at:Date.now()};
+        }
+        const films=[...(data?.films||[]).map(film=>({...film,hop:1})),...(data?.secondLevel||[]).map(film=>({...film,hop:2}))];
+        const localByImdb=new Map(items.map(x=>[String(x.imdbId||"").toLowerCase(),x])),seen=new Set([id.toLowerCase()]),out=[];
+        for(const film of films){
+            const imdbId=String(film.imdbId||"").toLowerCase();
+            if(!/^tt\d{7,12}$/.test(imdbId)||seen.has(imdbId))continue;seen.add(imdbId);
+            const label=String(film.originalTitle||film.title||imdbId),local=localByImdb.get(imdbId);
+            const sourceUrl=`https://www.imdb.com/title/${imdbId}/`;
+            const reason=film.hop===2?`IMDb: похож на «${film.viaTitle||"фильм из списка"}» (2-й уровень${film.votes>1?`, найден у ${film.votes} фильмов`:""})`:"IMDb: More like this";
+            const priority=film.hop===2?0.52:0.72;
+            out.push(local?{...local,local,imdbId,sourceUrl,sourceName:"IMDb",reason,priority,score:priority,hop:film.hop,viaTitle:film.viaTitle,viaTitles:film.viaTitles,votes:film.votes}:
+                {imdbId,sourceUrl,sourceName:"IMDb",ruTitle:label,enTitle:label,year:String(film.year||""),kpId:"",type:ref.type,description:"",genres:new Set(),descTokens:new Set(),directors:new Set(),franchise:"",watched:false,reason,priority,score:priority,hop:film.hop,viaTitle:film.viaTitle,viaTitles:film.viaTitles,votes:film.votes});
+        }
+        // IMDb supplies original titles; resolve a Russian title and KP rating when possible.
+        sourceCache.imdbKpResolve ||= {};
+        const enriched=await mapLimit(out,3,async row=>{
+            if(row.kpId&&row.ruTitle&&row.description&&row.kpRating!==null&&row.kpRating!==undefined)return row;
+            const key=String(row.imdbId||"").toLowerCase();
+            const old=sourceCache.imdbKpResolve[key];
+            let resolved=null;
+            if(old?.sourceVersion===4&&old.data?.description&&old.data?.kpRating!=null&&Date.now()-Number(old.at||0)<SIMILAR_TTL)resolved=old.data;
+            else try{
+                const found=await resolveKinopoisk({kpId:row.kpId,imdbId:row.imdbId,ruTitle:row.ruTitle,enTitle:row.enTitle,year:row.year,type:row.type},sourceCache.imdbKpResolve);
+                resolved=found?.found?found:null;
+                // The resolver may only know the KP ID (for example from Wikidata).
+                // Always hydrate that ID through the shared KP detail path so the row
+                // gets the Russian title, KP rating and plot description.
+                if(resolved?.kpId){
+                    const detail=await getKpDetail(resolved.kpId,resolved.ruTitle||row.ruTitle,sourceCache);
+                    if(detail)resolved={...resolved,...detail,kpId:String(resolved.kpId)};
+                }
+                if(resolved)sourceCache.imdbKpResolve[key]={at:Date.now(),sourceVersion:4,data:resolved};
+            }catch(_){resolved=old?.sourceVersion===4?old.data:null;}
+            if(!resolved)return row;
+            return {...row,kpId:resolved.kpId||row.kpId,ruTitle:resolved.ruTitle||row.ruTitle,kpRating:resolved.kpRating??row.kpRating,
+                description:row.description||resolved.description||"",descTokens:row.description?row.descTokens:tokenSet(resolved.description||"")};
+        });
+        const directCount=Number(data?.films?.length||0),secondCount=Number(data?.secondLevel?.length||0);
+        const cachedCount=fromCache?directCount+secondCount:0;
+        return {items:enriched.map((x,i)=>x||out[i]),diag:`IMDb More like this: **${directCount}**; 2-й уровень: **${secondCount}** · из кэша **${cachedCount}**${data?.failedParents?`; ошибок ${data.failedParents}`:""}`};
+    } catch(error) { return {items:[],diag:`IMDb: ${String(error?.message||error).slice(0,80)}`}; }
+}
+const TMDB_V3_KEY="73902152669d7e990e49c4b698e59e81";
+const TMDB_V4_TOKEN="eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MzkwMjE1MjY2OWQ3ZTk5MGU0OWM0YjY5OGU1OWU4MSIsIm5iZiI6MTc5MDI3NTE0NS41MjQ5OTk5LCJzdWIiOiI2YWI1NmU0OWI3NmJhNzM3NTg5NjVmZDIiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.3ziZ69SzRNMs0Ok6fHr_-dhZMqXHpyq2SMt-xi5tfhI";
+async function tmdbGet(path,params={}) {
+    const url=new URL("https://api.themoviedb.org/3"+path);Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,String(v)));
+    const headers={Accept:"application/json"};if(TMDB_V4_TOKEN)headers.Authorization=`Bearer ${TMDB_V4_TOKEN}`;
+    let r=await withTimeout(http({url:url.href,method:"GET",throw:false,headers}),9000);
+    if(Number(r?.status)===401&&TMDB_V3_KEY){url.searchParams.set("api_key",TMDB_V3_KEY);r=await withTimeout(http({url:url.href,method:"GET",throw:false,headers:{Accept:"application/json"}}),9000);}
+    return {ok:Number(r?.status)===200,status:Number(r?.status||0),data:r?.json||null};
+}
+async function tmdbRecommendations(ref,items) {
+    const imdbId=String(ref.imdbId||"").match(/^tt\d{7,12}$/i)?.[0];if(!imdbId)return {items:[],diag:"TMDB: нет IMDb ID"};
+    if(!http)return {items:[],diag:"TMDB: сеть недоступна"};
+    const found=await tmdbGet(`/find/${imdbId}`,{external_source:"imdb_id",language:"ru-RU"});
+    const tmdbId=found.data?.movie_results?.[0]?.id||found.data?.tv_results?.[0]?.id;
+    if(!found.ok||!tmdbId)return {items:[],diag:`TMDB: find HTTP ${found.status||0}`};
+    const [similar,recommended]=await Promise.all([tmdbGet(`/movie/${tmdbId}/similar`,{language:"ru-RU",page:1}),tmdbGet(`/movie/${tmdbId}/recommendations`,{language:"ru-RU",page:1})]);
+    const localByImdb=new Map(items.map(x=>[String(x.imdbId||""),x])),out=[],seen=new Set([String(tmdbId)]);
+    for(const [result,reason,priority] of [[similar,"TMDB: similar",.68],[recommended,"TMDB: recommendations",.64]]) for(const film of result.data?.results||[]) {
+        const id=String(film.id);if(seen.has(id))continue;seen.add(id);const local=items.find(x=>x.kpId&&false); // TMDB IDs are not KP IDs; local dedupe uses title/IMDb later.
+        out.push({tmdbId:id,ruTitle:film.title||film.name||"",enTitle:film.original_title||film.original_name||film.title||"",year:String(film.release_date||film.first_air_date||"").slice(0,4),kpId:"",imdbId:"",type:ref.type,description:film.overview||"",genres:new Set(),descTokens:tokenSet(film.overview||""),directors:new Set(),franchise:"",watched:false,reason,priority,score:priority,tmdbPoster:film.poster_path||"",hop:1});
+    }
+    return {items:out,diag:`TMDB: similar ${similar.data?.results?.length||0}, recommendations ${recommended.data?.results?.length||0}`};
+}
+async function main(){
+    const state=await loadJson(STATE_PATH);
+    if(!state?.reference){dv.paragraph("Открой карточку фильма и нажми **🔎 Найти похожие**.");return;}
+    const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
+    const watchedItems=watchedIndex(items);
+    const ref=items.find(x=>x.file.path===state.reference);
+    if(!ref){dv.paragraph("Не удалось прочитать карточку выбранного фильма.");return;}
+    
+    const head=dv.container.createDiv();head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
+
+    const ui=makeUi(dv.container);
+    const cache=(await loadJson(SOURCE_CACHE_PATH))||{similar:{},details:{}};
+    const localByKp=new Map(items.filter(x=>x.kpId).map(x=>[x.kpId,x]));
+    setProgress(ui,"Кинопоиск: проверяю похожие фильмы и связанные части…",10);
+    const seeds=ref.kpId?await recommendationSeeds(ref.kpId,cache):{items:[],diag:"В карточке нет Кинопоиск ID"};
+    const second=ref.kpId&&seeds.items.length?await expandSecondDegree(ref.kpId,seeds.items,cache):{items:[],diag:"2-й уровень: нет прямых похожих"};
+    const directIds=new Set(seeds.items.map(x=>x.kpId));
+    const secondById=new Map();
+    for(const x of second.items){const old=secondById.get(x.kpId);if(old)old.votes+=x.votes||1;else secondById.set(x.kpId,{...x});}
+    const directSeeds=seeds.items.map(x=>({...x,hop:1}));
+    const secondSeeds=[...secondById.values()].filter(x=>!directIds.has(x.kpId))
+        .sort((a,b)=>(b.votes-a.votes)||((b.kpRating||0)-(a.kpRating||0))||String(a.kpId).localeCompare(String(b.kpId)));
+    const allSeeds=[...directSeeds,...secondSeeds];
+    const candidates=new Map();let done=0;
+    for(const seed of allSeeds) {
+        const local=localByKp.get(seed.kpId);
+        let data=local||await getKpDetail(seed.kpId,seed.ruTitle,cache);
+        data=restoreRecommendation(data||{kpId:seed.kpId,ruTitle:seed.ruTitle,enTitle:seed.enTitle});
+        if(data.kpId===ref.kpId||data.localPath===ref.localPath)continue;
+        const match=recommendationMatch(ref,data);
+        const sameType=!ref.type||!data.type||ref.type===data.type;
+        const routeWeight=seed.hop===2?0.62:Number(seed.priority||1);
+        const metadata=match.metadata+(match.franchise?0.08:0);
+        const score=Math.max(0,0.43*routeWeight+0.40*metadata+0.10*(sameType?1:0)+0.055*Math.min(2,Math.max(0,(seed.votes||1)-1)));
+        candidates.set(seed.kpId,{...data,local,reason:recommendationReason(ref,data,seed,match),priority:routeWeight,hop:seed.hop,
+            watched:isWatched({...data,local},watchedItems),score});
+        setProgress(ui,`Проверяю похожесть и описания: ${++done}/${allSeeds.length}`,20+65*done/Math.max(1,allSeeds.length));
+    }
+    for(const x of items) {
+        // Local fallback is used only when Kinopoisk returned no candidates;
+        // text similarity ranks it but never filters by words.
+        if(seeds.items.length) break;
+        if(x.file.path===ref.file.path||x.kpId&&candidates.has(x.kpId)||!localTopicMatch(ref,x))continue;
+        const match=recommendationMatch(ref,x);
+        candidates.set(x.kpId||x.localPath,{...x,local:x,reason:recommendationReason(ref,x,{hop:0},match),priority:0.4,
+            score:0.4+0.4*match.metadata+(match.franchise?.08:0),watched:isWatched(x,watchedItems)});
+    }
+    await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+    const all=[...candidates.values()].sort((a,b)=>b.score-a.score||(b.kpRating||0)-(a.kpRating||0));
+    const sourceSettings=state.sourceSettings||{};
+    ui.actions.style.flexWrap="wrap";
+    const sourceControl=(name,home,checked)=>{
+        const holder=ui.actions.createEl("span");holder.style.whiteSpace="nowrap";
+        const input=holder.createEl("input",{type:"checkbox"});input.checked=checked;input.setAttribute("aria-label",`Включить ${name}`);
+        const link=holder.createEl("a",{text:name});link.style.marginLeft="4px";link.href=home;link.target="_blank";link.title=`Главная страница ${name}`;
+        return {input,holder};
+    };
+    const imdbSource=sourceControl("IMDb","https://www.imdb.com/",Boolean(sourceSettings.imdb));
+    const imdbCheckbox=imdbSource.input;
+    const kpCheckbox=sourceControl("Кинопоиск","https://www.kinopoisk.ru/",sourceSettings.kp??true).input;
+    const movieTonCheckbox=sourceControl("MovieTon","https://movieton.org/",Boolean(sourceSettings.movieTon)).input;
+    const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
+    const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
+    const label=ui.actions.createEl("label");label.style.whiteSpace="nowrap";
+    label.style.borderLeft="1px solid var(--background-modifier-border)";label.style.paddingLeft="10px";
+    const checkbox=label.createEl("input",{type:"checkbox"});checkbox.checked=Boolean(sourceSettings.watched);
+    label.appendText(" Показывать просмотренные");
+    let imdbRows=[],imdbReady=false,imdbError="";
+    let movieTonRows=[],movieTonReady=false,movieTonError="";
+    let likeFilmRows=[],likeFilmReady=false,likeFilmError="";
+    let tmdbRows=[],tmdbReady=false,tmdbError="";
+    const forecastReady=new WeakSet();
+    let forecastLoader=null,forecastError="",drawVersion=0;
+    let detailsWriteQueue=Promise.resolve();
+    const persistDetails=(version,list)=>{
+        const task=detailsWriteQueue.then(()=>version===drawVersion?saveNativeRecommendationDetails(list,ref):undefined);
+        detailsWriteQueue=task.catch(()=>{});
+        return task;
+    };
+    const saveUiState=()=>saveJson(STATE_PATH,{...state,sourceSettings:{
+        imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,
+        likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,watched:checkbox.checked
+    }});
+    const loadImdb=async()=>{
+        if(imdbReady)return;
+        setProgress(ui,"IMDb: проверяю похожие фильмы…",20);
+        const result=await imdbSimilarRecommendations(ref,items,cache);
+        imdbRows=result.items;imdbError=result.diag;imdbReady=true;
+        await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+    };
+    const loadMovieTon=async()=>{
+        if(movieTonReady)return;
+        setProgress(ui,"MovieTon: загружаю похожие фильмы и описания…",20);
+        const result=await movieTonRecommendations(ref,items,cache);
+        movieTonRows=result.items;movieTonError=result.diag;movieTonReady=true;
+        await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+    };
+    const loadLikeFilm=async()=>{
+        if(likeFilmReady)return;
+        setProgress(ui,"LikeFilm: загружаю похожие фильмы и сверяю рейтинги КП…",20);
+        const result=await likeFilmRecommendations(ref,items,cache);
+        likeFilmRows=result.items;likeFilmError=result.diag;likeFilmReady=true;
+        await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+    };
+    const loadTmdb=async()=>{
+        if(tmdbReady)return;
+        try{const r=await tmdbRecommendations(ref,items);tmdbRows=r.items;tmdbError=r.diag;tmdbReady=true;}
+        catch(_){tmdbError="Источник временно недоступен";tmdbReady=true;}
+    };
+    const sort={key:"",direction:1};
+    let currentVisible=[];
+    const onSort=key=>{
+        sort.direction=sort.key===key?-sort.direction:1;
+        sort.key=key;
+        renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
+    };
+    const draw=async()=>{
+        const version=++drawVersion;
+        const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[]];
+        const combined=combineRecommendationLists(sourceGroups,checkbox.checked,watchedItems);
+        const visible=combined.items;
+        currentVisible=visible;
+        renderTable(ui,sortRecommendationRows(visible,sort),sort,onSort,ref);
+        const hidden=combined.hidden;
+        const anySource=[imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox].some(x=>x.checked);
+        const formatStatus=()=>{
+            if(!anySource)return "Включи хотя бы один источник.";
+            const lines=[];
+            if(imdbCheckbox.checked)lines.push(`[IMDb]: ${imdbError||(!imdbReady?"загружается…":`найдено ${imdbRows.length}`)};`);
+            if(kpCheckbox.checked){
+                if(!ref.kpId||(!seeds.items.length&&/^КП: запрос похожих не выполнен/.test(seeds.diag)))
+                    lines.push(`[Кинопоиск]: ${seeds.diag.replace(/^КП:\s*/,"")};`);
+                else{
+                    const parentCount=Number(second.parentCount??second.diag?.match(/от (\d+)/)?.[1]??seeds.items.length);
+                    const cachedCount=(seeds.cacheHit?seeds.items.length:0)+(second.cacheHit?second.items.length:0);
+                    lines.push(`[Кинопоиск]: **${seeds.items.length}**; 2-й уровень: **${second.items.length}** от **${parentCount}** фильмов; · из кэша **${cachedCount}**`);
+                }
+            }
+            if(movieTonCheckbox.checked){const diag=movieTonError||(!movieTonReady?"загружается…":`найдено ${movieTonRows.length}`);lines.push(`[MovieTon]: ${diag.replace(/^MovieTon:\s*/,"")};`);}
+            if(likeFilmCheckbox.checked){const diag=likeFilmError||(!likeFilmReady?"загружается…":`найдено ${likeFilmRows.length}`);lines.push(`[LikeFilm]: ${diag.replace(/^LikeFilm:\s*/,"")};`);}
+            if(tmdbCheckbox.checked)lines.push(`[TMDB]: ${(tmdbError||(!tmdbReady?"загружается…":`найдено ${tmdbRows.length}`)).replace(/^TMDB:\s*/,"")};`);
+            if(forecastError)lines.push(`[Прогноз]: ${forecastError};`);
+            lines.push(`[Итог]: показано **${visible.length}** · просмотренных **${hidden}**.`);
+            return lines.join("\n");
+        };
+        setProgress(ui,formatStatus(),100);
+        if(!anySource){ui.tableWrap.empty();await persistDetails(version,[]);return;}
+        if(!visible.length){
+            ui.tableWrap.createEl("p",{text:hidden?"Все найденные фильмы уже просмотрены. Включи «Показывать просмотренные».":"Тематически подходящих фильмов не найдено. Список не дополняется случайными рекомендациями."});
+        }
+        const pending=visible.filter(x=>!forecastReady.has(x));
+        if(!pending.length){await persistDetails(version,currentVisible);return;}
+        setProgress(ui,`Считаю личный прогноз: ${pending.length} фильмов…`,75);
+        try{
+            forecastLoader ||= loadForecastPredictor();
+            const predictor=await forecastLoader;
+            const values=await predictor({app,obsidian:typeof obsidian!=="undefined"?obsidian:{},forecastCandidates:pending,suppressNotice:true});
+            if(!Array.isArray(values)||values.length!==pending.length)
+                throw new Error("скрипт прогноза не поддерживает расчёт рекомендаций");
+            for(let i=0;i<pending.length;i++){
+                pending[i].forecast=Number.isFinite(values?.[i])?values[i]:null;
+                forecastReady.add(pending[i]);
+            }
+            forecastError="";
+        }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);}
+        if(version===drawVersion){
+            renderTable(ui,sortRecommendationRows(visible,sort),sort,onSort,ref);
+            setProgress(ui,formatStatus(),100);
+            await persistDetails(version,currentVisible);
+        }
+    };
+    imdbCheckbox.addEventListener("change",async()=>{
+        await saveUiState();if(imdbCheckbox.checked)await loadImdb();
+        draw();
+    });
+    kpCheckbox.addEventListener("change",async()=>{await saveUiState();draw();});
+    movieTonCheckbox.addEventListener("change",async()=>{await saveUiState();if(movieTonCheckbox.checked)await loadMovieTon();draw();});
+    likeFilmCheckbox.addEventListener("change",async()=>{await saveUiState();if(likeFilmCheckbox.checked)await loadLikeFilm();draw();});
+    tmdbCheckbox.addEventListener("change",async()=>{await saveUiState();if(tmdbCheckbox.checked)await loadTmdb();draw();});
+    checkbox.addEventListener("change",async()=>{await saveUiState();draw();});
+    const initialLoads=[];
+    if(imdbCheckbox.checked)initialLoads.push(loadImdb());
+    if(movieTonCheckbox.checked)initialLoads.push(loadMovieTon());
+    if(likeFilmCheckbox.checked)initialLoads.push(loadLikeFilm());
+    if(tmdbCheckbox.checked)initialLoads.push(loadTmdb());
+    await Promise.all(initialLoads);
+    draw();
+}
+
+await main();
