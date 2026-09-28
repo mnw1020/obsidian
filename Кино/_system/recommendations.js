@@ -1116,7 +1116,7 @@ async function loadForecastPredictor(){
     return mod.exports;
 }
 function renderTable(ui,list,sort,onSort,reference){
-    ui.tableWrap.empty();if(!list.length){ui.tableWrap.createEl("p",{text:"Кандидаты пока не найдены."});return;}
+    ui.tableWrap.empty();if(!list.length){ui.tableWrap.createEl("p",{text:"Прямых похожих фильмов нет; фильмы второго уровня — ниже."});return;}
     const table=ui.tableWrap.createEl("table");table.style.width="100%";table.style.borderCollapse="collapse";
     const hr=table.createEl("tr");SORT_COLUMNS.forEach(([key,label])=>{
         const th=hr.createEl("th");th.style.textAlign="left";th.style.padding="7px 8px";
@@ -1146,25 +1146,35 @@ function recommendationIdentity(x){
         x.localPath?`path:${x.localPath}`:"",x.local?.localPath?`path:${x.local.localPath}`:"",
         ...[x.ruTitle,x.enTitle].map(t=>t&&x.year?`title:${titleKey(t)}:${x.year}`:"")].filter(Boolean);
 }
+function hasDirectEvidence(film){
+    return (film.evidence||[film]).some(evidence=>evidence.hop!==2);
+}
 function recommendationDetailsMarkdown(list,reference){
     const groups=new Map();
     for(const film of list){
         const evidences=film.evidence||[film];
         for(const evidence of evidences){
-            if(evidence.hop!==0&&evidence.hop!==1&&evidence.hop!==2)continue;
-            const parents=evidence.hop===2
-                ?[...new Set(evidence.viaTitles?.length?evidence.viaTitles:[evidence.viaTitle].filter(Boolean))]
-                :[reference?.ruTitle||reference?.enTitle||"Исходный фильм"];
+            if(evidence.hop!==2)continue;
+            const parents=[...new Set(evidence.viaTitles?.length?evidence.viaTitles:[evidence.viaTitle].filter(Boolean))];
             for(const parent of parents){
                 if(!groups.has(parent))groups.set(parent,new Map());
                 const key=recommendationIdentity(film)[0]||`${titleKey(film.ruTitle)}:${film.year||""}`;
-                const byFilm=groups.get(parent),current=byFilm.get(key)||{film,sources:[],votes:0,why:new Set(),routes:new Set()};
+                const byFilm=groups.get(parent),current=byFilm.get(key)||{film,reasons:new Set()};
                 const source=evidence.sourceName||String(evidence.reason||"").split(":")[0]||"Источник";
-                if(!current.sources.includes(source))current.sources.push(source);
-                current.votes=Math.max(current.votes,Number(evidence.votes)||0);
-                current.routes.add(evidence.hop===2?"второй уровень":evidence.hop===1?"прямой похожий":"локальная база");
-                const explanation=String(evidence.reason||"").split("·").slice(1).join("·").trim();
-                if(explanation)current.why.add(explanation);
+                const sourceLabel=source==="Кинопоиск"?"КП":source;
+                const raw=String(evidence.reason||"").trim();
+                let route=raw.split("·")[0].trim();
+                if(!route||!route.includes("2-й уровень"))route=`${sourceLabel}: похож на «${parent}» (2-й уровень)`;
+                else route=route.replace(/похож на «[^»]+»/i,`похож на «${parent}»`);
+                const votes=Number(evidence.votes)||0;
+                if(votes>1&&!/найден у \d+ фильмов/.test(route))route=route.replace("(2-й уровень)",`(2-й уровень, найден у ${votes} фильмов)`);
+                const details=raw.split("·").slice(1).map(x=>x.trim()).filter(Boolean);
+                const match=recommendationMatch(reference,film);
+                if(match.genre!==null&&match.genre>=.25&&!details.some(x=>/жанр/i.test(x)))details.push("близки жанры");
+                if(match.plot!==null&&match.plot>=.08&&!details.some(x=>/описани/i.test(x)))details.push("похоже описание сюжета");
+                if(match.franchise&&!details.some(x=>/франшиз/i.test(x)))details.push("та же франшиза");
+                const reason=`${route}${details.length?` · ${[...new Set(details)].join(", ")}`:""}`;
+                current.reasons.add(`**${String(film.ruTitle||film.enTitle||"Фильм").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&")}:** ${reason}`);
                 byFilm.set(key,current);
             }
         }
@@ -1172,28 +1182,20 @@ function recommendationDetailsMarkdown(list,reference){
     if(!groups.size)return "_Для выбранных источников рекомендаций второго уровня нет._";
     const lines=[];
     const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
+    const cell=value=>String(value??"").replace(/\r?\n/g," ").replace(/\|/g,"\\|").replace(/\s+/g," ").trim()||"-";
     for(const [parent,films] of groups){
         lines.push(`## ${inline(parent)}`,"");
-        for(const {film,sources,votes,why,routes} of films.values()){
+        lines.push("**Почему предложены:**","");
+        for(const {film,reasons} of films.values())for(const reason of reasons)lines.push(`- ${reason}`);
+        lines.push("","| Русское название | English | Рейтинг КП | Мой прогноз | Описание |","| --- | --- | ---: | ---: | --- |");
+        for(const {film} of films.values()){
             const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
             const target=film.sourceUrl||kinopoiskUrl(film);
-            lines.push(`### [${inline(label)}](${target})${film.year?` (${inline(film.year)})`:""}`,"");
-            const explanations=[...why];
-            const match=recommendationMatch(reference,film),signals=[];
-            if(match.genre!==null&&match.genre>=.25)signals.push("совпадают жанры");
-            if(match.plot!==null&&match.plot>=.08)signals.push("похоже описание сюжета");
-            if(match.franchise)signals.push("та же франшиза");
-            if(match.director!==null&&match.director>0)signals.push("совпадает режиссёр");
-            lines.push(`- **Почему предложен:** ${[...routes].join(" и ")}; основание — «${inline(parent)}»; источники: ${sources.map(inline).join(", ")}${votes>1?`; найден у ${votes} фильмов`:""}.`);
-            if(explanations.length||signals.length)lines.push(`- **Совпадения:** ${[...explanations,...signals].map(inline).join(", ")}.`);
+            const title=`[${inline(label)}](${target})${film.year?` (${inline(film.year)})`:""}`;
             const description=String(film.description||film.local?.description||"").trim();
-            lines.push(`- **Описание:** ${description.replace(/\s+/g," ").trim()||"описание источника недоступно."}`);
-            const ratings=[];
-            if(film.kpRating!==null&&film.kpRating!==undefined)ratings.push(`КП ${fmt(film.kpRating)}`);
-            if(film.forecast!==null&&film.forecast!==undefined)ratings.push(`мой прогноз ${fmt(film.forecast)}`);
-            if(ratings.length)lines.push(`- **Оценки:** ${ratings.join(" · ")}.`);
-            lines.push("");
+            lines.push(`| ${cell(title)} | ${cell(film.enTitle)} | ${cell(fmt(film.kpRating))} | ${cell(fmt(film.forecast))} | ${cell(description)} |`);
         }
+        lines.push("");
     }
     return lines.join("\n").trim();
 }
@@ -1496,6 +1498,7 @@ async function main(){
     };
     const sort={key:"",direction:1};
     let currentVisible=[];
+    let currentAllVisible=[];
     const onSort=key=>{
         sort.direction=sort.key===key?-sort.direction:1;
         sort.key=key;
@@ -1506,8 +1509,9 @@ async function main(){
         const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[]];
         const combined=combineRecommendationLists(sourceGroups,checkbox.checked,watchedItems);
         const visible=combined.items;
-        currentVisible=visible;
-        renderTable(ui,sortRecommendationRows(visible,sort),sort,onSort,ref);
+        currentAllVisible=visible;
+        currentVisible=visible.filter(hasDirectEvidence);
+        renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
         const hidden=combined.hidden;
         const anySource=[imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox].some(x=>x.checked);
         const formatStatus=()=>{
@@ -1536,7 +1540,7 @@ async function main(){
             ui.tableWrap.createEl("p",{text:hidden?"Все найденные фильмы уже просмотрены. Включи «Показывать просмотренные».":"Тематически подходящих фильмов не найдено. Список не дополняется случайными рекомендациями."});
         }
         const pending=visible.filter(x=>!forecastReady.has(x));
-        if(!pending.length){await persistDetails(version,currentVisible);return;}
+        if(!pending.length){await persistDetails(version,currentAllVisible);return;}
         setProgress(ui,`Считаю личный прогноз: ${pending.length} фильмов…`,75);
         try{
             forecastLoader ||= loadForecastPredictor();
@@ -1551,9 +1555,10 @@ async function main(){
             forecastError="";
         }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);}
         if(version===drawVersion){
-            renderTable(ui,sortRecommendationRows(visible,sort),sort,onSort,ref);
+            currentVisible=visible.filter(hasDirectEvidence);
+            renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
             setProgress(ui,formatStatus(),100);
-            await persistDetails(version,currentVisible);
+            await persistDetails(version,currentAllVisible);
         }
     };
     imdbCheckbox.addEventListener("change",async()=>{
