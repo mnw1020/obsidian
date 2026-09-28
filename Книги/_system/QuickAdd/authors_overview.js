@@ -85,72 +85,57 @@ module.exports = async (params) => {
     }
 
     const books = app.vault.getMarkdownFiles().filter(isBook);
-    const ratedBooks = books.filter(file => numericRating(getFrontmatter(file).rating) !== null).length;
-    const aggregates = new Map();
+    const fictionBooks = books.filter(file => file.path.startsWith("Книги/Художественные/"));
+    const nonfictionBooks = books.filter(file => file.path.startsWith("Книги/Non-fiction/"));
 
-    for (const file of books) {
-        const fm = getFrontmatter(file);
-        const title = String(fm.title ?? file.basename).trim() || file.basename;
-        const rating = numericRating(fm.rating);
-        const date = String(fm.date ?? "").trim();
-        const dateKey = normalizeDate(date);
-
-        for (const author of authorsOf(fm)) {
-            if (!aggregates.has(author)) {
-                aggregates.set(author, {
-                    author,
-                    books: new Set(),
-                    ratingSum: 0,
-                    ratingCount: 0,
-                    favoriteCount: 0,
-                    sympathyPoints: 0,
-                    latest: null
-                });
-            }
-
-            const item = aggregates.get(author);
-            item.books.add(file.path);
-
-            if (rating !== null) {
-                item.ratingSum += rating;
-                item.ratingCount += 1;
-                if (rating >= 8) item.favoriteCount += 1;
-                item.sympathyPoints += sympathyPoints(rating);
-            }
-
-            if (dateKey) {
-                const candidate = { file, title, date, dateKey };
-                if (
-                    !item.latest ||
-                    candidate.dateKey > item.latest.dateKey ||
-                    (
-                        candidate.dateKey === item.latest.dateKey &&
-                        candidate.title.localeCompare(item.latest.title, "ru") < 0
-                    )
-                ) {
-                    item.latest = candidate;
+    function aggregateBooks(sourceBooks) {
+        const aggregates = new Map();
+        for (const file of sourceBooks) {
+            const fm = getFrontmatter(file);
+            const title = String(fm.title ?? file.basename).trim() || file.basename;
+            const rating = numericRating(fm.rating);
+            const date = String(fm.date ?? "").trim();
+            const dateKey = normalizeDate(date);
+            for (const author of authorsOf(fm)) {
+                if (!aggregates.has(author)) {
+                    aggregates.set(author, { author, books: new Set(), ratingSum: 0, ratingCount: 0, favoriteCount: 0, sympathyPoints: 0, latest: null });
+                }
+                const item = aggregates.get(author);
+                item.books.add(file.path);
+                if (rating !== null) {
+                    item.ratingSum += rating;
+                    item.ratingCount += 1;
+                    if (rating >= 8) item.favoriteCount += 1;
+                    item.sympathyPoints += sympathyPoints(rating);
+                }
+                if (dateKey) {
+                    const candidate = { file, title, date, dateKey };
+                    if (!item.latest || candidate.dateKey > item.latest.dateKey || (candidate.dateKey === item.latest.dateKey && candidate.title.localeCompare(item.latest.title, "ru") < 0)) item.latest = candidate;
                 }
             }
         }
+        return [...aggregates.values()].sort((a, b) => b.sympathyPoints - a.sympathyPoints || b.favoriteCount - a.favoriteCount || a.author.localeCompare(b.author, "ru"));
     }
 
-    const authors = [...aggregates.values()]
-        .sort((a, b) => b.sympathyPoints - a.sympathyPoints || b.favoriteCount - a.favoriteCount || a.author.localeCompare(b.author, "ru"));
+    function renderSection(title, sectionBooks, includeRatings) {
+        const authors = aggregateBooks(sectionBooks);
+        if (!authors.length) return `## ${title}\n\n_Нет произведений._\n\n`;
+        const rows = authors.map(item => {
+            if (!includeRatings) return `| ${authorLink(item.author)} | ${item.books.size} |`;
+            const average = item.ratingCount > 0 ? (item.ratingSum / item.ratingCount).toFixed(1) : "—";
+            return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${item.sympathyPoints} |`;
+        });
+        const header = includeRatings
+            ? `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | Баллы симпатии |\n| --- | ---: | ---: | ---: | ---: | ---: |`
+            : `| Автор | Произведений |\n| --- | ---: |`;
+        return `## ${title}\n\n${header}\n${rows.join("\n")}\n\n`;
+    }
 
-    if (!authors.length) {
+    const allAuthors = new Set([...aggregateBooks(fictionBooks), ...aggregateBooks(nonfictionBooks)].map(item => item.author));
+    if (!allAuthors.size) {
         new Notice("Авторы не найдены.");
         return;
     }
-
-    const rows = authors.map(item => {
-        const average = item.ratingCount > 0
-            ? (item.ratingSum / item.ratingCount).toFixed(1)
-            : "—";
-        const latest = item.latest
-            ? bookLink(item.latest.file, item.latest.title, item.latest.date)
-            : "—";
-        return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${item.sympathyPoints} | ${latest} |`;
-    });
 
     const nav = [
         "[[Книги/_index|← Книги]]",
@@ -168,12 +153,10 @@ module.exports = async (params) => {
         `# 👥 Авторы\n\n` +
         `${nav}\n\n` +
         `> [!info] Обзор\n` +
-        `> **Авторов:** ${authors.length} · **Произведений:** ${books.length} · **С оценкой:** ${ratedBooks}\n\n` +
-        `Средняя оценка — только по произведениям, где она указана. «Любимые» — оценки 8–10. «Баллы симпатии» складываются по всем оценённым книгам: оценка 10 даёт 5 баллов, 9 — 4, 8 — 3, 6 — 1, оценки 5 и ниже — 0.\n\n` +
-        `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | Баллы симпатии | Последняя книга |\n` +
-        `| --- | ---: | ---: | ---: | ---: | ---: | --- |\n` +
-        rows.join("\n") +
-        `\n`;
+        `> **Авторов:** ${allAuthors.size} · **Произведений:** ${books.length}\n\n` +
+        `Средняя оценка и баллы симпатии используются только для художественных книг.\n\n` +
+        renderSection("Художественные", fictionBooks, true) +
+        renderSection("Non-fiction", nonfictionBooks, false);
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
     if (page) await app.vault.modify(page, content);
