@@ -1147,22 +1147,28 @@ function recommendationIdentity(x){
         ...[x.ruTitle,x.enTitle].map(t=>t&&x.year?`title:${titleKey(t)}:${x.year}`:"")].filter(Boolean);
 }
 function hasDirectEvidence(film){
-    return (film.evidence||[film]).some(evidence=>evidence.hop!==2);
+    return (film.evidence||[film]).some(evidence=>{
+        const reason=String(evidence.reason||"");
+        const second=evidence.hop===2||/2-й уровень/i.test(reason)||Boolean(evidence.viaTitle)||Boolean(evidence.viaTitles?.length);
+        return !second;
+    });
 }
 function recommendationDetailsMarkdown(list,reference){
     const groups=new Map();
     for(const film of list){
         const evidences=film.evidence||[film];
         for(const evidence of evidences){
-            if(evidence.hop!==2)continue;
-            const parents=[...new Set(evidence.viaTitles?.length?evidence.viaTitles:[evidence.viaTitle].filter(Boolean))];
+            const raw=String(evidence.reason||"").trim();
+            const second=evidence.hop===2||/2-й уровень/i.test(raw)||Boolean(evidence.viaTitle)||Boolean(evidence.viaTitles?.length);
+            if(!second)continue;
+            const reasonParent=raw.match(/похож на «([^»]+)»/i)?.[1]||"";
+            const parents=[...new Set(evidence.viaTitles?.length?evidence.viaTitles:[evidence.viaTitle||reasonParent].filter(Boolean))];
             for(const parent of parents){
                 if(!groups.has(parent))groups.set(parent,new Map());
                 const key=recommendationIdentity(film)[0]||`${titleKey(film.ruTitle)}:${film.year||""}`;
                 const byFilm=groups.get(parent),current=byFilm.get(key)||{film,reasons:new Set()};
                 const source=evidence.sourceName||String(evidence.reason||"").split(":")[0]||"Источник";
                 const sourceLabel=source==="Кинопоиск"?"КП":source;
-                const raw=String(evidence.reason||"").trim();
                 let route=raw.split("·")[0].trim();
                 if(!route||!route.includes("2-й уровень"))route=`${sourceLabel}: похож на «${parent}» (2-й уровень)`;
                 else route=route.replace(/похож на «[^»]+»/i,`похож на «${parent}»`);

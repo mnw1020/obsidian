@@ -3,9 +3,9 @@
   "updatedAt": "2026-09-28T16:28:42.666Z",
   "sourceSettings": {
     "imdb": false,
-    "kp": true,
+    "kp": false,
     "movieTon": false,
-    "likeFilm": false,
+    "likeFilm": true,
     "tmdb": false,
     "watched": true
   }
