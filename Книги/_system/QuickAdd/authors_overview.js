@@ -35,6 +35,12 @@ module.exports = async (params) => {
         return Number.isFinite(rating) ? rating : null;
     }
 
+    // Для сортировки учитываем и оценку, и объём проверенных книг.
+    // Три виртуальные книги с оценкой 7 защищают автора с одной случайной десяткой.
+    function adjustedRating(sum, count) {
+        return count > 0 ? (sum + 21) / (count + 3) : null;
+    }
+
     function normalizeDate(value) {
         const text = String(value ?? "").trim();
         if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
@@ -98,6 +104,7 @@ module.exports = async (params) => {
                     books: new Set(),
                     ratingSum: 0,
                     ratingCount: 0,
+                    favoriteCount: 0,
                     latest: null
                 });
             }
@@ -108,6 +115,7 @@ module.exports = async (params) => {
             if (rating !== null) {
                 item.ratingSum += rating;
                 item.ratingCount += 1;
+                if (rating >= 8) item.favoriteCount += 1;
             }
 
             if (dateKey) {
@@ -138,10 +146,12 @@ module.exports = async (params) => {
         const average = item.ratingCount > 0
             ? (item.ratingSum / item.ratingCount).toFixed(1)
             : "—";
+        const adjusted = adjustedRating(item.ratingSum, item.ratingCount);
+        const adjustedText = adjusted === null ? "—" : adjusted.toFixed(1);
         const latest = item.latest
             ? bookLink(item.latest.file, item.latest.title, item.latest.date)
             : "—";
-        return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${latest} |`;
+        return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${adjustedText} | ${latest} |`;
     });
 
     const nav = [
@@ -161,9 +171,9 @@ module.exports = async (params) => {
         `${nav}\n\n` +
         `> [!info] Обзор\n` +
         `> **Авторов:** ${authors.length} · **Произведений:** ${books.length} · **С оценкой:** ${ratedBooks}\n\n` +
-        `Средняя оценка — только по произведениям, где она указана.\n\n` +
-        `| Автор | Произведений | ⭐ ср. | Последняя книга |\n` +
-        `| --- | ---: | ---: | --- |\n` +
+        `Средняя оценка — только по произведениям, где она указана. «Любимые» — оценки 8–10. «Скорр.» учитывает и оценку, и количество оценённых книг; используется для сравнения авторов.\n\n` +
+        `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | ⭐ скорр. | Последняя книга |\n` +
+        `| --- | ---: | ---: | ---: | ---: | ---: | --- |\n` +
         rows.join("\n") +
         `\n`;
 

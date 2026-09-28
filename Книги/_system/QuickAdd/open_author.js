@@ -22,6 +22,12 @@ module.exports = async (params) => {
         return values.map(v => String(v ?? "").trim()).filter(Boolean);
     }
 
+    function numericRating(value) {
+        if (value === null || value === undefined || value === "") return null;
+        const rating = Number(String(value).replace(",", "."));
+        return Number.isFinite(rating) ? rating : null;
+    }
+
     let author = String(variables.author ?? "").trim();
 
     if (!author) {
@@ -47,6 +53,15 @@ module.exports = async (params) => {
         if (!author) return;
     }
 
+    const authorBooks = app.vault.getMarkdownFiles().filter(isBook)
+        .filter(file => authorsOf(file).includes(author));
+    const rated = authorBooks
+        .map(file => numericRating(getFrontmatter(file).rating))
+        .filter(value => value !== null);
+    const average = rated.length ? (rated.reduce((sum, value) => sum + value, 0) / rated.length).toFixed(1) : "—";
+    const favorites = rated.filter(value => value >= 8).length;
+    const stats = `> [!abstract] Оценка автора\n> **Средняя оценка:** ${average} · **Оценено книг:** ${rated.length} · **Любимые (8–10):** ${favorites}\n\n`;
+
     const content =
         `---\n` +
         `selected_author: ${JSON.stringify(author)}\n` +
@@ -54,6 +69,7 @@ module.exports = async (params) => {
         `---\n\n` +
         `# 👤 ${author}\n\n` +
         `[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n` +
+        stats +
         `![[Книги/Книги.base#Автор]]\n`;
 
     let page = app.vault.getAbstractFileByPath(PAGE_PATH);
