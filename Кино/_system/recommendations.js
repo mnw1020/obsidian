@@ -1199,7 +1199,7 @@ function recommendationDetailsMarkdown(list,reference){
                 if(clean)lines.push(`- **${label}:** ${clean}`);
             }
         }
-        lines.push("",'<table class="kino-recommendation-table" style="width:100%;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
+        lines.push("",'<div class="kino-recommendation-scroll" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch">','<table class="kino-recommendation-table" style="width:1100px;min-width:1100px;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
         for(const {film} of films.values()){
             const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
             const target=film.sourceUrl||kinopoiskUrl(film);
@@ -1207,7 +1207,7 @@ function recommendationDetailsMarkdown(list,reference){
             const description=String(film.description||film.local?.description||"").trim();
             lines.push(`<tr><td style="vertical-align:top;overflow-wrap:anywhere">${title}</td><td style="vertical-align:top;overflow-wrap:anywhere">${html(film.enTitle)}</td><td style="vertical-align:top">${html(fmt(film.kpRating))}</td><td style="vertical-align:top">${html(fmt(film.forecast))}</td><td style="vertical-align:top;white-space:normal;overflow-wrap:anywhere">${html(description)}</td></tr>`);
         }
-        lines.push("</tbody></table>","");
+        lines.push("</tbody></table></div>","");
     }
     return lines.join("\n").trim();
 }
