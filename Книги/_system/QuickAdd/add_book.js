@@ -557,14 +557,33 @@ module.exports = async (params) => {
     const sectionFolder = normalizePath(`${BOOKS_ROOT}/${section}`);
     await ensureFolder(sectionFolder);
 
-    // Сохраняем существующую физическую структуру. Если папка автора уже есть,
-    // книга идет туда. Новые папки авторов автоматически не создаются.
+    // Если папка автора есть, новые книги идут в неё как «Название.md».
+    // Если папки ещё нет, сначала проверяем старый файл «Автор. Название.md».
+    // При его наличии создаём папку, переносим старый файл внутрь и сохраняем новую книгу там же.
     const authorFolder = normalizePath(`${sectionFolder}/${safeName(authors[0])}`);
-    const hasAuthorFolder = !!app.vault.getAbstractFileByPath(authorFolder);
-    const destinationFolder = hasAuthorFolder ? authorFolder : sectionFolder;
-
-    const rawFileName = hasAuthorFolder ? title : `${authors[0]}. ${title}`;
-    const filePath = normalizePath(`${destinationFolder}/${safeName(rawFileName)}.md`);
+    let destinationFolder = sectionFolder;
+    let filePath = normalizePath(`${sectionFolder}/${safeName(`${authors[0]}. ${title}`)}.md`);
+    const authorFolderFile = app.vault.getAbstractFileByPath(authorFolder);
+    if (authorFolderFile) {
+        destinationFolder = authorFolder;
+        filePath = normalizePath(`${authorFolder}/${safeName(title)}.md`);
+    } else {
+        const legacyPrefix = `${safeName(authors[0])}. `;
+        const legacyFiles = app.vault.getMarkdownFiles()
+            .filter(file => file.parent?.path === sectionFolder && file.basename.startsWith(legacyPrefix));
+        if (legacyFiles.length) {
+            await ensureFolder(authorFolder);
+            for (const legacyFile of legacyFiles) {
+                const legacyTitle = legacyFile.basename.slice(legacyPrefix.length);
+                const movedPath = normalizePath(`${authorFolder}/${safeName(legacyTitle)}.md`);
+                if (!app.vault.getAbstractFileByPath(movedPath)) {
+                    await app.vault.rename(legacyFile, movedPath);
+                }
+            }
+            destinationFolder = authorFolder;
+            filePath = normalizePath(`${authorFolder}/${safeName(title)}.md`);
+        }
+    }
 
     if (app.vault.getAbstractFileByPath(filePath)) {
         new Notice(`Произведение уже существует:\n${filePath}`);
