@@ -60,7 +60,8 @@ module.exports = async (params) => {
         .filter(value => value !== null);
     const average = rated.length ? (rated.reduce((sum, value) => sum + value, 0) / rated.length).toFixed(1) : "—";
     const favorites = rated.filter(value => value >= 8).length;
-    const stats = `> [!abstract] Оценка автора\n> **Средняя оценка:** ${average} · **Оценено книг:** ${rated.length} · **Любимые (8–10):** ${favorites}\n\n`;
+    const sympathyPoints = rated.reduce((sum, value) => sum + Math.max(0, value - 5), 0);
+    const stats = `> [!abstract] Оценка автора\n> **Средняя оценка:** ${average} · **Оценено книг:** ${rated.length} · **Любимые (8–10):** ${favorites} · **Баллы симпатии:** ${sympathyPoints}\n\n`;
 
     const content =
         `---\n` +

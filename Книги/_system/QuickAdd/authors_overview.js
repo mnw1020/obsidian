@@ -35,10 +35,8 @@ module.exports = async (params) => {
         return Number.isFinite(rating) ? rating : null;
     }
 
-    // Для сортировки учитываем и оценку, и объём проверенных книг.
-    // Три виртуальные книги с оценкой 7 защищают автора с одной случайной десяткой.
-    function adjustedRating(sum, count) {
-        return count > 0 ? (sum + 21) / (count + 3) : null;
+    function sympathyPoints(rating) {
+        return Math.max(0, rating - 5);
     }
 
     function normalizeDate(value) {
@@ -105,6 +103,7 @@ module.exports = async (params) => {
                     ratingSum: 0,
                     ratingCount: 0,
                     favoriteCount: 0,
+                    sympathyPoints: 0,
                     latest: null
                 });
             }
@@ -116,6 +115,7 @@ module.exports = async (params) => {
                 item.ratingSum += rating;
                 item.ratingCount += 1;
                 if (rating >= 8) item.favoriteCount += 1;
+                item.sympathyPoints += sympathyPoints(rating);
             }
 
             if (dateKey) {
@@ -135,7 +135,7 @@ module.exports = async (params) => {
     }
 
     const authors = [...aggregates.values()]
-        .sort((a, b) => a.author.localeCompare(b.author, "ru"));
+        .sort((a, b) => b.sympathyPoints - a.sympathyPoints || b.favoriteCount - a.favoriteCount || a.author.localeCompare(b.author, "ru"));
 
     if (!authors.length) {
         new Notice("Авторы не найдены.");
@@ -146,12 +146,10 @@ module.exports = async (params) => {
         const average = item.ratingCount > 0
             ? (item.ratingSum / item.ratingCount).toFixed(1)
             : "—";
-        const adjusted = adjustedRating(item.ratingSum, item.ratingCount);
-        const adjustedText = adjusted === null ? "—" : adjusted.toFixed(1);
         const latest = item.latest
             ? bookLink(item.latest.file, item.latest.title, item.latest.date)
             : "—";
-        return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${adjustedText} | ${latest} |`;
+        return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.ratingCount} | ${item.favoriteCount} | ${item.sympathyPoints} | ${latest} |`;
     });
 
     const nav = [
@@ -171,8 +169,8 @@ module.exports = async (params) => {
         `${nav}\n\n` +
         `> [!info] Обзор\n` +
         `> **Авторов:** ${authors.length} · **Произведений:** ${books.length} · **С оценкой:** ${ratedBooks}\n\n` +
-        `Средняя оценка — только по произведениям, где она указана. «Любимые» — оценки 8–10. «Скорр.» учитывает и оценку, и количество оценённых книг; используется для сравнения авторов.\n\n` +
-        `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | ⭐ скорр. | Последняя книга |\n` +
+        `Средняя оценка — только по произведениям, где она указана. «Любимые» — оценки 8–10. «Баллы симпатии» складываются по всем оценённым книгам: оценка 10 даёт 5 баллов, 9 — 4, 8 — 3, 6 — 1, оценки 5 и ниже — 0.\n\n` +
+        `| Автор | Произведений | ⭐ ср. | Оценено | Любимые 8–10 | Баллы симпатии | Последняя книга |\n` +
         `| --- | ---: | ---: | ---: | ---: | ---: | --- |\n` +
         rows.join("\n") +
         `\n`;
