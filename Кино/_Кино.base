@@ -135,13 +135,13 @@ views:
       - formula.entity_genre
       - formula.entity_director
     sort:
+      - property: formula.rating
+        direction: DESC
       - property: file.name
         direction: ASC
       - property: formula.type
         direction: DESC
       - property: Просмотрено
-        direction: DESC
-      - property: formula.rating
         direction: DESC
     columnSize:
       formula.imdb_rating: 64
