@@ -1179,8 +1179,12 @@ function recommendationDetailsMarkdown(list,reference){
                 if(match.genre!==null&&match.genre>=.25&&!details.some(x=>/жанр/i.test(x)))details.push("близки жанры");
                 if(match.plot!==null&&match.plot>=.08&&!details.some(x=>/описани/i.test(x)))details.push("похоже описание сюжета");
                 if(match.franchise&&!details.some(x=>/франшиз/i.test(x)))details.push("та же франшиза");
-                const reason=`${route}${details.length?` · ${[...new Set(details)].join(", ")}`:""}`;
-                current.reasons.add(`**${String(film.ruTitle||film.enTitle||"Фильм").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&")}:** ${reason}`);
+                const found=route.match(/2-й уровень,\s*([^)]*)/i)?.[1]?.trim()||"";
+                const reasonDetails=[...new Set(details)].join(", ");
+                const sourceReason=found
+                    ? `${sourceLabel}: ${found}${reasonDetails?` · ${reasonDetails}`:""}`
+                    : `${sourceLabel}: ${reasonDetails||route.replace(/^(?:КП|MovieTon|LikeFilm|IMDb):\s*/i,"").trim()}`;
+                current.reasons.add(sourceReason);
                 byFilm.set(key,current);
             }
         }
@@ -1194,10 +1198,8 @@ function recommendationDetailsMarkdown(list,reference){
         lines.push("**Почему предложены:**","");
         for(const {film,reasons} of films.values()){
             const label=inline(film.ruTitle||film.enTitle||film.kpId||"Фильм");
-            for(const reason of reasons){
-                const clean=String(reason).replace(/^\*\*[^*]+:\*\*\s*/,"").trim();
-                if(clean)lines.push(`- **${label}:** ${clean}`);
-            }
+            const sourceReasons=[...reasons].filter(Boolean);
+            if(sourceReasons.length)lines.push(`- **${label}:** ${sourceReasons.join("; ")}`);
         }
         lines.push("",'<div class="kino-recommendation-scroll" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch">','<table class="kino-recommendation-table" style="width:1100px;min-width:1100px;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
         for(const {film} of films.values()){
