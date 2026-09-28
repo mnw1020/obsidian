@@ -1188,20 +1188,20 @@ function recommendationDetailsMarkdown(list,reference){
     if(!groups.size)return "_Для выбранных источников рекомендаций второго уровня нет._";
     const lines=[];
     const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
-    const cell=value=>String(value??"").replace(/\r?\n/g," ").replace(/\|/g,"\\|").replace(/\s+/g," ").trim()||"-";
+    const html=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/\s+/g," ").trim()||"-";
     for(const [parent,films] of groups){
         lines.push(`## ${inline(parent)}`,"");
         lines.push("**Почему предложены:**","");
         for(const {film,reasons} of films.values())for(const reason of reasons)lines.push(`- ${reason}`);
-        lines.push("","| Русское название | English | Рейтинг КП | Мой прогноз | Описание |","| --- | --- | ---: | ---: | --- |");
+        lines.push("",'<table class="kino-recommendation-table" style="width:100%;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
         for(const {film} of films.values()){
             const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
             const target=film.sourceUrl||kinopoiskUrl(film);
-            const title=`[${inline(label)}](${target})${film.year?` (${inline(film.year)})`:""}`;
+            const title=`<a href="${html(target)}" target="_blank">${html(label)}</a>${film.year?` (${html(film.year)})`:""}`;
             const description=String(film.description||film.local?.description||"").trim();
-            lines.push(`| ${cell(title)} | ${cell(film.enTitle)} | ${cell(fmt(film.kpRating))} | ${cell(fmt(film.forecast))} | ${cell(description)} |`);
+            lines.push(`<tr><td style="vertical-align:top;overflow-wrap:anywhere">${title}</td><td style="vertical-align:top;overflow-wrap:anywhere">${html(film.enTitle)}</td><td style="vertical-align:top">${html(fmt(film.kpRating))}</td><td style="vertical-align:top">${html(fmt(film.forecast))}</td><td style="vertical-align:top;white-space:normal;overflow-wrap:anywhere">${html(description)}</td></tr>`);
         }
-        lines.push("");
+        lines.push("</tbody></table>","");
     }
     return lines.join("\n").trim();
 }
