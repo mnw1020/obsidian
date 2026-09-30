@@ -1,4 +1,12 @@
 {
   "reference": "Кино/Убойные каникулы.md",
-  "updatedAt": "2026-09-30T18:34:09.225Z"
+  "updatedAt": "2026-09-30T18:34:09.225Z",
+  "sourceSettings": {
+    "imdb": false,
+    "kp": false,
+    "movieTon": false,
+    "likeFilm": true,
+    "tmdb": false,
+    "watched": false
+  }
 }
