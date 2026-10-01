@@ -10817,7 +10817,7 @@
       "source": "kp-api"
     },
     "51419": {
-      "at": 1790794112112,
+      "at": 1790883105240,
       "data": {
         "kpId": "51419",
         "ruTitle": "New Guy",
@@ -15981,7 +15981,7 @@
       "source": "kp-api"
     },
     "283766": {
-      "at": 1790794106778,
+      "at": 1790883097165,
       "data": {
         "kpId": "283766",
         "ruTitle": "Dead",
@@ -20283,7 +20283,7 @@
       "source": "kp-api"
     },
     "484340": {
-      "at": 1790794112210,
+      "at": 1790883105134,
       "data": {
         "kpId": "484340",
         "ruTitle": "The Making of Dr. Horrible's Sing-Along Blog",
@@ -20699,7 +20699,7 @@
       "source": "kp-api"
     },
     "493539": {
-      "at": 1790794106317,
+      "at": 1790883095638,
       "data": {
         "kpId": "493539",
         "ruTitle": "Crashers",
@@ -21104,7 +21104,7 @@
       "source": "kp-api"
     },
     "526249": {
-      "at": 1790794105116,
+      "at": 1790883096109,
       "data": {
         "kpId": "526249",
         "ruTitle": "I Sold My Soul to Satan",
@@ -21217,7 +21217,7 @@
       "source": "movie-planner"
     },
     "568243": {
-      "at": 1790794104974,
+      "at": 1790883094140,
       "data": {
         "kpId": "568243",
         "ruTitle": "Ving Rhames Wins Oscar for Piranha 3D",
@@ -24047,7 +24047,7 @@
       "source": "movie-planner"
     },
     "816500": {
-      "at": 1790794113266,
+      "at": 1790883110694,
       "data": {
         "kpId": "816500",
         "ruTitle": "Night of the Living Dead: Genesis",
@@ -24578,7 +24578,7 @@
       "source": "movie-planner"
     },
     "902335": {
-      "at": 1790794115322,
+      "at": 1790883126494,
       "data": {
         "kpId": "902335",
         "ruTitle": "Madness",
@@ -24696,7 +24696,7 @@
       "source": "movie-planner"
     },
     "927950": {
-      "at": 1790794111103,
+      "at": 1790883103956,
       "data": {
         "kpId": "927950",
         "ruTitle": "The Brink",
@@ -24890,7 +24890,7 @@
       "source": "movie-planner"
     },
     "944063": {
-      "at": 1790794108711,
+      "at": 1790883097694,
       "data": {
         "kpId": "944063",
         "ruTitle": "Motörhead: Hellraiser",
@@ -25436,7 +25436,7 @@
       "source": "kp-api"
     },
     "1027759": {
-      "at": 1790794111192,
+      "at": 1790883103856,
       "data": {
         "kpId": "1027759",
         "ruTitle": "Hot Fuzz: Hot Funk: The TV Version",
@@ -25593,7 +25593,7 @@
       "source": "movie-planner"
     },
     "1051090": {
-      "at": 1790794114593,
+      "at": 1790883126431,
       "data": {
         "kpId": "1051090",
         "ruTitle": "Search Party in Beverly Hills",
@@ -25800,7 +25800,7 @@
       "source": "movie-planner"
     },
     "1090760": {
-      "at": 1790794104278,
+      "at": 1790883093997,
       "data": {
         "kpId": "1090760",
         "ruTitle": "Before",
@@ -26394,7 +26394,7 @@
       "source": "movie-planner"
     },
     "1188088": {
-      "at": 1790794104274,
+      "at": 1790883093672,
       "data": {
         "kpId": "1188088",
         "ruTitle": "Scream 4: Gag Reel",
@@ -26993,12 +26993,12 @@
       "source": "kp-api"
     },
     "1363635": {
-      "at": 1790794113505,
+      "at": 1790883110388,
       "data": {
         "kpId": "1363635",
-        "ruTitle": "Tropic Thunder: Full Mags",
+        "ruTitle": "Солдаты неудачи",
         "enTitle": "",
-        "year": "2008",
+        "year": "",
         "description": "",
         "genres": [],
         "descTokens": [],
@@ -27032,7 +27032,7 @@
       "source": "movie-planner"
     },
     "1396579": {
-      "at": 1790794106382,
+      "at": 1790883095062,
       "data": {
         "kpId": "1396579",
         "ruTitle": "A Nightmare on Elm Street: Alternate Endings - Scary Ending",
@@ -27125,7 +27125,7 @@
       "source": "movie-planner"
     },
     "1404228": {
-      "at": 1790794108380,
+      "at": 1790883097394,
       "data": {
         "kpId": "1404228",
         "ruTitle": "Chainsaw",
@@ -27146,11 +27146,11 @@
       "source": "movie-planner"
     },
     "1417424": {
-      "at": 1790794116596,
+      "at": 1790883141123,
       "data": {
         "kpId": "1417424",
         "ruTitle": "#School",
-        "enTitle": "",
+        "enTitle": "#School",
         "year": "",
         "description": "",
         "genres": [
@@ -27987,7 +27987,7 @@
       "source": "kp-api"
     },
     "5049847": {
-      "at": 1790794110210,
+      "at": 1790883099124,
       "data": {
         "kpId": "5049847",
         "ruTitle": "Buffy the Vampire Slayer Audiobook",
@@ -28007,7 +28007,7 @@
       "source": "movie-planner"
     },
     "5078804": {
-      "at": 1790794113783,
+      "at": 1790883116233,
       "data": {
         "kpId": "5078804",
         "ruTitle": "Terror",
@@ -28027,7 +28027,7 @@
       "source": "movie-planner"
     },
     "5097450": {
-      "at": 1790794110120,
+      "at": 1790883099125,
       "data": {
         "kpId": "5097450",
         "ruTitle": "Queen",
@@ -28919,7 +28919,7 @@
       "source": "movie-planner"
     },
     "9353756": {
-      "at": 1790794114293,
+      "at": 1790883111050,
       "data": {
         "kpId": "9353756",
         "ruTitle": "Texas Chain Saw Massacre",
@@ -28939,7 +28939,7 @@
       "source": "movie-planner"
     },
     "13442159": {
-      "at": 1790794115122,
+      "at": 1790883116413,
       "data": {
         "kpId": "13442159",
         "ruTitle": "Revenge",
@@ -62641,6 +62641,12 @@
       "found": true,
       "kpId": "824963",
       "kpRating": 6.4
+    },
+    "не грози южному централу попивая сок у себя в квартале:don t be a menace to south central while drinking your juice in the hood:1995": {
+      "at": 1790883057480,
+      "found": true,
+      "kpId": "4807",
+      "kpRating": 7.2
     }
   },
   "imdbKpResolve": {
