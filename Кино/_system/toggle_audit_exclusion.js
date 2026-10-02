@@ -13,12 +13,12 @@ module.exports = async params => {
 
     if (!targetPath) {
         const candidates = app.vault.getMarkdownFiles()
-            .filter(f => f.path.startsWith(`${ROOT}/`) && !f.path.slice(ROOT.length + 1).includes("/"));
+            .filter(f => f.path.startsWith(`${ROOT}/Media/`) && !f.path.slice(ROOT.length + 7).includes("/"));
         targetPath = await params.quickAddApi?.suggester?.(
             candidates.map(f => f.basename), candidates.map(f => f.path), "Выбери карточку для исключения");
         if (!targetPath) return;
     }
-    if (!targetPath.startsWith(`${ROOT}/`) || targetPath.slice(ROOT.length + 1).includes("/")) {
+    if (!targetPath.startsWith(`${ROOT}/Media/`) || targetPath.slice(ROOT.length + 7).includes("/")) {
         new Notice("Можно исключать только карточки фильмов и сериалов из корня папки Кино.", 7000);
         return;
     }
@@ -53,7 +53,7 @@ module.exports = async params => {
     else await app.vault.create(normalizePath(EXCLUSION_PATH), next);
 
     new Notice(exclude ? `Исключено из проверки: ${file.basename}` : `Возвращено в проверку: ${file.basename}`, 5000);
-    const report = app.vault.getAbstractFileByPath(normalizePath(`${ROOT}/_Проверка кинотеки.md`));
+    const report = app.vault.getAbstractFileByPath(normalizePath(`${ROOT}/_system/Проверка кинотеки.md`));
     const command = Object.values(app.commands?.commands || {}).find(c =>
         /Кино - Проверить кинотеку/i.test(String(c.name || c.id || "")));
     if (command?.id) app.commands.executeCommandById(command.id);

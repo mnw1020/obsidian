@@ -1,11 +1,11 @@
 /*
  * QuickAdd: отдельный макрос «Франшиза» с одним шагом - этот скрипт.
- * Карточки произведений: Кино/. Карточки франшиз: Кино/Франшизы/.
+ * Карточки произведений: Кино/Media/. Карточки франшиз: Кино/Франшизы/.
  * Изменяет только Франшиза и Часть у выбранного произведения.
  * Таблица франшизы строится Dataview из актуальных карточек.
  */
 
-const MEDIA_FOLDER = "Кино";
+const MEDIA_FOLDER = "Кино/Media";
 const FRANCHISE_FOLDER = "Кино/Франшизы";
 const TABLE_MARKER = "<!-- FRANCHISE:TABLE:v1 -->";
 
@@ -223,7 +223,7 @@ function renderFranchise(dv) {
             return path && dv.page(path)?.file.path === current.file.path;
         });
     }
-    const rows = dv.pages('"Кино"').array().filter(page => {
+    const rows = dv.pages('"Кино/Media"').array().filter(page => {
         if (["Просмотры", "Сезоны", "Франшизы"].some(folder => page.file.path.startsWith(`Кино/${folder}/`))) return false;
         const tags = (Array.isArray(page.tags) ? page.tags : [page.tags]).filter(Boolean)
             .map(tag => String(tag).replace(/^#/, ""));

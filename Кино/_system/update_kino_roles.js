@@ -89,7 +89,7 @@ module.exports = async function updateKinoRoles(params) {
         for (const match of (await app.vault.read(report)).matchAll(/\[\[(Кино\/[^\]|]+)/g)) {
             let target = match[1];
             if (target.startsWith(`${ROOT}/_system/Роли/`)) {
-                target = `${ROOT}/` + target.split("/").pop().replace(/\.роли(?:\.md)?$/, ".md");
+                target = `${ROOT}/Media/` + target.split("/").pop().replace(/\.роли(?:\.md)?$/, ".md");
             }
             if (!target.endsWith(".md")) target += ".md";
             selected.add(target);
@@ -240,7 +240,7 @@ module.exports = async function updateKinoRoles(params) {
 };
 
 function isMedia(file, app) {
-    if (!file?.path?.startsWith(`${ROOT}/`) || file.path.slice(ROOT.length + 1).includes("/")) return false;
+    if (!file?.path?.startsWith(`${ROOT}/Media/`) || file.path.slice(ROOT.length + 7).includes("/")) return false;
     const fm = app.metadataCache.getFileCache(file)?.frontmatter || {};
     return tagsOf(fm).some(tag => ["movies", "serial"].includes(tag));
 }

@@ -3,7 +3,7 @@ module.exports = async (params) => {
     const { Notice, normalizePath } = obsidian;
 
     const ROOT = "Кино";
-    const REPORT_PATH = `${ROOT}/_Проверка кинотеки.md`;
+    const REPORT_PATH = `${ROOT}/_system/Проверка кинотеки.md`;
     const CHANGELOG_PATH = `${ROOT}/_system/Журнал изменений.md`;
     const VIEWINGS_PREFIX = `${ROOT}/Просмотры/`;
     const SEASONS_PREFIX = `${ROOT}/Сезоны/`;
@@ -35,8 +35,8 @@ module.exports = async (params) => {
 
     function isRootCard(file) {
         if (!file || file.extension !== "md") return false;
-        if (!file.path.startsWith(`${ROOT}/`)) return false;
-        return !file.path.slice(ROOT.length + 1).includes("/");
+        if (!file.path.startsWith(`${ROOT}/Media/`)) return false;
+        return !file.path.slice(ROOT.length + 7).includes("/");
     }
 
     function isMedia(file) {
@@ -242,7 +242,7 @@ module.exports = async (params) => {
     const exclusionTarget = file => {
         if (isMedia(file)) return file;
         if (file?.path?.startsWith(`${ROOT}/_system/Роли/`) && file.basename.endsWith(".роли")) {
-            const main = app.vault.getAbstractFileByPath(`${ROOT}/${file.basename.slice(0, -5)}.md`);
+            const main = app.vault.getAbstractFileByPath(`${ROOT}/Media/${file.basename.slice(0, -5)}.md`);
             if (isMedia(main)) return main;
         }
         return null;

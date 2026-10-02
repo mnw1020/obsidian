@@ -1,6 +1,6 @@
 filters:
   and:
-    - file.inFolder("Кино")
+    - file.inFolder("Кино/Media")
     - or:
         - file.hasTag("movies")
         - file.hasTag("serial")

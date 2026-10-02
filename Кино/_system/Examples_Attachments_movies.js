@@ -866,7 +866,7 @@ async function frontmatter(app, ob, file) {
 }
 async function findMovie(app, ob, id) {
     for (const file of app.vault.getMarkdownFiles()) {
-        if (!file.path.startsWith(ROOT + "/") || /\/((Просмотры|Сезоны|Франшизы|Служебное))\//.test(file.path)) continue;
+        if (!file.path.startsWith(ROOT + "/Media/") || /\/((Просмотры|Сезоны|Франшизы|Служебное))\//.test(file.path)) continue;
         const fm = await frontmatter(app, ob, file);
         if (String(fm["imdb Id"] || "").trim().toLowerCase() === id) return file;
     }
@@ -875,11 +875,11 @@ async function findMovie(app, ob, id) {
 function availablePath(app, title, year, id) {
     const occupied = new Set(app.vault.getMarkdownFiles().map(f => f.path.toLowerCase()));
     for (const suffix of ["", ` (${safeName(year)})`, ` (${id})`]) {
-        const path = `${ROOT}/${title}${suffix}.md`;
+        const path = `${ROOT}/Media/${title}${suffix}.md`;
         if (!occupied.has(path.toLowerCase()) && !app.vault.getAbstractFileByPath(path)) return path;
     }
     for (let i = 2; ; i++) {
-        const path = `${ROOT}/${title} (${id}, ${i}).md`;
+        const path = `${ROOT}/Media/${title} (${id}, ${i}).md`;
         if (!occupied.has(path.toLowerCase()) && !app.vault.getAbstractFileByPath(path)) return path;
     }
 }
@@ -1831,7 +1831,7 @@ function renderFranchise(dv) {
             return path && dv.page(path)?.file.path === current.file.path;
         });
     }
-    const rows = dv.pages('"Кино"').array().filter(page => {
+    const rows = dv.pages('"Кино/Media"').array().filter(page => {
         if (["Просмотры", "Сезоны", "Франшизы"].some(folder => page.file.path.startsWith(`Кино/${folder}/`))) return false;
         const tags = (Array.isArray(page.tags) ? page.tags : [page.tags]).filter(Boolean)
             .map(tag => String(tag).replace(/^#/, ""));
@@ -6539,7 +6539,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
         timers.set(file,setTimeout(()=>{ timers.delete(file); void finish(file); },750));
     }
     refs.push(app.vault.on('create',file=>{
-        if (previousFiles.has(file) || file.extension !== 'md' || !file.path.startsWith(ROOT+'/') ||
+        if (previousFiles.has(file) || file.extension !== 'md' || !file.path.startsWith(ROOT+'/Media/') ||
             /\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(file.path)) return;
         created.add(file); schedule(file);
     }));
@@ -6895,7 +6895,7 @@ function yamlArray(values) {
         character => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`);
 }
 function originalMediaPath(path) {
-    return path.startsWith('Кино/') && path.endsWith('.md') && !/^Кино\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(path);
+    return path.startsWith('Кино/Media/') && path.endsWith('.md') && !/^Кино\/(Просмотры|Сезоны|Франшизы|Служебное|_system)\//.test(path);
 }
 function isMediaRaw(path,raw,ob) {
     if(!originalMediaPath(path))return false;

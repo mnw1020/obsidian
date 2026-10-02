@@ -36,7 +36,7 @@ function renderFranchise(dv) {
             return path && dv.page(path)?.file.path === current.file.path;
         });
     }
-    const rows = dv.pages('"Кино"').array().filter(page => {
+    const rows = dv.pages('"Кино/Media"').array().filter(page => {
         if (["Просмотры", "Сезоны", "Франшизы"].some(folder => page.file.path.startsWith(`Кино/${folder}/`))) return false;
         const tags = (Array.isArray(page.tags) ? page.tags : [page.tags]).filter(Boolean)
             .map(tag => String(tag).replace(/^#/, ""));

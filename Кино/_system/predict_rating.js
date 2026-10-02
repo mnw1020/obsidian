@@ -41,7 +41,7 @@ module.exports = async (params) => {
     };
     const getFm = file => app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     const tags = fm => list(fm?.tags).map(x => x.replace(/^#/, ""));
-    const isRootCard = file => file?.extension === "md" && file.path.startsWith(`${ROOT}/`) && !file.path.slice(ROOT.length + 1).includes("/");
+    const isRootCard = file => file?.extension === "md" && file.path.startsWith(`${ROOT}/Media/`) && !file.path.slice(ROOT.length + 7).includes("/");
     const isMedia = file => {
         if (!isRootCard(file)) return false;
         const t = tags(getFm(file));

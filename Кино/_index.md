@@ -8,7 +8,7 @@ cssclasses:
 
 ```dataviewjs
 const all = app.vault.getMarkdownFiles()
-    .filter(f => f.path.startsWith("Кино/") && !f.path.slice(5).includes("/"))
+    .filter(f => f.path.startsWith("Кино/Media/") && !f.path.slice(11).includes("/"))
     .map(f => ({...app.metadataCache.getFileCache(f)?.frontmatter, file: {tags: app.metadataCache.getFileCache(f)?.frontmatter?.tags || []}}));
 
 function hasTag(page, tag) {

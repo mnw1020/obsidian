@@ -23,8 +23,8 @@ module.exports = async (params) => {
     }
 
     function isMedia(file) {
-        if (!file || file.extension !== "md" || !file.path.startsWith(`${ROOT}/`)) return false;
-        if (file.path.slice(ROOT.length + 1).includes("/")) return false;
+        if (!file || file.extension !== "md" || !file.path.startsWith(`${ROOT}/Media/`)) return false;
+        if (file.path.slice(ROOT.length + 7).includes("/")) return false;
         const fileTags = tags(getFrontmatter(file));
         return fileTags.includes("movies") || fileTags.includes("serial");
     }
@@ -148,7 +148,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            file = await app.vault.create(path, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`);
+            file = await app.vault.create(path, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`);
             return;
         }
         const current = await app.vault.read(file);

@@ -92,8 +92,8 @@ function tokenSet(v){
 function stripWiki(v){ return String(v??"").replace(/^\[\[/,"").replace(/\]\]$/g,"").replace(/^Кино\/Франшизы\//,""); }
 function fmOf(file) { return app.metadataCache.getFileCache(file)?.frontmatter || {}; }
 function isMedia(file) {
-    if (!file || file.extension !== "md" || !file.path.startsWith(ROOT + "/")) return false;
-    const rel=file.path.slice(ROOT.length+1); if (rel.includes("/")) return false;
+    if (!file || file.extension !== "md" || !file.path.startsWith(ROOT + "/Media/")) return false;
+    const rel=file.path.slice(ROOT.length+7); if (rel.includes("/")) return false;
     const tags=arr(fmOf(file).tags).map(x=>String(x).replace(/^#/,""));
     return tags.includes("movies") || tags.includes("serial");
 }

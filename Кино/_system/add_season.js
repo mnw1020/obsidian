@@ -2,7 +2,7 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath, parseYaml } = obsidian;
 
-    const MEDIA_FOLDER = "Кино";
+    const MEDIA_FOLDER = "Кино/Media";
     const SEASONS_FOLDER = "Кино/Сезоны";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
 
