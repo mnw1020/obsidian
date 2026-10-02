@@ -1325,6 +1325,7 @@ function combineRecommendationLists(sourceGroups,showWatched,watchedItems) {
         const existingIndex=keys.map(key=>seen.get(key)).find(index=>index!==undefined);
         if(existingIndex!==undefined){
             const existing=unique[existingIndex];
+            if(!existing.year&&(x.year||x.local?.year))existing.year=x.year||x.local.year;
             existing.evidence||=[existing];
             if(!existing.evidence.some(e=>e.sourceName===x.sourceName&&e.reason===x.reason&&e.viaTitle===x.viaTitle))existing.evidence.push(x);
             keys.forEach(key=>{if(!seen.has(key))seen.set(key,existingIndex);});
@@ -1636,7 +1637,9 @@ async function main(){
         const version=++drawVersion;
         const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[],openaiCheckbox.checked?openaiRows:[]];
         const range=yearRange();
-        const combined=combineRecommendationLists(sourceGroups.map(rows=>filterRecommendationYears(rows,range.start,range.end)),checkbox.checked,watchedItems);
+        const merged=combineRecommendationLists(sourceGroups,true,watchedItems);
+        const inRange=filterRecommendationYears(merged.items,range.start,range.end);
+        const combined={items:checkbox.checked?inRange:inRange.filter(film=>!isWatched(film,watchedItems)),hidden:inRange.filter(film=>isWatched(film,watchedItems)).length};
         const visible=combined.items;
         for(const film of visible)if(forecastValues.has(forecastId(film)))film.forecast=forecastValues.get(forecastId(film));
         currentAllVisible=visible;
