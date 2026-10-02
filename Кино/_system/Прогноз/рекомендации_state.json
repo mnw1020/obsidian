@@ -1,12 +1,13 @@
 {
-  "reference": "Кино/Убойные каникулы.md",
-  "updatedAt": "2026-09-30T18:34:09.225Z",
+  "reference": "Кино/3 дня на убийство.md",
+  "updatedAt": "2026-10-02T17:14:45.985Z",
   "sourceSettings": {
     "imdb": false,
     "kp": false,
     "movieTon": false,
-    "likeFilm": true,
+    "likeFilm": false,
     "tmdb": false,
+    "openai": true,
     "watched": false
   }
 }

@@ -131,7 +131,7 @@ function sourceCacheJson(cache,protectedKpId="") {
     const serialize=()=>JSON.stringify(cache,replacer,2);
     let text=serialize(),bytes=byteLength(text);
     if(bytes<=maxBytes)return text;
-    const groups=["details","likeFilmKpRatings","similar","secondDegree","imdbSimilar","imdbKpResolve","movieTonSimilar","likeFilmSimilar","likeFilmSimilarPages"];
+    const groups=["details","likeFilmKpRatings","similar","secondDegree","imdbSimilar","imdbKpResolve","movieTonSimilar","likeFilmSimilar","likeFilmSimilarPages","openaiSimilar","openaiKpResolve"];
     const entries=[];
     for(const group of groups)for(const [key,value] of Object.entries(cache[group]||{})){
         entries.push({group,key,at:Number(value?.at)||0,protected:Boolean(protectedKpId&&key===String(protectedKpId)),
@@ -1409,6 +1409,41 @@ async function tmdbRecommendations(ref,items) {
     }
     return {items:out,diag:`TMDB: similar ${similar.data?.results?.length||0}, recommendations ${recommended.data?.results?.length||0}`};
 }
+async function openaiSourceRecommendations(ref,items,cache,settings){
+    const file=app.vault.getAbstractFileByPath(`${ROOT}/_system/openai_recommendations.js`);
+    if(!file)throw new Error("Не найден openai_recommendations.js");
+    const source=await app.vault.read(file),module={exports:{}};
+    new Function("module",source)(module);
+    const taste=items.filter(x=>Number.isFinite(x.rating))
+        .sort((a,b)=>recommendationMatch(ref,b).metadata-recommendationMatch(ref,a).metadata).slice(0,60);
+    const result=await module.exports({reference:ref,taste,cache,request:http,settings});
+    const providerLabel=settings.provider==="deepseek"?"DeepSeek":"OpenAI";
+    // Persist the expensive generation before optional metadata lookups.
+    await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+    cache.openaiKpResolve ||= {};
+    const rows=await mapLimit(result.items,3,async suggestion=>{
+        let data={...suggestion,year:String(suggestion.year),type:ref.type,kpRating:null};
+        const local=items.find(x=>String(x.year)===data.year&&
+            [titleKey(x.ruTitle),titleKey(x.enTitle)].some(t=>t&&[titleKey(data.ruTitle),titleKey(data.enTitle)].includes(t)));
+        if(local)data={...data,...local};
+        else {
+            try{
+                const resolved=await resolveKinopoisk(data,cache.openaiKpResolve);
+                if(resolved?.found&&resolved.kpId){
+                    const detail=await getKpDetail(resolved.kpId,resolved.ruTitle||data.ruTitle,cache);
+                    data={...data,...resolved,...detail,description:detail?.description||resolved.description||data.description};
+                }
+            }catch(_){ /* A metadata outage must not discard the generated film. */ }
+        }
+        if(ref.kpId&&data.kpId===ref.kpId||ref.imdbId&&data.imdbId===ref.imdbId||
+            String(data.year)===String(ref.year)&&[titleKey(data.ruTitle),titleKey(data.enTitle)].includes(titleKey(ref.enTitle)))return null;
+        data=restoreRecommendation({...data,genres:genreSet(data.genres)});
+        return {...data,local,hop:1,sourceName:providerLabel,sourceUrl:kinopoiskUrl(data),
+            reason:`${providerLabel}: ${suggestion.reason}`,score:0.6+0.4*recommendationMatch(ref,data).metadata};
+    });
+    return {items:rows.filter(Boolean),diag:`${rows.filter(Boolean).length} похожих${result.cacheHit?" · из кэша":""}`};
+}
+
 async function main(){
     const state=await loadJson(STATE_PATH);
     if(!state?.reference){dv.paragraph("Открой карточку фильма и нажми **🔎 Найти похожие**.");return;}
@@ -1472,6 +1507,7 @@ async function main(){
     const movieTonCheckbox=sourceControl("MovieTon","https://movieton.org/",Boolean(sourceSettings.movieTon)).input;
     const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
     const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
+    const openaiCheckbox=sourceControl("ИИ","https://www.deepseek.com/",Boolean(sourceSettings.openai)).input;
     const label=ui.actions.createEl("label");label.style.whiteSpace="nowrap";
     label.style.borderLeft="1px solid var(--background-modifier-border)";label.style.paddingLeft="10px";
     const checkbox=label.createEl("input",{type:"checkbox"});checkbox.checked=Boolean(sourceSettings.watched);
@@ -1480,6 +1516,9 @@ async function main(){
     let movieTonRows=[],movieTonReady=false,movieTonError="";
     let likeFilmRows=[],likeFilmReady=false,likeFilmError="";
     let tmdbRows=[],tmdbReady=false,tmdbError="";
+    let openaiRows=[],openaiReady=false,openaiError="",openaiLoading=null;
+    let aiSettings=null;
+    const aiLabel=()=>aiSettings?.provider==="deepseek"?"DeepSeek":"OpenAI";
     const forecastReady=new WeakSet();
     let forecastLoader=null,forecastError="",drawVersion=0;
     let detailsWriteQueue=Promise.resolve();
@@ -1490,7 +1529,7 @@ async function main(){
     };
     const saveUiState=()=>saveJson(STATE_PATH,{...state,sourceSettings:{
         imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,
-        likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,watched:checkbox.checked
+        likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,openai:openaiCheckbox.checked,watched:checkbox.checked
     }});
     const loadImdb=async()=>{
         if(imdbReady)return;
@@ -1518,6 +1557,20 @@ async function main(){
         try{const r=await tmdbRecommendations(ref,items);tmdbRows=r.items;tmdbError=r.diag;tmdbReady=true;}
         catch(_){tmdbError="Источник временно недоступен";tmdbReady=true;}
     };
+    const loadOpenai=async()=>{
+        if(openaiReady)return;
+        if(openaiLoading)return openaiLoading;
+        openaiLoading=(async()=>{
+            setProgress(ui,`${aiLabel()}: подбираю фильмы по сюжету и твоим оценкам…`,20);
+            try{
+                const result=await openaiSourceRecommendations(ref,items,cache,aiSettings);
+                openaiRows=result.items;openaiError=result.diag;
+                await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
+                openaiReady=true;
+            }catch(error){openaiError=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,160);}
+        })();
+        try{await openaiLoading;}finally{openaiLoading=null;}
+    };
     const sort={key:"",direction:1};
     let currentVisible=[];
     let currentAllVisible=[];
@@ -1528,14 +1581,14 @@ async function main(){
     };
     const draw=async()=>{
         const version=++drawVersion;
-        const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[]];
+        const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[],openaiCheckbox.checked?openaiRows:[]];
         const combined=combineRecommendationLists(sourceGroups,checkbox.checked,watchedItems);
         const visible=combined.items;
         currentAllVisible=visible;
         currentVisible=visible.filter(hasDirectEvidence);
         renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
         const hidden=combined.hidden;
-        const anySource=[imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox].some(x=>x.checked);
+        const anySource=[imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox,openaiCheckbox].some(x=>x.checked);
         const formatStatus=()=>{
             if(!anySource)return "Включи хотя бы один источник.";
             const lines=[];
@@ -1552,6 +1605,7 @@ async function main(){
             if(movieTonCheckbox.checked){const diag=movieTonError||(!movieTonReady?"загружается…":`найдено ${movieTonRows.length}`);lines.push(`[MovieTon]: ${diag.replace(/^MovieTon:\s*/,"")};`);}
             if(likeFilmCheckbox.checked){const diag=likeFilmError||(!likeFilmReady?"загружается…":`найдено ${likeFilmRows.length}`);lines.push(`[LikeFilm]: ${diag.replace(/^LikeFilm:\s*/,"")};`);}
             if(tmdbCheckbox.checked)lines.push(`[TMDB]: ${(tmdbError||(!tmdbReady?"загружается…":`найдено ${tmdbRows.length}`)).replace(/^TMDB:\s*/,"")};`);
+            if(openaiCheckbox.checked)lines.push(`[${aiLabel()} / ${aiSettings?.providers?.[aiSettings.provider]?.model||"модель не выбрана"}]: ${openaiError||(!openaiReady?"загружается…":`найдено ${openaiRows.length}`)};`);
             if(forecastError)lines.push(`[Прогноз]: ${forecastError};`);
             lines.push(`[Итог]: показано **${visible.length}** · просмотренных **${hidden}**.`);
             return lines.join("\n");
@@ -1583,6 +1637,21 @@ async function main(){
             await persistDetails(version,currentAllVisible);
         }
     };
+    try{
+        const settingsFile=app.vault.getAbstractFileByPath(`${ROOT}/_system/ai_settings.js`);
+        if(!settingsFile)throw new Error("Не найден ai_settings.js");
+        const settingsModule={exports:{}};
+        new Function("module",await app.vault.read(settingsFile))(settingsModule);
+        aiSettings=await settingsModule.exports({app,container:ui.box,request:http,onApply:async next=>{
+            if(openaiLoading)await openaiLoading;
+            aiSettings=next;openaiRows=[];openaiReady=false;openaiError="";
+            const link=openaiCheckbox.parentElement.querySelector("a");
+            if(link)link.href=next.provider==="deepseek"?"https://www.deepseek.com/":"https://openai.com/";
+            if(openaiCheckbox.checked)await loadOpenai();await draw();
+        }});
+        const link=openaiCheckbox.parentElement.querySelector("a");
+        if(link)link.href=aiSettings.provider==="deepseek"?"https://www.deepseek.com/":"https://openai.com/";
+    }catch(error){openaiError=String(error?.message||error).slice(0,160);}
     imdbCheckbox.addEventListener("change",async()=>{
         await saveUiState();if(imdbCheckbox.checked)await loadImdb();
         draw();
@@ -1591,12 +1660,14 @@ async function main(){
     movieTonCheckbox.addEventListener("change",async()=>{await saveUiState();if(movieTonCheckbox.checked)await loadMovieTon();draw();});
     likeFilmCheckbox.addEventListener("change",async()=>{await saveUiState();if(likeFilmCheckbox.checked)await loadLikeFilm();draw();});
     tmdbCheckbox.addEventListener("change",async()=>{await saveUiState();if(tmdbCheckbox.checked)await loadTmdb();draw();});
+    openaiCheckbox.addEventListener("change",async()=>{await saveUiState();if(openaiCheckbox.checked)await loadOpenai();draw();});
     checkbox.addEventListener("change",async()=>{await saveUiState();draw();});
     const initialLoads=[];
     if(imdbCheckbox.checked)initialLoads.push(loadImdb());
     if(movieTonCheckbox.checked)initialLoads.push(loadMovieTon());
     if(likeFilmCheckbox.checked)initialLoads.push(loadLikeFilm());
     if(tmdbCheckbox.checked)initialLoads.push(loadTmdb());
+    if(openaiCheckbox.checked)initialLoads.push(loadOpenai());
     await Promise.all(initialLoads);
     draw();
 }
