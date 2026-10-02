@@ -1,13 +1,42 @@
-// Named API keys and model lists live only in the ignored ai_settings.json.
+// Named API keys live in an encrypted file after password setup.
 module.exports=async function mountAiSettings({app,container,request,onApply,copyText}){
     const path="Кино/_system/ai_settings.json";
+    const encryptedPath="Кино/_system/ai_settings.enc.json";
+    const sessionId=Symbol.for("kino.ai.settings.unlocked");
+    const host=container.createDiv();
+    const options={app,container:host,request,onApply,copyText};
+    const cryptoFile=app.vault.getAbstractFileByPath("Кино/_system/ai_crypto.js");
+    if(!cryptoFile)throw new Error("Не найден ai_crypto.js");
+    const cryptoModule={exports:{}};new Function("module",await app.vault.read(cryptoFile))(cryptoModule);
+    const crypt=cryptoModule.exports;
+    let encryptedFile=app.vault.getAbstractFileByPath(encryptedPath);
+    let encryptedText=encryptedFile?await app.vault.read(encryptedFile):"";
+    let session=app[sessionId]?.text===encryptedText?app[sessionId]?.session:null;
+    if(encryptedFile&&!session){
+        const panel=host.createEl("details");panel.open=true;panel.createEl("summary",{text:"⚙ Настройки ИИ — ключи зашифрованы"});
+        const password=panel.createEl("input",{type:"password"});password.placeholder="Пароль для расшифровки";password.setAttribute("aria-label","Пароль для расшифровки");password.autocomplete="off";
+        const unlock=panel.createEl("button",{text:"Расшифровать"});const status=panel.createEl("p");
+        unlock.addEventListener("click",async()=>{
+            if(unlock.disabled)return;unlock.disabled=true;
+            try{
+                encryptedText=await app.vault.read(encryptedFile);
+                const result=await crypt.unlock(JSON.parse(encryptedText),password.value);password.value="";
+                app[sessionId]={text:encryptedText,session:result.session,settings:result.settings};
+                host.empty();const settings=await module.exports(options);await onApply(settings);
+            }catch(error){password.value="";status.textContent=String(error?.message||error).slice(0,160);}
+            finally{unlock.disabled=false;}
+        });
+        return null;
+    }
     const labels={openai:"OpenAI / ChatGPT",deepseek:"DeepSeek",anthropic:"Claude / Opus"};
     const defaults={openai:"gpt-4.1-mini",deepseek:"deepseek-flash",anthropic:"claude-opus-5-5"};
     const presets={openai:["gpt-4.1-mini","gpt-4.1","gpt-4o-mini"],deepseek:["deepseek-flash","deepseek-v4-pro"],anthropic:["claude-opus-5-5","claude-sonnet-5-5","claude-haiku-4-5-20251001"]};
     const newId=()=>`key-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;
     let settings;
     const file=app.vault.getAbstractFileByPath(path);
-    if(file){try{settings=JSON.parse(await app.vault.read(file));}catch(_){throw new Error("Не удалось прочитать ai_settings.json; файл не перезаписан");}}
+    const plainText=!encryptedFile&&file?await app.vault.read(file):"";
+    if(session)settings=JSON.parse(JSON.stringify(app[sessionId].settings));
+    else if(plainText){try{settings=JSON.parse(plainText);}catch(_){throw new Error("Не удалось прочитать ai_settings.json; файл не перезаписан");}}
     settings ||= {version:2,provider:"deepseek",providers:{}};
     const before=JSON.stringify(settings);
     settings.providers ||= {};
@@ -22,13 +51,25 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     settings.version=2;
     if(!labels[settings.provider])settings.provider="deepseek";
     const persist=async next=>{
-        const text=JSON.stringify(next,null,2)+"\n",target=app.vault.getAbstractFileByPath(path);
-        if(target)await app.vault.modify(target,text);else await app.vault.create(path,text);
+        if(!session)throw new Error("Сначала зашифруй ключи: задай пароль и нажми «Зашифровать»");
+        const target=app.vault.getAbstractFileByPath(encryptedPath);
+        if(!target||await app.vault.read(target)!==encryptedText)throw new Error("Файл ключей изменился. Переоткрой рекомендации и расшифруй его заново");
+        const text=JSON.stringify(await crypt.seal(next,session),null,2)+"\n";
+        await app.vault.modify(target,text);encryptedText=text;
+        app[sessionId]={text,session,settings:JSON.parse(JSON.stringify(next))};
         settings=next;
     };
-    if(before!==JSON.stringify(settings))await persist(settings);
-    const panel=container.createEl("details");panel.style.margin="8px 0";
+    if(session&&before!==JSON.stringify(settings))await persist(settings);
+    const panel=host.createEl("details");panel.style.margin="8px 0";
     panel.createEl("summary",{text:"⚙ Настройки ИИ"});
+    const security=panel.createDiv();security.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px";
+    const securityStatus=security.createEl("span",{text:session?"Ключи расшифрованы на этом устройстве.":"Задай пароль для шифрования файла ключей."});
+    const password=security.createEl("input",{type:"password"});password.placeholder="Пароль — минимум 10 символов";password.autocomplete="off";
+    const confirmation=security.createEl("input",{type:"password"});confirmation.placeholder="Повтори пароль";confirmation.autocomplete="off";
+    const encrypt=security.createEl("button",{text:"Зашифровать"});
+    const lock=security.createEl("button",{text:"Заблокировать"});
+    password.hidden=confirmation.hidden=encrypt.hidden=Boolean(session);lock.hidden=!session;
+    panel.createEl("p",{text:"Пароль не сохраняется и не восстанавливается. После перезапуска Obsidian файл нужно расшифровать снова."});
     const form=panel.createDiv();form.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0";
     const field=(label,tag,type)=>{
         const holder=form.createEl("label");holder.style.cssText="display:flex;flex-direction:column;gap:4px";
@@ -49,7 +90,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     const remove=form.createEl("button",{text:"Удалить ключ"});
     const status=panel.createEl("p");status.style.margin="0";
     let draftModels=[],busy=false;
-    const current=()=>settings.providers[provider.value];
+    const current=()=>settings?.providers?.[provider.value]||{keys:[],model:defaults[provider.value]};
     const selected=()=>current().keys.find(k=>k.id===account.value);
     const drawModels=(selectedModel)=>{
         const value=selectedModel||current().model||defaults[provider.value];
@@ -81,6 +122,27 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
         try{await action();}catch(error){status.textContent=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,180);}
         finally{busy=false;for(const el of controls)el.disabled=false;remove.disabled=!selected();copy.disabled=!key.value;}
     };
+    encrypt.addEventListener("click",()=>perform(async()=>{
+        if(password.value!==confirmation.value)throw new Error("Пароли не совпадают");
+        if(file&&await app.vault.read(file)!==plainText)throw new Error("Исходный файл изменился. Переоткрой рекомендации перед шифрованием");
+        if(app.vault.getAbstractFileByPath(encryptedPath))throw new Error("Зашифрованный файл уже появился. Переоткрой рекомендации");
+        const result=await crypt.create(settings,password.value);
+        const text=JSON.stringify(result.envelope,null,2)+"\n";
+        const target=await app.vault.create(encryptedPath,text);
+        const verified=await crypt.unlock(JSON.parse(await app.vault.read(target)),password.value);
+        if(JSON.stringify(verified.settings)!==JSON.stringify(settings))throw new Error("Проверка зашифрованного файла не прошла; исходник сохранён");
+        encryptedFile=target;encryptedText=text;session=result.session;
+        app[sessionId]={text,session,settings:JSON.parse(JSON.stringify(settings))};
+        password.value=confirmation.value="";password.hidden=confirmation.hidden=encrypt.hidden=true;lock.hidden=false;
+        securityStatus.textContent="Ключи зашифрованы. Пароль хранится только у тебя.";
+        if(file)await app.vault.delete(file);
+        status.textContent="Создан ai_settings.enc.json. Незашифрованный файл удалён. Для Git используй зашифрованный файл.";
+        await onApply(settings);
+    }));
+    lock.addEventListener("click",()=>perform(async()=>{
+        delete app[sessionId];settings=null;session=null;key.value="";name.value="";password.value=confirmation.value="";
+        host.empty();await module.exports(options);await onApply(null);
+    }));
     copy.addEventListener("click",()=>perform(async()=>{
         if(!key.value)throw new Error("Ключ не указан");
         if(copyText)await copyText(key.value);
@@ -129,7 +191,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
         const chosen=model.value==="__custom__"?custom.value:model.value;draftModels=ids;drawModels(chosen);
         // Save the list immediately, so a Dataview rerender cannot reset it to presets.
         const next=JSON.parse(JSON.stringify(settings));const record=next.providers[id].keys.find(k=>k.id===account.value);
-        if(record&&record.apiKey===apiKey){record.models=ids;await persist(next);}
+        if(record&&record.apiKey===apiKey){record.models=ids;if(session)await persist(next);else settings=next;}
         status.textContent=`Получено моделей: ${ids.length}. Все доступны в списке «Модель».`;
     }));
     return settings;

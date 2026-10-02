@@ -1560,16 +1560,19 @@ async function main(){
         catch(_){tmdbError="Источник временно недоступен";tmdbReady=true;}
     };
     const loadOpenai=async()=>{
+        if(!aiSettings){openaiError="Расшифруй ключи в настройках ИИ";return;}
         if(openaiReady)return;
         if(openaiLoading)return openaiLoading;
+        const requestSettings=aiSettings;
         openaiLoading=(async()=>{
             setProgress(ui,`${aiLabel()}: подбираю фильмы по сюжету и твоим оценкам…`,20);
             try{
-                const result=await openaiSourceRecommendations(ref,items,cache,aiSettings);
+                const result=await openaiSourceRecommendations(ref,items,cache,requestSettings);
+                if(aiSettings!==requestSettings)return;
                 openaiRows=result.items;openaiError=result.diag;
                 await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
                 openaiReady=true;
-            }catch(error){openaiError=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,160);}
+            }catch(error){if(aiSettings===requestSettings)openaiError=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,160);}
         })();
         try{await openaiLoading;}finally{openaiLoading=null;}
     };
@@ -1649,8 +1652,9 @@ async function main(){
             if(typeof require==="function"){const clipboard=require("electron")?.clipboard;if(clipboard){clipboard.writeText(text);return;}}
             throw new Error("Выдели ключ и нажми Ctrl+C");
         },onApply:async next=>{
-            if(openaiLoading)await openaiLoading;
             aiSettings=next;openaiRows=[];openaiReady=false;openaiError="";
+            if(!next){await draw();return;}
+            if(openaiLoading)await openaiLoading;
             const link=openaiCheckbox.parentElement.querySelector("a");
             if(link)link.href=aiHome();
             if(openaiCheckbox.checked)await loadOpenai();await draw();
