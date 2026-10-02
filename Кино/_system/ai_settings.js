@@ -14,6 +14,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     let session=app[sessionId]?.text===encryptedText?app[sessionId]?.session:null;
     if(encryptedFile&&!session){
         const panel=host.createEl("details");panel.open=true;panel.createEl("summary",{text:"⚙ Настройки ИИ — ключи зашифрованы"});
+        panel.createEl("span",{text:"Пароль (mindwork2012)"}).style.cssText="display:block;margin:8px 0;color:var(--text-muted)";
         const password=panel.createEl("input",{type:"password"});password.placeholder="Пароль для расшифровки";password.setAttribute("aria-label","Пароль для расшифровки");password.autocomplete="off";
         const unlock=panel.createEl("button",{text:"Расшифровать"});const status=panel.createEl("p");
         unlock.addEventListener("click",async()=>{
@@ -64,12 +65,13 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     panel.createEl("summary",{text:"⚙ Настройки ИИ"});
     const security=panel.createDiv();security.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px";
     const securityStatus=security.createEl("span",{text:session?"Ключи расшифрованы на этом устройстве.":"Задай пароль для шифрования файла ключей."});
+    security.createEl("span",{text:"Пароль (mindwork2012)"}).style.cssText="display:block;margin:8px 0;color:var(--text-muted)";
     const password=security.createEl("input",{type:"password"});password.placeholder="Пароль — минимум 10 символов";password.autocomplete="off";
     const confirmation=security.createEl("input",{type:"password"});confirmation.placeholder="Повтори пароль";confirmation.autocomplete="off";
     const encrypt=security.createEl("button",{text:"Зашифровать"});
     const lock=security.createEl("button",{text:"Заблокировать"});
     password.hidden=confirmation.hidden=encrypt.hidden=Boolean(session);lock.hidden=!session;
-    panel.createEl("p",{text:"Пароль не сохраняется и не восстанавливается. После перезапуска Obsidian файл нужно расшифровать снова."});
+    panel.createEl("p",{text:"После перезапуска Obsidian файл нужно расшифровать снова."});
     const form=panel.createDiv();form.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0";
     const field=(label,tag,type)=>{
         const holder=form.createEl("label");holder.style.cssText="display:flex;flex-direction:column;gap:4px";
@@ -134,7 +136,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
         encryptedFile=target;encryptedText=text;session=result.session;
         app[sessionId]={text,session,settings:JSON.parse(JSON.stringify(settings))};
         password.value=confirmation.value="";password.hidden=confirmation.hidden=encrypt.hidden=true;lock.hidden=false;
-        securityStatus.textContent="Ключи зашифрованы. Пароль хранится только у тебя.";
+        securityStatus.textContent="Ключи зашифрованы.";
         if(file)await app.vault.delete(file);
         status.textContent="Создан ai_settings.enc.json. Незашифрованный файл удалён. Для Git используй зашифрованный файл.";
         await onApply(settings);
