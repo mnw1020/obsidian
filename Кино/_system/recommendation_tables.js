@@ -1,75 +1,56 @@
-// Enhance saved second-degree HTML tables without rewriting notes or fetching data.
+// Dataview renders each saved second-degree group as an interactive table.
 function sortRows(rows,column,direction){
-    const collator=new Intl.Collator("ru",{numeric:true,sensitivity:"base"});
-    const numeric=column===2||column===3;
+    const collator=new Intl.Collator("ru",{numeric:true,sensitivity:"base"}),numeric=column===2||column===3;
     return [...rows].sort((a,b)=>{
-        const left=a.values[column],right=b.values[column];
-        const missing=v=>v===null||v===undefined||v===""||v==="-"||v==="—";
+        const left=a.values[column],right=b.values[column],missing=v=>v===null||v===undefined||v===""||v==="-"||v==="—";
         if(missing(left)||missing(right))return Number(missing(left))-Number(missing(right))||a.index-b.index;
-        const cmp=numeric?left-right:collator.compare(String(left),String(right));
-        return cmp*direction||a.index-b.index;
+        return (numeric?left-right:collator.compare(String(left),String(right)))*direction||a.index-b.index;
     });
 }
-module.exports=function mountRecommendationTables(dv){
-    const root=dv.container.closest(".markdown-preview-view, .markdown-source-view")||dv.container.parentElement;
-    if(!root)return;
-    const cleanups=[];
-    const decorate=()=>{
-        for(const table of root.querySelectorAll("table.kino-recommendation-table")){
-            if(table.dataset.kinoSortBound)continue;
-            const body=table.tBodies[0],head=table.tHead?.rows[0];if(!body||!head)continue;
-            table.dataset.kinoSortBound="true";
-            table.style.cssText="width:1100px;min-width:1100px;max-width:none;table-layout:fixed;border-collapse:collapse;margin:0;font-size:var(--font-text-size)";
-            const wrap=table.closest(".kino-recommendation-scroll");
-            if(wrap)wrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;margin:12px 0 24px";
-            const widths=[260,190,100,110,440];
-            table.querySelectorAll("col").forEach((col,i)=>col.style.width=`${widths[i]}px`);
-            const rows=Array.from(body.rows).map((row,index)=>{
-                const values=Array.from(row.cells).map((cell,i)=>{
-                    cell.style.cssText="vertical-align:top;padding:9px 12px;border:1px solid var(--background-modifier-border);white-space:normal;overflow-wrap:break-word;line-height:1.45";
-                    if(i===2||i===3){cell.style.textAlign="center";cell.style.fontWeight="600";const n=Number(cell.textContent.trim().replace(",","."));return cell.textContent.trim()&&!/^[-—]$/.test(cell.textContent.trim())&&Number.isFinite(n)?n:null;}
-                    if(i===4&&!cell.dataset.kinoDescription){
-                        const full=cell.textContent.trim();cell.dataset.kinoDescription="true";
-                        if(full.length>280){
-                            cell.textContent="";cell.createEl("div",{text:full.slice(0,277).trim()+"…"});
-                            const details=cell.createEl("details");details.style.marginTop="6px";
-                            details.createEl("summary",{text:"Полное описание"});details.createEl("div",{text:full});
-                        }
-                    }
-                    return i===0?(cell.querySelector("a")?.textContent||cell.textContent).trim():cell.textContent.trim();
-                });return {row,values,index};
-            });
-            let column=Number(table.dataset.kinoSortColumn??-1),direction=Number(table.dataset.kinoSortDirection)||1;
-            const headers=Array.from(head.cells),buttons=[];
-            const update=()=>{
-                headers.forEach((cell,i)=>{
-                    cell.setAttribute("aria-sort",column===i?(direction===1?"ascending":"descending"):"none");
-                    buttons[i].textContent=`${buttons[i].dataset.label} ${column===i?(direction===1?"↑":"↓"):"↕"}`;
-                });
-            };
-            headers.forEach((cell,i)=>{
-                cell.style.cssText="text-align:left;vertical-align:middle;padding:10px 12px;border:1px solid var(--background-modifier-border);background:var(--background-secondary);white-space:normal";
-                let button=cell.querySelector("button");
-                if(!button){const label=cell.textContent.trim();cell.textContent="";button=cell.createEl("button");button.dataset.label=label;}
-                button.type="button";button.title="Нажми для сортировки в обратном порядке";
-                button.style.cssText="all:unset;display:block;width:100%;cursor:pointer;font:inherit;font-weight:600;line-height:1.4";
-                const onClick=()=>{
-                    direction=column===i?-direction:(i===2||i===3?-1:1);column=i;
-                    for(const item of sortRows(rows,column,direction))body.appendChild(item.row);
-                    table.dataset.kinoSortColumn=String(column);table.dataset.kinoSortDirection=String(direction);update();
-                };
-                button.addEventListener("click",onClick);cleanups.push(()=>button.removeEventListener("click",onClick));buttons.push(button);
-            });
-            update();cleanups.push(()=>delete table.dataset.kinoSortBound);
-        }
-    };
-    decorate();
-    // Catch tables rendered after this block. Row reorders and buttons do not trigger rescans.
-    const observer=new MutationObserver(records=>{
-        if(records.some(r=>Array.from(r.addedNodes).some(n=>n.nodeType===1&&
-            (n.matches?.("table.kino-recommendation-table")||n.querySelector?.("table.kino-recommendation-table")))))decorate();
+function render(dv,films){
+    const wrap=dv.container.createDiv();
+    wrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;margin:12px 0 24px";
+    const table=wrap.createEl("table");
+    table.style.cssText="width:1100px;min-width:1100px;max-width:none;table-layout:fixed;border-collapse:collapse;margin:0";
+    const widths=[260,190,100,110,440],cols=table.createEl("colgroup");
+    for(const width of widths)cols.createEl("col").style.width=`${width}px`;
+    const head=table.createEl("thead").createEl("tr"),body=table.createEl("tbody");
+    const labels=["Русское название","English","Рейтинг КП","Мой прогноз","Описание"];
+    const buttons=[],headers=[],rows=[],cleanups=[];
+    let column=-1,direction=1;
+    const update=()=>headers.forEach((cell,i)=>{
+        cell.setAttribute("aria-sort",column===i?(direction===1?"ascending":"descending"):"none");
+        buttons[i].textContent=`${labels[i]} ${column===i?(direction===1?"↑":"↓"):"↕"}`;
     });
-    observer.observe(root,{childList:true,subtree:true});
-    dv.component.register(()=>{observer.disconnect();for(const dispose of cleanups)dispose();});
-};
-module.exports.sortRows=sortRows;
+    labels.forEach((label,i)=>{
+        const cell=head.createEl("th");headers.push(cell);
+        cell.style.cssText="text-align:left;vertical-align:middle;padding:10px 12px;border:1px solid var(--background-modifier-border);background:var(--background-secondary);white-space:normal";
+        const button=cell.createEl("button",{text:label});buttons.push(button);button.type="button";
+        button.title=`Сортировать: ${label}`;
+        button.style.cssText="border:0;box-shadow:none;background:transparent;padding:0;color:inherit;cursor:pointer;font:inherit;font-weight:600;line-height:1.4;text-align:left;height:auto;width:100%;white-space:normal";
+        const onClick=()=>{
+            direction=column===i?-direction:(i===2||i===3?-1:1);column=i;
+            for(const item of sortRows(rows,column,direction))body.appendChild(item.row);
+            update();
+        };
+        button.addEventListener("click",onClick);cleanups.push(()=>button.removeEventListener("click",onClick));
+    });
+    const number=v=>{if(v===null||v===undefined||String(v).trim()==="")return null;const n=Number(String(v).replace(",","."));return Number.isFinite(n)?n:null;};
+    const fmt=v=>v===null?"—":v.toFixed(1);
+    for(const [index,film] of films.entries()){
+        const row=body.createEl("tr"),rating=number(film.kpRating),forecast=number(film.forecast);
+        const cells=labels.map(()=>{const cell=row.createEl("td");cell.style.cssText="vertical-align:top;padding:9px 12px;border:1px solid var(--background-modifier-border);white-space:normal;overflow-wrap:break-word;line-height:1.45";return cell;});
+        const title=film.ruTitle||film.enTitle||"Фильм";
+        const link=cells[0].createEl("a",{text:title});link.href=/^https?:\/\//i.test(film.url||"")?film.url:"https://www.kinopoisk.ru/";link.target="_blank";link.rel="noopener noreferrer";
+        if(film.year)cells[0].createEl("span",{text:` (${film.year})`}).style.opacity="0.65";
+        cells[1].textContent=film.enTitle||"—";
+        cells[2].textContent=fmt(rating);cells[3].textContent=fmt(forecast);
+        cells[2].style.textAlign=cells[3].style.textAlign="center";cells[2].style.fontWeight=cells[3].style.fontWeight="600";
+        const full=String(film.description||"").trim();
+        cells[4].createEl("div",{text:full.length>280?full.slice(0,277).trim()+"…":full||"—"});
+        if(full.length>280){const details=cells[4].createEl("details");details.style.marginTop="6px";details.createEl("summary",{text:"Полное описание"});details.createEl("div",{text:full});}
+        rows.push({row,index,values:[title,film.enTitle||"",rating,forecast,full]});
+    }
+    update();dv.component.register(()=>{for(const dispose of cleanups)dispose();});
+}
+module.exports={render,sortRows};

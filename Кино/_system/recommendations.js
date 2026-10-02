@@ -1209,15 +1209,9 @@ function recommendationDetailsMarkdown(list,reference){
             const sourceReasons=[...reasons].filter(Boolean);
             if(sourceReasons.length)lines.push(`- **${label}:** ${sourceReasons.join("; ")}`);
         }
-        lines.push("",'<div class="kino-recommendation-scroll" style="width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch">','<table class="kino-recommendation-table" style="width:1100px;min-width:1100px;table-layout:fixed;border-collapse:collapse">',"<colgroup><col style=\"width:22%\"><col style=\"width:18%\"><col style=\"width:10%\"><col style=\"width:10%\"><col style=\"width:40%\"></colgroup>","<thead><tr><th>Русское название</th><th>English</th><th>Рейтинг КП</th><th>Мой прогноз</th><th>Описание</th></tr></thead><tbody>");
-        for(const {film} of groupFilms){
-            const label=film.ruTitle||film.enTitle||film.kpId||"Фильм";
-            const target=film.sourceUrl||kinopoiskUrl(film);
-            const title=`<a href="${html(target)}" target="_blank">${html(label)}</a>${film.year?` (${html(film.year)})`:""}`;
-            const description=String(film.description||film.local?.description||"").trim();
-            lines.push(`<tr><td style="vertical-align:top;overflow-wrap:anywhere">${title}</td><td style="vertical-align:top;overflow-wrap:anywhere">${html(film.enTitle)}</td><td style="vertical-align:top">${html(fmt(film.kpRating))}</td><td style="vertical-align:top">${html(fmt(film.forecast))}</td><td style="vertical-align:top;white-space:normal;overflow-wrap:anywhere">${html(description)}</td></tr>`);
-        }
-        lines.push("</tbody></table></div>","");
+        const rows=groupFilms.map(({film})=>({ruTitle:film.ruTitle||film.enTitle||film.kpId||"Фильм",enTitle:film.enTitle||"",year:film.year||"",url:film.sourceUrl||kinopoiskUrl(film),kpRating:film.kpRating??null,forecast:film.forecast??null,description:String(film.description||film.local?.description||"").trim()}));
+        const payload=JSON.stringify(rows).replace(/`/g,"\\u0060").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");
+        lines.push("", "```dataviewjs", 'const tableScript = app.vault.getAbstractFileByPath("Кино/_system/recommendation_tables.js");', "if (tableScript) {", "    const m = {exports:{}};", '    new Function("module", await app.vault.read(tableScript))(m);', `    m.exports.render(dv, ${payload});`, "}", "```", "");
     }
     return lines.join("\n").trim();
 }

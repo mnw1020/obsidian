@@ -1,4 +1,13 @@
 {
-  "reference": "Кино/3 дня на убийство.md",
-  "updatedAt": "2026-10-02T18:24:09.065Z"
+  "reference": "Кино/5-я волна.md",
+  "updatedAt": "2026-10-02T18:30:38.736Z",
+  "sourceSettings": {
+    "imdb": false,
+    "kp": false,
+    "movieTon": false,
+    "likeFilm": false,
+    "tmdb": false,
+    "openai": false,
+    "watched": false
+  }
 }
