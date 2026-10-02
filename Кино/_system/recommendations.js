@@ -156,7 +156,7 @@ async function saveJson(path,obj,protectedKpId="") {
     const text=path===SOURCE_CACHE_PATH?sourceCacheJson(obj,protectedKpId):JSON.stringify(obj,(_,value)=>value instanceof Set?[...value]:value,2);
     const f=app.vault.getAbstractFileByPath(path);
     try {
-        if(f) await app.vault.modify(f,text);
+        if(f) {if(await app.vault.read(f)!==text)await app.vault.modify(f,text);}
         else {
             const folder=path.split("/").slice(0,-1).join("/");
             if(!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
@@ -1455,11 +1455,17 @@ async function main(){
     const head=dv.container.createDiv();head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
 
     const ui=makeUi(dv.container);
-    const cache=(await loadJson(SOURCE_CACHE_PATH))||{similar:{},details:{}};
+    let cache=null,kpReady=false,kpLoading=null,all=[];
+    let seeds={items:[],diag:"ещё не загружено"},second={items:[],diag:""};
+    const ensureCache=async()=>cache ||= (await loadJson(SOURCE_CACHE_PATH))||{similar:{},details:{}};
+    const loadKp=async()=>{
+        if(kpReady)return;if(kpLoading)return kpLoading;
+        kpLoading=(async()=>{
+            await ensureCache();
     const localByKp=new Map(items.filter(x=>x.kpId).map(x=>[x.kpId,x]));
     setProgress(ui,"Кинопоиск: проверяю похожие фильмы и связанные части…",10);
-    const seeds=ref.kpId?await recommendationSeeds(ref.kpId,cache):{items:[],diag:"В карточке нет Кинопоиск ID"};
-    const second=ref.kpId&&seeds.items.length?await expandSecondDegree(ref.kpId,seeds.items,cache):{items:[],diag:"2-й уровень: нет прямых похожих"};
+    seeds=ref.kpId?await recommendationSeeds(ref.kpId,cache):{items:[],diag:"В карточке нет Кинопоиск ID"};
+    second=ref.kpId&&seeds.items.length?await expandSecondDegree(ref.kpId,seeds.items,cache):{items:[],diag:"2-й уровень: нет прямых похожих"};
     const directIds=new Set(seeds.items.map(x=>x.kpId));
     const secondById=new Map();
     for(const x of second.items){const old=secondById.get(x.kpId);if(old)old.votes+=x.votes||1;else secondById.set(x.kpId,{...x});}
@@ -1492,7 +1498,11 @@ async function main(){
             score:0.4+0.4*match.metadata+(match.franchise?.08:0),watched:isWatched(x,watchedItems)});
     }
     await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
-    const all=[...candidates.values()].sort((a,b)=>b.score-a.score||(b.kpRating||0)-(a.kpRating||0));
+    all=[...candidates.values()].sort((a,b)=>b.score-a.score||(b.kpRating||0)-(a.kpRating||0));
+            kpReady=true;
+        })();
+        try{await kpLoading;}finally{kpLoading=null;}
+    };
     const sourceSettings=state.sourceSettings||{};
     ui.actions.style.flexWrap="wrap";
     const sourceControl=(name,home,checked)=>{
@@ -1521,10 +1531,14 @@ async function main(){
     const aiLabel=()=>({deepseek:"DeepSeek",openai:"OpenAI",anthropic:"Claude"})[aiSettings?.provider]||"ИИ";
     const aiHome=()=>({deepseek:"https://www.deepseek.com/",openai:"https://openai.com/",anthropic:"https://claude.ai/"})[aiSettings?.provider]||"https://openai.com/";
     const activeAiKey=()=>{const p=aiSettings?.providers?.[aiSettings.provider];return p?.keys?.find(k=>k.id===p.activeKeyId);};
-    const forecastReady=new WeakSet();
+    const forecastValues=new Map();
+    const forecastId=x=>recommendationIdentity(x)[0]||`${x.ruTitle}:${x.year}`;
+    const viewSessionId=Symbol.for("kino.recommendations.view");
     let forecastLoader=null,forecastError="",drawVersion=0;
     let detailsWriteQueue=Promise.resolve();
     const persistDetails=(version,list)=>{
+        if(dv.container.isConnected===false)return Promise.resolve();
+        if(version===drawVersion)app[viewSessionId]={reference:state.reference,updatedAt:state.updatedAt,all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError,openaiRows,openaiReady,openaiError,forecastValues:[...forecastValues]};
         const task=detailsWriteQueue.then(()=>version===drawVersion?saveNativeRecommendationDetails(list,ref):undefined);
         detailsWriteQueue=task.catch(()=>{});
         return task;
@@ -1535,6 +1549,7 @@ async function main(){
     }});
     const loadImdb=async()=>{
         if(imdbReady)return;
+        await ensureCache();
         setProgress(ui,"IMDb: проверяю похожие фильмы…",20);
         const result=await imdbSimilarRecommendations(ref,items,cache);
         imdbRows=result.items;imdbError=result.diag;imdbReady=true;
@@ -1542,6 +1557,7 @@ async function main(){
     };
     const loadMovieTon=async()=>{
         if(movieTonReady)return;
+        await ensureCache();
         setProgress(ui,"MovieTon: загружаю похожие фильмы и описания…",20);
         const result=await movieTonRecommendations(ref,items,cache);
         movieTonRows=result.items;movieTonError=result.diag;movieTonReady=true;
@@ -1549,6 +1565,7 @@ async function main(){
     };
     const loadLikeFilm=async()=>{
         if(likeFilmReady)return;
+        await ensureCache();
         setProgress(ui,"LikeFilm: загружаю похожие фильмы и сверяю рейтинги КП…",20);
         const result=await likeFilmRecommendations(ref,items,cache);
         likeFilmRows=result.items;likeFilmError=result.diag;likeFilmReady=true;
@@ -1565,6 +1582,7 @@ async function main(){
         if(openaiLoading)return openaiLoading;
         const requestSettings=aiSettings;
         openaiLoading=(async()=>{
+            await ensureCache();
             setProgress(ui,`${aiLabel()}: подбираю фильмы по сюжету и твоим оценкам…`,20);
             try{
                 const result=await openaiSourceRecommendations(ref,items,cache,requestSettings);
@@ -1584,11 +1602,13 @@ async function main(){
         sort.key=key;
         renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
     };
-    const draw=async()=>{
+    const draw=async(readOnly=false)=>{
+        if(dv.container.isConnected===false)return;
         const version=++drawVersion;
         const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[],openaiCheckbox.checked?openaiRows:[]];
         const combined=combineRecommendationLists(sourceGroups,checkbox.checked,watchedItems);
         const visible=combined.items;
+        for(const film of visible)if(forecastValues.has(forecastId(film)))film.forecast=forecastValues.get(forecastId(film));
         currentAllVisible=visible;
         currentVisible=visible.filter(hasDirectEvidence);
         renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
@@ -1616,11 +1636,12 @@ async function main(){
             return lines.join("\n");
         };
         setProgress(ui,formatStatus(),100);
+        if(readOnly)return;
         if(!anySource){ui.tableWrap.empty();await persistDetails(version,[]);return;}
         if(!visible.length){
             ui.tableWrap.createEl("p",{text:hidden?"Все найденные фильмы уже просмотрены. Включи «Показывать просмотренные».":"Тематически подходящих фильмов не найдено. Список не дополняется случайными рекомендациями."});
         }
-        const pending=visible.filter(x=>!forecastReady.has(x));
+        const pending=visible.filter(x=>!forecastValues.has(forecastId(x)));
         if(!pending.length){await persistDetails(version,currentAllVisible);return;}
         setProgress(ui,`Считаю личный прогноз: ${pending.length} фильмов…`,75);
         try{
@@ -1631,7 +1652,7 @@ async function main(){
                 throw new Error("скрипт прогноза не поддерживает расчёт рекомендаций");
             for(let i=0;i<pending.length;i++){
                 pending[i].forecast=Number.isFinite(values?.[i])?values[i]:null;
-                forecastReady.add(pending[i]);
+                forecastValues.set(forecastId(pending[i]),pending[i].forecast);
             }
             forecastError="";
         }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);}
@@ -1666,20 +1687,33 @@ async function main(){
         await saveUiState();if(imdbCheckbox.checked)await loadImdb();
         draw();
     });
-    kpCheckbox.addEventListener("change",async()=>{await saveUiState();draw();});
+    kpCheckbox.addEventListener("change",async()=>{await saveUiState();if(kpCheckbox.checked)await loadKp();draw();});
     movieTonCheckbox.addEventListener("change",async()=>{await saveUiState();if(movieTonCheckbox.checked)await loadMovieTon();draw();});
     likeFilmCheckbox.addEventListener("change",async()=>{await saveUiState();if(likeFilmCheckbox.checked)await loadLikeFilm();draw();});
     tmdbCheckbox.addEventListener("change",async()=>{await saveUiState();if(tmdbCheckbox.checked)await loadTmdb();draw();});
     openaiCheckbox.addEventListener("change",async()=>{await saveUiState();if(openaiCheckbox.checked)await loadOpenai();draw();});
     checkbox.addEventListener("change",async()=>{await saveUiState();draw();});
-    const initialLoads=[];
-    if(imdbCheckbox.checked)initialLoads.push(loadImdb());
-    if(movieTonCheckbox.checked)initialLoads.push(loadMovieTon());
-    if(likeFilmCheckbox.checked)initialLoads.push(loadLikeFilm());
-    if(tmdbCheckbox.checked)initialLoads.push(loadTmdb());
-    if(openaiCheckbox.checked)initialLoads.push(loadOpenai());
-    await Promise.all(initialLoads);
-    draw();
+    const run=ui.actions.createEl("button",{text:"Загрузить рекомендации"});
+    run.addEventListener("click",async()=>{
+        if(run.disabled)return;run.disabled=true;
+        try{
+            if(imdbCheckbox.checked)await loadImdb();
+            if(kpCheckbox.checked)await loadKp();
+            if(movieTonCheckbox.checked)await loadMovieTon();
+            if(likeFilmCheckbox.checked)await loadLikeFilm();
+            if(tmdbCheckbox.checked)await loadTmdb();
+            if(openaiCheckbox.checked)await loadOpenai();
+            await draw();
+        }catch(error){setProgress(ui,String(error?.message||error).slice(0,160),100);}
+        finally{run.disabled=false;}
+    });
+    const previous=app[viewSessionId];
+    if(previous?.reference===state.reference&&previous.updatedAt===state.updatedAt){
+        ({all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError}=previous);
+        if(aiSettings)({openaiRows,openaiReady,openaiError}=previous);
+        for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
+        await draw(true);
+    }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
 }
 
 await main();
