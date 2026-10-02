@@ -1,13 +1,13 @@
 {
-  "reference": "Кино/Media/Чудо на Гудзоне.md",
-  "updatedAt": "2026-10-02T20:00:34.665Z",
+  "reference": "Кино/Media/3 дня на убийство.md",
+  "updatedAt": "2026-10-02T20:54:51.785Z",
   "yearSettings": {
     "start": "1888",
     "end": "current"
   },
   "sourceSettings": {
     "imdb": false,
-    "kp": true,
+    "kp": false,
     "movieTon": false,
     "likeFilm": false,
     "tmdb": false,
