@@ -9,7 +9,7 @@ function sortRows(rows,column,direction){
 }
 function render(dv,films){
     const wrap=dv.container.createDiv();
-    wrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;margin:12px 0 24px;border-radius:12px";
+    wrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;margin:12px 0 28px;border:1px solid var(--background-modifier-border);border-radius:14px";
     const table=wrap.createEl("table");
     table.style.cssText="width:1100px;min-width:1100px;max-width:none;table-layout:fixed;border-collapse:collapse;margin:0";
     const widths=[260,190,100,110,440],cols=table.createEl("colgroup");
@@ -24,7 +24,7 @@ function render(dv,films){
     });
     labels.forEach((label,i)=>{
         const cell=head.createEl("th");headers.push(cell);
-        cell.style.cssText="text-align:left;vertical-align:middle;padding:10px 12px;border:1px solid var(--background-modifier-border);background:var(--background-secondary);white-space:normal";
+        cell.style.cssText="text-align:left;vertical-align:middle;padding:10px 12px;border:0;border-bottom:2px solid var(--interactive-accent);background:var(--background-secondary);white-space:normal";
         const button=cell.createEl("button",{text:label});buttons.push(button);button.type="button";
         button.title=`Сортировать: ${label}`;
         button.style.cssText="border:0;box-shadow:none;background:transparent;padding:0;color:inherit;cursor:pointer;font:inherit;font-weight:600;line-height:1.4;text-align:left;height:auto;width:100%;white-space:normal";
@@ -39,7 +39,7 @@ function render(dv,films){
     const fmt=v=>v===null?"—":v.toFixed(1);
     for(const [index,film] of films.entries()){
         const row=body.createEl("tr");if(index%2)row.style.background="var(--background-primary-alt)";const rating=number(film.kpRating),forecast=number(film.forecast);
-        const cells=labels.map(()=>{const cell=row.createEl("td");cell.style.cssText="vertical-align:top;padding:9px 12px;border:1px solid var(--background-modifier-border);white-space:normal;overflow-wrap:break-word;line-height:1.45";return cell;});
+        const cells=labels.map(()=>{const cell=row.createEl("td");cell.style.cssText="vertical-align:top;padding:9px 12px;border:0;border-bottom:1px solid var(--background-modifier-border);white-space:normal;overflow-wrap:break-word;line-height:1.45";return cell;});
         const title=film.ruTitle||film.enTitle||"Фильм";
         const link=cells[0].createEl("a",{text:title});link.href=/^https?:\/\//i.test(film.url||"")?film.url:"https://www.kinopoisk.ru/";link.target="_blank";link.rel="noopener noreferrer";
         if(film.year)cells[0].createEl("span",{text:` (${film.year})`}).style.opacity="0.65";
