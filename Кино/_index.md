@@ -67,8 +67,6 @@ for (const [icon, label, value] of stats) {
 Редактировать `^button-edit-season` `^button-edit-viewing` `^button-rebuild-card` `^button-kino-franshise`
 
 ## 🕐 Последние просмотры
-[[Кино/_Кино.base#Последние|Открыть отдельно]]
-
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {
@@ -78,8 +76,6 @@ if (file) {
 }
 ```
 ## 🔁 Перепросмотры
-[[Кино/_Кино.base#Перепросмотры|Открыть отдельно]]
-
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {
@@ -89,8 +85,6 @@ if (file) {
 }
 ```
 ## 📺 Последние сериалы
-[[Кино/_Кино.base#Последние сериалы|Открыть отдельно]]
-
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {

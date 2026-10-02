@@ -14,8 +14,6 @@
 > **189 произведений** · **91 авторов** · **12 серий** · **85 оценено** · **0 перечитано**
 <!-- BOOK-HOME-STATS:END -->
 
-[[Книги/Книги.base#Главная|Открыть отдельно]]
-
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Книги/_system/lazy_base.js");
 if (file) {
@@ -27,8 +25,6 @@ if (file) {
  
 ---
 # 🔁 Перечитанные
- [[Книги/Книги.base#Перечитанные|Открыть отдельно]]
-
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Книги/_system/lazy_base.js");
 if (file) {
