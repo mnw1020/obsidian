@@ -1462,7 +1462,7 @@ async function openaiSourceRecommendations(ref,items,cache,settings){
         return {...data,local,hop:1,sourceName:providerLabel,sourceUrl:kinopoiskUrl(data),
             reason:`${providerLabel}: ${suggestion.reason}`,score:0.6+0.4*recommendationMatch(ref,data).metadata};
     });
-    return {items:rows.filter(Boolean),diag:`${rows.filter(Boolean).length} похожих${result.cacheHit?" · из кэша":""}`};
+    return {items:rows.filter(Boolean),diag:`${rows.filter(Boolean).length} похожих${result.cacheHit?" · из кэша":""}${result.partial?" · ответ обрезан, сохранены полностью полученные фильмы":""}`};
 }
 
 async function main(){
@@ -1625,6 +1625,10 @@ async function main(){
         const task=(async()=>{
             await ensureCache();
             setProgress(ui,`${aiLabel()}: подбираю фильмы по сюжету и твоим оценкам…`,20);
+            const started=Date.now();
+            const progressTimer=setInterval(()=>{
+                if(aiSettings===requestSettings&&dv.container.isConnected!==false)setProgress(ui,`${aiLabel()}: ожидаю подборку · ${Math.floor((Date.now()-started)/1000)} сек. · до 5 минут`,20);
+            },15000);
             try{
                 const result=await openaiSourceRecommendations(ref,items,cache,requestSettings);
                 if(aiSettings!==requestSettings)return;
@@ -1632,6 +1636,7 @@ async function main(){
                 await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
                 openaiReady=true;
             }catch(error){if(aiSettings===requestSettings)openaiError=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,160);}
+            finally{clearInterval(progressTimer);}
         })();
         openaiLoading=task;openaiLoadingSettings=requestSettings;
         try{await task;}finally{if(openaiLoading===task){openaiLoading=null;openaiLoadingSettings=null;}}

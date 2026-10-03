@@ -39,6 +39,28 @@ test('HTTP errors, non-JSON, timeout and secret redaction',async()=>{
 test('model discovery paginates and deduplicates without filtering model families',async()=>{
     let count=0;const ids=await core.loadModels(async o=>{count++;return{status:200,json:count===1?{data:[{id:'claude-a'},{id:'gemini-b'}],has_more:true,last_id:'page-1'}:{data:[{id:'gemini-b'},{id:'gpt-c'}]}}},fixture().connections[0]);assert.deepEqual(ids,['claude-a','gemini-b','gpt-c']);assert.equal(count,2);
 });
+test('recommendations tolerate Markdown, prose, escaped braces and a truncated final film',()=>{
+    const valid={films:[{...film,description:'Текст с } и { и "кавычками"'}]};
+    assert.deepEqual(core.parseFilms(JSON.stringify(valid)),valid);
+    assert.deepEqual(core.parseFilms('Вот подборка:\n```json\n'+JSON.stringify(valid)+'\n```\nГотово.'),valid);
+    const partial=core.parseFilms('```json\n{"films":['+JSON.stringify(film)+',{"ruTitle":"Оборванный фильм","description":"незавершённый');
+    assert.deepEqual(partial.films,[film]);assert.equal(partial.partial,true);
+    assert.throws(()=>core.parseFilms('{"films":[{"ruTitle":"Оборванный'),/корректного JSON/);
+    assert.throws(()=>core.parseFilms('Модель не вернула список'),/корректного JSON/);
+});
+test('truncated gateway response retains complete films and cached partial status',async()=>{
+    const settings=fixture(),cache={};const request=async()=>({status:200,json:{status:'completed',output:[{content:[{type:'output_text',text:'{"films":['+JSON.stringify(film)+',{"ruTitle":"незаконченный'}]}]}});
+    const run=()=>recommend({settings,core,reference,taste:[],cache,request});
+    const result=await run();assert.equal(result.items.length,1);assert.equal(result.partial,true);assert.equal((await run()).partial,true);
+});
+test('large personal history is bounded and GPT uses low reasoning effort',async()=>{
+    const settings=fixture();settings.connections[0].model='gpt-6.1-sol';settings.connections[0].models=[{id:'gpt-6.1-sol'}];
+    const taste=Array.from({length:60},()=>({...reference,description:'x'.repeat(1800),rating:9}));
+    await recommend({settings,core,reference,taste,cache:{},request:async options=>{
+        const body=JSON.parse(options.body),input=JSON.parse(body.input);assert.equal(input.ratedExamples.length,20);assert.ok(input.ratedExamples.every(f=>f.description.length<=320));assert.equal(body.reasoning.effort,'low');assert.match(body.instructions,/до 12/);
+        return{status:200,json:{status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({films:[film]})}]}]}};
+    }});
+});
 test('model availability checks the actual model route and requires a text response',async()=>{
     for(const protocol of ['responses','chat','anthropic']){
         const c=fixture().connections[0],m=c.models[0];m.route={baseUrl:'https://override.test/anthropic',protocol};

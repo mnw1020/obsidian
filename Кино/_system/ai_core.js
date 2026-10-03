@@ -119,6 +119,21 @@ function parseFilms(text){
         if(ch==='"')inString=true;else if(ch==="{")depth++;else if(ch==="}"&&--depth===0){result=parse(raw.slice(start,i+1))||result;start=-1;}
     }
     if(result)return result;
+    // Keep complete films when a gateway cuts the last object but still reports "completed".
+    const arrayStart=/"films"\s*:\s*\[/.exec(raw);
+    if(arrayStart){
+        const films=[];start=-1;depth=0;inString=false;escaped=false;
+        for(let i=arrayStart.index+arrayStart[0].length;i<raw.length;i++){
+            const ch=raw[i];
+            if(start<0){if(ch==="]")break;if(ch==="{"){start=i;depth=1;inString=false;escaped=false;}continue;}
+            if(inString){if(escaped)escaped=false;else if(ch==="\\")escaped=true;else if(ch==='"')inString=false;continue;}
+            if(ch==='"')inString=true;else if(ch==="{")depth++;else if(ch==="}"&&--depth===0){
+                try{const film=JSON.parse(raw.slice(start,i+1));if(film&&typeof film.ruTitle==="string"&&typeof film.enTitle==="string")films.push(film);}catch(_){}
+                start=-1;
+            }
+        }
+        if(films.length)return {films,partial:true};
+    }
     throw new Error("Модель ответила без корректного JSON со списком фильмов");
 }
 module.exports={protocols,clone,newId,cleanUrl,normalize,validate,connection,resolve,endpoint,headers,safeError,call,loadModels,probeModel,parseFilms};
