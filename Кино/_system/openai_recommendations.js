@@ -51,7 +51,12 @@ module.exports = async function openaiRecommendations({reference, taste, cache, 
     }
     catch (_) {throw new Error("Модель ответила без корректного JSON со списком фильмов");}
     const seen = new Set();
-    const items = (Array.isArray(result.films)?result.films:[]).filter(x => {
+    const records=(Array.isArray(result.films)?result.films:[]).map(x=>{
+        if(!x||typeof x!=="object")return x;
+        // Some gateways ignore the integer schema and serialize a valid year as text.
+        return {...x,year:typeof x.year==="string"&&/^\d{4}$/.test(x.year.trim())?Number(x.year.trim()):x.year};
+    });
+    const items = records.filter(x => {
         if (!x||typeof x.ruTitle!=="string"||typeof x.enTitle!=="string"||!x.ruTitle.trim()||!x.enTitle.trim()||typeof x.description!=="string"||typeof x.reason!=="string"||!Array.isArray(x.genres)||!x.genres.every(g=>typeof g==="string")||!Number.isInteger(x.year) || x.year < 1888 || x.year > new Date().getFullYear() + 5) return false;
         const id = `${x.enTitle.toLowerCase().trim()}:${x.year}`;
         if (seen.has(id)) return false;

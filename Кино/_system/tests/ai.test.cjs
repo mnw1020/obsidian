@@ -61,6 +61,10 @@ test('large personal history is bounded and GPT uses low reasoning effort',async
         return{status:200,json:{status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({films:[film]})}]}]}};
     }});
 });
+test('a numeric string year is accepted without accepting invented or malformed years',async()=>{
+    const settings=fixture();const result=await recommend({settings,core,reference,taste:[],cache:{},request:async()=>({status:200,json:{status:'completed',output:[{content:[{type:'output_text',text:JSON.stringify({films:[{...film,year:'2009'},{...film,enTitle:'Invalid',year:'2009-ish'}]})}]}]}})});
+    assert.equal(result.items.length,1);assert.equal(result.items[0].year,2009);
+});
 test('model availability checks the actual model route and requires a text response',async()=>{
     for(const protocol of ['responses','chat','anthropic']){
         const c=fixture().connections[0],m=c.models[0];m.route={baseUrl:'https://override.test/anthropic',protocol};
