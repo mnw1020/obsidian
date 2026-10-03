@@ -7,11 +7,11 @@
   },
   "sourceSettings": {
     "imdb": false,
-    "kp": false,
+    "kp": true,
     "movieTon": false,
     "likeFilm": false,
     "tmdb": false,
-    "openai": true,
+    "openai": false,
     "watched": false
   }
 }
