@@ -68,10 +68,12 @@ test('modal editing, cancellation, save, encryption, conflicts, empty state and 
         await page.getByRole('button',{name:'Загрузить модели',exact:true}).click();await page.getByText('Добавлено моделей: 1.',{exact:false}).waitFor();assert.equal(await page.locator('.kino-ai-model').count(),3);
         await page.getByRole('button',{name:'Отмена',exact:true}).click();await page.getByRole('button',{name:'Не сохранять',exact:true}).click();assert.equal(await page.locator('.modal').count(),0);
         await open();assert.equal(await page.locator('.kino-ai-model').count(),2);
+        await page.locator('.kino-ai-model').first().getByRole('button',{name:'Удалить',exact:true}).click();
+        assert.equal(await page.getByRole('radio',{name:'model-b — использовать по умолчанию',exact:true}).isChecked(),true);
         await page.getByLabel('Идентификатор модели',{exact:true}).fill('custom-model');await page.getByRole('button',{name:'Добавить',exact:true}).click();
         const card=page.locator('.kino-ai-model').filter({hasText:'custom-model'});await card.locator('summary').click();await card.getByLabel('Сервер модели',{exact:true}).selectOption('custom');await card.getByLabel('Адрес сервера модели',{exact:true}).fill('https://example.test/anthropic');await card.getByLabel('Протокол',{exact:true}).selectOption('anthropic');
         await page.getByRole('button',{name:'Сохранить',exact:true}).click();await page.locator('.modal').waitFor({state:'detached'});
-        assert.equal(await page.getByLabel('Модель',{exact:true}).locator('option').count(),3);
+        assert.equal(await page.getByLabel('Модель',{exact:true}).locator('option').count(),2);
         await open();await page.getByRole('button',{name:'+ Добавить подключение',exact:true}).click();await page.getByLabel('Название подключения',{exact:true}).fill('Second server');await page.getByLabel('Адрес сервера',{exact:true}).fill('https://second.test/v1');await page.getByLabel('Ключ API',{exact:true}).fill('second-test-secret');await page.getByLabel('Идентификатор модели',{exact:true}).fill('model-x');await page.getByRole('button',{name:'Добавить',exact:true}).click();await page.getByRole('button',{name:'Сохранить',exact:true}).click();await page.locator('.modal').waitFor({state:'detached'});
         assert.equal(await page.getByLabel('Подключение',{exact:true}).locator('option').count(),2);
         await page.getByLabel('Подключение',{exact:true}).selectOption({label:'Second server'});await page.waitForFunction(()=>window.test.applied.at(-1)?.connections.find(c=>c.id===window.test.applied.at(-1).activeConnectionId)?.name==='Second server');

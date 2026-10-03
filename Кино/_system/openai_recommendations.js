@@ -1,6 +1,6 @@
 // Independent recommendation source. Loaded by recommendations.js in Obsidian.
 
-module.exports = async function openaiRecommendations({reference, taste, cache, request, settings, core, timeoutMs = 90000}) {
+module.exports = async function openaiRecommendations({reference, taste, cache, request, settings, core, timeoutMs = 180000}) {
     if (!request) throw new Error("requestUrl недоступен");
     if(!core)throw new Error("Не загружен ai_core.js");
     const {connection,model,apiKey,baseUrl,protocol}=core.resolve(settings);

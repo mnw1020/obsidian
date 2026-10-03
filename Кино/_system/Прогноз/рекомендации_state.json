@@ -1,6 +1,6 @@
 {
   "reference": "Кино/Media/Гренландия.md",
-  "updatedAt": "2026-10-03T18:37:32.560Z",
+  "updatedAt": "2026-10-03T19:16:07.530Z",
   "yearSettings": {
     "start": "1888",
     "end": "current"
@@ -12,6 +12,6 @@
     "likeFilm": false,
     "tmdb": false,
     "openai": true,
-    "watched": false
+    "watched": true
   }
 }
