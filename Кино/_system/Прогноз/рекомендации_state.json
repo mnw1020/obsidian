@@ -1,6 +1,6 @@
 {
-  "reference": "Кино/Media/Гренландия.md",
-  "updatedAt": "2026-10-03T19:16:07.530Z",
+  "reference": "Кино/Media/3 дня на убийство.md",
+  "updatedAt": "2026-10-03T19:30:11.144Z",
   "yearSettings": {
     "start": "1888",
     "end": "current"
@@ -12,6 +12,6 @@
     "likeFilm": false,
     "tmdb": false,
     "openai": true,
-    "watched": true
+    "watched": false
   }
 }
