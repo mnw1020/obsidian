@@ -1,6 +1,12 @@
 module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath } = obsidian;
+    const normalizeRequested = params.variables?.bookNormalize === true;
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) throw new Error("Не найден общий модуль библиотеки.");
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
 
     const REPORT_PATH = "Книги/_system/Проверка библиотеки.md";
     const CHANGELOG_PATH = "Книги/_system/Журнал изменений.md";
@@ -20,19 +26,11 @@ module.exports = async (params) => {
         { name: "adapted_from → adaptations", leftType: "media", leftProp: "adapted_from", rightType: "book", rightProp: "adaptations", section: "general", sourceOnly: true }
     ];
 
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
+    const getFrontmatter = core.getFrontmatter;
 
-    function isCandidateBook(file) {
-        if (!file || file.extension !== "md") return false;
-        if (file.basename === "_index") return false;
-        return file.path.startsWith(FICTION_PREFIX) || file.path.startsWith(NONFICTION_PREFIX);
-    }
+    const isCandidateBook = core.isCandidateBook;
 
-    function isFiction(file) {
-        return file.path.startsWith(FICTION_PREFIX);
-    }
+    const isFiction = core.isFiction;
 
     function rawListValues(value) {
         if (value === null || value === undefined || value === "") return [];
@@ -433,8 +431,9 @@ module.exports = async (params) => {
             }
 
             await app.fileManager.processFrontMatter(file, frontmatter => {
-                frontmatter.authors = deduped;
+                frontmatter.authors = [...new Set(rawListValues(frontmatter.authors).map(author => memberSet.has(author) ? canonical : author))];
             });
+            await core.refreshFrontmatter(file);
             changedFiles++;
         }
 
@@ -446,8 +445,9 @@ module.exports = async (params) => {
     const journalEntries = [];
     const authorVariantStatsBefore = collectAuthorVariantStats();
     const authorNormalizationGroups = buildAuthorNormalizationGroups(authorVariantStatsBefore);
+    if (!normalizeRequested) for (const members of authorNormalizationGroups) warnings.push("Похожие варианты авторов: **" + members.join(" / ") + "**. Проверь отдельной командой «Нормализовать библиотеку».");
 
-    if (authorNormalizationGroups.length && quickAddApi) {
+    if (normalizeRequested && authorNormalizationGroups.length && quickAddApi) {
         const mode = await quickAddApi.suggester(
             [
                 `🔧 Проверить варианты авторов (${authorNormalizationGroups.length})`,
@@ -486,7 +486,7 @@ module.exports = async (params) => {
 
             if (normalizationLog.length) {
                 // Даем metadata cache перечитать измененный YAML до основной проверки.
-                await new Promise(resolve => setTimeout(resolve, 250));
+                await Promise.all(books.map(file => core.refreshFrontmatter(file)));
             }
         }
     }
@@ -568,8 +568,9 @@ module.exports = async (params) => {
             const current = asText(getFrontmatter(file).series);
             if (!memberSet.has(current) || current === canonical) continue;
             await app.fileManager.processFrontMatter(file, frontmatter => {
-                frontmatter.series = canonical;
+                if (memberSet.has(asText(frontmatter.series))) frontmatter.series = canonical;
             });
+            await core.refreshFrontmatter(file);
             changedFiles++;
             variantChanges.set(current, (variantChanges.get(current) || 0) + 1);
         }
@@ -578,8 +579,9 @@ module.exports = async (params) => {
 
     const seriesVariantStatsBefore = collectSeriesVariantStats();
     const seriesNormalizationGroups = buildSeriesNormalizationGroups(seriesVariantStatsBefore);
+    if (!normalizeRequested) for (const members of seriesNormalizationGroups) warnings.push("Похожие варианты серий: **" + members.join(" / ") + "**. Проверь отдельной командой «Нормализовать библиотеку».");
 
-    if (seriesNormalizationGroups.length && quickAddApi) {
+    if (normalizeRequested && seriesNormalizationGroups.length && quickAddApi) {
         const mode = await quickAddApi.suggester(
             [
                 `🔧 Проверить варианты серий (${seriesNormalizationGroups.length})`,
@@ -640,8 +642,7 @@ module.exports = async (params) => {
             file = await app.vault.create(path, header + block);
             return;
         }
-        const current = await app.vault.read(file);
-        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
+        await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
     }
 
     try {
@@ -1019,7 +1020,7 @@ module.exports = async (params) => {
         }
         candidates.sort((a, b) => b.score - a.score || a.mediaFile.basename.localeCompare(b.mediaFile.basename, "ru"));
         for (const candidate of candidates.slice(0, 3)) {
-            adaptationSuggestions.push(`${wikiLink(bookFile, bookTitle)} ↔ ${wikiLink(candidate.mediaFile, candidate.mediaFile.basename)} — возможно, это экранизация.`);
+            adaptationSuggestions.push(`${wikiLink(bookFile, bookTitle)} ↔ ${wikiLink(candidate.mediaFile, candidate.mediaFile.basename)} — совпадение названий, требуется проверка первоисточника.`);
         }
     }
 
@@ -1223,8 +1224,9 @@ module.exports = async (params) => {
     let report = `# Проверка библиотеки\n\n`;
     report += `[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n`;
     report += `[🔎 Проверить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%B8%D1%82%D1%8C%20%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA%D1%83) · [🛠 Исправить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%98%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D0%B5)\n\n`;
+    report += `[🔧 Нормализовать](obsidian://quickadd?choice=${encodeURIComponent("Книги - Нормализовать библиотеку")})\n\n`;
     report += `> Последняя проверка: **${timestamp}**  \n`;
-    report += `> Аудит сам не исправляет ошибки, кроме подтвержденной тобой нормализации авторов/серий. Для однозначных исправлений используй ссылку «Исправить безопасное».\n\n`;
+    report += `> Проверка обновляет только этот отчёт. Нормализация авторов и серий запускается отдельной командой; однозначные исправления — ссылкой «Исправить».\n\n`;
     report += `## Состояние библиотеки\n\n`;
     report += `**${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${imageFiles.length} изображений** · **${fictionCount} fiction** · **${nonfictionCount} non-fiction** · **${rereadBooksCount} перечитано** · **${ratedBooksCount} оценено**\n\n`;
     report += `- Последняя проверка: **${timestamp}**.\n`;
@@ -1252,8 +1254,8 @@ module.exports = async (params) => {
     report += "- целостность блока `BOOK-READINGS` и каждой записи чтения;\n";
     report += "- совпадение агрегатов YAML с историей чтений;\n";
     report += "- точные и потенциальные дубли книг: одинаковый автор + название с учетом пунктуации, пробелов, тире и небольших опечаток; очевидные разные номера/части исключаются;\n";
-    report += "- варианты и похожие написания авторов с предложением объединить их;\n";
-    report += "- варианты и похожие написания серий с предложением объединить их;\n";
+    report += "- варианты и похожие написания авторов; объединение — отдельной командой;\n";
+    report += "- варианты и похожие написания серий; объединение — отдельной командой;\n";
     report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях;\n";
     report += "- ссылки на отсутствующие локальные вложения в Markdown-файлах внутри `Книги/`;\n";
     report += "- картинки внутри `Книги/`, на которые не ссылается ни один Markdown-файл vault;\n";
@@ -1261,23 +1263,7 @@ module.exports = async (params) => {
     report += "- взаимность `related` ↔ `related` и `continued_by` ↔ `continues`; новые пары добавляются явно в `RELATION_RULES`;\n";
     report += "- книги без `adaptations`, у которых найден фильм/сериал с очень похожим названием — только как подсказка, без автосвязи.\n";
 
-    // Обновляем компактную статистику на главной теми же проверенными счетчиками.
-    const homeFile = app.vault.getAbstractFileByPath(normalizePath("Книги/_index.md"));
-    if (homeFile) {
-        const homeBlock = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${books.length} произведений** · **${authorsMap.size} авторов** · **${seriesRecords.size} серий** · **${ratedBooksCount} оценено** · **${rereadBooksCount} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
-        const homeText = await app.vault.read(homeFile);
-        if (/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(homeText)) {
-            await app.vault.modify(homeFile, homeText.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, homeBlock));
-        }
-    }
-
-    const reportPath = normalizePath(REPORT_PATH);
-    let reportFile = app.vault.getAbstractFileByPath(reportPath);
-    if (reportFile) {
-        await app.vault.modify(reportFile, report);
-    } else {
-        reportFile = await app.vault.create(reportPath, report);
-    }
+    const reportFile = await core.writeIfChanged(normalizePath(REPORT_PATH), report);
 
     new Notice(`Проверка завершена: ошибок ${errors.length + cinemaErrors.length + mutualErrors.length}, предупреждений ${warnings.length}`);
     await app.workspace.getLeaf(false).openFile(reportFile);

@@ -1,6 +1,13 @@
 module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath } = obsidian;
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) throw new Error("Не найден общий модуль библиотеки.");
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
+    const bookSnapshot = core.snapshot();
+    const bookFiles = bookSnapshot.map(item => item.file);
 
     const BOOKS_ROOT = "Книги";
     const AUTHOR_PAGE = "Книги/_system/Автор.md";
@@ -13,55 +20,14 @@ module.exports = async (params) => {
     const yamlString = value => JSON.stringify(String(value ?? ""));
     const safeName = value => String(value ?? "").replace(/[\\/:*?"<>|]/g, "-").trim();
 
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
+    const getFrontmatter = core.getFrontmatter;
 
-    function isBook(file) {
-        if (!file || file.extension !== "md") return false;
-        if (file.basename === "_index") return false;
-        if (!file.path.startsWith(`${BOOKS_ROOT}/`)) return false;
-        const fm = getFrontmatter(file);
-        return Boolean(String(fm.title ?? "").trim()) && authorList(fm).length > 0;
-    }
+    const isBook = core.isBook;
 
-    function isFiction(file) {
-        return file.path.startsWith("Книги/Художественные/");
-    }
+    const isFiction = core.isFiction;
 
 
-    async function updateHomeStats() {
-        const home = app.vault.getAbstractFileByPath("Книги/_index.md");
-        if (!home) return;
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const allBooks = app.vault.getMarkdownFiles().filter(isBook);
-        const authors = new Set();
-        const series = new Set();
-        let rated = 0;
-        let reread = 0;
-        for (const file of allBooks) {
-            const fm = getFrontmatter(file);
-            const rawAuthors = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
-            for (const author of rawAuthors) {
-                const value = String(author ?? "").trim();
-                if (value) authors.add(value);
-            }
-            const seriesName = String(fm.series ?? "").trim();
-            if (seriesName) series.add(seriesName);
-            if (file.path.startsWith("Книги/Художественные/")) {
-                const value = Number(fm.rating);
-                if (Number.isFinite(value) && value >= 1 && value <= 10) rated++;
-            }
-            const count = Number(fm.read_count);
-            if (Number.isInteger(count) && count > 1) reread++;
-        }
-        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${allBooks.length} произведений** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
-        const current = await app.vault.read(home);
-        const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
-            ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
-            : current;
-        if (updated !== current) await app.vault.modify(home, updated);
-    }
+    const updateHomeStats = core.updateHomeStats;
 
     function authorList(frontmatter) {
         const raw = frontmatter?.authors;
@@ -99,7 +65,7 @@ module.exports = async (params) => {
     function matchingBooks(title, authors) {
         const normalizedTitle = normalizeEntity(title);
         const authorSignature = authorSetSignature(authors);
-        return app.vault.getMarkdownFiles()
+        return bookFiles
             .filter(isBook)
             .filter(file => {
                 const fm = getFrontmatter(file);
@@ -130,7 +96,7 @@ module.exports = async (params) => {
 
     function existingAuthorNames() {
         return [...new Set(
-            app.vault.getMarkdownFiles()
+            bookFiles
                 .filter(isBook)
                 .flatMap(file => authorList(getFrontmatter(file)))
         )].sort((a, b) => a.localeCompare(b, "ru"));
@@ -138,7 +104,7 @@ module.exports = async (params) => {
 
     function existingSeriesNames() {
         return [...new Set(
-            app.vault.getMarkdownFiles()
+            bookFiles
                 .filter(isBook)
                 .map(file => String(getFrontmatter(file).series ?? "").trim())
                 .filter(Boolean)
@@ -233,36 +199,9 @@ module.exports = async (params) => {
         }
     }
 
-    function displayDate(value) {
-        const text = String(value ?? "").trim();
-        let m = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (m) return `${m[3]}.${m[2]}.${m[1]}`;
-        m = text.match(/^(\d{4})-(\d{2})$/);
-        if (m) return `${m[2]}.${m[1]}`;
-        return text;
-    }
+    const displayDate = core.displayDate;
 
-    function isValidDate(value) {
-        const text = String(value ?? "").trim();
-        let m = text.match(/^(\d{4})$/);
-        if (m) return Number(m[1]) >= 1;
-        m = text.match(/^(\d{4})-(\d{2})$/);
-        if (m) {
-            const month = Number(m[2]);
-            return month >= 1 && month <= 12;
-        }
-        m = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (!m) return false;
-        const year = Number(m[1]);
-        const month = Number(m[2]);
-        const day = Number(m[3]);
-        const date = new Date(Date.UTC(year, month - 1, day));
-        return (
-            date.getUTCFullYear() === year &&
-            date.getUTCMonth() === month - 1 &&
-            date.getUTCDate() === day
-        );
-    }
+    const isValidDate = core.isValidDate;
 
     function renderEntry(number, date, rating, comment) {
         const ratingAttr = rating === null || rating === undefined ? "" : String(rating);
@@ -295,8 +234,9 @@ module.exports = async (params) => {
         nav += " · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
 
         const actions =
-            "[📖 Чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
-            "[✏️ Изменить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
+            "[💡 Сохранить выписку](obsidian://quickadd?choice=" + encodeURIComponent("Книги - Добавить выписку") + ") · " +
+            "[📖 Записать чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
+            "[✏️ Редактировать чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
             "[🎬 Кино](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B2%D1%8F%D0%B7%D0%B0%D1%82%D1%8C%20%D1%81%20%D0%BA%D0%B8%D0%BD%D0%BE)";
 
         return [
@@ -311,11 +251,7 @@ module.exports = async (params) => {
     }
 
     async function lightCheckBook(bookFile, entries) {
-        let fm = getFrontmatter(bookFile);
-        for (let attempt = 0; attempt < 6 && !fm.title; attempt++) {
-            await new Promise(resolve => setTimeout(resolve, 60));
-            fm = getFrontmatter(bookFile);
-        }
+        const fm = await core.refreshFrontmatter(bookFile);
         const issues = [];
         const title = String(fm.title ?? "").trim();
         const authorsRaw = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
@@ -373,7 +309,7 @@ module.exports = async (params) => {
         }
 
         if (series && Number.isInteger(seriesIndex) && seriesIndex > 0) {
-            const conflicts = app.vault.getMarkdownFiles()
+            const conflicts = bookFiles
                 .filter(isBook)
                 .filter(file => file.path !== bookFile.path)
                 .filter(file => {
@@ -399,23 +335,22 @@ module.exports = async (params) => {
             file = await app.vault.create(path, "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
             return;
         }
-        const current = await app.vault.read(file);
-        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
+        await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
     }
 
     const active = app.workspace.getActiveFile();
     let defaultAuthor = "";
     let defaultSeries = "";
 
-    if (active?.path === AUTHOR_PAGE) {
+    if (getFrontmatter(active).selected_author) {
         defaultAuthor = String(getFrontmatter(active).selected_author ?? "").trim();
     }
-    if (active?.path === SERIES_PAGE) {
+    if (getFrontmatter(active).selected_series) {
         defaultSeries = String(getFrontmatter(active).selected_series ?? "").trim();
 
         // Если в серии сейчас только один автор, подставляем его автоматически.
         const seriesAuthors = [...new Set(
-            app.vault.getMarkdownFiles()
+            bookFiles
                 .filter(isBook)
                 .filter(file => String(getFrontmatter(file).series ?? "").trim() === defaultSeries)
                 .flatMap(file => authorList(getFrontmatter(file)))
@@ -423,87 +358,51 @@ module.exports = async (params) => {
         if (seriesAuthors.length === 1) defaultAuthor = seriesAuthors[0];
     }
 
-    const workType = await quickAddApi.suggester(
-        ["📕 Книга", "📄 Рассказ", "🎓 Лекция", "📰 Статья"],
-        ["", "story", "lecture", "article"],
-        "Тип произведения"
-    );
-    if (workType === undefined || workType === null) return;
-
-    const section = await quickAddApi.suggester(
-        ["Художественные", "Non-fiction"],
-        ["Художественные", "Non-fiction"],
-        "Раздел"
-    );
-    if (!section) return;
-
-    const inputs = [
-        {
-            id: "authors",
-            label: "Автор(ы), через запятую",
-            type: "text",
-            defaultValue: defaultAuthor
-        },
+    const form = [
+        { id: "section", label: "Раздел", type: "dropdown", options: ["Художественные", "Non-fiction"], defaultValue: isFiction(active) || !isBook(active) ? "Художественные" : "Non-fiction" },
+        { id: "workType", label: "Тип произведения", type: "dropdown", options: ["Книга", "Рассказ", "Лекция", "Статья"], defaultValue: "Книга" },
+        { id: "authors", label: "Автор(ы)", type: "suggester", options: existingAuthorNames(), defaultValue: defaultAuthor, suggesterConfig: { allowCustomInput: true, multiSelect: true, caseSensitive: false } },
         { id: "title", label: "Название произведения", type: "text" },
-        {
-            id: "date",
-            label: "Дата чтения",
-            type: "text",
-            defaultValue: quickAddApi.date.now("YYYY-MM-DD"),
-            placeholder: "YYYY-MM-DD"
-        }
+        { id: "date", label: "Дата чтения", type: "text", defaultValue: quickAddApi.date.now("YYYY-MM-DD"), placeholder: "YYYY-MM-DD, YYYY-MM или YYYY" },
+        { id: "rating", label: "Оценка художественного произведения", type: "number", optional: true, numericConfig: { min: 1, max: 10, step: 1 } },
+        { id: "comment", label: "Впечатления от чтения", type: "textarea", optional: true },
+        { id: "series", label: "Серия", type: "suggester", options: existingSeriesNames(), defaultValue: defaultSeries, optional: true, suggesterConfig: { allowCustomInput: true, caseSensitive: false } },
+        { id: "seriesIndex", label: "Номер в серии", type: "number", optional: true, numericConfig: { min: 1, step: 1 }, description: "Пусто — следующий номер из имеющихся карточек." }
     ];
-
-    if (section === "Художественные") {
-        inputs.push({
-            id: "rating",
-            label: "Оценка",
-            type: "number",
-            optional: true,
-            numericConfig: { min: 1, max: 10, step: 1 }
-        });
+    let values = {}, title, authors, date, rating, comment, section, workType, series, seriesIndex;
+    for (let attempt = 0; ; attempt++) {
+        // QuickAdd caches answers by id. Fresh ids keep correction dialogs editable.
+        const fields = form.map(field => ({ ...field, id: field.id + "__book_" + attempt, defaultValue: values[field.id] ?? field.defaultValue }));
+        const answer = await quickAddApi.requestInputs(fields);
+        if (!answer) return;
+        values = Object.fromEntries(form.map(field => [field.id, answer[field.id + "__book_" + attempt] ?? answer[field.id] ?? ""]));
+        title = String(values.title).trim();
+        authors = String(values.authors).split(/[,;]+/).map(value => value.trim()).filter(Boolean);
+        date = String(values.date).trim().replace(/^@date:/, "");
+        section = values.section || "Художественные";
+        workType = ({ Книга: "", Рассказ: "story", Лекция: "lecture", Статья: "article" })[values.workType || "Книга"];
+        series = String(values.series).trim();
+        const rawIndex = String(values.seriesIndex).trim();
+        seriesIndex = series ? (rawIndex ? Number(rawIndex) : Math.max(0, ...bookFiles.map(file => getFrontmatter(file)).filter(fm => String(fm.series ?? "").trim() === series).map(fm => Number(fm.series_index)).filter(Number.isFinite)) + 1) : null;
+        const rawRating = String(values.rating ?? "").trim();
+        const numericRating = Number(rawRating);
+        const errors = [];
+        if (!title) errors.push("Укажи название произведения.");
+        if (!authors.length) errors.push("Укажи автора.");
+        if (!isValidDate(date)) errors.push("Дата: YYYY-MM-DD, YYYY-MM или YYYY.");
+        if (!["Художественные", "Non-fiction"].includes(section) || workType === undefined) errors.push("Выбери раздел и тип произведения.");
+        if (section === "Художественные" && rawRating && (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 10)) errors.push("Оценка должна быть целым числом от 1 до 10.");
+        if (series && (!Number.isInteger(seriesIndex) || seriesIndex < 1)) errors.push("Номер в серии должен быть положительным целым числом.");
+        if (!series && rawIndex) errors.push("Для номера сначала укажи серию.");
+        if (errors.length) { new Notice(errors.join("\n"), 7000); continue; }
+        const confirmed = await confirmAuthors(authors);
+        if (!confirmed) return;
+        authors = confirmed;
+        if (series) { series = await confirmNewSeries(series); if (!series) return; }
+        rating = section === "Художественные" && rawRating ? numericRating : null;
+        comment = String(values.comment).trim();
+        break;
     }
-
-    inputs.push({
-        id: "comment",
-        label: "Комментарий к чтению",
-        type: "textarea",
-        optional: true
-    });
-
-    const values = await quickAddApi.requestInputs(inputs);
-    if (!values) return;
-
-    const title = String(values.title ?? "").trim();
-    let authors = String(values.authors ?? "")
-        .split(/[,;]+/)
-        .map(v => v.trim())
-        .filter(Boolean);
-
-    if (!title) {
-        new Notice("Не указано название произведения.");
-        return;
-    }
-    if (authors.length === 0) {
-        new Notice("Не указан автор.");
-        return;
-    }
-
-    const confirmedAuthors = await confirmAuthors(authors);
-    if (!confirmedAuthors) return;
-    authors = confirmedAuthors;
-
-    const date = String(values.date ?? "").trim().replace(/^@date:/, "");
-    if (!isValidDate(date)) {
-        new Notice("Некорректная дата. Используй YYYY-MM-DD, YYYY-MM или YYYY.");
-        return;
-    }
-
-    const ratingRaw = Number(values.rating);
-    const rating = section === "Художественные" && Number.isFinite(ratingRaw) && ratingRaw >= 1 && ratingRaw <= 10
-        ? ratingRaw
-        : null;
-    const comment = String(values.comment ?? "").trim();
 
     const matches = matchingBooks(title, authors);
     if (matches.length) {
@@ -528,67 +427,12 @@ module.exports = async (params) => {
         return;
     }
 
-    // Серия выбирается ПОСЛЕ автора. Так нет опечаток и дубликатов названий серий.
-    let series = defaultSeries;
-    if (!series) {
-        const authorSeries = [...new Set(
-            app.vault.getMarkdownFiles()
-                .filter(isBook)
-                .filter(file => authorList(getFrontmatter(file)).includes(authors[0]))
-                .map(file => String(getFrontmatter(file).series ?? "").trim())
-                .filter(Boolean)
-        )].sort((a, b) => a.localeCompare(b, "ru"));
-
-        const labels = ["Без серии", ...authorSeries, "➕ Новая серия"];
-        const valuesForChoice = ["", ...authorSeries, "__NEW__"];
-
-        const seriesChoice = await quickAddApi.suggester(
-            labels,
-            valuesForChoice,
-            "Серия"
-        );
-        if (seriesChoice === undefined || seriesChoice === null) return;
-
-        if (seriesChoice === "__NEW__") {
-            series = String(await quickAddApi.inputPrompt("Название новой серии") ?? "").trim();
-            if (!series) return;
-            series = await confirmNewSeries(series);
-            if (!series) return;
-        } else {
-            series = String(seriesChoice).trim();
-        }
-    }
-
-    let seriesIndex = null;
-    if (series) {
-        const existingIndexes = app.vault.getMarkdownFiles()
-            .filter(isBook)
-            .map(file => getFrontmatter(file))
-            .filter(fm => String(fm.series ?? "").trim() === series)
-            .map(fm => Number(fm.series_index))
-            .filter(v => Number.isFinite(v) && v > 0);
-
-        const suggestedIndex = existingIndexes.length
-            ? Math.max(...existingIndexes) + 1
-            : 1;
-
-        const indexValues = await quickAddApi.requestInputs([
-            {
-                id: "seriesIndex",
-                label: `Номер в серии "${series}"`,
-                type: "number",
-                defaultValue: String(suggestedIndex),
-                numericConfig: { min: 1, step: 1 }
-            }
-        ]);
-        if (!indexValues) return;
-
-        const raw = Number(indexValues.seriesIndex);
-        if (!Number.isFinite(raw) || raw < 1) {
-            new Notice("Некорректный номер в серии.");
-            return;
-        }
-        seriesIndex = Math.floor(raw);
+    if (series && bookFiles.some(file => {
+        const fm = getFrontmatter(file);
+        return String(fm.series ?? "").trim() === series && Number(fm.series_index) === seriesIndex;
+    })) {
+        new Notice("Этот номер уже занят в серии. Запиши произведение с другим номером.", 7000);
+        return;
     }
 
     const sectionFolder = normalizePath(`${BOOKS_ROOT}/${section}`);
@@ -606,7 +450,7 @@ module.exports = async (params) => {
         filePath = normalizePath(`${authorFolder}/${safeName(title)}.md`);
     } else {
         const legacyPrefix = `${safeName(authors[0])}. `;
-        const legacyFiles = app.vault.getMarkdownFiles()
+        const legacyFiles = bookFiles
             .filter(file => file.parent?.path === sectionFolder && file.basename.startsWith(legacyPrefix));
         if (legacyFiles.length) {
             await ensureFolder(authorFolder);
@@ -614,7 +458,8 @@ module.exports = async (params) => {
                 const legacyTitle = legacyFile.basename.slice(legacyPrefix.length);
                 const movedPath = normalizePath(`${authorFolder}/${safeName(legacyTitle)}.md`);
                 if (!app.vault.getAbstractFileByPath(movedPath)) {
-                    await app.vault.rename(legacyFile, movedPath);
+                    await app.fileManager.renameFile(legacyFile, movedPath);
+                    await appendStructureJournal(`Перенесена карточка: ${legacyFile.path} → ${movedPath}.`);
                 }
             }
             destinationFolder = authorFolder;
@@ -646,6 +491,7 @@ module.exports = async (params) => {
     content += historyBlock(date, rating, comment);
 
     const bookFile = await app.vault.create(filePath, content);
+    await core.refreshFrontmatter(bookFile);
     try {
         await appendStructureJournal(`Добавлено произведение: **${title}** (${authors.join(", ")}) — \`${bookFile.path}\`.`);
     } catch (error) {

@@ -2,6 +2,8 @@ const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const addBook = require('../QuickAdd/add_book.js');
 const addReading = require('../QuickAdd/add_reading.js');
+const fs = require('node:fs');
+const { parseYaml, stringifyYaml, fromText } = require('./yaml_fixture.cjs');
 
 function harness({ cards = [], action = 'reading', section = 'Художественные', selected = 0, values = {} } = {}) {
     const input = { title: 'Тёмный лес', authors: 'Лю Цысинь', date: '2026-10-03', rating: '8', comment: 'Новое впечатление', ...values };
@@ -18,7 +20,11 @@ function harness({ cards = [], action = 'reading', section = 'Художеств
         return entry;
     }
     const history = 'Заметки, которые нужно сохранить\n\n<!-- BOOK-READINGS:START -->\n\n<!-- BOOK-READING:START number="1" date="2023-07-16" rating="6" -->\n### Чтение 1\n\n<!-- BOOK-READING:COMMENT -->\nПервое впечатление\n<!-- BOOK-READING:END -->\n\n<!-- BOOK-READINGS:END -->\n';
-    const books = cards.map(card => file(card.path, { title: input.title, authors: ['Лю Цысинь'], read_count: 1, date: '2023-07-16', ...card.fm }, history));
+    const books = cards.map(card => {
+        const fm = { title: input.title, authors: ['Лю Цысинь'], read_count: 1, date: '2023-07-16', ...card.fm };
+        return file(card.path, fm, '---\n' + stringifyYaml(fm) + '\n---\n' + history);
+    });
+    file('Книги/_system/book_core.js', {}, fs.readFileSync(require.resolve('../book_core.js'), 'utf8'));
     const home = file('Книги/_index.md', {}, '<!-- BOOK-HOME-STATS:START -->старые данные<!-- BOOK-HOME-STATS:END -->');
     const app = {
         metadataCache: { getFileCache: entry => ({ frontmatter: entry.fm }) },
@@ -27,11 +33,12 @@ function harness({ cards = [], action = 'reading', section = 'Художеств
             getAbstractFileByPath: path => files.get(path),
             read: async entry => entry.text,
             modify: async (entry, text) => { mutations.push(['modify', entry.path]); entry.text = text; },
+            process: async (entry, change) => { const text = change(entry.text); if (text !== entry.text) mutations.push(['process', entry.path]); entry.text = text; entry.fm = fromText(text); return text; },
             createFolder: async path => { mutations.push(['folder', path]); files.set(path, { path }); },
             rename: async () => { throw new Error('Unexpected file move'); },
             create: async (path, text) => {
                 mutations.push(['create', path]);
-                const fm = path.endsWith('Журнал изменений.md') ? {} : { title: input.title, authors: input.authors.split(/[,;]+/).map(s => s.trim()), date: input.date, read_count: 1, ...(section === 'Художественные' ? { rating: Number(input.rating) } : {}) };
+                const fm = fromText(text);
                 return file(path, fm, text);
             }
         },
@@ -40,7 +47,14 @@ function harness({ cards = [], action = 'reading', section = 'Художеств
     };
     const quickAddApi = {
         date: { now: () => '2026-10-03' },
-        requestInputs: async () => { formCount++; return input; },
+        requestInputs: async fields => {
+            formCount++;
+            if (formCount > 1 && input.date === '2026-02-30') return null;
+            return Object.fromEntries(fields.map(field => {
+                const canonical = field.id.split('__')[0];
+                return [field.id, canonical === 'section' ? section : canonical === 'workType' ? 'Книга' : input[canonical] ?? field.defaultValue ?? ''];
+            }));
+        },
         suggester: async (labels, options, prompt) => {
             prompts.push({ labels, prompt });
             if (prompt === 'Тип произведения') return '';
@@ -56,7 +70,7 @@ function harness({ cards = [], action = 'reading', section = 'Художеств
             await addReading({ app, quickAddApi, obsidian, variables });
         }
     };
-    const obsidian = { Notice: class { constructor(message) { notices.push(message); } }, normalizePath: path => path };
+    const obsidian = { Notice: class { constructor(message) { notices.push(message); } }, normalizePath: path => path, parseYaml, stringifyYaml };
     return { run: () => addBook({ app, quickAddApi, obsidian }), books, files, home, mutations, opened, prompts, notices, get formCount() { return formCount; }, app, quickAddApi, obsidian };
 }
 
