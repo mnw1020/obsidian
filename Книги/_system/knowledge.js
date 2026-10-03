@@ -47,7 +47,7 @@ function parseExcerpts(text) {
             if (match) {
                 field = { "Темы": "themes", "Вывод": "conclusion", "Место в источнике": "location" }[match[1]];
                 fields[field] = match[2];
-            } else if (field) fields[field] += `\n${line}`;
+            } else if (field) fields[field] += `\n${line.startsWith("  ") ? line.slice(2) : line}`;
         }
         const excerptText = body.slice(0, meta).join("\n").trim();
         if (excerptText) excerpts.push({
@@ -82,7 +82,8 @@ function renderExcerpt(value, newline = "\n") {
         `> [!${type}] ${type === "quote" ? "Цитата" : "Идея"}`,
         ...text.split("\n").map(line => `> ${line}`), ">", `> ${META}`,
         `> **Темы:** ${themes(value.themes).join("; ")}`,
-        ...[`**Вывод:** ${conclusion}`].join("").split("\n").map(line => `> ${line}`),
+        `> **Вывод:** ${conclusion.split("\n")[0]}`,
+        ...conclusion.split("\n").slice(1).map(line => `>   ${line}`),
         `> **Место в источнике:** ${location}`, "", `^${id}`, ""
     ];
     return content.join(newline);
@@ -181,10 +182,14 @@ async function loadCore(app, obsidian) {
 async function getService({ app, obsidian }) {
     const core = await loadCore(app, obsidian);
     let state = app[STATE_KEY];
-    if (!state) state = app[STATE_KEY] = { cache: new Map(), listeners: new Set(), eventRefs: [] };
+    if (!state) state = app[STATE_KEY] = { cache: new Map(), pending: new Map(), listeners: new Set(), eventRefs: [] };
+    if (!state.pending) state.pending = new Map();
     const invalidate = (path, oldPath) => {
-        for (const cached of state.cache.keys()) {
-            if (!path || cached === path || cached.startsWith(path + "/") || (oldPath && (cached === oldPath || cached.startsWith(oldPath + "/")))) state.cache.delete(cached);
+        for (const cached of new Set([...state.cache.keys(), ...state.pending.keys()])) {
+            if (!path || cached === path || cached.startsWith(path + "/") || (oldPath && (cached === oldPath || cached.startsWith(oldPath + "/")))) {
+                state.cache.delete(cached);
+                state.pending.delete(cached);
+            }
         }
         for (const callback of state.listeners) callback();
     };
@@ -195,6 +200,9 @@ async function getService({ app, obsidian }) {
                 if (file.path.startsWith("Книги/") || oldPath?.startsWith("Книги/")) invalidate(file.path, oldPath);
             }));
         }
+        if (app.metadataCache.on) state.eventRefs.push(app.metadataCache.on("changed", file => {
+            if (file.path.startsWith("Книги/")) for (const callback of state.listeners) callback();
+        }));
     }
     async function snapshot() {
         const cards = await core.snapshot();
@@ -206,16 +214,28 @@ async function getService({ app, obsidian }) {
                 const mtime = file.stat?.mtime;
                 let item = state.cache.get(file.path);
                 if (!item || mtime === undefined || item.mtime !== mtime) {
-                    try {
-                        const text = (await app.vault.read(file)).replace(/\r\n/g, "\n");
-                        item = { mtime, text, excerpts: parseExcerpts(text), history: [], historyError: "" };
-                        try { item.history = core.parseHistory(text).entries; }
-                        catch (error) { item.historyError = error.message || String(error); }
-                        if (mtime !== undefined && mtime === file.stat?.mtime) state.cache.set(file.path, item);
-                    } catch (error) {
-                        if (!app.vault.getAbstractFileByPath(file.path)) return null;
-                        return { file, fm, error: error.message || String(error), text: "", excerpts: [], history: [] };
+                    const filePath = file.path;
+                    let pending = state.pending.get(filePath);
+                    if (!pending || pending.mtime !== mtime) {
+                        pending = { mtime };
+                        pending.promise = (async () => {
+                            try {
+                                const text = (await app.vault.read(file)).replace(/\r\n/g, "\n");
+                                const value = { mtime, text, excerpts: parseExcerpts(text), history: [], historyError: "" };
+                                try { value.history = core.parseHistory(text).entries; }
+                                catch (error) { value.historyError = error.message || String(error); }
+                                if (state.pending.get(filePath) === pending && file.path === filePath && mtime !== undefined && mtime === file.stat?.mtime) state.cache.set(filePath, value);
+                                return value;
+                            } catch (error) {
+                                if (!app.vault.getAbstractFileByPath(filePath)) return null;
+                                return { error: error.message || String(error), text: "", excerpts: [], history: [] };
+                            }
+                        })();
+                        state.pending.set(filePath, pending);
                     }
+                    try { item = await pending.promise; }
+                    finally { if (state.pending.get(filePath) === pending) state.pending.delete(filePath); }
+                    if (!item) return null;
                 }
                 return { file, fm, ...item };
             }));
@@ -250,7 +270,11 @@ function sourceLink(parent, entry, app) {
     const target = `${entry.path.replace(/\.md$/i, "")}#^${entry.id}`;
     link.href = target;
     link.setAttribute("data-href", target);
-    link.addEventListener("click", event => { event.preventDefault(); app.workspace.openLinkText(target, entry.path, event.ctrlKey || event.metaKey); });
+    link.addEventListener("click", event => {
+        event.preventDefault();
+        if (app.vault.getAbstractFileByPath(entry.path)) app.workspace.openLinkText(target, entry.path, event.ctrlKey || event.metaKey);
+        else link.textContent = "Карточка больше не доступна";
+    });
 }
 
 function renderCard(parent, entry, app) {
@@ -297,7 +321,12 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         } else if (!filtered.length && entries.length) element(content, "p", "По этим условиям выписок пока нет.");
     }
     if (mode === "home") {
-        element(controls, "button", "Другая выписка").addEventListener("click", () => { randomId = null; draw(); });
+        element(controls, "button", "Другая выписка").addEventListener("click", () => {
+            const choices = entries.filter(entry => `${entry.path}:${entry.id}` !== randomId);
+            const entry = choices[Math.floor(Math.random() * choices.length)];
+            if (entry) randomId = `${entry.path}:${entry.id}`;
+            draw();
+        });
     } else {
         const query = element(controls, "input");
         query.type = "search";

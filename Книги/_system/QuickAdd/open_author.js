@@ -58,15 +58,18 @@ module.exports = async (params) => {
         "<!-- BOOK-AUTHOR-GENERATED:END -->"
     ].join("\n");
     const existing = app.vault.getAbstractFileByPath(pagePath);
-    let content;
+    let page;
     if (existing) {
-        content = await app.vault.read(existing);
         const region = /<!-- BOOK-AUTHOR-GENERATED:START -->[\s\S]*?<!-- BOOK-AUTHOR-GENERATED:END -->/;
-        content = region.test(content) ? content.replace(region, () => generated) : content.replace(/\s*$/, "\n\n") + generated + "\n";
+        const merge = content => region.test(content) ? content.replace(region, () => generated) : content.replace(/\s*$/, "\n\n") + generated + "\n";
+        const original = await app.vault.read(existing);
+        // Merge against the newest text inside the atomic Vault callback.
+        if (merge(original) !== original) await app.vault.process(existing, merge);
+        page = existing;
     } else {
-        content = `---\nselected_author: ${JSON.stringify(author)}\ncssclasses:\n  - books-entity\nobsidianUIMode: preview\n---\n\n${generated}\n\n## Мои заметки\n\n`;
+        const content = `---\nselected_author: ${JSON.stringify(author)}\ncssclasses:\n  - books-entity\nobsidianUIMode: preview\n---\n\n${generated}\n\n## Мои заметки\n\n`;
+        page = await core.writeIfChanged(pagePath, content);
     }
-    const page = await core.writeIfChanged(pagePath, content);
     await core.refreshFrontmatter?.(page);
     await app.workspace.getLeaf(false).openFile(page);
 };

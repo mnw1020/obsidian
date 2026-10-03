@@ -65,7 +65,11 @@ function link(parent, item, app, label = item.title) {
     const anchor = element(parent, "a", label, "internal-link");
     anchor.href = target;
     anchor.setAttribute("data-href", target);
-    anchor.addEventListener("click", event => { event.preventDefault(); app.workspace.openLinkText(target, item.file.path, event.ctrlKey || event.metaKey); });
+    anchor.addEventListener("click", event => {
+        event.preventDefault();
+        if (app.vault.getAbstractFileByPath(item.file.path)) app.workspace.openLinkText(target, item.file.path, event.ctrlKey || event.metaKey);
+        else anchor.textContent = "Карточка больше не доступна";
+    });
 }
 
 function table(parent, headings, rows) {
@@ -125,7 +129,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             if (!model.earlierThisMonth.length) element(content, "p", "В прошлые годы в этом месяце чтения ещё не записаны.");
             else {
                 const list = element(content, "ul");
-                for (const item of model.earlierThisMonth.slice(0, mode === "home" ? 5 : 25)) {
+                for (const item of model.earlierThisMonth.slice(0, mode === "home" ? 5 : model.earlierThisMonth.length)) {
                     const row = element(list, "li");
                     link(row, item, app);
                     element(row, "span", ` · ${service.core.displayDate(item.date)}`);

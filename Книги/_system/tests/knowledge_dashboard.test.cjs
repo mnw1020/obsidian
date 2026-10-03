@@ -49,7 +49,7 @@ function harness(cards = []) {
 }
 
 test('explicit callout round-trips raw excerpt text, themes, conclusion and a separate stable block id', () => {
-    const input = { id: 'book-excerpt-test-1', type: 'idea', text: '**Темы:** это часть цитаты\n\n> вложенная цитата', themes: ['Мышление', 'мышление', 'Ёж'], conclusion: 'Первая строка\nВторая строка', location: 'Глава 2, стр. 17' };
+    const input = { id: 'book-excerpt-test-1', type: 'idea', text: '**Темы:** это часть цитаты\n\n> вложенная цитата', themes: ['Мышление', 'мышление', 'Ёж'], conclusion: 'Первая строка\n**Темы:** это часть вывода\nВторая строка', location: 'Глава 2, стр. 17' };
     const raw = knowledge.renderExcerpt(input);
     assert.match(raw, /\n\n\^book-excerpt-test-1\n$/);
     const [entry] = knowledge.parseExcerpts(raw);
@@ -112,7 +112,7 @@ test('excerpt filters combine text, theme, author and type with Russian ё norma
 test('cache reuses unchanged content and invalidates modification, rename and deletion', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
     const service = await knowledge.getService(h);
-    await service.snapshot();
+    await Promise.all([service.snapshot(), service.snapshot()]);
     await service.snapshot();
     assert.equal(h.reads.get(h.books[0].path), 1);
     h.books[0].text += '\n' + knowledge.renderExcerpt({ text: 'Идея', type: 'idea', id: 'book-excerpt-cache' });
@@ -194,6 +194,33 @@ test('QuickAdd saves atomically with fresh field ids and can cancel without any 
     assert.equal(h.changes.length, 2);
 });
 
+test('format command uses the editor selection and refuses a concurrent source change', async () => {
+    const raw = 'До\n\nСтарый абзац\n\nПосле\n\n' + managedHistory;
+    const h = harness([{ path: 'Книги/Художественные/Книга.md', text: raw }]);
+    const from = raw.indexOf('Старый абзац'), to = from + 'Старый абзац'.length;
+    h.app.workspace.activeEditor = { file: h.books[0], editor: {
+        getValue: () => raw, getSelection: () => 'Старый абзац',
+        getCursor: side => side === 'from' ? from : to, posToOffset: value => value
+    } };
+    let concurrent = false;
+    const api = {
+        suggester: async (labels, values, prompt) => prompt === 'Как использовать выделение?' ? 'format' : 'quote',
+        requestInputs: async fields => {
+            if (concurrent) h.books[0].text += '\nКонкурирующая правка';
+            return Object.fromEntries(fields.map(field => [field.id, field.defaultValue ?? '']));
+        }
+    };
+    await addExcerpt({ ...h, quickAddApi: api });
+    assert.equal(h.changes.length, 1);
+    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'Старый абзац');
+    assert.ok(h.books[0].text.endsWith('После\n\n' + managedHistory));
+    h.books[0].text = raw;
+    concurrent = true;
+    await addExcerpt({ ...h, quickAddApi: api });
+    assert.equal(h.changes.length, 1);
+    assert.match(h.notices.at(-1), /изменился/);
+});
+
 test('search command opens the selected book at the matching note line and cancellation is read-only', async () => {
     const h = harness([{ path: 'Книги/Non-fiction/Книга.md', text: 'Важная редкая мысль\n\n' + managedHistory }]);
     const api = {
@@ -231,4 +258,37 @@ test('all current library histories aggregate in memory without changing their o
     assert.deepEqual(records.flatMap(record => record.history.map(entry => entry.date)), originalDates);
     assert.ok(originalDates.some(date => date.length === 7));
     assert.equal(result.invalidHistory, 0);
+});
+
+test('both read-only renderers work in home and full modes with native DOM controls', async () => {
+    const h = harness([{ path: 'Книги/Художественные/Книга.md', text: managedHistory + '\n\n' + knowledge.renderExcerpt({ text: 'Цитата для показа', id: 'book-excerpt-render', type: 'quote' }) }]);
+    const document = { createElement: tag => new Node(tag) };
+    class Node {
+        constructor(tag) { this.tagName = tag; this.ownerDocument = document; this.children = []; this.style = {}; this.attributes = {}; this.events = {}; this.ownText = ''; }
+        set textContent(value) { this.ownText = String(value); this.children = []; }
+        get textContent() { return this.ownText + this.children.map(child => child.textContent).join(''); }
+        appendChild(child) { this.children.push(child); return child; }
+        replaceChildren(...children) { this.children = children; this.ownText = ''; }
+        setAttribute(name, value) { this.attributes[name] = value; }
+        addEventListener(name, callback) { this.events[name] = callback; }
+    }
+    function all(node) { return [node, ...node.children.flatMap(all)]; }
+    for (const renderer of [knowledge, dashboard]) {
+        for (const mode of ['home', 'index']) {
+            const container = document.createElement('div'), cleanup = [];
+            const dv = { container, component: { register: callback => cleanup.push(callback) } };
+            const handle = await renderer({ ...h, dv, mode });
+            assert.doesNotMatch(container.textContent, /Не удалось|Загружаю|Считаю/);
+            if (renderer === knowledge) {
+                assert.match(container.textContent, /Цитата для показа/);
+                const source = all(container).find(node => node.tagName === 'a');
+                assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
+                if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 3);
+            } else assert.match(container.textContent, /1 произведений · 1 чтений/);
+            handle.dispose();
+            for (const callback of cleanup) callback();
+        }
+    }
+    assert.deepEqual(h.changes, []);
+    assert.equal(h.reads.get(h.books[0].path), 1);
 });

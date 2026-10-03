@@ -6,7 +6,16 @@ obsidianUIMode: preview
 
 # 📚 Библиотека
 
-`button-books-add` `button-books-reading` `button-books-excerpt`
+<p class="books-actions-fallback"><a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20книгу">➕ Записать произведение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20чтение">📖 Записать чтение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20выписку">✒️ Добавить выписку</a></p>
+
+```dataviewjs
+const file = app.vault.getAbstractFileByPath("Книги/_system/lazy_base.js");
+if (file) {
+    const m = {exports:{}};
+    new Function("module", await app.vault.read(file))(m);
+    await m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, mode: "actions"});
+}
+```
 
 [Редактировать чтение](obsidian://quickadd?choice=Книги%20-%20Редактировать%20чтение)
 
@@ -84,28 +93,3 @@ if (file) {
 
 [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал изменений]]
 
-<!-- BUTTON DEFINITIONS -->
-
-```button
-name ➕ Записать произведение
-type command
-action QuickAdd: Книги - Добавить книгу
-hidden true
-```
-^button-books-add
-
-```button
-name 📖 Записать чтение
-type command
-action QuickAdd: Книги - Добавить чтение
-hidden true
-```
-^button-books-reading
-
-```button
-name ✒️ Добавить выписку
-type command
-action QuickAdd: Книги - Добавить выписку
-hidden true
-```
-^button-books-excerpt

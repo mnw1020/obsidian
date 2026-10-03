@@ -59,7 +59,10 @@ module.exports = ({ app, obsidian }) => {
     }
     function readFrontmatter(text) {
         const match = text.match(/^\uFEFF?---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
-        if (!match) return {};
+        if (!match) {
+            if (/^\uFEFF?---(?:\r?\n|$)/.test(text)) throw new Error("YAML карточки повреждён: отсутствует закрывающий маркер ---.");
+            return {};
+        }
         if (!obsidian.parseYaml) throw new Error("Obsidian parseYaml недоступен.");
         const fm = obsidian.parseYaml(match[1]) ?? {};
         if (typeof fm !== "object" || Array.isArray(fm)) throw new Error("YAML карточки должен содержать свойства.");
@@ -140,6 +143,19 @@ module.exports = ({ app, obsidian }) => {
         const latest = sorted[sorted.length - 1], rated = [...sorted].reverse().find(entry => entry.rating !== null && entry.rating !== undefined);
         return { read_count: entries.length, date: latest?.date, rating: isFiction(file) && rated ? rated.rating : undefined };
     }
+    function yamlComment(line) {
+        let single = false, double = false;
+        for (let index = 0; index < line.length; index++) {
+            const char = line[index];
+            if (double && char === "\\") { index++; continue; }
+            if (!single && char === '"') double = !double;
+            else if (!double && char === "'") {
+                if (single && line[index + 1] === "'") index++;
+                else single = !single;
+            } else if (!single && !double && char === "#" && (index === 0 || /\s/.test(line[index - 1]))) return line.slice(index).replace(/\r?\n$/, "");
+        }
+        return "";
+    }
     function patchSummary(text, values) {
         const nl = text.includes("\r\n") ? "\r\n" : "\n";
         const match = text.match(/^(\uFEFF?)---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
@@ -148,7 +164,7 @@ module.exports = ({ app, obsidian }) => {
             const re = new RegExp(`^${key}:[^\\r\\n]*(?:\\r?\\n|$)`, "m");
             const existing = yaml.match(re);
             const scalar = value === undefined ? null : typeof value === "number" ? String(value) : JSON.stringify(value);
-            const comment = existing?.[0].match(/\s+(#.*?)(?:\r?\n)?$/)?.[1];
+            const comment = existing ? yamlComment(existing[0]) : "";
             const replacement = scalar === null ? (comment ? `${comment}${nl}` : "") : `${key}: ${scalar}${comment ? ` ${comment}` : ""}${nl}`;
             if (existing) yaml = yaml.replace(re, replacement);
             else if (scalar !== null) yaml = yaml.replace(/\s*$/, "") + (yaml ? nl : "") + replacement;
@@ -166,13 +182,17 @@ module.exports = ({ app, obsidian }) => {
             let replacement = value === undefined ? "" : `${key}: ${JSON.stringify(value)}${nl}`;
             if (line) {
                 let end = line.index + line[0].length;
+                const comments = [];
                 while (end < yaml.length) {
                     const next = /^[^\r\n]*(?:\r?\n|$)/.exec(yaml.slice(end))[0];
-                    if (!next || !/^(?:[ \t]|-[ \t])/.test(next)) break;
+                    if (!next || (!/^(?:[ \t]|-[ \t])/.test(next) && next.trim())) break;
+                    const comment = yamlComment(next);
+                    if (comment) comments.push(comment);
                     end += next.length;
                 }
-                const inlineComment = line[0].match(/\s+(#.*?)(?:\r?\n)?$/)?.[1];
+                const inlineComment = yamlComment(line[0]);
                 if (inlineComment) replacement = value === undefined ? `${inlineComment}${nl}` : replacement.replace(/\r?\n$/, ` ${inlineComment}${nl}`);
+                if (comments.length) replacement += comments.map(comment => `${comment}${nl}`).join("");
                 yaml = yaml.slice(0, line.index) + replacement + yaml.slice(end);
             } else if (value !== undefined) yaml = yaml.replace(/\s*$/, "") + (yaml ? nl : "") + replacement;
         }

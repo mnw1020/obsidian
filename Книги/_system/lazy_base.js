@@ -3,6 +3,34 @@ module.exports = async ({ dv, app, obsidian = {}, target, label, mode = "base", 
     let disposed = false;
     dv.component?.register(() => { disposed = true; });
 
+    if (mode === "actions") {
+        const api = app.plugins?.plugins?.quickadd?.api;
+        if (!api?.executeChoice) return;
+        const bar = dv.container.createDiv({ cls: "books-actionbar" });
+        const actions = [
+            ["➕ Записать произведение", "Книги - Добавить книгу"],
+            ["📖 Записать чтение", "Книги - Добавить чтение"],
+            ["✒️ Добавить выписку", "Книги - Добавить выписку"]
+        ];
+        const buttons = actions.map(([text]) => bar.createEl("button", { text, cls: "books-action" }));
+        actions.forEach(([label, choice], index) => {
+            const click = async () => {
+                if (disposed || buttons.some(button => button.disabled)) return;
+                buttons.forEach(button => { button.disabled = true; });
+                try { await api.executeChoice(choice); }
+                catch (error) {
+                    if (obsidian.Notice) new obsidian.Notice(`Не удалось открыть «${label}»: ${String(error?.message || error)}`);
+                } finally { buttons.forEach(button => { button.disabled = false; }); }
+            };
+            buttons[index].addEventListener("click", click);
+            dv.component?.register(() => buttons[index].removeEventListener("click", click));
+        });
+        const preview = dv.container.closest?.(".markdown-preview-view, .markdown-source-view");
+        const fallback = preview?.querySelector?.(".books-actions-fallback");
+        if (fallback) fallback.style.display = "none";
+        return;
+    }
+
     async function loadCore() {
         const file = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
         if (!file) throw new Error("Модуль библиотеки не найден.");
