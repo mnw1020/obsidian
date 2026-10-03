@@ -1433,8 +1433,11 @@ async function openaiSourceRecommendations(ref,items,cache,settings){
     new Function("module",source)(module);
     const taste=items.filter(x=>Number.isFinite(x.rating))
         .sort((a,b)=>recommendationMatch(ref,b).metadata-recommendationMatch(ref,a).metadata).slice(0,60);
-    const result=await module.exports({reference:ref,taste,cache,request:http,settings});
-    const providerLabel=({deepseek:"DeepSeek",openai:"OpenAI",anthropic:"Claude"})[settings.provider]||"ИИ";
+    const coreFile=app.vault.getAbstractFileByPath(`${ROOT}/_system/ai_core.js`);
+    if(!coreFile)throw new Error("Не найден ai_core.js");
+    const coreModule={exports:{}};new Function("module",await app.vault.read(coreFile))(coreModule);
+    const result=await module.exports({reference:ref,taste,cache,request:http,settings,core:coreModule.exports});
+    const providerLabel=settings.connections.find(c=>c.id===settings.activeConnectionId)?.name||"ИИ";
     // Persist the expensive generation before optional metadata lookups.
     await saveJson(SOURCE_CACHE_PATH,cache,ref.kpId);
     cache.openaiKpResolve ||= {};
@@ -1534,7 +1537,7 @@ async function main(){
     const movieTonCheckbox=sourceControl("MovieTon","https://movieton.org/",Boolean(sourceSettings.movieTon)).input;
     const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
     const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
-    const openaiCheckbox=sourceControl("ИИ","https://www.deepseek.com/",Boolean(sourceSettings.openai)).input;
+    const openaiCheckbox=sourceControl("ИИ","https://api.tokenator.top/",Boolean(sourceSettings.openai)).input;
     const label=ui.watchedPanel.createEl("label");label.style.cssText="display:inline-flex;align-items:center;gap:8px;white-space:nowrap";
     const checkbox=label.createEl("input",{type:"checkbox"});checkbox.checked=Boolean(sourceSettings.watched);
     label.appendText(" Показывать просмотренные");
@@ -1563,9 +1566,9 @@ async function main(){
     let tmdbRows=[],tmdbReady=false,tmdbError="";
     let openaiRows=[],openaiReady=false,openaiError="",openaiLoading=null;
     let aiSettings=null;
-    const aiLabel=()=>({deepseek:"DeepSeek",openai:"OpenAI",anthropic:"Claude"})[aiSettings?.provider]||"ИИ";
-    const aiHome=()=>({deepseek:"https://www.deepseek.com/",openai:"https://openai.com/",anthropic:"https://claude.ai/"})[aiSettings?.provider]||"https://openai.com/";
-    const activeAiKey=()=>{const p=aiSettings?.providers?.[aiSettings.provider];return p?.keys?.find(k=>k.id===p.activeKeyId);};
+    const activeAiConnection=()=>aiSettings?.connections?.find(c=>c.id===aiSettings.activeConnectionId);
+    const aiLabel=()=>activeAiConnection()?.name||"ИИ";
+    const aiHome=()=>{try{return new URL(activeAiConnection()?.baseUrl).origin;}catch(_){return "https://api.tokenator.top/";}};
     const forecastValues=new Map();
     const forecastId=x=>recommendationIdentity(x)[0]||`${x.ruTitle}:${x.year}`;
     const viewSessionId=Symbol.for("kino.recommendations.view");
@@ -1613,6 +1616,7 @@ async function main(){
     };
     const loadOpenai=async()=>{
         if(!aiSettings){openaiError="Расшифруй ключи в настройках ИИ";return;}
+        if(!activeAiConnection()?.model){openaiError="Добавь подключение и модель в настройках ИИ";return;}
         if(openaiReady)return;
         if(openaiLoading)return openaiLoading;
         const requestSettings=aiSettings;
@@ -1669,7 +1673,7 @@ async function main(){
             if(movieTonCheckbox.checked){const diag=movieTonError||(!movieTonReady?"загружается…":`найдено ${movieTonRows.length}`);lines.push(`[MovieTon]: ${diag.replace(/^MovieTon:\s*/,"")};`);}
             if(likeFilmCheckbox.checked){const diag=likeFilmError||(!likeFilmReady?"загружается…":`найдено ${likeFilmRows.length}`);lines.push(`[LikeFilm]: ${diag.replace(/^LikeFilm:\s*/,"")};`);}
             if(tmdbCheckbox.checked)lines.push(`[TMDB]: ${(tmdbError||(!tmdbReady?"загружается…":`найдено ${tmdbRows.length}`)).replace(/^TMDB:\s*/,"")};`);
-            if(openaiCheckbox.checked)lines.push(`[${aiLabel()} / ${activeAiKey()?.model||aiSettings?.providers?.[aiSettings.provider]?.model||"модель не выбрана"}${activeAiKey()?.name?` / ${activeAiKey().name}`:""}]: ${openaiError||(!openaiReady?"загружается…":`найдено ${openaiRows.length}`)};`);
+            if(openaiCheckbox.checked)lines.push(`[${aiLabel()} / ${activeAiConnection()?.model||"модель не выбрана"}]: ${openaiError||(!openaiReady?"загружается…":`найдено ${openaiRows.length}`)};`);
             if(forecastError)lines.push(`[Прогноз]: ${forecastError};`);
             lines.push(`[Итог]: показано **${visible.length}**.`);
             return lines.join("\n");
@@ -1707,7 +1711,9 @@ async function main(){
         if(!settingsFile)throw new Error("Не найден ai_settings.js");
         const settingsModule={exports:{}};
         new Function("module",await app.vault.read(settingsFile))(settingsModule);
-        aiSettings=await settingsModule.exports({app,container:ui.box,request:http,copyText:async text=>{
+        let ModalClass=typeof obsidian!=="undefined"?obsidian.Modal:null;
+        if(!ModalClass&&typeof require==="function")ModalClass=require("obsidian").Modal;
+        aiSettings=await settingsModule.exports({app,container:ui.box,request:http,Modal:ModalClass,copyText:async text=>{
             try{if(typeof navigator!=="undefined"&&navigator.clipboard){await navigator.clipboard.writeText(text);return;}}catch(_){}
             if(typeof require==="function"){const clipboard=require("electron")?.clipboard;if(clipboard){clipboard.writeText(text);return;}}
             throw new Error("Выдели ключ и нажми Ctrl+C");
