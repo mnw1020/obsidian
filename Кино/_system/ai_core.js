@@ -105,4 +105,20 @@ async function probeModel(request,c,m,timeoutMs=60000){
     if(!String(text||"").trim())throw new Error("Сервер принял запрос, но модель не вернула текст; доступность не подтверждена");
     return {state:"verified",at:Date.now(),detail:"Модель ответила на проверочный запрос"};
 }
-module.exports={protocols,clone,newId,cleanUrl,normalize,validate,connection,resolve,endpoint,headers,safeError,call,loadModels,probeModel};
+function parseFilms(text){
+    const raw=String(text||"").replace(/^\uFEFF/,"").trim();
+    const parse=value=>{try{const result=JSON.parse(value);return result&&Array.isArray(result.films)?result:null;}catch(_){return null;}};
+    const direct=parse(raw);if(direct)return direct;
+    // Gateways may wrap JSON in Markdown or add a preamble despite the requested schema.
+    // Scan balanced objects, respecting escaped quotes and braces inside string values.
+    let start=-1,depth=0,inString=false,escaped=false,result=null;
+    for(let i=0;i<raw.length;i++){
+        const ch=raw[i];
+        if(start<0){if(ch==="{"){start=i;depth=1;inString=false;escaped=false;}continue;}
+        if(inString){if(escaped)escaped=false;else if(ch==="\\")escaped=true;else if(ch==='"')inString=false;continue;}
+        if(ch==='"')inString=true;else if(ch==="{")depth++;else if(ch==="}"&&--depth===0){result=parse(raw.slice(start,i+1))||result;start=-1;}
+    }
+    if(result)return result;
+    throw new Error("Модель ответила без корректного JSON со списком фильмов");
+}
+module.exports={protocols,clone,newId,cleanUrl,normalize,validate,connection,resolve,endpoint,headers,safeError,call,loadModels,probeModel,parseFilms};
