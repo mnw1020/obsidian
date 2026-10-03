@@ -63,7 +63,7 @@ function endpoint(baseUrl,protocol,resource){
 }
 function headers(apiKey,protocol){
     if(!String(apiKey||"").trim())throw new Error("Укажи ключ API");
-    return {Authorization:`Bearer ${apiKey.trim()}`,"Content-Type":"application/json",...(protocol==="anthropic"?{"anthropic-version":"2023-06-01"}:{})};
+    return {Authorization:`Bearer ${apiKey.trim()}`,"Content-Type":"application/json",...(protocol==="anthropic"?{"x-api-key":apiKey.trim(),"anthropic-version":"2023-06-01"}:{})};
 }
 function safeError(error,secrets=[]){
     let text=String(error?.message||error);
@@ -79,7 +79,7 @@ async function call(request,options,timeoutMs=15000){
     let data;try{data=response.json||JSON.parse(response.text||"{}");}catch(_){throw new Error(`HTTP ${response.status}: ответ не является JSON`);}
     if(response.status<200||response.status>=300||data.error){
         const code=data.error?.code||data.error?.type||"request_failed";
-        const hint=response.status===401?"ключ API недействителен":response.status===402||["insufficient_quota","credit_balance_exhausted"].includes(code)?"недостаточно средств или исчерпан лимит API":response.status===429?"превышен лимит запросов":response.status===404?"сервер или модель не найдены":safeError(code);
+        const hint=response.status===401?"ключ API недействителен":response.status===402||["insufficient_quota","credit_balance_exhausted"].includes(code)?"недостаточно средств или исчерпан лимит API":response.status===429?"превышен лимит запросов":response.status===404?"сервер или модель не найдены":safeError(code,[options.headers?.Authorization?.replace(/^Bearer /,"")]);
         throw new Error(`HTTP ${response.status}: ${hint}`);
     }
     return data;

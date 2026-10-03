@@ -40,7 +40,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
         await app.vault.modify(target,text);encryptedText=text;settings=next;
         app[sessionId]={text,session,settings:core.clone(next)};return next;
     }
-    async function apply(next){const saved=await persist(next);render();await onApply(saved);}
+    async function apply(next){const saved=await persist(next);render();Promise.resolve(onApply(saved)).catch(report);}
     async function perform(action){if(busy)return;busy=true;try{await action();}catch(e){report(e);}finally{busy=false;}}
     function render(){
         view.empty();status.textContent="";const bar=view.createDiv({cls:"kino-ai-bar"});
@@ -78,7 +78,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
         status.textContent=!active?"Нет подключений. Открой настройки и добавь первое.":!selected?"Нет моделей. Добавь модель в настройках.":selected.check?.state==="verified"?`✓ ${selected.id} · подключение проверено`:`${selected.id} · ${selected.check?.detail||"подключение не проверено"}`;
     }
     function openEditor(){
-        if(editor)return;if(!Modal)throw new Error("Окно настроек недоступно: не найден Obsidian Modal");
+        if(editor||busy)return;if(!Modal)throw new Error("Окно настроек недоступно: не найден Obsidian Modal");
         const initial=core.clone(settings);
         class SettingsModal extends Modal{
             constructor(){super(app);this.draft=core.clone(initial);this.selected=this.draft.activeConnectionId||this.draft.connections[0]?.id||"";this.working=false;this.discard=false;}
@@ -115,7 +115,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
             }
             protocolField(parent,obj,invalidate){const el=field(parent,"Протокол","select");for(const [id,label]of Object.entries(core.protocols))el.createEl("option",{text:label,value:id});el.value=obj.protocol;el.addEventListener("change",()=>{obj.protocol=el.value;invalidate?.();});return el;}
             drawConnection(edit,c){
-                const invalidate=()=>{for(const m of c.models)m.check={state:"unchecked"};};
+                const invalidate=()=>{for(const m of c.models)m.check={state:"unchecked"};for(const el of edit.querySelectorAll(".kino-ai-check"))el.textContent="Подключение не проверено";};
                 this.textField(edit,"Название подключения",c,"name");this.textField(edit,"Адрес сервера",c,"baseUrl","text",invalidate).placeholder="https://…/v1";this.protocolField(edit,c,invalidate);
                 const keyRow=edit.createDiv({cls:"kino-ai-row"}),key=this.textField(keyRow,"Ключ API",c,"apiKey","password",invalidate);
                 const show=button(keyRow,"Показать",()=>{key.type=key.type==="password"?"text":"password";show.textContent=key.type==="password"?"Показать":"Скрыть";});

@@ -1084,6 +1084,7 @@ function makeUi(container){
     box.createEl("div",{text:"Подбор фильмов"}).style.cssText="font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px";
     box.createEl("div",{text:"Выбери источники и диапазон лет"}).style.cssText="font-size:13px;color:var(--text-muted);margin-bottom:18px";
     const actions=box.createDiv();actions.style.cssText="display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+    const aiPanel=box.createDiv();
     const filters=box.createDiv();filters.style.cssText="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:20px;padding:0";
     const yearPanel=filters.createDiv();yearPanel.style.cssText="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--background-modifier-border);border-radius:14px;background:var(--background-secondary)";
     yearPanel.createEl("span",{text:"Годы выпуска"}).style.cssText="font-size:13px;font-weight:700;margin-right:4px";
@@ -1092,7 +1093,7 @@ function makeUi(container){
     const text=box.createDiv();text.style.cssText="white-space:pre-line;font-size:12px;line-height:1.8;color:var(--text-muted);padding:12px 14px;border-radius:10px;background:var(--background-secondary)";
     const bar=box.createEl("progress");bar.max=100;bar.value=0;bar.style.cssText="width:100%;height:4px;margin-top:10px;accent-color:var(--interactive-accent)";
     const tableWrap=container.createDiv();tableWrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--background-modifier-border);border-radius:14px;margin-bottom:24px";
-    return {box,text,bar,actions,filters,yearPanel,watchedPanel,commands,tableWrap};
+    return {box,text,bar,actions,aiPanel,filters,yearPanel,watchedPanel,commands,tableWrap};
 }
 function addKpApiControl(ui){
     const label=ui.actions.createEl("span",{text:`КП API: ${KP_DIAG.api}`});
@@ -1568,6 +1569,7 @@ async function main(){
     let aiSettings=null;
     const activeAiConnection=()=>aiSettings?.connections?.find(c=>c.id===aiSettings.activeConnectionId);
     const aiLabel=()=>activeAiConnection()?.name||"ИИ";
+    const aiFingerprint=()=>{const c=activeAiConnection();const m=c?.models.find(m=>m.id===c.model);return c?JSON.stringify([c.id,c.model,m?.route?.baseUrl||c.baseUrl,m?.route?.protocol||c.protocol]):"";};
     const aiHome=()=>{try{return new URL(activeAiConnection()?.baseUrl).origin;}catch(_){return "https://api.tokenator.top/";}};
     const forecastValues=new Map();
     const forecastId=x=>recommendationIdentity(x)[0]||`${x.ruTitle}:${x.year}`;
@@ -1576,7 +1578,7 @@ async function main(){
     let detailsWriteQueue=Promise.resolve();
     const persistDetails=(version,list)=>{
         if(dv.container.isConnected===false)return Promise.resolve();
-        if(version===drawVersion)app[viewSessionId]={reference:state.reference,updatedAt:state.updatedAt,all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError,openaiRows,openaiReady,openaiError,forecastValues:[...forecastValues]};
+        if(version===drawVersion)app[viewSessionId]={reference:state.reference,updatedAt:state.updatedAt,aiFingerprint:aiFingerprint(),all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError,openaiRows,openaiReady,openaiError,forecastValues:[...forecastValues]};
         const task=detailsWriteQueue.then(()=>version===drawVersion?saveNativeRecommendationDetails(list,ref):undefined);
         detailsWriteQueue=task.catch(()=>{});
         return task;
@@ -1713,7 +1715,7 @@ async function main(){
         new Function("module",await app.vault.read(settingsFile))(settingsModule);
         let ModalClass=typeof obsidian!=="undefined"?obsidian.Modal:null;
         if(!ModalClass&&typeof require==="function")ModalClass=require("obsidian").Modal;
-        aiSettings=await settingsModule.exports({app,container:ui.box,request:http,Modal:ModalClass,copyText:async text=>{
+        aiSettings=await settingsModule.exports({app,container:ui.aiPanel,request:http,Modal:ModalClass,copyText:async text=>{
             try{if(typeof navigator!=="undefined"&&navigator.clipboard){await navigator.clipboard.writeText(text);return;}}catch(_){}
             if(typeof require==="function"){const clipboard=require("electron")?.clipboard;if(clipboard){clipboard.writeText(text);return;}}
             throw new Error("Выдели ключ и нажми Ctrl+C");
@@ -1761,7 +1763,7 @@ async function main(){
     const previous=app[viewSessionId];
     if(previous?.reference===state.reference&&previous.updatedAt===state.updatedAt){
         ({all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError}=previous);
-        if(aiSettings)({openaiRows,openaiReady,openaiError}=previous);
+        if(aiSettings&&previous.aiFingerprint===aiFingerprint())({openaiRows,openaiReady,openaiError}=previous);
         for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
         await draw(true);
     }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
