@@ -36,7 +36,7 @@ async function unlock(envelope,password){
     try{text=decode.decode(await cryptoApi().subtle.decrypt({name:"AES-GCM",iv,additionalData:aad,tagLength:128},key,unbase64(envelope.data)));}
     catch(_){throw new Error("Неверный пароль или зашифрованный файл повреждён");}
     const settings=JSON.parse(text);
-    if(!settings||typeof settings!=="object"||!settings.providers)throw new Error("В файле нет настроек ИИ");
+    if(!settings||typeof settings!=="object"||!(settings.providers||settings.version===3&&Array.isArray(settings.connections)))throw new Error("В файле нет настроек ИИ");
     return {settings,session:{key,salt,iterations:envelope.iterations}};
 }
 module.exports={create,unlock,seal};
