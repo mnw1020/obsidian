@@ -45,7 +45,9 @@ function titleKey(s) {
 }
 function watchedIndex(items){
     const kp=new Set(),imdb=new Set(),titles=new Set(),paths=new Set();
+    const cards=new Map();
     for(const x of items){
+        if(x.localPath)for(const key of recommendationIdentity(x))cards.set(key,x.localPath);
         if(x.kpId)kp.add(String(x.kpId));
         if(x.imdbId)imdb.add(String(x.imdbId).toLowerCase());
         if(x.localPath)paths.add(x.localPath);
@@ -54,7 +56,17 @@ function watchedIndex(items){
             const key=titleKey(title);if(key)titles.add(`${key}:${year}`);
         }
     }
-    return {kp,imdb,titles,paths};
+    return {kp,imdb,titles,paths,cards};
+}
+function recommendationCardPath(film,index){
+    for(const key of recommendationIdentity(film)){
+        const path=index?.cards?.get(key);if(path)return path;
+    }
+    const year=String(film.year||film.local?.year||"");
+    for(const title of [film.local?.ruTitle,film.local?.enTitle]){
+        const path=year&&index?.cards?.get(`title:${titleKey(title)}:${year}`);if(path)return path;
+    }
+    return "";
 }
 function isWatched(x,index){
     if(!index)return false;
@@ -1151,8 +1163,16 @@ function renderTable(ui,list,sort,onSort,reference){
         const row=table.createEl("tr");
         const ru=row.createEl("td");ru.style.padding="8px";
         const text=x.ruTitle||x.local?.ruTitle||(x.kpId?`КП ${x.kpId}`:"Найти на Кинопоиске");
-        const a=ru.createEl("a",{text});a.href=x.sourceUrl||kinopoiskUrl(x);a.target="_blank";
-        a.title=x.sourceUrl?`Открыть фильм на ${x.sourceName||"сайте источника"}`:x.kpId?`Кинопоиск ID ${x.kpId}`:"Открыть поиск Кинопоиска";
+        const a=ru.createEl("a",{text:x.libraryPath?`✓ ${text}`:text});
+        if(x.libraryPath){
+            a.classList.add("internal-link");a.href=x.libraryPath;a.setAttribute("data-href",x.libraryPath);
+            a.style.fontWeight="700";a.style.color="var(--text-success, var(--interactive-accent))";
+            a.title="Просмотрено · Открыть карточку в кинотеке";
+            a.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();app.workspace.openLinkText(x.libraryPath,dv.current()?.file?.path||"",event.ctrlKey||event.metaKey);});
+        }else{
+            a.href=x.sourceUrl||kinopoiskUrl(x);a.target="_blank";a.rel="noopener noreferrer";
+            a.title=x.sourceUrl?`Открыть фильм на ${x.sourceName||"сайте источника"}`:x.kpId?`Кинопоиск ID ${x.kpId}`:"Открыть поиск Кинопоиска";
+        }
         if(x.year){const y=ru.createEl("span",{text:` (${x.year})`});y.style.opacity="0.65";}
         const en=row.createEl("td");en.style.padding="8px";en.textContent=x.enTitle||"-";
         const pr=row.createEl("td",{text:fmt(x.kpRating)});pr.style.padding="8px";pr.style.fontWeight="700";pr.style.fontSize="1.05em";
@@ -1232,9 +1252,9 @@ function recommendationDetailsMarkdown(list,reference){
             const sourceReasons=[...reasons].filter(Boolean);
             if(sourceReasons.length)lines.push(`- **${label}:** ${sourceReasons.join("; ")}`);
         }
-        const rows=groupFilms.map(({film})=>({ruTitle:film.ruTitle||film.enTitle||film.kpId||"Фильм",enTitle:film.enTitle||"",year:film.year||"",url:film.sourceUrl||kinopoiskUrl(film),kpRating:film.kpRating??null,forecast:film.forecast??null,description:String(film.description||film.local?.description||"").trim()}));
+        const rows=groupFilms.map(({film})=>({ruTitle:film.ruTitle||film.enTitle||film.kpId||"Фильм",enTitle:film.enTitle||"",year:film.year||"",libraryPath:film.libraryPath||"",url:film.sourceUrl||kinopoiskUrl(film),kpRating:film.kpRating??null,forecast:film.forecast??null,description:String(film.description||film.local?.description||"").trim()}));
         const payload=JSON.stringify(rows).replace(/`/g,"\\u0060").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");
-        lines.push("", "```dataviewjs", 'const tableScript = app.vault.getAbstractFileByPath("Кино/_system/recommendation_tables.js");', "if (tableScript) {", "    const m = {exports:{}};", '    new Function("module", await app.vault.read(tableScript))(m);', `    m.exports.render(dv, ${payload});`, "}", "```", "");
+        lines.push("", "```dataviewjs", 'const tableScript = app.vault.getAbstractFileByPath("Кино/_system/recommendation_tables.js");', "if (tableScript) {", "    const m = {exports:{}};", '    new Function("module", await app.vault.read(tableScript))(m);', `    m.exports.render(dv, ${payload}, app);`, "}", "```", "");
     }
     return lines.join("\n").trim();
 }
@@ -1657,7 +1677,7 @@ async function main(){
         const merged=combineRecommendationLists(sourceGroups,true,watchedItems);
         const inRange=filterRecommendationYears(merged.items,range.start,range.end);
         const combined={items:checkbox.checked?inRange:inRange.filter(film=>!isWatched(film,watchedItems)),hidden:inRange.filter(film=>isWatched(film,watchedItems)).length};
-        const visible=combined.items;
+        const visible=combined.items.map(film=>({...film,libraryPath:recommendationCardPath(film,watchedItems)}));
         for(const film of visible)if(forecastValues.has(forecastId(film)))film.forecast=forecastValues.get(forecastId(film));
         currentAllVisible=visible;
         currentVisible=visible.filter(hasDirectEvidence);
