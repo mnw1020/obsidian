@@ -39,6 +39,17 @@ test('HTTP errors, non-JSON, timeout and secret redaction',async()=>{
 test('model discovery paginates and deduplicates without filtering model families',async()=>{
     let count=0;const ids=await core.loadModels(async o=>{count++;return{status:200,json:count===1?{data:[{id:'claude-a'},{id:'gemini-b'}],has_more:true,last_id:'page-1'}:{data:[{id:'gemini-b'},{id:'gpt-c'}]}}},fixture().connections[0]);assert.deepEqual(ids,['claude-a','gemini-b','gpt-c']);assert.equal(count,2);
 });
+test('model availability checks the actual model route and requires a text response',async()=>{
+    for(const protocol of ['responses','chat','anthropic']){
+        const c=fixture().connections[0],m=c.models[0];m.route={baseUrl:'https://override.test/anthropic',protocol};
+        const result=await core.probeModel(async o=>{
+            assert.equal(o.url,core.endpoint(m.route.baseUrl,protocol));assert.equal(JSON.parse(o.body).model,m.id);
+            return{status:200,json:protocol==='responses'?{output:[{content:[{type:'output_text',text:'OK'}]}]}:protocol==='chat'?{choices:[{message:{content:'OK'}}]}:{content:[{type:'text',text:'OK'}]}};
+        },c,m);assert.equal(result.state,'verified');
+    }
+    const c=fixture().connections[0];await assert.rejects(()=>core.probeModel(async()=>({status:401,json:{error:{code:'invalid_api_key'}}}),c,c.models[0]),/недействителен/);
+    await assert.rejects(()=>core.probeModel(async()=>({status:200,json:{output:[]}}),c,c.models[0]),/не вернула текст/);
+});
 
 test('modal editing, cancellation, save, encryption, conflicts, empty state and responsive layout',async()=>{
     const fs=require('fs'),path=require('path'),os=require('os'),http=require('http');
@@ -58,13 +69,20 @@ test('modal editing, cancellation, save, encryption, conflicts, empty state and 
             class Modal{constructor(){this.modalEl=document.body.createDiv({cls:'modal'});this.titleEl=this.modalEl.createDiv({cls:'modal-title'});this.contentEl=this.modalEl.createDiv({cls:'modal-content'});}open(){this.onOpen();}close(){this.onClose();this.modalEl.remove();}}
             const files={'Кино/_system/ai_settings.enc.json':text,...Object.fromEntries(Object.entries(sources).map(([n,v])=>[`Кино/_system/${n}.js`,v]))};
             const app={vault:{getAbstractFileByPath:p=>files[p]!==undefined?{path:p}:null,read:async f=>files[f.path],modify:async(f,text)=>{files[f.path]=text;},create:async(p,text)=>{files[p]=text;return{path:p}},delete:async f=>delete files[f.path]}};
-            window.test={app,files,applied:[],copied:'',sources,Modal,root:document.querySelector('#root')};
+            window.test={app,files,applied:[],copied:'',sources,Modal,root:document.querySelector('#root'),requests:[],failProbe:false};
             const m={exports:{}};new Function('module',sources.ai_settings)(m);window.test.mount=m.exports;
-            await m.exports({app,container:window.test.root,Modal,copyText:async v=>window.test.copied=v,onApply:async v=>window.test.applied.push(v),request:async()=>({status:200,json:{data:[{id:'model-b'},{id:'model-c'}]}})});
+            await m.exports({app,container:window.test.root,Modal,copyText:async v=>window.test.copied=v,onApply:async v=>window.test.applied.push(v),request:async o=>{
+                window.test.requests.push({url:o.url,method:o.method});
+                return o.method==='POST'?window.test.failProbe?{status:401,json:{error:{code:'invalid_api_key'}}}:{status:200,json:{output:[{content:[{type:'output_text',text:'OK'}]}]}}:{status:200,json:{data:[{id:'model-b'},{id:'model-c'}]}};
+            }});
         },{sources,text});
         await page.getByLabel('Пароль для расшифровки',{exact:true}).fill('test-password-123');await page.getByRole('button',{name:'Расшифровать',exact:true}).click();await page.getByLabel('Подключение',{exact:true}).waitFor();
         const open=()=>page.getByRole('button',{name:'⚙ Настройки ИИ',exact:true}).click();await open();
         assert.equal(await page.getByLabel('Ключ API',{exact:true}).getAttribute('type'),'password');
+        assert.equal(await page.evaluate(()=>window.test.requests.length),0);
+        await page.locator('.kino-ai-model').first().getByRole('button',{name:'Проверить',exact:true}).click();await page.getByText('✓ Модель доступна',{exact:true}).waitFor();
+        assert.equal(await page.evaluate(()=>window.test.requests.length),1);
+        await page.evaluate(()=>window.test.failProbe=true);await page.locator('.kino-ai-model').first().getByRole('button',{name:'Проверить',exact:true}).click();await page.getByText('Доступность не подтверждена:',{exact:false}).waitFor();await page.evaluate(()=>window.test.failProbe=false);
         await page.getByRole('button',{name:'Загрузить модели',exact:true}).click();await page.getByText('Добавлено моделей: 1.',{exact:false}).waitFor();assert.equal(await page.locator('.kino-ai-model').count(),3);
         await page.getByRole('button',{name:'Отмена',exact:true}).click();await page.getByRole('button',{name:'Не сохранять',exact:true}).click();assert.equal(await page.locator('.modal').count(),0);
         await open();assert.equal(await page.locator('.kino-ai-model').count(),2);
@@ -88,6 +106,30 @@ test('modal editing, cancellation, save, encryption, conflicts, empty state and 
         await page.evaluate(()=>document.documentElement.style.cssText='--background-primary:#202020;--background-secondary:#292929;--background-modifier-border:#444;--text-normal:#eee;--text-muted:#aaa');await page.screenshot({path:path.join(os.tmpdir(),'kino-ai-mobile-dark.png')});
         for(let n=0;n<2;n++){await page.getByRole('button',{name:'Удалить подключение',exact:true}).click();await page.locator('.kino-ai-editor').getByRole('button',{name:'Удалить',exact:true}).last().click();}
         await page.getByRole('button',{name:'Сохранить',exact:true}).click();await page.locator('.modal').waitFor({state:'detached'});assert.equal(await page.getByLabel('Подключение',{exact:true}).isDisabled(),true);await page.getByText('Нет подключений.',{exact:false}).waitFor();
+        // Exercise the real recommendations main() with source adapters isolated from the network.
+        const recommendationsSource=fs.readFileSync(path.join(__dirname,'..','recommendations.js'),'utf8');
+        await page.evaluate(async source=>{
+            const root=document.body.createDiv();window.manualTest={calls:[],root,saves:0};
+            const record=name=>async()=>{window.manualTest.calls.push(name);return{items:[],diag:''}};
+            const settings={version:3,activeConnectionId:'test',connections:[{id:'test',name:'Test',baseUrl:'https://example.test/v1',protocol:'responses',model:'model-a',models:[{id:'model-a'}]}]};
+            const state={reference:'film.md',updatedAt:'test',sourceSettings:{}};
+            const env={ROOT:'Кино',STATE_PATH:'state',SOURCE_CACHE_PATH:'cache',http:null,obsidian:{Modal:window.test.Modal},require:null,
+                dv:{container:root,paragraph:()=>{}},app:{vault:{getMarkdownFiles:()=>[{path:'film.md'}],getAbstractFileByPath:()=>({}),read:async()=>`module.exports=async function(o){window.manualTest.onApply=o.onApply;return ${JSON.stringify(settings)}}`}},
+                loadJson:async p=>p==='state'?state:{},saveJson:async()=>{window.manualTest.saves++},isMedia:()=>true,featureFromFile:f=>({file:f,ruTitle:'Test film',localPath:f.path,genres:new Set()}),watchedIndex:()=>({}),
+                combineRecommendationLists:()=>({items:[]}),filterRecommendationYears:list=>list,isWatched:()=>false,hasDirectEvidence:()=>true,renderTable:()=>{},sortRecommendationRows:list=>list,setProgress:(ui,text)=>ui.text.textContent=text,
+                imdbSimilarRecommendations:record('imdb'),movieTonRecommendations:record('movieTon'),likeFilmRecommendations:record('likeFilm'),tmdbRecommendations:record('tmdb'),openaiSourceRecommendations:record('ai'),saveNativeRecommendationDetails:async()=>{},localTopicMatch:()=>false};
+            const makeUi=source.slice(source.indexOf('function makeUi('),source.indexOf('function addKpApiControl('));
+            const main=source.slice(source.indexOf('async function main(){'),source.lastIndexOf('await main();'));
+            await new Function('env',`with(env){${makeUi}\n${main}\nreturn main();}`)(env);
+            window.manualTest.settings=settings;
+        },recommendationsSource);
+        const panel=page.locator('.kino-recommendation-panel');assert.equal(await panel.getByLabel('Включить Кинопоиск',{exact:true}).isChecked(),false);
+        assert.deepEqual(await page.evaluate(()=>window.manualTest.calls),[]);
+        for(const name of ['IMDb','MovieTon','LikeFilm','TMDB','ИИ'])await panel.getByLabel('Включить '+name,{exact:true}).check();
+        await page.evaluate(()=>window.manualTest.onApply({...window.manualTest.settings}));
+        assert.deepEqual(await page.evaluate(()=>window.manualTest.calls),[]);
+        await panel.getByRole('button',{name:'Загрузить рекомендации',exact:true}).click();await page.waitForFunction(()=>window.manualTest.calls.length===5);
+        assert.deepEqual(await page.evaluate(()=>window.manualTest.calls),['imdb','movieTon','likeFilm','tmdb','ai']);
         assert.deepEqual(errors,[]);console.log('UI screenshots:',shot,path.join(os.tmpdir(),'kino-ai-mobile-dark.png'));
     }finally{await browser.close();await new Promise(r=>server.close(r));}
 });

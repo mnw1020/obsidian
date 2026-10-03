@@ -138,6 +138,16 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
                     radio.name=`default-${c.id}`;radio.checked=c.model===m.id;radio.setAttribute("aria-label",`${m.id} — использовать по умолчанию`);label.appendText(m.id);radio.addEventListener("change",()=>{c.model=m.id;});
                     button(row,"Удалить",()=>{c.models=c.models.filter(x=>x!==m);if(c.model===m.id)c.model=c.models[0]?.id||"";this.drawModels(parent,c);});
                     const check=card.createEl("p",{cls:"kino-ai-check",text:m.check?.state==="verified"?"✓ Подключение проверено":m.check?.detail||"Подключение не проверено"});
+                    button(row,"Проверить",()=>this.run(async()=>{
+                        check.textContent="Проверяю модель…";
+                        try{
+                            m.check=await core.probeModel(request,c,m);check.textContent="✓ Модель доступна";
+                            this.message.textContent=`${m.id}: модель ответила. Проверка сохранится кнопкой «Сохранить».`;
+                        }catch(error){
+                            const detail=core.safeError(error,[c.apiKey]);m.check={state:"unverified",at:Date.now(),detail};
+                            check.textContent=`Доступность не подтверждена: ${detail}`;this.message.textContent=`${m.id}: ${detail}`;
+                        }
+                    }));
                     const details=card.createEl("details");details.createEl("summary",{text:"Параметры подключения"});const route=details.createDiv({cls:"kino-ai-route"}),mode=field(route,"Сервер модели","select");
                     mode.createEl("option",{text:"Основной сервер подключения",value:"inherit"});mode.createEl("option",{text:"Свой сервер и протокол",value:"custom"});mode.value=m.route?"custom":"inherit";
                     const fields=route.createDiv(),invalidate=()=>{m.check={state:"unchecked"};check.textContent="Подключение не проверено";};

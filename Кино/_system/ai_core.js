@@ -95,4 +95,14 @@ async function loadModels(request,c){
     if(!ids.length)throw new Error("Сервер не вернул список моделей; добавь модели вручную");
     return [...new Set(ids)];
 }
-module.exports={protocols,clone,newId,cleanUrl,normalize,validate,connection,resolve,endpoint,headers,safeError,call,loadModels};
+async function probeModel(request,c,m,timeoutMs=60000){
+    const route=m.route||c,protocol=route.protocol,model=String(m.id||"").trim();
+    if(!model)throw new Error("Укажи идентификатор модели");
+    const prompt="Reply only OK.";
+    const body=protocol==="responses"?{model,store:false,max_output_tokens:64,input:prompt}:protocol==="chat"?{model,max_tokens:64,stream:false,messages:[{role:"user",content:prompt}]}:{model,max_tokens:64,stream:false,messages:[{role:"user",content:prompt}]};
+    const data=await call(request,{url:endpoint(route.baseUrl,protocol),method:"POST",headers:headers(c.apiKey,protocol),body:JSON.stringify(body)},timeoutMs);
+    const text=protocol==="responses"?(data.output||[]).flatMap(x=>x.content||[]).filter(x=>x.type==="output_text").map(x=>x.text||"").join(""):protocol==="chat"?data.choices?.[0]?.message?.content:(data.content||[]).filter(x=>x.type==="text").map(x=>x.text||"").join("");
+    if(!String(text||"").trim())throw new Error("Сервер принял запрос, но модель не вернула текст; доступность не подтверждена");
+    return {state:"verified",at:Date.now(),detail:"Модель ответила на проверочный запрос"};
+}
+module.exports={protocols,clone,newId,cleanUrl,normalize,validate,connection,resolve,endpoint,headers,safeError,call,loadModels,probeModel};

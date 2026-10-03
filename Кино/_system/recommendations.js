@@ -1534,7 +1534,7 @@ async function main(){
     };
     const imdbSource=sourceControl("IMDb","https://www.imdb.com/",Boolean(sourceSettings.imdb));
     const imdbCheckbox=imdbSource.input;
-    const kpCheckbox=sourceControl("Кинопоиск","https://www.kinopoisk.ru/",sourceSettings.kp??true).input;
+    const kpCheckbox=sourceControl("Кинопоиск","https://www.kinopoisk.ru/",Boolean(sourceSettings.kp)).input;
     const movieTonCheckbox=sourceControl("MovieTon","https://movieton.org/",Boolean(sourceSettings.movieTon)).input;
     const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
     const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
@@ -1565,7 +1565,7 @@ async function main(){
     let movieTonRows=[],movieTonReady=false,movieTonError="";
     let likeFilmRows=[],likeFilmReady=false,likeFilmError="";
     let tmdbRows=[],tmdbReady=false,tmdbError="";
-    let openaiRows=[],openaiReady=false,openaiError="",openaiLoading=null;
+    let openaiRows=[],openaiReady=false,openaiError="",openaiLoading=null,openaiLoadingSettings=null;
     let aiSettings=null;
     const activeAiConnection=()=>aiSettings?.connections?.find(c=>c.id===aiSettings.activeConnectionId);
     const aiLabel=()=>activeAiConnection()?.name||"ИИ";
@@ -1620,9 +1620,9 @@ async function main(){
         if(!aiSettings){openaiError="Расшифруй ключи в настройках ИИ";return;}
         if(!activeAiConnection()?.model){openaiError="Добавь подключение и модель в настройках ИИ";return;}
         if(openaiReady)return;
-        if(openaiLoading)return openaiLoading;
+        if(openaiLoading&&openaiLoadingSettings===aiSettings)return openaiLoading;
         const requestSettings=aiSettings;
-        openaiLoading=(async()=>{
+        const task=(async()=>{
             await ensureCache();
             setProgress(ui,`${aiLabel()}: подбираю фильмы по сюжету и твоим оценкам…`,20);
             try{
@@ -1633,7 +1633,8 @@ async function main(){
                 openaiReady=true;
             }catch(error){if(aiSettings===requestSettings)openaiError=String(error?.message||error).replace(/sk-[A-Za-z0-9_-]+/g,"[ключ скрыт]").slice(0,160);}
         })();
-        try{await openaiLoading;}finally{openaiLoading=null;}
+        openaiLoading=task;openaiLoadingSettings=requestSettings;
+        try{await task;}finally{if(openaiLoading===task){openaiLoading=null;openaiLoadingSettings=null;}}
     };
     const sort={key:"",direction:1};
     let currentVisible=[];
@@ -1662,7 +1663,7 @@ async function main(){
         const formatStatus=()=>{
             if(!anySource)return "Включи хотя бы один источник.";
             const lines=[];
-            if(imdbCheckbox.checked)lines.push(`[IMDb]: ${imdbError||(!imdbReady?"загружается…":`найдено ${imdbRows.length}`)};`);
+            if(imdbCheckbox.checked)lines.push(`[IMDb]: ${imdbError||(!imdbReady?"нажми «Загрузить рекомендации»":`найдено ${imdbRows.length}`)};`);
             if(kpCheckbox.checked){
                 if(!ref.kpId||(!seeds.items.length&&/^КП: запрос похожих не выполнен/.test(seeds.diag)))
                     lines.push(`[Кинопоиск]: ${seeds.diag.replace(/^КП:\s*/,"")};`);
@@ -1672,10 +1673,10 @@ async function main(){
                     lines.push(`[Кинопоиск]: **${seeds.items.length}**; 2-й уровень: **${second.items.length}** от **${parentCount}** фильмов; · из кэша **${cachedCount}**`);
                 }
             }
-            if(movieTonCheckbox.checked){const diag=movieTonError||(!movieTonReady?"загружается…":`найдено ${movieTonRows.length}`);lines.push(`[MovieTon]: ${diag.replace(/^MovieTon:\s*/,"")};`);}
-            if(likeFilmCheckbox.checked){const diag=likeFilmError||(!likeFilmReady?"загружается…":`найдено ${likeFilmRows.length}`);lines.push(`[LikeFilm]: ${diag.replace(/^LikeFilm:\s*/,"")};`);}
-            if(tmdbCheckbox.checked)lines.push(`[TMDB]: ${(tmdbError||(!tmdbReady?"загружается…":`найдено ${tmdbRows.length}`)).replace(/^TMDB:\s*/,"")};`);
-            if(openaiCheckbox.checked)lines.push(`[${aiLabel()} / ${activeAiConnection()?.model||"модель не выбрана"}]: ${openaiError||(!openaiReady?"загружается…":`найдено ${openaiRows.length}`)};`);
+            if(movieTonCheckbox.checked){const diag=movieTonError||(!movieTonReady?"нажми «Загрузить рекомендации»":`найдено ${movieTonRows.length}`);lines.push(`[MovieTon]: ${diag.replace(/^MovieTon:\s*/,"")};`);}
+            if(likeFilmCheckbox.checked){const diag=likeFilmError||(!likeFilmReady?"нажми «Загрузить рекомендации»":`найдено ${likeFilmRows.length}`);lines.push(`[LikeFilm]: ${diag.replace(/^LikeFilm:\s*/,"")};`);}
+            if(tmdbCheckbox.checked)lines.push(`[TMDB]: ${(tmdbError||(!tmdbReady?"нажми «Загрузить рекомендации»":`найдено ${tmdbRows.length}`)).replace(/^TMDB:\s*/,"")};`);
+            if(openaiCheckbox.checked)lines.push(`[${aiLabel()} / ${activeAiConnection()?.model||"модель не выбрана"}]: ${openaiError||(!openaiReady?"нажми «Загрузить рекомендации»":`найдено ${openaiRows.length}`)};`);
             if(forecastError)lines.push(`[Прогноз]: ${forecastError};`);
             lines.push(`[Итог]: показано **${visible.length}**.`);
             return lines.join("\n");
@@ -1721,41 +1722,34 @@ async function main(){
             throw new Error("Выдели ключ и нажми Ctrl+C");
         },onApply:async next=>{
             aiSettings=next;openaiRows=[];openaiReady=false;openaiError="";
-            if(!next){await draw();return;}
-            if(openaiLoading)await openaiLoading;
             const link=openaiCheckbox.parentElement.querySelector("a");
             if(link)link.href=aiHome();
-            if(openaiCheckbox.checked)await loadOpenai();await draw();
+            await draw(true);
         }});
         const link=openaiCheckbox.parentElement.querySelector("a");
         if(link)link.href=aiHome();
     }catch(error){openaiError=String(error?.message||error).slice(0,160);}
-    imdbCheckbox.addEventListener("change",async()=>{
-        await saveUiState();if(imdbCheckbox.checked)await loadImdb();
-        draw();
-    });
-    kpCheckbox.addEventListener("change",async()=>{await saveUiState();if(kpCheckbox.checked)await loadKp();draw();});
-    movieTonCheckbox.addEventListener("change",async()=>{await saveUiState();if(movieTonCheckbox.checked)await loadMovieTon();draw();});
-    likeFilmCheckbox.addEventListener("change",async()=>{await saveUiState();if(likeFilmCheckbox.checked)await loadLikeFilm();draw();});
-    tmdbCheckbox.addEventListener("change",async()=>{await saveUiState();if(tmdbCheckbox.checked)await loadTmdb();draw();});
-    openaiCheckbox.addEventListener("change",async()=>{await saveUiState();if(openaiCheckbox.checked)await loadOpenai();draw();});
-    checkbox.addEventListener("change",async()=>{await saveUiState();draw();});
+    for(const control of [imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox,openaiCheckbox,checkbox]){
+        control.addEventListener("change",async()=>{await saveUiState();await draw(true);});
+    }
     const changeYears=async changed=>{
         const range=yearRange();
         if(range.start>range.end){if(changed===startYear)endYear.value=startYear.value.replace("decade:","");else startYear.value=String(range.end);}
-        await saveUiState();await draw();
+        await saveUiState();await draw(true);
     };
     startYear.addEventListener("change",()=>changeYears(startYear));endYear.addEventListener("change",()=>changeYears(endYear));
     const run=ui.commands.createEl("button",{text:"Загрузить рекомендации"});run.classList.add("kino-run");ui.commands.insertBefore(run,yearHint);
     run.addEventListener("click",async()=>{
         if(run.disabled)return;run.disabled=true;
+        const selected={imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,ai:openaiCheckbox.checked};
+        const settingsAtClick=aiSettings;
         try{
-            if(imdbCheckbox.checked)await loadImdb();
-            if(kpCheckbox.checked)await loadKp();
-            if(movieTonCheckbox.checked)await loadMovieTon();
-            if(likeFilmCheckbox.checked)await loadLikeFilm();
-            if(tmdbCheckbox.checked)await loadTmdb();
-            if(openaiCheckbox.checked)await loadOpenai();
+            if(selected.imdb)await loadImdb();
+            if(selected.kp)await loadKp();
+            if(selected.movieTon)await loadMovieTon();
+            if(selected.likeFilm)await loadLikeFilm();
+            if(selected.tmdb)await loadTmdb();
+            if(selected.ai&&settingsAtClick===aiSettings)await loadOpenai();
             await draw();
         }catch(error){setProgress(ui,String(error?.message||error).slice(0,160),100);}
         finally{run.disabled=false;}
