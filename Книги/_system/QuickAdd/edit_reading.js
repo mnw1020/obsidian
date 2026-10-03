@@ -25,12 +25,12 @@ module.exports = async (params) => {
     let result;
     while (!result) {
         const prefix = `book-reading-edit-${session}-${attempt++}-`;
-        const fields = [{ id: prefix + "date", label: `Дата чтения #${selected.number}`, type: "text", defaultValue: String(draft.date ?? ""), placeholder: "YYYY-MM-DD, YYYY-MM или YYYY" }];
-        if (core.isFiction(bookFile)) fields.push({ id: prefix + "rating", label: "Оценка", type: "number", optional: true, defaultValue: String(draft.rating ?? ""), numericConfig: { min: 1, max: 10, step: 1 } });
-        fields.push({ id: prefix + "comment", label: "Комментарий", type: "textarea", optional: true, defaultValue: String(draft.comment ?? "") });
+        const fields = [{ id: "date__" + prefix, label: `Дата чтения #${selected.number}`, type: "text", defaultValue: String(draft.date ?? ""), placeholder: "YYYY-MM-DD, YYYY-MM или YYYY" }];
+        if (core.isFiction(bookFile)) fields.push({ id: "rating__" + prefix, label: "Оценка", type: "number", optional: true, defaultValue: String(draft.rating ?? ""), numericConfig: { min: 1, max: 10, step: 1 } });
+        fields.push({ id: "comment__" + prefix, label: "Комментарий", type: "textarea", optional: true, defaultValue: String(draft.comment ?? "") });
         const response = await quickAddApi.requestInputs(fields);
         if (!response) return;
-        draft = { date: response[prefix + "date"], rating: response[prefix + "rating"], comment: response[prefix + "comment"] };
+        draft = { date: response["date__" + prefix], rating: response["rating__" + prefix], comment: response["comment__" + prefix] };
         const date = String(draft.date ?? "").trim().replace(/^@date:/, "");
         const rawRating = String(draft.rating ?? "").trim();
         const rating = core.isFiction(bookFile) && rawRating ? Number(rawRating) : null;

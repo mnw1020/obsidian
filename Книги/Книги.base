@@ -2,9 +2,17 @@ filters:
   and:
     - note.title
     - note.authors
-    - or:
-        - file.inFolder("Книги/Художественные")
-        - file.inFolder("Книги/Non-fiction")
+    - file.ext == "md"
+    - file.name != "_index"
+    - file.inFolder("Книги")
+    - not:
+        - file.inFolder("Книги/_system")
+        - file.inFolder("Книги/Цитаты")
+        - file.inFolder("Книги/Конспекты")
+        - file.inFolder("Книги/Идеи")
+        - note.note_type == "quote"
+        - note.note_type == "summary"
+        - note.note_type == "idea"
 formulas:
   book_link: file.asLink(note.title)
   series_group: if(note.series, note.series, "Без серии")
@@ -117,7 +125,7 @@ views:
     filters:
       and:
         - file.inFolder("Книги/Художественные")
-        - '!note.rating'
+        - "!note.rating"
     order:
       - formula.book_link
       - formula.author_links

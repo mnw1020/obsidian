@@ -1,0 +1,17 @@
+{
+  "baseFontSize": 16,
+  "theme": "obsidian",
+  "cssTheme": "Things",
+  "enabledCssSnippets": [
+    "Obsidian gruvbox",
+    "movies-dashboard",
+    "books-bases-no-new",
+    "bases-no-create",
+    "kino-entity-links"
+  ],
+  "interfaceFontFamily": "JetBrains Mono",
+  "textFontFamily": "JetBrains Mono",
+  "translucency": false,
+  "monospaceFontFamily": "JetBrains Mono",
+  "accentColor": "#efa76b"
+}

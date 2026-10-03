@@ -24,9 +24,9 @@ module.exports = async (params) => {
     const session = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     function inputs(seed) {
         const prefix = `book-reading-${session}-${attempt++}-`;
-        const fields = [ { id: prefix + "date", label: `Дата чтения #${expectedNumber}`, type: "text", defaultValue: String(seed.date ?? ""), placeholder: "YYYY-MM-DD, YYYY-MM или YYYY" } ];
-        if (core.isFiction(bookFile)) fields.push({ id: prefix + "rating", label: "Оценка", type: "number", optional: true, defaultValue: String(seed.rating ?? ""), numericConfig: { min: 1, max: 10, step: 1 } });
-        fields.push({ id: prefix + "comment", label: "Комментарий", type: "textarea", optional: true, defaultValue: String(seed.comment ?? ""), placeholder: "Что изменилось при этом чтении?" });
+        const fields = [ { id: "date__" + prefix, label: `Дата чтения #${expectedNumber}`, type: "text", defaultValue: String(seed.date ?? ""), placeholder: "YYYY-MM-DD, YYYY-MM или YYYY" } ];
+        if (core.isFiction(bookFile)) fields.push({ id: "rating__" + prefix, label: "Оценка", type: "number", optional: true, defaultValue: String(seed.rating ?? ""), numericConfig: { min: 1, max: 10, step: 1 } });
+        fields.push({ id: "comment__" + prefix, label: "Комментарий", type: "textarea", optional: true, defaultValue: String(seed.comment ?? ""), placeholder: "Что изменилось при этом чтении?" });
         return { fields, prefix };
     }
     let result;
@@ -35,7 +35,7 @@ module.exports = async (params) => {
             const { fields, prefix } = inputs(draft);
             const response = await quickAddApi.requestInputs(fields);
             if (!response) return;
-            draft = { date: response[prefix + "date"], rating: response[prefix + "rating"], comment: response[prefix + "comment"] };
+            draft = { date: response["date__" + prefix], rating: response["rating__" + prefix], comment: response["comment__" + prefix] };
         }
         supplied = false;
         const date = String(draft.date ?? "").trim().replace(/^@date:/, "");

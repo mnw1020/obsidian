@@ -307,8 +307,7 @@ module.exports = async (params) => {
         .filter(isCandidateBook)
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
 
-    // Нормализация авторов встроена в эту же проверку.
-    // Ничего не меняется без явного выбора пользователя.
+    // Only the explicit normalization entry point may change book metadata.
     function authorTokenSignature(value) {
         return normalizeEntity(value)
             .split(" ")
@@ -430,8 +429,8 @@ module.exports = async (params) => {
                 deduped.push(value);
             }
 
-            await app.fileManager.processFrontMatter(file, frontmatter => {
-                frontmatter.authors = [...new Set(rawListValues(frontmatter.authors).map(author => memberSet.has(author) ? canonical : author))];
+            await core.updateFrontmatter(file, frontmatter => {
+                frontmatter.authors = [...new Set(rawListValues(frontmatter.authors).map(author => memberSet.has(stripWiki(author)) ? canonical : author))];
             });
             await core.refreshFrontmatter(file);
             changedFiles++;
@@ -567,7 +566,7 @@ module.exports = async (params) => {
         for (const file of books) {
             const current = asText(getFrontmatter(file).series);
             if (!memberSet.has(current) || current === canonical) continue;
-            await app.fileManager.processFrontMatter(file, frontmatter => {
+            await core.updateFrontmatter(file, frontmatter => {
                 if (memberSet.has(asText(frontmatter.series))) frontmatter.series = canonical;
             });
             await core.refreshFrontmatter(file);

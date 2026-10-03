@@ -1,166 +1,66 @@
-module.exports = async (params) => {
-    const { app, obsidian } = params;
-    const { Notice, normalizePath } = obsidian;
+module.exports = async ({ app, obsidian }) => {
+    const { Notice } = obsidian;
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) { new Notice("Модуль библиотеки не найден."); return; }
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
+    const escape = value => String(value ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+    const list = value => (Array.isArray(value) ? value : [value]).map(item => String(item ?? "").trim()).filter(Boolean);
+    const command = (label, choice, key, value) => {
+        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice) + (key ? "&value-" + key + "=" + encodeURIComponent(value).replace(/[!'()*]/g, char => "%" + char.charCodeAt(0).toString(16)) : "");
+        return `[${escape(label)}](${uri})`;
+    };
+    const nav = [
+        "[[Книги/_index|← Библиотека]]",
+        command("👥 Авторы", "Книги - Авторы"),
+        command("🧩 Серии", "Книги - Серии"),
+        command("🎬 Экранизации", "Книги - Экранизации"),
+        "[[Книги/_system/Идеи и цитаты|✒️ Выписки]]",
+        "[[Книги/_system/Проверка библиотеки|🔎 Проверка]]"
+    ].join(" · ");
+    const header = "---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n";
 
-    const PAGE_PATH = normalizePath("Книги/_system/Авторы.md");
-    const BOOK_ROOTS = [
-        "Книги/Художественные/",
-        "Книги/Non-fiction/"
-    ];
-
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
-
-    function isBook(file) {
-        if (!file || file.extension !== "md") return false;
-        if (!BOOK_ROOTS.some(root => file.path.startsWith(root))) return false;
-        const fm = getFrontmatter(file);
-        return Boolean(fm.title) && Boolean(fm.authors);
-    }
-
-    function authorsOf(frontmatter) {
-        const raw = frontmatter.authors;
-        const values = Array.isArray(raw) ? raw : [raw];
-        return [...new Set(
-            values
-                .map(value => String(value ?? "").trim())
-                .filter(Boolean)
-        )];
-    }
-
-    function numericRating(value) {
-        if (value === null || value === undefined || value === "") return null;
-        const rating = Number(String(value).replace(",", "."));
-        return Number.isFinite(rating) ? rating : null;
-    }
-
-    function sympathyPoints(rating) {
-        return Math.max(0, rating - 5);
-    }
-
-    function normalizeDate(value) {
-        const text = String(value ?? "").trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
-        if (/^\d{4}-\d{2}$/.test(text)) return `${text}-00`;
-        if (/^\d{4}$/.test(text)) return `${text}-00-00`;
-        return "";
-    }
-
-    function displayDate(value) {
-        const text = String(value ?? "").trim();
-        let match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (match) return `${match[3]}.${match[2]}.${match[1]}`;
-        match = text.match(/^(\d{4})-(\d{2})$/);
-        if (match) return `${match[2]}.${match[1]}`;
-        return text || "—";
-    }
-
-    function escapeMarkdownTable(value) {
-        return String(value ?? "")
-            .replace(/\\/g, "\\\\")
-            .replace(/\|/g, "\\|")
-            .replace(/\r?\n/g, " ")
-            .trim();
-    }
-
-    function commandLink(label, choice) {
-        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice);
-        return `[${label}](${uri})`;
-    }
-
-    function authorLink(author) {
-        const uri =
-            "obsidian://quickadd?choice=" +
-            encodeURIComponent("Книги - Открыть автора") +
-            "&value-author=" +
-            encodeURIComponent(author);
-        return `[${escapeMarkdownTable(author)}](${uri})`;
-    }
-
-    function bookLink(file, title, date) {
-        const target = file.path.replace(/\.md$/i, "");
-        const label = date ? `${title} · ${displayDate(date)}` : title;
-        return `[[${target}\\|${escapeMarkdownTable(label)}]]`;
-    }
-
-    const books = app.vault.getMarkdownFiles().filter(isBook);
-    const fictionBooks = books.filter(file => file.path.startsWith("Книги/Художественные/"));
-    const nonfictionBooks = books.filter(file => file.path.startsWith("Книги/Non-fiction/"));
-
-    function aggregateBooks(sourceBooks) {
-        const aggregates = new Map();
-        for (const file of sourceBooks) {
-            const fm = getFrontmatter(file);
-            const title = String(fm.title ?? file.basename).trim() || file.basename;
-            const rating = numericRating(fm.rating);
-            const date = String(fm.date ?? "").trim();
-            const dateKey = normalizeDate(date);
-            for (const author of authorsOf(fm)) {
-                if (!aggregates.has(author)) {
-                    aggregates.set(author, { author, books: new Set(), ratingSum: 0, ratingCount: 0, favoriteCount: 0, sympathyPoints: 0, latest: null });
-                }
-                const item = aggregates.get(author);
-                item.books.add(file.path);
-                if (rating !== null) {
-                    item.ratingSum += rating;
-                    item.ratingCount += 1;
-                    if (rating >= 8) item.favoriteCount += 1;
-                    item.sympathyPoints += sympathyPoints(rating);
-                }
-                if (dateKey) {
-                    const candidate = { file, title, date, dateKey };
-                    if (!item.latest || candidate.dateKey > item.latest.dateKey || (candidate.dateKey === item.latest.dateKey && candidate.title.localeCompare(item.latest.title, "ru") < 0)) item.latest = candidate;
+    const books = core.snapshot();
+    function aggregate(source) {
+        const result = new Map();
+        for (const { file, fm } of source) {
+            for (const author of new Set(list(fm.authors))) {
+                if (!result.has(author)) result.set(author, { author, count: 0, ratings: [], points: 0 });
+                const item = result.get(author);
+                item.count++;
+                const rating = Number(fm.rating);
+                if (core.isFiction(file) && Number.isFinite(rating) && rating >= 1 && rating <= 10) {
+                    item.ratings.push(rating);
+                    item.points += Math.max(0, rating - 5);
                 }
             }
         }
-        return [...aggregates.values()].sort((a, b) => b.sympathyPoints - a.sympathyPoints || b.favoriteCount - a.favoriteCount || a.author.localeCompare(b.author, "ru"));
+        return [...result.values()].sort((a, b) => b.points - a.points || a.author.localeCompare(b.author, "ru"));
     }
-
-    function renderSection(title, sectionBooks, includeRatings) {
-        const authors = aggregateBooks(sectionBooks);
-        if (!authors.length) return `## ${title}\n\n_Нет произведений._\n\n`;
-        const rows = authors.map(item => {
-            if (!includeRatings) return `| ${authorLink(item.author)} | ${item.books.size} |`;
-            const average = item.ratingCount > 0 ? (item.ratingSum / item.ratingCount).toFixed(1) : "—";
-            return `| ${authorLink(item.author)} | ${item.books.size} | ${average} | ${item.favoriteCount} | ${item.sympathyPoints} |`;
-        });
-        const header = includeRatings
-            ? `| Автор | Произведений | ⭐ ср. | Любимые 8–10 | Баллы симпатии |\n| --- | ---: | ---: | ---: | ---: |`
-            : `| Автор | Произведений |\n| --- | ---: |`;
-        return `## ${title}\n\n${header}\n${rows.join("\n")}\n\n`;
+    function section(title, source, ratings) {
+        const items = aggregate(source);
+        let text = `## ${title}\n\n`;
+        if (!items.length) return text + "_Произведений пока нет._\n\n";
+        text += ratings
+            ? "| Автор | Произведений | ⭐ ср. | Любимые 8–10 | Баллы симпатии |\n| --- | ---: | ---: | ---: | ---: |\n"
+            : "| Автор | Произведений |\n| --- | ---: |\n";
+        for (const item of items) {
+            const link = command(item.author, "Книги - Открыть автора", "author", item.author);
+            if (!ratings) text += `| ${link} | ${item.count} |\n`;
+            else {
+                const average = item.ratings.length ? (item.ratings.reduce((sum, value) => sum + value, 0) / item.ratings.length).toFixed(1) : "—";
+                text += `| ${link} | ${item.count} | ${average} | ${item.ratings.filter(value => value >= 8).length} | ${item.points} |\n`;
+            }
+        }
+        return text + "\n";
     }
-
-    const allAuthors = new Set([...aggregateBooks(fictionBooks), ...aggregateBooks(nonfictionBooks)].map(item => item.author));
-    if (!allAuthors.size) {
-        new Notice("Авторы не найдены.");
-        return;
-    }
-
-    const nav = [
-        "[[Книги/_index|← Книги]]",
-        commandLink("👥 Авторы", "Книги - Авторы"),
-        commandLink("🧩 Серии", "Книги - Серии"),
-        commandLink("🎬 Экранизации", "Книги - Экранизации"),
-        "[[Книги/_system/Проверка библиотеки|🔎 Проверка]]",
-        "[[Книги/_system/Журнал изменений|📜 Журнал]]"
-    ].join(" · ");
-
-    const content =
-        `---\n` +
-        `obsidianUIMode: preview\n` +
-        `---\n\n` +
-        `# 👥 Авторы\n\n` +
-        `${nav}\n\n` +
-        `> [!info] Обзор\n` +
-        `> **Авторов:** ${allAuthors.size} · **Произведений:** ${books.length}\n\n` +
-        `Средняя оценка и баллы симпатии используются только для художественных книг.\n\n` +
-        renderSection("Художественные", fictionBooks, true) +
-        renderSection("Non-fiction", nonfictionBooks, false);
-
-    let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) await app.vault.modify(page, content);
-    else page = await app.vault.create(PAGE_PATH, content);
-
+    const authors = new Set(books.flatMap(({ fm }) => list(fm.authors)));
+    const text = header + "# 👥 Авторы\n\n" + nav + "\n\n" +
+        `> [!info] Обзор\n> **Авторов:** ${authors.size} · **Произведений:** ${books.length}\n\n` +
+        "Оценки учитываются только для художественных произведений. Баллы симпатии: сумма превышения оценки над 5. Нажми на автора, чтобы открыть его постоянную страницу и личные заметки.\n\n" +
+        section("Художественные", books.filter(({ file }) => core.isFiction(file)), true) +
+        section("Non-fiction", books.filter(({ file }) => !core.isFiction(file)), false);
+    const page = await core.writeIfChanged("Книги/_system/Авторы.md", text);
     await app.workspace.getLeaf(false).openFile(page);
 };

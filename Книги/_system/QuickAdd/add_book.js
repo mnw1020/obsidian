@@ -10,9 +10,6 @@ module.exports = async (params) => {
     const bookFiles = bookSnapshot.map(item => item.file);
 
     const BOOKS_ROOT = "Книги";
-    const AUTHOR_PAGE = "Книги/_system/Автор.md";
-    const SERIES_PAGE = "Книги/_system/Серия.md";
-    const CHANGELOG_PATH = "Книги/_system/Журнал изменений.md";
     const HISTORY_START = "<!-- BOOK-READINGS:START -->";
     const HISTORY_END = "<!-- BOOK-READINGS:END -->";
     const COMMENT_MARK = "<!-- BOOK-READING:COMMENT -->";
@@ -204,16 +201,7 @@ module.exports = async (params) => {
     const isValidDate = core.isValidDate;
 
     function renderEntry(number, date, rating, comment) {
-        const ratingAttr = rating === null || rating === undefined ? "" : String(rating);
-        let out = `<!-- BOOK-READING:START number="${number}" date="${date}" rating="${ratingAttr}" -->\n`;
-        out += `### Чтение ${number}${date ? ` - ${displayDate(date)}` : ""}\n\n`;
-        if (rating !== null && rating !== undefined) {
-            out += `**Оценка:** ${rating}/10\n\n`;
-        }
-        out += `${COMMENT_MARK}\n`;
-        if (comment) out += `${comment.trim()}\n`;
-        out += "<!-- BOOK-READING:END -->";
-        return out;
+        return core.renderEntry({ number, date, rating, comment });
     }
 
     function historyBlock(date, rating, comment) {
@@ -323,19 +311,7 @@ module.exports = async (params) => {
     }
 
     async function appendStructureJournal(line) {
-        const now = new Date();
-        const pad = value => String(value).padStart(2, "0");
-        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="false" structure="true" -->\n`;
-        block += `## ${stamp}\n\n- ${line}\n\n`;
-        const path = normalizePath(CHANGELOG_PATH);
-        let file = app.vault.getAbstractFileByPath(path);
-        if (!file) {
-            file = await app.vault.create(path, "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
-            return;
-        }
-        await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
+        await core.appendJournal([line]);
     }
 
     const active = app.workspace.getActiveFile();
@@ -404,6 +380,8 @@ module.exports = async (params) => {
         break;
     }
 
+    // A book may have arrived through sync while the form was open.
+    bookFiles.splice(0, bookFiles.length, ...core.books());
     const matches = matchingBooks(title, authors);
     if (matches.length) {
         const existing = matches.length === 1 ? matches[0] : await quickAddApi.suggester(
@@ -458,8 +436,9 @@ module.exports = async (params) => {
                 const legacyTitle = legacyFile.basename.slice(legacyPrefix.length);
                 const movedPath = normalizePath(`${authorFolder}/${safeName(legacyTitle)}.md`);
                 if (!app.vault.getAbstractFileByPath(movedPath)) {
+                    const previousPath = legacyFile.path;
                     await app.fileManager.renameFile(legacyFile, movedPath);
-                    await appendStructureJournal(`Перенесена карточка: ${legacyFile.path} → ${movedPath}.`);
+                    await appendStructureJournal(`Перенесена карточка: ${previousPath} → ${movedPath}.`);
                 }
             }
             destinationFolder = authorFolder;

@@ -156,6 +156,48 @@ module.exports = ({ app, obsidian }) => {
         const block = `${match?.[1] ?? ""}---${nl}${yaml.replace(/\r?\n$/, "")}${nl}---${nl}`;
         return block + (match ? text.slice(match[0].length) : nl + text);
     }
+    function patchProperties(text, updates) {
+        const nl = text.includes("\r\n") ? "\r\n" : "\n";
+        const match = text.match(/^(\uFEFF?)---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+        let yaml = match ? match[2] : "";
+        for (const [key, value] of Object.entries(updates)) {
+            const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const line = new RegExp(`^${escaped}:[^\\r\\n]*(?:\\r?\\n|$)`, "m").exec(yaml);
+            let replacement = value === undefined ? "" : `${key}: ${JSON.stringify(value)}${nl}`;
+            if (line) {
+                let end = line.index + line[0].length;
+                while (end < yaml.length) {
+                    const next = /^[^\r\n]*(?:\r?\n|$)/.exec(yaml.slice(end))[0];
+                    if (!next || !/^(?:[ \t]|-[ \t])/.test(next)) break;
+                    end += next.length;
+                }
+                const inlineComment = line[0].match(/\s+(#.*?)(?:\r?\n)?$/)?.[1];
+                if (inlineComment) replacement = value === undefined ? `${inlineComment}${nl}` : replacement.replace(/\r?\n$/, ` ${inlineComment}${nl}`);
+                yaml = yaml.slice(0, line.index) + replacement + yaml.slice(end);
+            } else if (value !== undefined) yaml = yaml.replace(/\s*$/, "") + (yaml ? nl : "") + replacement;
+        }
+        return `${match?.[1] ?? ""}---${nl}${yaml.replace(/\r?\n$/, "")}${nl}---${nl}` + (match ? text.slice(match[0].length) : nl + text);
+    }
+    async function updateFrontmatter(file, transform) {
+        let result, fm, changed = false;
+        await app.vault.process(file, current => {
+            fm = readFrontmatter(current);
+            const before = JSON.stringify(fm), original = JSON.parse(before);
+            result = transform(fm, current);
+            if (result?.then) throw new Error("Изменение свойств должно быть синхронным.");
+            changed = before !== JSON.stringify(fm);
+            if (!changed) return current;
+            const updates = {};
+            for (const key of new Set([...Object.keys(original), ...Object.keys(fm)])) {
+                if (JSON.stringify(original[key]) !== JSON.stringify(fm[key])) updates[key] = fm[key];
+            }
+            const updated = patchProperties(current, updates);
+            readFrontmatter(updated);
+            return updated;
+        });
+        remember(file, fm);
+        return { changed, result, fm };
+    }
     async function appendReading(file, values) {
         const entry = { ...values, rating: isFiction(file) ? values.rating ?? null : null };
         validateReading(entry);
@@ -214,7 +256,7 @@ module.exports = ({ app, obsidian }) => {
         const home = app.vault.getAbstractFileByPath(HOME_PATH);
         if (!home) return;
         // A newly created card can be absent from metadataCache; inspect only uncached candidates.
-        for (const file of app.vault.getMarkdownFiles().filter(hasBookPath)) {
+        for (const file of app.vault.getMarkdownFiles().filter(isCandidateBook)) {
             if (!fresh.has(file.path) && !app.metadataCache.getFileCache(file)?.frontmatter) await refreshFrontmatter(file);
         }
         const values = stats();
@@ -237,6 +279,6 @@ module.exports = ({ app, obsidian }) => {
         await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
     }
     return { getFrontmatter, remember, readFrontmatter, refreshFrontmatter, isCandidateBook, isBook, isFiction, books, snapshot, stats,
-        listValues, displayDate, isValidDate, parseHistory, renderEntry, summary, patchSummary, appendReading, editReading,
+        listValues, displayDate, isValidDate, parseHistory, renderEntry, summary, patchSummary, patchProperties, updateFrontmatter, appendReading, editReading,
         updateHomeStats, writeIfChanged, appendJournal, HISTORY_START, HISTORY_END, COMMENT_MARK };
 };

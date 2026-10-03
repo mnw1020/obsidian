@@ -1,369 +1,142 @@
 module.exports = async (params) => {
     const { app, obsidian } = params;
-    const { Notice, normalizePath } = obsidian;
-
-    const CHANGELOG_PATH = "Книги/_system/Журнал изменений.md";
-    const BOOK_PREFIXES = ["Книги/Художественные/", "Книги/Non-fiction/"];
-    const MEDIA_ROOT = "Кино/";
-    const MEDIA_EXCLUDED = ["Кино/Просмотры/", "Кино/Сезоны/", "Кино/_system/"];
-    const HISTORY_START = "<!-- BOOK-READINGS:START -->";
-    const HISTORY_END = "<!-- BOOK-READINGS:END -->";
-
-    const RELATION_RULES = [
-        {
-            name: "книга ↔ кино",
-            leftType: "book",
-            leftProp: "adaptations",
-            rightType: "media",
-            rightProp: "Первоисточники"
-        },
-        {
-            name: "related",
-            leftType: "book",
-            leftProp: "related",
-            rightType: "book",
-            rightProp: "related"
-        },
-        {
-            name: "продолжение",
-            leftType: "book",
-            leftProp: "continued_by",
-            rightType: "book",
-            rightProp: "continues"
-        },
-        {
-            name: "adapted_from → adaptations",
-            leftType: "media",
-            leftProp: "adapted_from",
-            rightType: "book",
-            rightProp: "adaptations",
-            sourceOnly: true
-        }
+    const { Notice } = obsidian;
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) { new Notice("Не найден общий модуль библиотеки book_core.js."); return; }
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
+    const rules = [
+        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники" },
+        { name: "related", leftType: "book", leftProp: "related", rightType: "book", rightProp: "related" },
+        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues" },
+        { name: "adapted_from → adaptations", leftType: "media", leftProp: "adapted_from", rightType: "book", rightProp: "adaptations", sourceOnly: true }
     ];
-
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
-
-    function listValues(value) {
-        if (value === null || value === undefined || value === "") return [];
-        return (Array.isArray(value) ? value : [value])
-            .map(value => String(value ?? "").trim())
-            .filter(Boolean);
-    }
-
-    function tags(frontmatter) {
-        return listValues(frontmatter?.tags).map(tag => tag.replace(/^#/, ""));
-    }
-
-    function isBook(file) {
-        if (!file || file.extension !== "md" || file.basename === "_index") return false;
-        return BOOK_PREFIXES.some(prefix => file.path.startsWith(prefix));
-    }
-
-    function isMedia(file) {
-        if (!file || file.extension !== "md") return false;
-        if (!file.path.startsWith(MEDIA_ROOT)) return false;
-        if (MEDIA_EXCLUDED.some(prefix => file.path.startsWith(prefix))) return false;
-        const fileTags = tags(getFrontmatter(file));
-        return fileTags.includes("movies") || fileTags.includes("serial");
-    }
-
-
-    async function updateHomeStats() {
-        const home = app.vault.getAbstractFileByPath("Книги/_index.md");
-        if (!home) return;
-        await new Promise(resolve => setTimeout(resolve, 100));
-        const allBooks = app.vault.getMarkdownFiles().filter(isBook);
-        const authors = new Set();
-        const series = new Set();
-        let rated = 0;
-        let reread = 0;
-        for (const file of allBooks) {
-            const fm = getFrontmatter(file);
-            const rawAuthors = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
-            for (const author of rawAuthors) {
-                const value = String(author ?? "").trim();
-                if (value) authors.add(value);
-            }
-            const seriesName = String(fm.series ?? "").trim();
-            if (seriesName) series.add(seriesName);
-            if (file.path.startsWith("Книги/Художественные/")) {
-                const value = Number(fm.rating);
-                if (Number.isFinite(value) && value >= 1 && value <= 10) rated++;
-            }
-            const count = Number(fm.read_count);
-            if (Number.isInteger(count) && count > 1) reread++;
-        }
-        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${allBooks.length} произведений** · **${authors.size} авторов** · **${series.size} серий** · **${rated} оценено** · **${reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
-        const current = await app.vault.read(home);
-        const updated = /<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/.test(current)
-            ? current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block)
-            : current;
-        if (updated !== current) await app.vault.modify(home, updated);
-    }
-
-    function matchesType(file, type) {
-        if (type === "book") return isBook(file);
-        if (type === "media") return isMedia(file);
-        return false;
-    }
-
-    function targetPath(file) {
-        return file.path.replace(/\.md$/i, "");
-    }
-
-    function wikiLink(file) {
-        return `[[${targetPath(file)}]]`;
-    }
-
-    function linkTarget(value) {
-        const text = String(value ?? "").trim();
-        const match = text.match(/^\[\[([^\]|]+)(?:\|[^\]]+)?\]\]$/);
+    const list = core.listValues, journal = [], failures = [];
+    let fixes = 0, structural = false;
+    const targetPath = file => file.path.replace(/\.md$/i, "");
+    const linkTarget = raw => {
+        const text = String(raw ?? "").trim(), match = text.match(/^\[\[([^\]|]+)(?:\|[^\]]+)?\]\]$/);
         return (match ? match[1] : text).replace(/\.md$/i, "").trim();
-    }
-
-    function resolveNoteLink(value, sourcePath) {
-        const target = linkTarget(value);
-        if (!target) return null;
-        try {
-            const resolved = app.metadataCache.getFirstLinkpathDest(target, sourcePath);
-            if (resolved) return resolved;
-        } catch (_) {
-        }
-        for (const candidate of [target, `${target}.md`]) {
-            const exact = app.vault.getAbstractFileByPath(normalizePath(candidate));
-            if (exact?.extension === "md") return exact;
-        }
-        return null;
-    }
-
-    function cleanAuthor(value) {
-        return String(value ?? "")
-            .trim()
-            .replace(/\s+/g, " ")
-            .replace(/[.]+$/g, "")
-            .trim();
-    }
-
-    function authorSafeKey(value) {
-        return cleanAuthor(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
-    }
-
-    function parseReadCount(text) {
-        const start = text.indexOf(HISTORY_START);
-        const end = text.indexOf(HISTORY_END, start + HISTORY_START.length);
-        if (start < 0 || end < 0) return null;
-        const managed = text.slice(start + HISTORY_START.length, end);
-        const starts = (managed.match(/<!-- BOOK-READING:START number="\d+"/g) || []).length;
-        const ends = (managed.match(/<!-- BOOK-READING:END -->/g) || []).length;
-        const parsed = [...managed.matchAll(/<!-- BOOK-READING:START number="(\d+)" date="([^"]*)" rating="([^"]*)" -->[\s\S]*?<!-- BOOK-READING:END -->/g)].length;
-        if (starts !== ends || starts !== parsed) return null;
-        return parsed;
-    }
-
-    async function appendJournal(lines, structural) {
-        if (!lines.length) return;
-        const now = new Date();
-        const pad = value => String(value).padStart(2, "0");
-        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="false" structure="${structural ? "true" : "false"}" -->\n`;
-        block += `## ${stamp}\n\n`;
-        for (const line of lines) block += `- ${line}\n`;
-        block += "\n";
-
-        const path = normalizePath(CHANGELOG_PATH);
-        let file = app.vault.getAbstractFileByPath(path);
-        if (!file) {
-            file = await app.vault.create(path, "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n" + block);
-            return;
-        }
-        const current = await app.vault.read(file);
-        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
-    }
-
-    const books = app.vault.getMarkdownFiles().filter(isBook);
-    const mediaFiles = app.vault.getMarkdownFiles().filter(isMedia);
-    const filesByType = { book: books, media: mediaFiles };
-    const journal = [];
-    let structuralChanged = false;
-    let fixes = 0;
-
-    // Канонические варианты авторов: безопасно исправляем только пробелы/конечную точку,
-    // причем только если такой канонический вариант уже существует в библиотеке.
-    const authorVariants = new Map();
-    for (const book of books) {
-        for (const author of listValues(getFrontmatter(book).authors)) {
-            const key = authorSafeKey(author);
-            if (!authorVariants.has(key)) authorVariants.set(key, new Map());
-            const variants = authorVariants.get(key);
-            variants.set(author, (variants.get(author) || 0) + 1);
-        }
-    }
-    const canonicalAuthors = new Map();
-    for (const [key, variants] of authorVariants.entries()) {
-        const candidates = [...variants.keys()].sort((a, b) => {
-            const aClean = cleanAuthor(a);
-            const bClean = cleanAuthor(b);
-            const aExact = a === aClean ? 1 : 0;
-            const bExact = b === bClean ? 1 : 0;
-            if (aExact !== bExact) return bExact - aExact;
-            const countDiff = variants.get(b) - variants.get(a);
-            return countDiff !== 0 ? countDiff : a.localeCompare(b, "ru");
-        });
-        canonicalAuthors.set(key, cleanAuthor(candidates[0]));
-    }
-
-    for (const book of books) {
-        const fm = getFrontmatter(book);
-        const rawAuthors = listValues(fm.authors);
-        const fixedAuthors = [];
-        const seenAuthors = new Set();
-        let authorsChanged = false;
-
-        for (const raw of rawAuthors) {
-            const key = authorSafeKey(raw);
-            const canonical = canonicalAuthors.get(key) || cleanAuthor(raw);
-            const canonicalRawExists = authorVariants.has(key) && [...authorVariants.get(key).keys()].some(value => value === cleanAuthor(value) && cleanAuthor(value) === canonical);
-            const spaceNormalized = raw.trim().replace(/\s+/g, " ");
-            const next = canonicalRawExists ? canonical : spaceNormalized;
-            if (next !== raw) authorsChanged = true;
-            const dedupe = next.toLocaleLowerCase("ru").replace(/ё/g, "е");
-            if (seenAuthors.has(dedupe)) {
-                authorsChanged = true;
-                continue;
-            }
-            seenAuthors.add(dedupe);
-            fixedAuthors.push(next);
-        }
-
-        let expectedReadCount = null;
-        try {
-            expectedReadCount = parseReadCount(await app.vault.read(book));
-        } catch (_) {
-        }
-        const currentReadCount = Number(fm.read_count);
-        const readCountChanged = expectedReadCount !== null && Number.isInteger(expectedReadCount) && currentReadCount !== expectedReadCount;
-
-        if (authorsChanged || readCountChanged) {
-            await app.fileManager.processFrontMatter(book, frontmatter => {
-                if (authorsChanged) frontmatter.authors = fixedAuthors;
-                if (readCountChanged) frontmatter.read_count = expectedReadCount;
-            });
-            if (authorsChanged) {
-                journal.push(`Авторы: **${book.path}** — безопасно нормализованы пробелы/конечные точки и удалены точные дубли.`);
-                fixes++;
-                structuralChanged = true;
-            }
-            if (readCountChanged) {
-                journal.push(`read_count: **${book.path}** — ${Number.isFinite(currentReadCount) ? currentReadCount : "пусто"} → ${expectedReadCount}.`);
-                fixes++;
-            }
-        }
-    }
-
-    function dedupeResolved(values, sourceFile) {
-        const output = [];
-        const seen = new Set();
-        let changed = false;
-        for (const raw of values) {
-            const resolved = resolveNoteLink(raw, sourceFile.path);
-            const key = resolved ? targetPath(resolved) : linkTarget(raw);
-            if (seen.has(key)) {
-                changed = true;
-                continue;
-            }
-            seen.add(key);
-            output.push(raw);
-        }
-        return { output, changed };
-    }
-
-    // Удаляем точные дубли во всех известных взаимных свойствах.
-    const propertiesByType = {
-        book: [...new Set(RELATION_RULES.flatMap(rule => [rule.leftType === "book" ? rule.leftProp : null, rule.rightType === "book" ? rule.rightProp : null]).filter(Boolean))],
-        media: [...new Set(RELATION_RULES.flatMap(rule => [rule.leftType === "media" ? rule.leftProp : null, rule.rightType === "media" ? rule.rightProp : null]).filter(Boolean))]
     };
-
+    function resolve(raw, sourcePath) {
+        const target = linkTarget(raw);
+        if (!target) return null;
+        const file = app.metadataCache.getFirstLinkpathDest(target, sourcePath);
+        if (file) return file;
+        return app.vault.getAbstractFileByPath(`${target}.md`) ?? null;
+    }
+    const cleanAuthor = value => String(value ?? "").trim().replace(/\s+/g, " ").replace(/[.]+$/g, "").trim();
+    const authorKey = value => cleanAuthor(value).toLocaleLowerCase("ru").replace(/ё/g, "е");
+    const mediaCandidate = file => file?.extension === "md" && file.path.startsWith("Кино/") && !/^Кино\/(?:Просмотры|Сезоны|_system)\//.test(file.path);
+    const isMedia = file => mediaCandidate(file) && list(core.getFrontmatter(file).tags).map(tag => tag.replace(/^#/, "")).some(tag => ["movies", "serial"].includes(tag));
+    // Read the current YAML once for maintenance; no dependency on index timing.
+    for (const file of app.vault.getMarkdownFiles().filter(file => core.isCandidateBook(file) || mediaCandidate(file))) {
+        try { await core.refreshFrontmatter(file); }
+        catch (error) { failures.push(`${file.path}: ${error.message}`); }
+    }
+    const filesByType = { book: core.books(), media: app.vault.getMarkdownFiles().filter(isMedia) };
+    const variants = new Map();
+    for (const file of filesByType.book) {
+        const value = core.getFrontmatter(file).authors;
+        for (const raw of (Array.isArray(value) ? value : [value]).map(item => String(item ?? "")).filter(item => item.trim())) {
+            const key = authorKey(raw);
+            if (!variants.has(key)) variants.set(key, new Map());
+            const group = variants.get(key);
+            group.set(raw, (group.get(raw) ?? 0) + 1);
+        }
+    }
+    const canonical = new Map();
+    for (const [key, group] of variants) {
+        const names = [...group.keys()].sort((a, b) => Number(b === cleanAuthor(b)) - Number(a === cleanAuthor(a)) || group.get(b) - group.get(a) || a.localeCompare(b, "ru"));
+        const name = cleanAuthor(names[0]);
+        if ([...group.keys()].some(raw => raw === name)) canonical.set(key, name);
+    }
+    for (const file of filesByType.book) {
+        try {
+            const { result } = await core.updateFrontmatter(file, (fm, text) => {
+                const updates = [];
+                const raw = (Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(value => String(value ?? "")).filter(value => value.trim());
+                const seen = new Set(), authors = [];
+                for (const author of raw) {
+                    const next = canonical.get(authorKey(author)) ?? author.trim().replace(/\s+/g, " ");
+                    const key = next.toLocaleLowerCase("ru").replace(/ё/g, "е");
+                    if (!seen.has(key)) authors.push(next);
+                    seen.add(key);
+                }
+                if (JSON.stringify(raw) !== JSON.stringify(authors)) { fm.authors = authors; updates.push("authors"); }
+                try {
+                    const count = core.parseHistory(text).entries.length;
+                    if (fm.read_count !== count) { fm.read_count = count; updates.push("read_count"); }
+                } catch (_) { /* Invalid histories are reported by the audit, never reconstructed here. */ }
+                return updates;
+            });
+            for (const property of result) {
+                journal.push(`${property}: **${file.path}** — безопасно исправлено по актуальной карточке.`);
+                fixes++;
+                if (property === "authors") structural = true;
+            }
+        } catch (error) { failures.push(`${file.path}: ${error.message}`); }
+    }
+    const properties = {
+        book: [...new Set(rules.flatMap(rule => [rule.leftType === "book" ? rule.leftProp : null, rule.rightType === "book" ? rule.rightProp : null]).filter(Boolean))],
+        media: [...new Set(rules.flatMap(rule => [rule.leftType === "media" ? rule.leftProp : null, rule.rightType === "media" ? rule.rightProp : null]).filter(Boolean))]
+    };
     for (const type of ["book", "media"]) {
         for (const file of filesByType[type]) {
-            const fm = getFrontmatter(file);
-            const updates = new Map();
-            for (const prop of propertiesByType[type]) {
-                const values = listValues(fm[prop]);
-                if (values.length < 2) continue;
-                const deduped = dedupeResolved(values, file);
-                if (deduped.changed) updates.set(prop, deduped.output);
-            }
-            if (!updates.size) continue;
-            await app.fileManager.processFrontMatter(file, frontmatter => {
-                for (const [prop, values] of updates.entries()) frontmatter[prop] = values;
-            });
-            for (const prop of updates.keys()) {
-                journal.push(`Ссылки: **${file.path}** — удалены точные дубли в \`${prop}\`.`);
-                fixes++;
-                structuralChanged = true;
-            }
-        }
-    }
-
-    function containsTarget(file, prop, expectedFile) {
-        const expected = targetPath(expectedFile);
-        return listValues(getFrontmatter(file)[prop]).some(raw => {
-            const resolved = resolveNoteLink(raw, file.path);
-            return resolved ? targetPath(resolved) === expected : linkTarget(raw) === expected;
-        });
-    }
-
-    async function addReverse(file, prop, targetFile) {
-        if (containsTarget(file, prop, targetFile)) return false;
-        await app.fileManager.processFrontMatter(file, frontmatter => {
-            const current = listValues(frontmatter[prop]);
-            frontmatter[prop] = [...current, wikiLink(targetFile)];
-        });
-        return true;
-    }
-
-    // Восстанавливаем только однозначные обратные связи по известным правилам.
-    for (const rule of RELATION_RULES) {
-        for (const leftFile of filesByType[rule.leftType]) {
-            for (const raw of listValues(getFrontmatter(leftFile)[rule.leftProp])) {
-                const rightFile = resolveNoteLink(raw, leftFile.path);
-                if (!rightFile || !matchesType(rightFile, rule.rightType)) continue;
-                if (await addReverse(rightFile, rule.rightProp, leftFile)) {
-                    journal.push(`Взаимная связь: **${leftFile.path}** ↔ **${rightFile.path}** — добавлена недостающая \`${rule.rightProp}\` (${rule.name}).`);
-                    fixes++;
-                    structuralChanged = true;
-                }
-            }
-        }
-        if (!rule.sourceOnly) {
-            for (const rightFile of filesByType[rule.rightType]) {
-                for (const raw of listValues(getFrontmatter(rightFile)[rule.rightProp])) {
-                    const leftFile = resolveNoteLink(raw, rightFile.path);
-                    if (!leftFile || !matchesType(leftFile, rule.leftType)) continue;
-                    if (await addReverse(leftFile, rule.leftProp, rightFile)) {
-                        journal.push(`Взаимная связь: **${leftFile.path}** ↔ **${rightFile.path}** — добавлена недостающая \`${rule.leftProp}\` (${rule.name}).`);
-                        fixes++;
-                        structuralChanged = true;
+            try {
+                const { result } = await core.updateFrontmatter(file, fm => {
+                    const changed = [];
+                    for (const property of properties[type]) {
+                        const values = list(fm[property]), seen = new Set(), output = [];
+                        for (const raw of values) {
+                            const dest = resolve(raw, file.path), key = dest ? targetPath(dest) : linkTarget(raw);
+                            if (!seen.has(key)) output.push(raw);
+                            seen.add(key);
+                        }
+                        if (output.length !== values.length) { fm[property] = output; changed.push(property); }
                     }
+                    return changed;
+                });
+                for (const property of result) {
+                    journal.push(`Ссылки: **${file.path}** — удалены точные дубли в \`${property}\`.`);
+                    fixes++; structural = true;
                 }
-            }
+            } catch (error) { failures.push(`${file.path}: ${error.message}`); }
         }
     }
-
-    await updateHomeStats();
-
-    try {
-        await appendJournal(journal, structuralChanged);
-    } catch (error) {
-        new Notice(`Исправления выполнены, но журнал не обновлен: ${error?.message || error}`, 7000);
+    const matchesType = (file, type) => type === "book" ? core.isBook(file) : isMedia(file);
+    async function addReverse(file, property, target) {
+        const { result } = await core.updateFrontmatter(file, fm => {
+            const values = list(fm[property]);
+            const present = values.some(raw => {
+                const dest = resolve(raw, file.path);
+                return dest ? dest.path === target.path : linkTarget(raw) === targetPath(target);
+            });
+            if (present) return false;
+            fm[property] = [...values, `[[${targetPath(target)}]]`];
+            return true;
+        });
+        return result;
     }
-
-    if (!fixes) {
-        new Notice("Безопасных исправлений не найдено.");
-        return;
+    async function repairSide(source, sourceProp, targetType, targetProp, ruleName) {
+        for (const raw of list(core.getFrontmatter(source)[sourceProp])) {
+            const target = resolve(raw, source.path);
+            if (!target || !matchesType(target, targetType)) continue;
+            try {
+                if (await addReverse(target, targetProp, source)) {
+                    journal.push(`Взаимная связь: **${source.path}** ↔ **${target.path}** — добавлена \`${targetProp}\` (${ruleName}).`);
+                    fixes++; structural = true;
+                }
+            } catch (error) { failures.push(`${target.path}: ${error.message}`); }
+        }
     }
-    new Notice(`Безопасно исправлено: ${fixes}. Теперь запусти «Книги - Проверить библиотеку» еще раз.`, 9000);
+    for (const rule of rules) {
+        for (const file of filesByType[rule.leftType]) await repairSide(file, rule.leftProp, rule.rightType, rule.rightProp, rule.name);
+        if (!rule.sourceOnly) for (const file of filesByType[rule.rightType]) await repairSide(file, rule.rightProp, rule.leftType, rule.leftProp, rule.name);
+    }
+    try { await core.updateHomeStats(); await core.appendJournal(journal, structural); }
+    catch (error) { failures.push(`Сводка или журнал: ${error.message}`); }
+    if (failures.length) new Notice(`Обработано исправлений: ${fixes}. Не удалось обработать ${failures.length}: ${failures.slice(0, 3).join("; ")}`, 10000);
+    else new Notice(fixes ? `Безопасно исправлено: ${fixes}. Запусти «Книги - Проверить библиотеку».` : "Безопасных исправлений не найдено.", 7000);
 };

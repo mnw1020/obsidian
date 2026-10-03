@@ -1,161 +1,73 @@
-module.exports = async (params) => {
-    const { app, obsidian } = params;
+module.exports = async ({ app, obsidian }) => {
     const { Notice, normalizePath } = obsidian;
-
-    const OUTPUT_PATH = "Книги/_system/Экранизации.md";
-    const BOOK_PREFIXES = ["Книги/Художественные/", "Книги/Non-fiction/"];
-    const MEDIA_ROOT = "Кино/";
-    const MEDIA_EXCLUDED = ["Кино/Просмотры/", "Кино/Сезоны/", "Кино/_system/"];
-
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
-
-    function listValues(value) {
-        if (value === null || value === undefined || value === "") return [];
-        return (Array.isArray(value) ? value : [value])
-            .map(value => String(value ?? "").trim())
-            .filter(Boolean);
-    }
-
-    function tags(frontmatter) {
-        return listValues(frontmatter?.tags).map(tag => tag.replace(/^#/, ""));
-    }
-
-    function isBook(file) {
-        if (!file || file.extension !== "md" || file.basename === "_index") return false;
-        return BOOK_PREFIXES.some(prefix => file.path.startsWith(prefix));
-    }
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) { new Notice("Модуль библиотеки не найден."); return; }
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
+    const escape = value => String(value ?? "").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+    const list = value => (Array.isArray(value) ? value : [value]).map(item => String(item ?? "").trim()).filter(Boolean);
+    const command = (label, choice, key, value) => {
+        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice) + (key ? "&value-" + key + "=" + encodeURIComponent(value).replace(/[!'()*]/g, char => "%" + char.charCodeAt(0).toString(16)) : "");
+        return `[${escape(label)}](${uri})`;
+    };
+    const nav = [
+        "[[Книги/_index|← Библиотека]]",
+        command("👥 Авторы", "Книги - Авторы"),
+        command("🧩 Серии", "Книги - Серии"),
+        command("🎬 Экранизации", "Книги - Экранизации"),
+        "[[Книги/_system/Идеи и цитаты|✒️ Выписки]]",
+        "[[Книги/_system/Проверка библиотеки|🔎 Проверка]]"
+    ].join(" · ");
+    const header = "---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n";
 
     function isMedia(file) {
-        if (!file || file.extension !== "md") return false;
-        if (!file.path.startsWith(MEDIA_ROOT)) return false;
-        if (MEDIA_EXCLUDED.some(prefix => file.path.startsWith(prefix))) return false;
-        const fileTags = tags(getFrontmatter(file));
-        return fileTags.includes("movies") || fileTags.includes("serial");
+        if (!file || file.extension !== "md" || !file.path.startsWith("Кино/")) return false;
+        if (["Кино/Просмотры/", "Кино/Сезоны/", "Кино/_system/"].some(prefix => file.path.startsWith(prefix))) return false;
+        const tags = list(core.getFrontmatter(file).tags).map(value => value.replace(/^#/, ""));
+        return tags.includes("movies") || tags.includes("serial");
     }
-
-    function linkTarget(value) {
-        const text = String(value ?? "").trim();
-        const match = text.match(/^\[\[([^\]|]+)(?:\|[^\]]+)?\]\]$/);
-        return (match ? match[1] : text).replace(/\.md$/i, "").trim();
-    }
-
-    function resolveNoteLink(value, sourcePath) {
-        const target = linkTarget(value);
+    function resolve(value, source) {
+        const target = String(value ?? "").trim().replace(/^\[\[([^\]|]+)(?:\|[^\]]+)?\]\]$/, "$1").replace(/\.md$/i, "");
         if (!target) return null;
-        try {
-            const resolved = app.metadataCache.getFirstLinkpathDest(target, sourcePath);
-            if (resolved) return resolved;
-        } catch (_) {
-        }
-        for (const candidate of [target, `${target}.md`]) {
-            const exact = app.vault.getAbstractFileByPath(normalizePath(candidate));
-            if (exact?.extension === "md") return exact;
-        }
-        return null;
+        const linked = app.metadataCache.getFirstLinkpathDest?.(target, source);
+        return linked || app.vault.getAbstractFileByPath(normalizePath(target + ".md")) || app.vault.getAbstractFileByPath(normalizePath(target));
     }
-
-    function commandLink(label, choice) {
-        const uri = "obsidian://quickadd?choice=" + encodeURIComponent(choice);
-        return `[${label}](${uri})`;
-    }
-
-    function tableLink(file, label) {
-        const target = file.path.replace(/\.md$/i, "");
-        const safeLabel = String(label ?? file.basename).replace(/\|/g, "¦");
-        return `[[${target}\\|${safeLabel}]]`;
-    }
-
-    function authorLink(author) {
-        const uri =
-            "obsidian://quickadd?choice=" +
-            encodeURIComponent("Книги - Открыть автора") +
-            "&value-author=" +
-            encodeURIComponent(author);
-        return `[${String(author).replace(/\|/g, "¦")}](${uri})`;
-    }
-
-    function numberOrDash(value) {
+    const rating = value => {
         const number = Number(value);
         return Number.isFinite(number) && number >= 1 && number <= 10 ? String(number) : "—";
-    }
-
-    const books = app.vault.getMarkdownFiles().filter(isBook);
+    };
+    const noteLink = (file, label) => `[[${file.path.replace(/\.md$/i, "")}\\|${escape(label || file.basename)}]]`;
     const rows = [];
     const linkedBooks = new Set();
     const linkedMedia = new Set();
-
-    for (const bookFile of books) {
-        const bookFm = getFrontmatter(bookFile);
-        const adaptations = listValues(bookFm.adaptations);
-        if (!adaptations.length) continue;
-
-        const title = String(bookFm.title ?? bookFile.basename).trim();
-        const authors = listValues(bookFm.authors).map(authorLink).join("<br>") || "—";
-        const bookRating = numberOrDash(bookFm.rating);
+    let unresolved = 0;
+    for (const { file, fm } of core.snapshot()) {
         const seen = new Set();
-
-        for (const raw of adaptations) {
-            const mediaFile = resolveNoteLink(raw, bookFile.path);
-            if (!mediaFile || !isMedia(mediaFile)) continue;
-            if (seen.has(mediaFile.path)) continue;
-            seen.add(mediaFile.path);
-            linkedBooks.add(bookFile.path);
-            linkedMedia.add(mediaFile.path);
-
-            const mediaFm = getFrontmatter(mediaFile);
-            const mediaTags = tags(mediaFm);
-            const type = mediaTags.includes("serial") ? "📺 Сериал" : "🎬 Фильм";
-            const mediaRating = numberOrDash(mediaFm["Оценка"]);
-            rows.push({
-                bookFile,
-                title,
-                authors,
-                bookRating,
-                mediaFile,
-                mediaRating,
-                type
-            });
+        for (const link of list(fm.adaptations)) {
+            const media = resolve(link, file.path);
+            if (!media || !isMedia(media)) { unresolved++; continue; }
+            if (seen.has(media.path)) continue;
+            seen.add(media.path);
+            const mediaFm = core.getFrontmatter(media);
+            const serial = list(mediaFm.tags).some(value => value.replace(/^#/, "") === "serial");
+            linkedBooks.add(file.path);
+            linkedMedia.add(media.path);
+            rows.push({ file, title: String(fm.title || file.basename), authors: list(fm.authors), bookRating: core.isFiction(file) ? rating(fm.rating) : "—", media, type: serial ? "📺 Сериал" : "🎬 Фильм", mediaRating: rating(mediaFm["Оценка"]) });
         }
     }
-
-    rows.sort((a, b) => {
-        const byTitle = a.title.localeCompare(b.title, "ru");
-        if (byTitle !== 0) return byTitle;
-        return a.mediaFile.basename.localeCompare(b.mediaFile.basename, "ru");
-    });
-
-    const nav = [
-        "[[Книги/_index|← Книги]]",
-        commandLink("👥 Авторы", "Книги - Авторы"),
-        commandLink("🧩 Серии", "Книги - Серии"),
-        commandLink("🎬 Экранизации", "Книги - Экранизации"),
-        "[[Книги/_system/Проверка библиотеки|🔎 Проверка]]",
-        "[[Книги/_system/Журнал изменений|📜 Журнал]]"
-    ].join(" · ");
-
-    let text = "---\nobsidianUIMode: preview\n---\n\n";
-    text += "# 🎬 Экранизации\n\n";
-    text += `${nav}\n\n`;
-    text += "> [!info] Обзор\n";
-    text += `> **Связей:** ${rows.length} · **Произведений:** ${linkedBooks.size} · **Экранизаций:** ${linkedMedia.size}\n\n`;
-
-    if (!rows.length) {
-        text += "> Связей книга ↔ кино пока нет или папка `Кино/` недоступна в этом vault.\n";
-    } else {
-        text += "| Книга | Автор | Экранизация | Тип | Книга ⭐ | Кино ⭐ |\n";
-        text += "| --- | --- | --- | --- | ---: | ---: |\n";
+    rows.sort((a, b) => a.title.localeCompare(b.title, "ru") || a.media.basename.localeCompare(b.media.basename, "ru"));
+    let text = header + "# 🎬 Экранизации\n\n" + nav + "\n\n" +
+        `> [!info] Обзор\n> **Связей:** ${rows.length} · **Произведений:** ${linkedBooks.size} · **Экранизаций:** ${linkedMedia.size}\n\n`;
+    if (unresolved) text += `> [!warning] Недоступные связи\n> Не удалось открыть ${unresolved} связей. Проверь пути к кино и отчёт проверки библиотеки.\n\n`;
+    if (!rows.length) text += "_Связей книга ↔ кино пока нет. Связать произведение с кино можно из его карточки._\n";
+    else {
+        text += "| Произведение | Автор | Экранизация | Тип | Книга ⭐ | Кино ⭐ |\n| --- | --- | --- | --- | ---: | ---: |\n";
         for (const row of rows) {
-            text += `| ${tableLink(row.bookFile, row.title)} | ${row.authors} | ${tableLink(row.mediaFile, row.mediaFile.basename)} | ${row.type} | ${row.bookRating} | ${row.mediaRating} |\n`;
+            const authors = row.authors.map(author => command(author, "Книги - Открыть автора", "author", author)).join("<br>");
+            text += `| ${noteLink(row.file, row.title)} | ${authors} | ${noteLink(row.media)} | ${row.type} | ${row.bookRating} | ${row.mediaRating} |\n`;
         }
     }
-
-    const path = normalizePath(OUTPUT_PATH);
-    let output = app.vault.getAbstractFileByPath(path);
-    if (output) await app.vault.modify(output, text);
-    else output = await app.vault.create(path, text);
-
-    new Notice(`Обзор экранизаций обновлен: ${rows.length} связей.`);
-    await app.workspace.getLeaf(false).openFile(output);
+    const page = await core.writeIfChanged("Книги/_system/Экранизации.md", text);
+    await app.workspace.getLeaf(false).openFile(page);
 };

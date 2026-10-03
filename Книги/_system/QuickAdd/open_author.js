@@ -1,82 +1,72 @@
 module.exports = async (params) => {
     const { app, quickAddApi, obsidian, variables = {} } = params;
     const { Notice, normalizePath } = obsidian;
-
-    const PAGE_PATH = normalizePath("Книги/_system/Автор.md");
-
-    function getFrontmatter(file) {
-        return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
-    }
-
-    function isBook(file) {
-        if (!file || file.extension !== "md") return false;
-        if (file.basename === "_index") return false;
-        if (!(file.path.startsWith("Книги/Художественные/") || file.path.startsWith("Книги/Non-fiction/"))) return false;
-        const fm = getFrontmatter(file);
-        return Boolean(fm.title) && Boolean(fm.authors);
-    }
-
-    function authorsOf(file) {
-        const raw = getFrontmatter(file).authors;
-        const values = Array.isArray(raw) ? raw : [raw];
-        return values.map(v => String(v ?? "").trim()).filter(Boolean);
-    }
-
-    function numericRating(value) {
-        if (value === null || value === undefined || value === "") return null;
-        const rating = Number(String(value).replace(",", "."));
-        return Number.isFinite(rating) ? rating : null;
-    }
+    const coreFile = app.vault.getAbstractFileByPath("Книги/_system/book_core.js");
+    if (!coreFile) { new Notice("Модуль библиотеки не найден."); return; }
+    const coreModule = { exports: {} };
+    new Function("module", await app.vault.read(coreFile))(coreModule);
+    const core = coreModule.exports({ app, obsidian });
+    const authorsOf = fm => [...new Set((Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(value => String(value ?? "").trim()).filter(Boolean))];
 
     let author = String(variables.author ?? "").trim();
-
     if (!author) {
         const active = app.workspace.getActiveFile();
-        if (isBook(active)) {
-            const currentAuthors = authorsOf(active);
-            if (currentAuthors.length === 1) author = currentAuthors[0];
-            else if (currentAuthors.length > 1) {
-                author = await quickAddApi.suggester(currentAuthors, currentAuthors, "Выбери автора этой книги");
-                if (!author) return;
-            }
+        if (core.isBook(active)) {
+            const current = authorsOf(core.getFrontmatter(active));
+            author = current.length === 1 ? current[0] : await quickAddApi.suggester(current, current, "Автор этого произведения");
+            if (!author) return;
+        } else {
+            author = String(core.getFrontmatter(active)?.selected_author ?? "").trim();
         }
     }
-
     if (!author) {
-        const authors = [...new Set(app.vault.getMarkdownFiles().filter(isBook).flatMap(authorsOf))]
-            .sort((a, b) => a.localeCompare(b, "ru"));
-        if (!authors.length) {
-            new Notice("Авторы не найдены.");
-            return;
-        }
-        author = await quickAddApi.suggester(authors, authors, "Выбери автора");
+        const names = [...new Set(core.snapshot().flatMap(({ fm }) => authorsOf(fm)))].sort((a, b) => a.localeCompare(b, "ru"));
+        if (!names.length) { new Notice("Авторы не найдены."); return; }
+        author = await quickAddApi.suggester(names, names, "Выбери автора");
         if (!author) return;
     }
 
-    const authorBooks = app.vault.getMarkdownFiles().filter(isBook)
-        .filter(file => authorsOf(file).includes(author));
-    const rated = authorBooks
-        .map(file => numericRating(getFrontmatter(file).rating))
-        .filter(value => value !== null);
+    function entityName(value) {
+        let hash = 2166136261;
+        for (const char of value) { hash ^= char.charCodeAt(0); hash = Math.imul(hash, 16777619); }
+        const safe = value.replace(/[\\/:*?"<>|\x00-\x1f]/g, "-").replace(/[. ]+$/g, "").slice(0, 96).trim() || "Автор";
+        return `${safe}-${(hash >>> 0).toString(16).padStart(8, "0")}`;
+    }
+    const folder = "Книги/_system/Авторы";
+    if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
+    const pagePath = normalizePath(`${folder}/${entityName(author)}.md`);
+    const books = core.snapshot().filter(({ fm }) => authorsOf(fm).includes(author));
+    const rated = books.filter(({ file }) => core.isFiction(file)).map(({ fm }) => Number(fm.rating)).filter(value => Number.isFinite(value) && value >= 1 && value <= 10);
     const average = rated.length ? (rated.reduce((sum, value) => sum + value, 0) / rated.length).toFixed(1) : "—";
     const favorites = rated.filter(value => value >= 8).length;
-    const sympathyPoints = rated.reduce((sum, value) => sum + Math.max(0, value - 5), 0);
-    const stats = `> [!abstract] Оценка автора\n> **Средняя оценка:** ${average} · **Оценено книг:** ${rated.length} · **Любимые (8–10):** ${favorites} · **Баллы симпатии:** ${sympathyPoints}\n\n`;
-
-    const content =
-        `---\n` +
-        `selected_author: ${JSON.stringify(author)}\n` +
-        `obsidianUIMode: preview\n` +
-        `---\n\n` +
-        `# 👤 ${author}\n\n` +
-        `[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n` +
-        stats +
-        `![[Книги/Книги.base#Автор]]\n`;
-
-    let page = app.vault.getAbstractFileByPath(PAGE_PATH);
-    if (page) await app.vault.modify(page, content);
-    else page = await app.vault.create(PAGE_PATH, content);
-
-    await new Promise(resolve => setTimeout(resolve, 80));
+    const points = rated.reduce((sum, value) => sum + Math.max(0, value - 5), 0);
+    const choice = name => `obsidian://quickadd?choice=${encodeURIComponent(name)}`;
+    const generated = [
+        "<!-- BOOK-AUTHOR-GENERATED:START -->",
+        `# 👤 ${author.replace(/\r?\n/g, " ")}`,
+        "",
+        `[[Книги/_index|← Библиотека]] · [👥 Все авторы](${choice("Книги - Авторы")}) · [🧩 Серии](${choice("Книги - Серии")}) · [[Книги/_system/Идеи и цитаты|✒️ Выписки]]`,
+        "",
+        `[➕ Записать произведение](${choice("Книги - Добавить книгу")})`,
+        "",
+        "> [!abstract] Произведения и впечатления",
+        `> **Произведений:** ${books.length} · **Средняя оценка:** ${average} · **Оценено:** ${rated.length} · **Любимые 8–10:** ${favorites} · **Баллы симпатии:** ${points}`,
+        "",
+        "Оценки — только для художественных произведений. Баллы симпатии: сумма превышения оценки над 5.",
+        "",
+        "![[Книги/Книги.base#Автор]]",
+        "<!-- BOOK-AUTHOR-GENERATED:END -->"
+    ].join("\n");
+    const existing = app.vault.getAbstractFileByPath(pagePath);
+    let content;
+    if (existing) {
+        content = await app.vault.read(existing);
+        const region = /<!-- BOOK-AUTHOR-GENERATED:START -->[\s\S]*?<!-- BOOK-AUTHOR-GENERATED:END -->/;
+        content = region.test(content) ? content.replace(region, () => generated) : content.replace(/\s*$/, "\n\n") + generated + "\n";
+    } else {
+        content = `---\nselected_author: ${JSON.stringify(author)}\ncssclasses:\n  - books-entity\nobsidianUIMode: preview\n---\n\n${generated}\n\n## Мои заметки\n\n`;
+    }
+    const page = await core.writeIfChanged(pagePath, content);
+    await core.refreshFrontmatter?.(page);
     await app.workspace.getLeaf(false).openFile(page);
 };
