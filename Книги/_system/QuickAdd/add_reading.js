@@ -12,12 +12,12 @@ module.exports = async (params) => {
 
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
-        const inBooksFolder =
-            file.path.startsWith("Книги/Художественные/") ||
-            file.path.startsWith("Книги/Non-fiction/");
+        const inBooksFolder = file.path.startsWith("Книги/");
         if (!inBooksFolder || file.basename === "_index") return false;
         const fm = getFrontmatter(file);
-        return Boolean(fm.title) && Boolean(fm.authors);
+        const authors = Array.isArray(fm.authors) ? fm.authors : [fm.authors];
+        return Boolean(String(fm.title ?? "").trim()) &&
+            authors.some(author => String(author ?? "").trim());
     }
 
     function isFiction(file) {
@@ -254,7 +254,15 @@ module.exports = async (params) => {
         return [...new Set(issues)];
     }
 
-    let bookFile = app.workspace.getActiveFile();
+    // Добавление книги передаёт точную карточку и уже заполненные данные чтения.
+    const readingRequest = params.variables?.bookReadingRequest;
+    let bookFile = readingRequest
+        ? app.vault.getAbstractFileByPath(readingRequest.path)
+        : app.workspace.getActiveFile();
+    if (readingRequest && !isBook(bookFile)) {
+        new Notice("Карточка для нового чтения не найдена.");
+        return;
+    }
     if (!isBook(bookFile)) {
         const books = app.vault.getMarkdownFiles()
             .filter(isBook)
@@ -313,7 +321,9 @@ module.exports = async (params) => {
         placeholder: "Что изменилось при этом чтении?"
     });
 
-    const values = await quickAddApi.requestInputs(inputs);
+    const values = readingRequest
+        ? readingRequest.values
+        : await quickAddApi.requestInputs(inputs);
     if (!values) return;
 
     const date = String(values.date ?? "").trim().replace(/^@date:/, "");

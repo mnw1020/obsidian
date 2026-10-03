@@ -1,17 +1,4 @@
 {
-  "reference": "Кино/Media/3 дня на убийство.md",
-  "updatedAt": "2026-10-02T20:54:51.785Z",
-  "yearSettings": {
-    "start": "1888",
-    "end": "current"
-  },
-  "sourceSettings": {
-    "imdb": false,
-    "kp": false,
-    "movieTon": false,
-    "likeFilm": false,
-    "tmdb": false,
-    "openai": true,
-    "watched": false
-  }
+  "reference": "Кино/Media/Батя 2. Дед.md",
+  "updatedAt": "2026-10-03T09:47:48.527Z"
 }

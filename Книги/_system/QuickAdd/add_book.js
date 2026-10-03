@@ -20,12 +20,9 @@ module.exports = async (params) => {
     function isBook(file) {
         if (!file || file.extension !== "md") return false;
         if (file.basename === "_index") return false;
-        if (!(
-            file.path.startsWith("Книги/Художественные/") ||
-            file.path.startsWith("Книги/Non-fiction/")
-        )) return false;
+        if (!file.path.startsWith(`${BOOKS_ROOT}/`)) return false;
         const fm = getFrontmatter(file);
-        return Boolean(fm.title) && Boolean(fm.authors);
+        return Boolean(String(fm.title ?? "").trim()) && authorList(fm).length > 0;
     }
 
     function isFiction(file) {
@@ -93,6 +90,23 @@ module.exports = async (params) => {
             .filter(Boolean)
             .sort((a, b) => a.localeCompare(b, "ru"))
             .join(" ");
+    }
+
+    function authorSetSignature(authors) {
+        return JSON.stringify([...new Set(authors.map(normalizeEntity).filter(Boolean))].sort());
+    }
+
+    function matchingBooks(title, authors) {
+        const normalizedTitle = normalizeEntity(title);
+        const authorSignature = authorSetSignature(authors);
+        return app.vault.getMarkdownFiles()
+            .filter(isBook)
+            .filter(file => {
+                const fm = getFrontmatter(file);
+                return normalizeEntity(fm.title) === normalizedTitle &&
+                    authorSetSignature(authorList(fm)) === authorSignature;
+            })
+            .sort((a, b) => a.path.localeCompare(b.path, "ru"));
     }
 
     function levenshtein(a, b) {
@@ -490,6 +504,29 @@ module.exports = async (params) => {
         ? ratingRaw
         : null;
     const comment = String(values.comment ?? "").trim();
+
+    const matches = matchingBooks(title, authors);
+    if (matches.length) {
+        const existing = matches.length === 1 ? matches[0] : await quickAddApi.suggester(
+            matches.map(file => `${getFrontmatter(file).title} — ${file.path}`),
+            matches,
+            "Найдено несколько карточек. Выбери книгу для нового чтения"
+        );
+        if (!existing) return;
+        const action = await quickAddApi.suggester(
+            ["Добавить новое чтение", "Отмена"],
+            ["reading", "cancel"],
+            `Книга уже есть: ${getFrontmatter(existing).title}\n${existing.path}`
+        );
+        if (action !== "reading") return;
+        await quickAddApi.executeChoice("Книги - Добавить чтение", {
+            bookReadingRequest: {
+                path: existing.path,
+                values: { date, rating: values.rating, comment }
+            }
+        });
+        return;
+    }
 
     // Серия выбирается ПОСЛЕ автора. Так нет опечаток и дубликатов названий серий.
     let series = defaultSeries;
