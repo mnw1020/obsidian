@@ -296,7 +296,9 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     const root = element(dv.container, "div", undefined, "book-knowledge");
     const status = element(root, "p", "Загружаю выписки…");
     let disposed = false, generation = 0, timer;
-    const service = await getService({ app, obsidian });
+    let service;
+    try { service = await getService({ app, obsidian }); }
+    catch (error) { status.textContent = `Не удалось загрузить выписки: ${error.message || error}`; return; }
     const controls = element(root, "div", undefined, "book-knowledge-controls");
     const content = element(root, "div", undefined, "book-knowledge-results");
     let entries = [], limit = 25, randomId = null;

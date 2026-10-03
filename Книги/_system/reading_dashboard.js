@@ -96,8 +96,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     const file = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
     if (!file) { status.textContent = "Не найден модуль библиотеки."; return; }
     const mod = { exports: {} };
-    new Function("module", await app.vault.read(file))(mod);
-    const service = await mod.exports.getService({ app, obsidian });
+    let service;
+    try {
+        new Function("module", await app.vault.read(file))(mod);
+        service = await mod.exports.getService({ app, obsidian });
+    } catch (error) { status.textContent = `Не удалось собрать итоги: ${error.message || error}`; return; }
     async function reload() {
         const current = ++generation;
         try {

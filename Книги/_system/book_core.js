@@ -114,6 +114,9 @@ module.exports = ({ app, obsidian }) => {
         }
         if (/<!-- BOOK-READINGS?:/.test(String(entry.comment ?? ""))) throw new Error("В комментарии обнаружен служебный маркер истории. Удали его из текста.");
     }
+    function validateBookFrontmatter(fm) {
+        if (!String(fm.title ?? "").trim() || !listValues(fm.authors).length) throw new Error("В актуальной карточке отсутствуют title или authors. Сначала исправь свойства книги.");
+    }
     function renderEntry(entry) {
         validateReading(entry);
         const rating = entry.rating === null || entry.rating === undefined ? "" : String(entry.rating);
@@ -223,7 +226,7 @@ module.exports = ({ app, obsidian }) => {
         validateReading(entry);
         let result;
         await app.vault.process(file, current => {
-            readFrontmatter(current); // Refuse invalid YAML before changing any text.
+            validateBookFrontmatter(readFrontmatter(current)); // Refuse invalid YAML/properties before changing text.
             const history = parseHistory(current), nl = history.newline;
             entry.number = history.entries.reduce((max, item) => Math.max(max, item.number), 0) + 1;
             const managed = !history.entries.length && /^\s*_История пока пуста\._\s*$/.test(history.managed) ? "" : history.managed;
@@ -241,7 +244,7 @@ module.exports = ({ app, obsidian }) => {
         validateReading(entry);
         let result;
         await app.vault.process(file, current => {
-            readFrontmatter(current);
+            validateBookFrontmatter(readFrontmatter(current));
             const history = parseHistory(current), selected = history.entries.find(item => item.number === original.number);
             if (!selected || selected.raw !== original.raw) {
                 const error = new Error("Выбранное чтение изменилось, пока форма была открыта.");

@@ -142,6 +142,14 @@ test('a missing YAML delimiter refuses the atomic save without rewriting the doc
     assert.equal(book.text, before); assert.deepEqual(h.mutations, []);
 });
 
+test('current book properties are checked inside the save despite a valid old cache', async () => {
+    const h = harness(), book = h.book();
+    book.text = book.text.replace('authors: ["Автор"]', 'authors: []');
+    const before = book.text;
+    await assert.rejects(h.core.appendReading(book, { date: '2026', rating: null, comment: '' }), /title или authors/);
+    assert.equal(book.text, before); assert.deepEqual(h.mutations, []);
+});
+
 test('edit changes only the selected reading and retains manual prefixes', async () => {
     const h = harness(), book = h.book(undefined, {}, history([{}, { number: 2, date: '2024', comment: 'Второе' }]));
     book.text = book.text.replace('<!-- BOOK-READING:COMMENT -->', 'Ручной префикс\n<!-- BOOK-READING:COMMENT -->');

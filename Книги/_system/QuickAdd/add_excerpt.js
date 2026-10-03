@@ -3,9 +3,12 @@ module.exports = async ({ app, quickAddApi, obsidian }) => {
     const moduleFile = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
     if (!moduleFile) { new Notice("Не найден модуль выписок."); return; }
     const mod = { exports: {} };
-    new Function("module", await app.vault.read(moduleFile))(mod);
-    const knowledge = mod.exports;
-    const core = await knowledge.loadCore(app, obsidian);
+    let knowledge, core;
+    try {
+        new Function("module", await app.vault.read(moduleFile))(mod);
+        knowledge = mod.exports;
+        core = await knowledge.loadCore(app, obsidian);
+    } catch (error) { new Notice(`Не удалось открыть форму выписки: ${error.message || error}`, 7000); return; }
     const active = app.workspace.getActiveFile();
     let file = core.isBook(active) ? active : null;
     if (!file) {
