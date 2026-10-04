@@ -2,13 +2,20 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath, parseYaml } = obsidian;
 
+    const cardLayoutFile = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if (!cardLayoutFile) throw new Error("Не найден модуль оформления карточек Кино");
+    const cardLayoutModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(cardLayoutFile))(cardLayoutModule, cardLayoutModule.exports);
+    const cardLayout = cardLayoutModule.exports;
+
+
     const MEDIA_FOLDER = "Кино/Media";
     const SEASONS_FOLDER = "Кино/Сезоны";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
 
     const SEASONS_START = "<!-- SEASONS:START -->";
-    const VIEWINGS_START = "<!-- VIEWINGS:START -->";
-    const VIEWINGS_END = "<!-- VIEWINGS:END -->";
+    const VIEWINGS_START = "<!-- KINO:VIEWINGS:START -->";
+    const VIEWINGS_END = "<!-- KINO:VIEWINGS:END -->";
     const SEASONS_END = "<!-- SEASONS:END -->";
 
     function getFrontmatter(file) {
@@ -352,47 +359,11 @@ module.exports = async (params) => {
     }
 
     function removeOldGeneratedBlocks(body) {
-        let result = String(body ?? "");
-
-        result = result.replace(/<!-- KINO:ROLES:EMBED:V2 -->[\s\S]*?<\/details>/gi, "");
-        result = result.replace(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\s*```dataviewjs[\s\S]*?```/gi, "");
-
-        // Старый DataviewJS-блок из предыдущей версии.
-        result = result.replace(
-            /```dataviewjs[\s\S]*?```/gi,
-            ""
-        );
-
-        // Старый Dataview-блок, если он когда-то использовался.
-        result = result.replace(
-            /```dataview[\s\S]*?```/gi,
-            ""
-        );
-
-        // Нативный блок, если по какой-то причине сезоны надо мигрировать заново.
-        const start = result.indexOf(SEASONS_START);
-        const end = result.indexOf(SEASONS_END);
-
-        if (start !== -1 && end !== -1 && end > start) {
-            result =
-                result.slice(0, start) +
-                result.slice(end + SEASONS_END.length);
-        }
-
-        return result.trim();
+        return cardLayout.personalBody(body);
     }
 
     function cleanSeasonBody(text, posterUrl) {
-        let result = removeOldGeneratedBlocks(text);
-        result = removeExactPoster(result, posterUrl);
-
-        // Старый block-id переносить в файл сезона не нужно.
-        result = result.replace(
-            /^\s*\^[A-Za-z0-9_-]+\s*$/gm,
-            ""
-        );
-
-        return result.trim();
+        return cardLayout.personalBody(text, posterUrl);
     }
 
     function parseLegacySeasons(body, posterUrl) {
@@ -527,7 +498,7 @@ module.exports = async (params) => {
         content += yamlMultiline(comment);
         content += "---\n";
 
-        return content;
+        return cardLayout.ensureLayout(content, { kind: "season", parseYaml });
     }
 
     async function createSeasonFile({
@@ -754,7 +725,7 @@ module.exports = async (params) => {
         const raw = await app.vault.read(file);
         const parts = splitFrontmatter(raw);
 
-        let body = parts.body.trim();
+        let body = cardLayout.personalBody(parts.body).trim();
 
         // Старый wikilink-backlink.
         body = body.replace(
@@ -797,7 +768,7 @@ module.exports = async (params) => {
             }
         );
 
-        // Полностью очищаем тело файла сезона.
+        // Сохраняем личный Markdown и оформляем карточку сезона.
         const updated =
             await app.vault.read(file);
 
@@ -812,7 +783,7 @@ module.exports = async (params) => {
 
         await app.vault.modify(
             file,
-            parts.frontmatterText + "\n"
+            cardLayout.ensureLayout(updated, { kind: "season", parseYaml })
         );
     }
 
@@ -979,7 +950,6 @@ module.exports = async (params) => {
                 originalText
             );
 
-        const persistent = extractPersistentCardBlocks(parts.body);
 
         if (!parts.frontmatterText) {
             throw new Error(
@@ -1054,28 +1024,8 @@ module.exports = async (params) => {
             chunks.push(VIEWINGS_END);
         }
 
-        let body =
-            chunks.length > 0
-                ? "\n\n" +
-                  chunks.join("\n\n") +
-                  "\n"
-                : "\n";
-
-        if (persistent) {
-            body += "\n" + persistent + "\n";
-        }
-
-        if (poster) {
-            body +=
-                "\n---\n" +
-                `![](${poster})\n`;
-        }
-
-        await app.vault.modify(
-            serialFile,
-            parts.frontmatterText +
-            body
-        );
+        const result = cardLayout.rebuildCard(originalText, chunks.join("\n\n"), { parseYaml });
+        await app.vault.modify(serialFile, result);
     }
 
     // -------------------------------------------------

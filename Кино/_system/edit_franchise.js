@@ -145,8 +145,8 @@ module.exports = async function editFranchise(params) {
             path = path ? `${path}/${folder}` : folder;
             if (!app.vault.getAbstractFileByPath(path)) await app.vault.createFolder(path);
         }
-        page = await app.vault.create(choice.path,
-            `---\ntags:\n  - franchise\nПорядок: выход\n---\n\n# ${choice.name}\n\n## Общее впечатление\n\n\n` + tableBlock()
+        page = await app.vault.create(choice.path, await withKinoLayout(app, obsidian,
+            `---\ntags:\n  - franchise\nПорядок: выход\n---\n\n# ${choice.name}\n\n## Общее впечатление\n\n\n` + tableBlock(), "franchise")
         );
     } else {
         // Добавляем таблицу один раз; существующий текст и YAML страницы сохраняются.
@@ -245,4 +245,13 @@ function renderFranchise(dv) {
         number(page["Оценка"]) ?? "—", number(page["Оценка Кинопоиск"]) ?? "—",
         number(page["Оценка Imdb"]) ?? "—"
     ]));
+}
+
+// Add the shared presentation without rewriting the generated note's data.
+async function withKinoLayout(app,obsidian,raw,kind){
+    const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if(!file)return raw;
+    const module={exports:{}};
+    new Function("module","exports",await app.vault.read(file))(module,module.exports);
+    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
 }

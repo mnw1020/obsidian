@@ -37,6 +37,12 @@ function withoutClasses(yaml) {
 function withoutUi(body) {
     return normalize(body).replace(/<!-- KINO:UI:START -->[\s\S]*?<!-- KINO:UI:END -->\n?/g,'').trim();
 }
+function withoutStandardPoster(body,poster) {
+    if (!poster || ['N/A','null','undefined'].includes(poster)) return body.trim();
+    const lines=body.split('\n');
+    for(let i=lines.length-1;i>=0;i--) if(lines[i].trim()==='![]('+poster+')'){lines.splice(i,1);break;}
+    return lines.join('\n').trim();
+}
 function kindFor(rel) {
     if (rel.startsWith('Media/')) return 'media';
     if (rel.startsWith('Франшизы/')) return 'franchise';
@@ -63,14 +69,14 @@ function assertRetained(original, updated, rel) {
     const prior=briefYaml(a.yaml).cssclasses;
     const next=briefYaml(b.yaml).cssclasses;
     for (const cls of Array.isArray(prior)?prior:prior?[prior]:[]) if (!(Array.isArray(next)?next:[next]).includes(cls)) throw Error('Потерян CSS-класс: '+rel);
-    if (withoutUi(a.body) !== withoutUi(b.body)) throw Error('Изменено исходное тело заметки: '+rel);
+    const kind=kindFor(rel), poster=kind==='media'?briefYaml(a.yaml).poster:'';
+    if (withoutStandardPoster(withoutUi(a.body),poster) !== withoutStandardPoster(withoutUi(b.body),poster)) throw Error('Изменено исходное тело заметки: '+rel);
     if ((updated.match(/<!-- KINO:UI:START -->/g)||[]).length !== 1 || (updated.match(/<!-- KINO:UI:END -->/g)||[]).length !== 1) throw Error('Дубликат интерфейса: '+rel);
-    const kind=kindFor(rel);
     if (kind==='media') {
         const originalButtons=(original.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g)||[]).length;
         if ((updated.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g)||[]).length!==originalButtons) throw Error('Потеря кнопки: '+rel);
-        const poster=briefYaml(b.yaml).poster;
-        if (poster && poster!=='N/A' && !normalize(b.body).trimEnd().endsWith('![]('+poster+')')) throw Error('Постер не внизу: '+rel);
+        const finalPoster=briefYaml(b.yaml).poster;
+        if (finalPoster && !['N/A','null','undefined'].includes(finalPoster) && !normalize(b.body).trimEnd().endsWith('![]('+finalPoster+')')) throw Error('Постер не внизу: '+rel);
     }
 }
 async function run(mode) {

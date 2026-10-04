@@ -61,7 +61,7 @@ function addClasses(yaml, kind, parseYaml, newline) {
 }
 
 function regionPattern(start, end, global = false) {
-    return new RegExp("^[ \\t]*" + escapeRegex(start) + "[ \\t]*\\r?\\n[\\s\\S]*?^[ \\t]*" + escapeRegex(end) + "[ \\t]*\\r?$", global ? "gm" : "m");
+    return new RegExp("^[ \\t]*" + escapeRegex(start) + "[ \\t]*\\r?\\n[\\s\\S]*?^[ \\t]*" + escapeRegex(end) + "[ \\t]*(?=\\r?$)", global ? "gm" : "m");
 }
 
 function uiBlock(kind, newline = "\n") {
@@ -88,17 +88,21 @@ function dedupeRecommendations(body) {
 }
 
 function takePoster(body, poster) {
-    if (!poster) return { body, image: "" };
-    const pattern = new RegExp("^[ \\t]*!\\[[^\\]\\r\\n]*\\]\\(" + escapeRegex(poster) + "\\)[ \\t]*\\r?$", "gm");
-    let image = "";
-    const remaining = body.replace(pattern, line => { if (!image) image = line.replace(/\r$/, ""); return ""; });
-    return { body: remaining, image: image || `![](${poster})` };
+    if (!poster || /^(?:N\/A|null|undefined)$/i.test(poster)) return { body, image: "" };
+    const pattern = new RegExp("^[ \\t]*!\\[\\]\\(" + escapeRegex(poster) + "\\)[ \\t]*(?=\\r?$)", "gm");
+    const matches = [...body.matchAll(pattern)], last = matches[matches.length - 1];
+    return last ? { body: body.slice(0, last.index) + body.slice(last.index + last[0].length), image: last[0] }
+        : { body, image: `![](${poster})` };
 }
 
 function ensureLayout(raw, { kind = "media", parseYaml } = {}) {
     if (!/^(media|franchise|viewing|season|roles|entity|system)$/.test(kind)) throw new Error("Unknown kino layout kind: " + kind);
-    const parts = splitRaw(raw);
-    if (!parts.opening) return String(raw ?? "");
+    let parts = splitRaw(raw);
+    if (!parts.opening) {
+        if (kind === "media" || /^\ufeff?---(?:\r?\n|$)/.test(String(raw ?? ""))) return String(raw ?? "");
+        const newline = newlineOf(raw);
+        parts = { opening: "---" + newline, yaml: "cssclasses: " + JSON.stringify(["kino-page", "kino-" + kind]), closing: newline + "---" + newline, body: String(raw ?? "") };
+    }
     const newline = newlineOf(raw);
     const fields = readFields(parts.yaml, parseYaml);
     const yaml = addClasses(parts.yaml, kind, parseYaml, newline);

@@ -48,7 +48,7 @@ module.exports = async params => {
         return `- [[${p}|${basename}]] [\\[ ${verb === "include" ? "вернуть" : "исключить"} \\]](obsidian://quickadd?choice=${choice}&value-path=${encoded}&value-action=${verb})`;
     });
     const header = "# Исключения проверки кинотеки\n\nКарточки в этом списке аудит пропускает. Ссылка «вернуть» удаляет карточку из исключений.\n\n";
-    const next = header + (lines.length ? lines.join("\n") + "\n" : "Список пуст.\n");
+    const next = await withKinoLayout(app, obsidian, header + (lines.length ? lines.join("\n") + "\n" : "Список пуст.\n"), "system");
     if (exclusionFile) await app.vault.modify(exclusionFile, next);
     else await app.vault.create(normalizePath(EXCLUSION_PATH), next);
 
@@ -59,3 +59,12 @@ module.exports = async params => {
     if (command?.id) app.commands.executeCommandById(command.id);
     else if (report) await app.workspace.getLeaf(false).openFile(report);
 };
+
+// Add the shared presentation without rewriting the generated note's data.
+async function withKinoLayout(app,obsidian,raw,kind){
+    const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if(!file)return raw;
+    const module={exports:{}};
+    new Function("module","exports",await app.vault.read(file))(module,module.exports);
+    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+}

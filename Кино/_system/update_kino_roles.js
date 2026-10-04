@@ -71,6 +71,7 @@ const ROLE_LINKS_BLOCK = [
 
 module.exports = async function updateKinoRoles(params) {
     const { app, obsidian: ob } = params;
+    const cardLayout = await loadCardLayout(app);
     let files = app.vault.getMarkdownFiles()
         .filter(file => isMedia(file, app))
         .filter(file => !isTemplate(file, app))
@@ -208,7 +209,7 @@ module.exports = async function updateKinoRoles(params) {
                     });
                 }
                 await app.vault.process(file, raw => {
-                    const next = ensureRoleEmbed(raw, rolePath);
+                    const next = cardLayout.ensureLayout(ensureRoleEmbed(raw, rolePath), { kind: "media", parseYaml: ob.parseYaml });
                     bodyChanged = next !== raw;
                     return next;
                 });
@@ -1346,9 +1347,15 @@ async function writeRoleFile(app, mainFile, fm, values) {
         ""
     ].join("\n");
     await makeFolders(app, rolePath);
+    const cardLayout = await loadCardLayout(app);
     const existing = app.vault.getAbstractFileByPath(rolePath);
-    if (existing) await app.vault.modify(existing, content);
-    else await app.vault.create(rolePath, content);
+    if (existing) {
+        const previous = await app.vault.read(existing);
+        const personal = cardLayout.personalBody(cardLayout.splitRaw(previous).body)
+            .replace(/<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n`{3}dataviewjs\r?\n[\s\S]*?^`{3}[ \t]*\r?$/gm, "");
+        await app.vault.modify(existing, cardLayout.ensureLayout(content + (personal.trim() ? "\n" + personal + "\n" : ""), { kind: "roles" }));
+    }
+    else await app.vault.create(rolePath, cardLayout.ensureLayout(content, { kind: "roles" }));
 }
 
 function setRawField(raw, key, value) {
@@ -1488,4 +1495,12 @@ function roleFromChunk(chunk) {
     if (asRole && roleText(asRole)) return roleText(asRole);
     const ellipsis = plain.match(/(?:\.\.\.|…)[ \t]*([^\n]{1,120})/);
     return ellipsis && roleText(ellipsis[1]) ? roleText(ellipsis[1]) : "";
+}
+
+async function loadCardLayout(app) {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if (!file) throw new Error("Не найден модуль оформления карточек Кино");
+    const loaded = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(loaded, loaded.exports);
+    return loaded.exports;
 }

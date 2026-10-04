@@ -2,6 +2,13 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath, parseYaml } = obsidian;
 
+    const cardLayoutFile = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if (!cardLayoutFile) throw new Error("Не найден модуль оформления карточек Кино");
+    const cardLayoutModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(cardLayoutFile))(cardLayoutModule, cardLayoutModule.exports);
+    const cardLayout = cardLayoutModule.exports;
+
+
     const MEDIA_FOLDER = "Кино/Media";
     const SEASONS_FOLDER = "Кино/Сезоны";
     const START = "<!-- SEASONS:START -->";
@@ -286,7 +293,6 @@ module.exports = async (params) => {
 
         const freshOriginal = await app.vault.read(serialFile);
         const parts = splitFrontmatter(freshOriginal);
-        const persistent = extractPersistentCardBlocks(parts.body);
 
         if (!parts.frontmatterText) {
             throw new Error("В оригинальном сериале нет YAML.");
@@ -313,20 +319,7 @@ module.exports = async (params) => {
 
         body.push(END);
 
-        let result =
-            parts.frontmatterText +
-            "\n\n" +
-            body.join("\n\n") +
-            "\n";
-
-        if (persistent) {
-            result += `\n${persistent}\n`;
-        }
-
-        if (poster) {
-            result += `\n---\n![](${poster})\n`;
-        }
-
+        const result = cardLayout.rebuildCard(freshOriginal, body.join("\n\n"), { parseYaml });
         await app.vault.modify(serialFile, result);
     }
 
@@ -537,13 +530,13 @@ module.exports = async (params) => {
             app.vault.getAbstractFileByPath(newPath) ?? seasonFile;
     }
 
-    // Архитектура сезонов YAML-only: тело очищаем.
+    // Комментарий остаётся в YAML; дополнительный личный Markdown сохраняется.
     const updated = await app.vault.read(seasonFile);
     const updatedParts = splitFrontmatter(updated);
 
     await app.vault.modify(
         seasonFile,
-        updatedParts.frontmatterText + "\n"
+        cardLayout.ensureLayout(updated, { kind: "season", parseYaml })
     );
 
     await rebuildDeltas(serialFile);

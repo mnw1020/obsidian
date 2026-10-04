@@ -1090,21 +1090,20 @@ function filterRecommendationYears(rows,start,end){
     return rows.filter(film=>{const year=recommendationYear(film);return year===null||year>=start&&year<=end;});
 }
 function makeUi(container){
-    const box=container.createDiv();box.classList.add("kino-recommendation-panel");
-    box.style.cssText="margin:16px 0 28px;padding:24px;border:1px solid var(--background-modifier-border);border-top:3px solid var(--interactive-accent);border-radius:20px;background:var(--background-primary);box-shadow:0 8px 28px rgba(0,0,0,.08)";
-    box.createEl("style").textContent=".kino-recommendation-panel .kino-source{display:inline-flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid var(--background-modifier-border);border-radius:24px;background:var(--background-primary);transition:background .15s,border-color .15s,box-shadow .15s} .kino-recommendation-panel .kino-source:has(input:checked){border-color:var(--interactive-accent);background:var(--background-primary-alt);box-shadow:inset 0 -3px 0 var(--interactive-accent)} .kino-recommendation-panel .kino-source a{text-decoration:none;font-weight:600;color:var(--text-normal)} .kino-recommendation-panel .kino-source:hover{border-color:var(--interactive-accent)} .kino-recommendation-panel input[type=checkbox]{margin:0;cursor:pointer} .kino-recommendation-panel .kino-year-field{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--text-muted)} .kino-recommendation-panel select{height:38px;max-width:100%;border-radius:10px;background:var(--background-primary);font-weight:600;color:var(--text-normal)} .kino-recommendation-panel .kino-run{background:var(--interactive-accent);color:var(--text-on-accent);border:0;border-radius:12px;padding:11px 18px;height:auto;font-weight:600} .kino-recommendation-panel .kino-run:hover{background:var(--interactive-accent-hover)} .kino-recommendation-panel .kino-run:disabled{opacity:.6} @media(max-width:600px){.kino-recommendation-panel{padding:16px!important}.kino-recommendation-panel .kino-source{padding:8px 11px}.kino-recommendation-panel .kino-run{width:100%}}";
-    box.createEl("div",{text:"Подбор фильмов"}).style.cssText="font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px";
-    box.createEl("div",{text:"Выбери источники и диапазон лет"}).style.cssText="font-size:13px;color:var(--text-muted);margin-bottom:18px";
-    const actions=box.createDiv();actions.style.cssText="display:flex;gap:8px;align-items:center;flex-wrap:wrap";
-    const aiPanel=box.createDiv();
-    const filters=box.createDiv();filters.style.cssText="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:20px;padding:0";
-    const yearPanel=filters.createDiv();yearPanel.style.cssText="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--background-modifier-border);border-radius:14px;background:var(--background-secondary)";
-    yearPanel.createEl("span",{text:"Годы выпуска"}).style.cssText="font-size:13px;font-weight:700;margin-right:4px";
-    const watchedPanel=filters.createDiv();watchedPanel.style.cssText="display:flex;align-items:center;padding:14px 16px;min-height:38px;border:1px solid var(--background-modifier-border);border-radius:14px;background:var(--background-secondary)";
-    const commands=box.createDiv();commands.style.cssText="display:flex;align-items:center;gap:12px;margin:16px 0;flex-wrap:wrap";
-    const text=box.createDiv();text.style.cssText="white-space:pre-line;font-size:12px;line-height:1.8;color:var(--text-muted);padding:12px 14px;border-radius:10px;background:var(--background-secondary)";
-    const bar=box.createEl("progress");bar.max=100;bar.value=0;bar.style.cssText="width:100%;height:4px;margin-top:10px;accent-color:var(--interactive-accent)";
-    const tableWrap=container.createDiv();tableWrap.style.cssText="width:100%;max-width:100%;overflow-x:auto;border:1px solid var(--background-modifier-border);border-radius:14px;margin-bottom:24px";
+    const box=container.createDiv({cls:"kino-recommendation-panel"});
+    box.createEl("div",{text:"Подбор фильмов",cls:"kino-panel-title"});
+    box.createEl("div",{text:"Выбери источники и диапазон лет",cls:"kino-panel-subtitle"});
+    const actions=box.createDiv({cls:"kino-source-controls"});
+    const aiPanel=box.createDiv({cls:"kino-ai-panel"});
+    const filters=box.createDiv({cls:"kino-recommendation-filters"});
+    const yearPanel=filters.createDiv({cls:"kino-year-panel"});
+    yearPanel.createEl("span",{text:"Годы выпуска",cls:"kino-filter-label"});
+    const watchedPanel=filters.createDiv({cls:"kino-watched-panel"});
+    const commands=box.createDiv({cls:"kino-recommendation-actions"});
+    const text=box.createDiv({cls:"kino-status"});text.setAttribute("role","status");text.setAttribute("aria-live","polite");
+    const bar=box.createEl("progress",{cls:"kino-progress"});bar.max=100;bar.value=0;bar.setAttribute("aria-label","Загрузка рекомендаций");
+    const tableWrap=container.createDiv({cls:"kino-table-wrap"});
+    tableWrap.setAttribute("role","region");tableWrap.setAttribute("aria-label","Похожие фильмы");tableWrap.tabIndex=0;
     return {box,text,bar,actions,aiPanel,filters,yearPanel,watchedPanel,commands,tableWrap};
 }
 function addKpApiControl(ui){
@@ -1148,40 +1147,37 @@ async function loadForecastPredictor(){
 }
 function renderTable(ui,list,sort,onSort,reference){
     ui.tableWrap.empty();if(!list.length){ui.tableWrap.createEl("p",{text:"Прямых похожих фильмов нет; фильмы второго уровня — ниже."});return;}
-    const table=ui.tableWrap.createEl("table");table.style.cssText="width:1100px;min-width:1100px;table-layout:fixed;border-collapse:collapse;margin:0";
-    const cols=table.createEl("colgroup");for(const width of [260,190,100,110,440])cols.createEl("col").style.width=width+"px";
-    const hr=table.createEl("tr");SORT_COLUMNS.forEach(([key,label])=>{
-        const th=hr.createEl("th");th.style.cssText="text-align:left;padding:12px;vertical-align:middle;background:var(--background-secondary);border-bottom:2px solid var(--interactive-accent)";
+    const table=ui.tableWrap.createEl("table",{cls:"kino-recommendation-table"});
+    const cols=table.createEl("colgroup");for(const width of [24,17,9,10,40])cols.createEl("col").style.width=width+"%";
+    const hr=table.createEl("thead").createEl("tr"),body=table.createEl("tbody");SORT_COLUMNS.forEach(([key,label])=>{
+        const th=hr.createEl("th");th.setAttribute("scope","col");
         th.setAttribute("aria-sort",sort.key===key?(sort.direction===1?"ascending":"descending"):"none");
         const button=th.createEl("button",{text:`${label} ${sort.key===key?(sort.direction===1?"↑":"↓"):"↕"}`});
         button.type="button";button.title=`Сортировать: ${label}`;
-        button.style.border="0";button.style.background="transparent";button.style.padding="0";
-        button.style.color="inherit";button.style.font="inherit";button.style.fontWeight="bold";
-        button.style.cursor="pointer";button.addEventListener("click",()=>onSort(key));
+        button.classList.add("kino-sort-button");button.addEventListener("click",()=>onSort(key));
     });
     for(const x of list){
-        const row=table.createEl("tr");
-        const ru=row.createEl("td");ru.style.padding="8px";
+        const row=body.createEl("tr");
+        const ru=row.createEl("td");
         const text=x.ruTitle||x.local?.ruTitle||(x.kpId?`КП ${x.kpId}`:"Найти на Кинопоиске");
         const a=ru.createEl("a",{text:x.libraryPath?`✓ ${text}`:text});
         if(x.libraryPath){
             a.classList.add("internal-link");a.href=x.libraryPath;a.setAttribute("data-href",x.libraryPath);
-            a.style.fontWeight="700";a.style.color="var(--text-success, var(--interactive-accent))";
+            a.classList.add("kino-library-link");
             a.title="Просмотрено · Открыть карточку в кинотеке";
             a.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();app.workspace.openLinkText(x.libraryPath,dv.current()?.file?.path||"",event.ctrlKey||event.metaKey);});
         }else{
             a.href=x.sourceUrl||kinopoiskUrl(x);a.target="_blank";a.rel="noopener noreferrer";
             a.title=x.sourceUrl?`Открыть фильм на ${x.sourceName||"сайте источника"}`:x.kpId?`Кинопоиск ID ${x.kpId}`:"Открыть поиск Кинопоиска";
         }
-        if(x.year){const y=ru.createEl("span",{text:` (${x.year})`});y.style.opacity="0.65";}
-        const en=row.createEl("td");en.style.padding="8px";en.textContent=x.enTitle||"-";
-        const pr=row.createEl("td",{text:fmt(x.kpRating)});pr.style.padding="8px";pr.style.fontWeight="700";pr.style.fontSize="1.05em";
-        const forecast=row.createEl("td",{text:fmt(x.forecast)});forecast.style.padding="8px";forecast.style.fontWeight="700";
-        const ds=row.createEl("td");ds.style.padding="8px";ds.style.maxWidth="440px";
+        if(x.year)ru.createEl("span",{text:` (${x.year})`,cls:"kino-year"});
+        const en=row.createEl("td");en.textContent=x.enTitle||"-";
+        const pr=row.createEl("td",{text:fmt(x.kpRating),cls:"kino-rating"});
+        const forecast=row.createEl("td",{text:fmt(x.forecast),cls:"kino-rating"});
+        const ds=row.createEl("td");
         const full=String(x.description||x.local?.description||"").trim();const short=full.length>280?full.slice(0,277).trim()+"…":full;ds.createEl("div",{text:short||"—"});
-        if(full.length>280){const details=ds.createEl("details");details.style.marginTop="6px";details.createEl("summary",{text:"Полное описание"});details.createEl("div",{text:full});}
-        for(const cell of row.children)cell.style.cssText+=";padding:10px 12px;vertical-align:top;white-space:normal;overflow-wrap:break-word;line-height:1.5;border-bottom:1px solid var(--background-modifier-border)";
-        if(list.indexOf(x)%2)row.style.background="var(--background-primary-alt)";
+        if(full.length>280){const details=ds.createEl("details",{cls:"kino-description-details"});details.createEl("summary",{text:"Полное описание"});details.createEl("div",{text:full});}
+        Array.from(row.children).forEach((cell,index)=>cell.setAttribute("data-label",SORT_COLUMNS[index][1]));
     }
 }
 function recommendationIdentity(x){
@@ -1493,7 +1489,7 @@ async function main(){
     const ref=items.find(x=>x.file.path===state.reference);
     if(!ref){dv.paragraph("Не удалось прочитать карточку выбранного фильма.");return;}
     
-    const head=dv.container.createDiv();head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
+    const head=dv.container.createDiv({cls:"kino-reference-header"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
 
     const ui=makeUi(dv.container);
     let cache=null,kpReady=false,kpLoading=null,all=[];
@@ -1559,10 +1555,10 @@ async function main(){
     const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
     const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
     const openaiCheckbox=sourceControl("ИИ","https://api.tokenator.top/",Boolean(sourceSettings.openai)).input;
-    const label=ui.watchedPanel.createEl("label");label.style.cssText="display:inline-flex;align-items:center;gap:8px;white-space:nowrap";
+    const label=ui.watchedPanel.createEl("label",{cls:"kino-watched-control"});
     const checkbox=label.createEl("input",{type:"checkbox"});checkbox.checked=Boolean(sourceSettings.watched);
     label.appendText(" Показывать просмотренные");
-    const watchedCount=label.createEl("span",{text:""});watchedCount.style.cssText="font-weight:700;font-variant-numeric:tabular-nums;padding:2px 8px;border-radius:8px;background:var(--background-primary);color:var(--text-normal)";watchedCount.hidden=true;
+    const watchedCount=label.createEl("span",{text:"",cls:"kino-watched-count"});watchedCount.hidden=true;
     const currentYear=new Date().getFullYear(),firstYear=1888;
     const yearSettings=state.yearSettings||{};
     const startField=ui.yearPanel.createEl("label");startField.classList.add("kino-year-field");startField.createEl("span",{text:"С года"});
@@ -1580,7 +1576,7 @@ async function main(){
     for(let year=currentYear;year>=firstYear;year--)endYear.createEl("option",{text:String(year),value:String(year)});
     const savedEnd=String(yearSettings.end||"current");endYear.value=savedEnd==="current"||Number(savedEnd)>=firstYear&&Number(savedEnd)<=currentYear?savedEnd:"current";
     const yearRange=()=>({start:Number(startYear.value.replace("decade:","")),end:endYear.value==="current"?currentYear:Number(endYear.value)});
-    const yearHint=ui.commands.createEl("span",{text:"Оба уровня · фильмы без года остаются"});yearHint.style.cssText="color:var(--text-muted);font-size:12px;flex:1;min-width:180px";
+    const yearHint=ui.commands.createEl("span",{text:"Оба уровня · фильмы без года остаются",cls:"kino-year-hint"});
     let imdbRows=[],imdbReady=false,imdbError="";
     let movieTonRows=[],movieTonReady=false,movieTonError="";
     let likeFilmRows=[],likeFilmReady=false,likeFilmError="";

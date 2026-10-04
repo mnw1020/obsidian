@@ -148,7 +148,7 @@ module.exports = async (params) => {
         const path = normalizePath(CHANGELOG_PATH);
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
-            file = await app.vault.create(path, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`);
+            file = await app.vault.create(path, await withKinoLayout(app, obsidian, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`, "system"));
             return;
         }
         const current = await app.vault.read(file);
@@ -195,3 +195,12 @@ module.exports = async (params) => {
 
     new Notice(`Безопасное исправление завершено: карточек ${changedCards}. Запусти "Кино - Проверить кинотеку".`, 9000);
 };
+
+// Add the shared presentation without rewriting the generated note's data.
+async function withKinoLayout(app,obsidian,raw,kind){
+    const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if(!file)return raw;
+    const module={exports:{}};
+    new Function("module","exports",await app.vault.read(file))(module,module.exports);
+    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+}

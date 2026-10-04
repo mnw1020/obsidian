@@ -2,6 +2,13 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, parseYaml } = obsidian;
 
+    const cardLayoutFile = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if (!cardLayoutFile) throw new Error("Не найден модуль оформления карточек Кино");
+    const cardLayoutModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(cardLayoutFile))(cardLayoutModule, cardLayoutModule.exports);
+    const cardLayout = cardLayoutModule.exports;
+
+
     const MEDIA_FOLDER = "Кино/Media";
     const SEASONS_FOLDER = "Кино/Сезоны";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
@@ -245,7 +252,6 @@ SORT Просмотр DESC, Год DESC, Дата DESC
 
         const raw = await app.vault.read(mediaFile);
         const parts = splitFrontmatter(raw);
-        const persistent = extractPersistentCardBlocks(parts.body);
         const fm = await readFm(mediaFile);
         const poster = String(fm.poster ?? "").trim();
 
@@ -264,20 +270,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
 
         body.push(END);
 
-        let result =
-            parts.frontmatterText +
-            "\n\n" +
-            body.join("\n\n") +
-            "\n";
-
-        if (persistent) {
-            result += `\n${persistent}\n`;
-        }
-
-        if (poster) {
-            result += `\n---\n![](${poster})\n`;
-        }
-
+        const result = cardLayout.rebuildCard(raw, body.join("\n\n"), { parseYaml });
         await app.vault.modify(mediaFile, result);
         return true;
     }
@@ -366,24 +359,10 @@ SORT Просмотр DESC, Год DESC, Дата DESC
 
         const raw = await app.vault.read(mediaFile);
         const parts = splitFrontmatter(raw);
-        const persistent = extractPersistentCardBlocks(parts.body);
         const fm = await readFm(mediaFile);
         const poster = String(fm.poster ?? "").trim();
 
-        let result =
-            parts.frontmatterText +
-            "\n\n" +
-            HISTORY_BLOCK +
-            "\n";
-
-        if (persistent) {
-            result += `\n${persistent}\n`;
-        }
-
-        if (poster) {
-            result += `\n![](${poster})\n`;
-        }
-
+        const result = cardLayout.rebuildCard(raw, cardLayout.region("viewings", HISTORY_BLOCK), { parseYaml });
         await app.vault.modify(mediaFile, result);
         return true;
     }

@@ -646,6 +646,7 @@ module.exports = async (params) => {
     report += "- сезоны сериала: повторяющиеся и пропущенные номера, количество файлов сезонов и номер последнего сезона;\n";
     report += "- карточки-шаблоны без названия, пропуски IMDb ID/постера и возможные дубли названий.\n";
 
+    report = await withKinoLayout(app, obsidian, report, "system");
     const reportPath = normalizePath(REPORT_PATH);
     let reportFile = app.vault.getAbstractFileByPath(reportPath);
     if (reportFile) await app.vault.modify(reportFile, report);
@@ -654,3 +655,12 @@ module.exports = async (params) => {
     new Notice(`Проверка кинотеки завершена: ошибок ${errors.length}, предупреждений ${warnings.length}.`, 9000);
     await app.workspace.getLeaf(false).openFile(reportFile);
 };
+
+// Add the shared presentation without rewriting the generated note's data.
+async function withKinoLayout(app,obsidian,raw,kind){
+    const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if(!file)return raw;
+    const module={exports:{}};
+    new Function("module","exports",await app.vault.read(file))(module,module.exports);
+    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+}

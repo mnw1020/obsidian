@@ -2,12 +2,19 @@ module.exports = async (params) => {
     const { app, quickAddApi, obsidian } = params;
     const { Notice, normalizePath, parseYaml } = obsidian;
 
+    const cardLayoutFile = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
+    if (!cardLayoutFile) throw new Error("Не найден модуль оформления карточек Кино");
+    const cardLayoutModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(cardLayoutFile))(cardLayoutModule, cardLayoutModule.exports);
+    const cardLayout = cardLayoutModule.exports;
+
+
     const MEDIA_FOLDER = "Кино/Media";
     const VIEWINGS_FOLDER = "Кино/Просмотры";
     const SEASONS_FOLDER = "Кино/Сезоны";
 
-    const VIEWINGS_START = "<!-- VIEWINGS:START -->";
-    const VIEWINGS_END = "<!-- VIEWINGS:END -->";
+    const VIEWINGS_START = "<!-- KINO:VIEWINGS:START -->";
+    const VIEWINGS_END = "<!-- KINO:VIEWINGS:END -->";
     const SEASONS_START = "<!-- SEASONS:START -->";
     const SEASONS_END = "<!-- SEASONS:END -->";
 
@@ -381,7 +388,7 @@ module.exports = async (params) => {
         const raw = await app.vault.read(file);
         const parts = splitFrontmatter(raw);
 
-        let body = parts.body.trim();
+        let body = cardLayout.personalBody(parts.body).trim();
 
         body = body.replace(
             /^#{1,6}\s*просмотр\s*\d+(?:\s*\([^)]*\))?\s*\r?\n+/i,
@@ -476,7 +483,7 @@ module.exports = async (params) => {
         if (parts.frontmatterText) {
             await app.vault.modify(
                 file,
-                parts.frontmatterText + "\n"
+                cardLayout.ensureLayout(updated, { kind: "viewing", parseYaml })
             );
         }
     }
@@ -833,7 +840,6 @@ module.exports = async (params) => {
 
         const parts =
             splitFrontmatter(raw);
-        const persistent = extractPersistentCardBlocks(parts.body);
 
         if (!parts.frontmatterText) {
             throw new Error(
@@ -919,62 +925,13 @@ module.exports = async (params) => {
             );
         }
 
-        let result =
-            parts.frontmatterText;
-
-        if (chunks.length > 0) {
-            result +=
-                "\n\n" +
-                chunks.join("\n\n") +
-                "\n";
-        } else {
-            result += "\n";
-        }
-
-        if (persistent) {
-            result += "\n" + persistent + "\n";
-        }
-
-        if (poster) {
-            result +=
-                "\n---\n" +
-                `![](${poster})\n`;
-        }
-
-        await app.vault.modify(
-            mediaFile,
-            result
-        );
+        const result = cardLayout.rebuildCard(raw, chunks.join("\n\n"), { parseYaml });
+        await app.vault.modify(mediaFile, result);
     }
 
 
     function removeGeneratedBlocks(body) {
-        let result = String(body ?? "");
-
-        result = result.replace(/<!-- KINO:ROLES:EMBED:V2 -->[\s\S]*?<\/details>/gi, "");
-        result = result.replace(/<!-- KINO:RECOMMEND:BUTTON:V2 -->\s*```dataviewjs[\s\S]*?```/gi, "");
-
-        result = result.replace(
-            /<!-- VIEWINGS:START -->[\s\S]*?<!-- VIEWINGS:END -->/gi,
-            ""
-        );
-
-        result = result.replace(
-            /<!-- SEASONS:START -->[\s\S]*?<!-- SEASONS:END -->/gi,
-            ""
-        );
-
-        result = result.replace(
-            /```dataviewjs[\s\S]*?```/gi,
-            ""
-        );
-
-        result = result.replace(
-            /```dataview[\s\S]*?```/gi,
-            ""
-        );
-
-        return result;
+        return cardLayout.personalBody(body);
     }
 
     function extractLegacyReview(body, poster) {
@@ -1095,7 +1052,7 @@ module.exports = async (params) => {
 
         return await app.vault.create(
             path,
-            buildViewingContent(args)
+            cardLayout.ensureLayout(buildViewingContent(args), { kind: "viewing", parseYaml })
         );
     }
 
