@@ -125,9 +125,9 @@ async function main(){
  assert.ok(seriesA.text.endsWith(personal),'series personal notes preserved');
  const lazy=require(path.join(root,'_system/lazy_base.js'));
  const actions=view(); await lazy({dv:actions.dv,app,obsidian,mode:'actions'});
- assert.equal(actions.dv.container.children[0].children.length,3);
+ assert.equal(actions.dv.container.children[0].children.length,4);
  for(const button of actions.dv.container.children[0].children)await button.listeners.get('click')();
- assert.deepEqual(choices,['Книги - Добавить книгу','Книги - Добавить чтение','Книги - Добавить выписку']);
+ assert.deepEqual(choices,['Книги - Добавить книгу','Книги - Добавить чтение','Книги - Добавить выписку','Книги - Редактировать чтение']);
  const choiceApi=app.plugins.plugins.quickadd.api;
  const execute=choiceApi.executeChoice;
  choiceApi.executeChoice=async()=>{throw new Error('Input cancelled by user');};

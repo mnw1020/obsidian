@@ -10,7 +10,8 @@ module.exports = async ({ dv, app, obsidian = {}, target, label, mode = "base", 
         const actions = [
             ["➕ Записать произведение", "Книги - Добавить книгу"],
             ["📖 Записать чтение", "Книги - Добавить чтение"],
-            ["✒️ Сохранить выписку", "Книги - Добавить выписку"]
+            ["✒️ Сохранить выписку", "Книги - Добавить выписку"],
+            ["✏️ Редактировать чтение", "Книги - Редактировать чтение"]
         ];
         const buttons = actions.map(([text]) => bar.createEl("button", { text, cls: "books-action" }));
         actions.forEach(([label, choice], index) => {
