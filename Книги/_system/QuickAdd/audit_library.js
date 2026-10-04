@@ -158,30 +158,7 @@ module.exports = async (params) => {
         return prev[t.length];
     }
 
-    function isValidDate(value) {
-        const text = asText(value).replace(/^@date:/, "");
-        let m = text.match(/^(\d{4})$/);
-        if (m) return Number(m[1]) >= 1;
-
-        m = text.match(/^(\d{4})-(\d{2})$/);
-        if (m) {
-            const year = Number(m[1]);
-            const month = Number(m[2]);
-            return year >= 1 && month >= 1 && month <= 12;
-        }
-
-        m = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (!m) return false;
-        const year = Number(m[1]);
-        const month = Number(m[2]);
-        const day = Number(m[3]);
-        const date = new Date(Date.UTC(year, month - 1, day));
-        return (
-            date.getUTCFullYear() === year &&
-            date.getUTCMonth() === month - 1 &&
-            date.getUTCDate() === day
-        );
-    }
+    const isValidDate = value => core.isValidDate(asText(value).replace(/^@date:/, ""));
 
     function countOccurrences(text, needle) {
         if (!needle) return 0;
@@ -194,27 +171,6 @@ module.exports = async (params) => {
         return count;
     }
 
-    function parseEntries(text) {
-        const start = text.indexOf(HISTORY_START);
-        const end = text.indexOf(HISTORY_END, start + HISTORY_START.length);
-        if (start < 0 || end < 0) return [];
-
-        const managed = text.slice(start + HISTORY_START.length, end);
-        const re = /<!-- BOOK-READING:START number="(\d+)" date="([^"]*)" rating="([^"]*)" -->\s*\n([\s\S]*?)\n<!-- BOOK-READING:END -->/g;
-        const entries = [];
-        let match;
-        while ((match = re.exec(managed)) !== null) {
-            const ratingText = match[3];
-            const ratingNumber = Number(ratingText);
-            entries.push({
-                number: Number(match[1]),
-                date: asText(match[2]),
-                rating: ratingText !== "" && Number.isFinite(ratingNumber) ? ratingNumber : null,
-                hasCommentMarker: match[4].includes(COMMENT_MARK)
-            });
-        }
-        return entries;
-    }
 
     function wikiLink(file, label) {
         const target = file.path.replace(/\.md$/i, "");
@@ -617,7 +573,7 @@ module.exports = async (params) => {
             }
 
             if (seriesNormalizationLog.length) {
-                await new Promise(resolve => setTimeout(resolve, 250));
+                await Promise.all(books.map(file => core.refreshFrontmatter(file)));
             }
         }
     }
@@ -821,7 +777,13 @@ module.exports = async (params) => {
         const managed = text.slice(containerStart + HISTORY_START.length, containerEnd);
         const rawEntryStarts = countOccurrences(managed, ENTRY_START_PREFIX);
         const rawEntryEnds = countOccurrences(managed, ENTRY_END);
-        const entries = parseEntries(text);
+        let entries;
+        try {
+            entries = core.parseHistory(text).entries;
+        } catch (error) {
+            errors.push(`${link} - ${error.message || error}`);
+            continue;
+        }
         readingEntriesCount += entries.length;
 
         if (rawEntryStarts !== rawEntryEnds || rawEntryStarts !== entries.length) {

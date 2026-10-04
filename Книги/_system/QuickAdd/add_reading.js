@@ -46,7 +46,11 @@ module.exports = async (params) => {
         if (rating !== null && (!Number.isFinite(rating) || rating < 1 || rating > 10)) { new Notice("Оценка должна быть от 1 до 10. Остальные поля сохранены.", 7000); continue; }
         if (/<!-- BOOK-READINGS?:/.test(comment)) { new Notice("Удали служебные маркеры истории из комментария. Остальные поля сохранены.", 7000); continue; }
         try { result = await core.appendReading(bookFile, { date, rating, comment }); }
-        catch (error) { new Notice(`${error.message} Введённые поля сохранены в форме QuickAdd.`, 10000); return; }
+        catch (error) {
+            const action = await quickAddApi.suggester(["Повторить проверку и вернуться к форме", "Отмена"], ["retry", "cancel"], `${error.message}\nТвой ввод сохранён. Исправь карточку или дождись синхронизации перед повторным сохранением.`);
+            if (action !== "retry") return;
+            bookFile = app.vault.getAbstractFileByPath(bookFile.path) ?? bookFile;
+        }
     }
     try { await core.updateHomeStats(); }
     catch (error) { new Notice(`Чтение сохранено, но сводка не обновлена: ${error.message}`, 7000); }

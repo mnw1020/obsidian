@@ -291,4 +291,14 @@ test('both read-only renderers work in home and full modes with native DOM contr
     }
     assert.deepEqual(h.changes, []);
     assert.equal(h.reads.get(h.books[0].path), 1);
+    h.books[0].text = managedHistory;
+    h.books[0].stat.mtime++;
+    h.emit('modify', h.books[0]);
+    for (const mode of ['home', 'index']) {
+        const container = document.createElement('div');
+        const handle = await knowledge({ ...h, dv: { container, component: { register: () => {} } }, mode });
+        assert.match(container.textContent, /Добавь первую выписку/);
+        assert.ok(container.textContent.trim());
+        handle.dispose();
+    }
 });

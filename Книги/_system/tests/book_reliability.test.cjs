@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
 const createCore = require('../book_core.js');
+const addBook = require('../QuickAdd/add_book.js');
 const addReading = require('../QuickAdd/add_reading.js');
 const editReading = require('../QuickAdd/edit_reading.js');
 const safeFix = require('../QuickAdd/safe_fix_library.js');
@@ -23,7 +24,7 @@ function harness() {
     const h = { files, cache, mutations, notices, forms, beforeProcess: null, request: null, suggest: null, active: null };
     function file(filePath, fm = {}, text = makeText(fm)) {
         const extension = filePath.split('.').at(-1), basename = filePath.split('/').at(-1).slice(0, -(extension.length + 1));
-        const value = { path: filePath, extension, basename, text, fm, stat: { mtime: 1 } };
+        const value = { path: filePath, extension, basename, parent: { path: filePath.slice(0, filePath.lastIndexOf('/')) }, text, fm, stat: { mtime: 1 } };
         files.set(filePath, value);
         cache.set(filePath, JSON.parse(JSON.stringify(fm)));
         return value;
@@ -54,8 +55,17 @@ function harness() {
                 if (files.has(filePath)) throw new Error('File exists');
                 mutations.push(filePath);
                 return file(filePath, fromText(text), text);
-            }
+            },
+            createFolder: async filePath => { mutations.push(filePath); files.set(filePath, { path: filePath, children: [] }); }
         },
+        fileManager: { renameFile: async (file, filePath) => {
+            if (files.has(filePath)) throw new Error('File exists');
+            mutations.push(file.path + ' -> ' + filePath);
+            files.delete(file.path); cache.delete(file.path);
+            file.path = filePath; file.basename = filePath.split('/').at(-1).replace(/\.md$/, '');
+            file.parent = { path: filePath.slice(0, filePath.lastIndexOf('/')) };
+            files.set(filePath, file); cache.set(filePath, { ...file.fm });
+        } },
         workspace: { getActiveFile: () => h.active, getLeaf: () => ({ openFile: async () => {} }) }
     };
     const obsidian = { parseYaml, stringifyYaml, normalizePath: value => value, Notice: class { constructor(message) { notices.push(message); } } };
@@ -69,6 +79,7 @@ function harness() {
         suggester: async (labels, values, prompt) => h.suggest ? h.suggest(labels, values, prompt) : values[0]
     };
     h.params = { app, obsidian, quickAddApi };
+    quickAddApi.executeChoice = async (name, variables) => { assert.equal(name, 'Книги - Добавить чтение'); await addReading({ app, obsidian, quickAddApi, variables }); };
     h.core = createCore({ app, obsidian });
     h.book = (filePath = 'Книги/Художественные/Тест.md', fm = {}, body) => {
         const metadata = { title: 'Тест', authors: ['Автор'], read_count: 1, date: '2023-07-16', rating: 6, ...fm };

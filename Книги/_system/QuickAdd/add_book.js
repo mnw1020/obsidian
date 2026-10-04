@@ -15,7 +15,11 @@ module.exports = async (params) => {
     const COMMENT_MARK = "<!-- BOOK-READING:COMMENT -->";
 
     const yamlString = value => JSON.stringify(String(value ?? ""));
-    const safeName = value => String(value ?? "").replace(/[\\/:*?"<>|]/g, "-").trim();
+    const safeName = value => {
+        let name = String(value ?? "").replace(/[\\/:*?"<>|\u0000-\u001f]/g, "-").trim().replace(/[. ]+$/, "");
+        if (/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(name)) name = "_" + name;
+        return name || "-";
+    };
 
     const getFrontmatter = core.getFrontmatter;
 
@@ -345,13 +349,27 @@ module.exports = async (params) => {
         { id: "series", label: "Серия", type: "suggester", options: existingSeriesNames(), defaultValue: defaultSeries, optional: true, suggesterConfig: { allowCustomInput: true, caseSensitive: false } },
         { id: "seriesIndex", label: "Номер в серии", type: "number", optional: true, numericConfig: { min: 1, step: 1 }, description: "Пусто — следующий номер из имеющихся карточек." }
     ];
+    async function refreshBookFiles() {
+        const candidates = app.vault.getMarkdownFiles().filter(file => core.isCandidateBook(file) ||
+            (file.path.startsWith("Книги/") && !file.path.startsWith("Книги/_system/") && file.basename !== "_index" && !app.metadataCache.getFileCache(file)?.frontmatter));
+        for (let index = 0; index < candidates.length; index += 8) {
+            const batch = candidates.slice(index, index + 8);
+            const results = await Promise.allSettled(batch.map(file => core.refreshFrontmatter(file)));
+            for (let offset = 0; offset < results.length; offset++) {
+                if (results[offset].status === "rejected" && isBook(batch[offset])) throw new Error(`Не удалось проверить существующую карточку ${batch[offset].path}: ${results[offset].reason?.message || results[offset].reason}`);
+            }
+        }
+        bookFiles.splice(0, bookFiles.length, ...core.books());
+    }
+    const session = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     let values = {}, title, authors, date, rating, comment, section, workType, series, seriesIndex;
     for (let attempt = 0; ; attempt++) {
         // QuickAdd caches answers by id. Fresh ids keep correction dialogs editable.
-        const fields = form.map(field => ({ ...field, id: field.id + "__book_" + attempt, defaultValue: values[field.id] ?? field.defaultValue }));
+        const suffix = "__book_" + session + "_" + attempt;
+        const fields = form.map(field => ({ ...field, id: field.id + suffix, defaultValue: values[field.id] ?? field.defaultValue }));
         const answer = await quickAddApi.requestInputs(fields);
         if (!answer) return;
-        values = Object.fromEntries(form.map(field => [field.id, answer[field.id + "__book_" + attempt] ?? answer[field.id] ?? ""]));
+        values = Object.fromEntries(form.map(field => [field.id, answer[field.id + suffix] ?? answer[field.id] ?? ""]));
         title = String(values.title).trim();
         authors = String(values.authors).split(/[,;]+/).map(value => value.trim()).filter(Boolean);
         date = String(values.date).trim().replace(/^@date:/, "");
@@ -359,7 +377,7 @@ module.exports = async (params) => {
         workType = ({ Книга: "", Рассказ: "story", Лекция: "lecture", Статья: "article" })[values.workType || "Книга"];
         series = String(values.series).trim();
         const rawIndex = String(values.seriesIndex).trim();
-        seriesIndex = series ? (rawIndex ? Number(rawIndex) : Math.max(0, ...bookFiles.map(file => getFrontmatter(file)).filter(fm => String(fm.series ?? "").trim() === series).map(fm => Number(fm.series_index)).filter(Number.isFinite)) + 1) : null;
+        seriesIndex = series && rawIndex ? Number(rawIndex) : null;
         const rawRating = String(values.rating ?? "").trim();
         const numericRating = Number(rawRating);
         const errors = [];
@@ -368,8 +386,9 @@ module.exports = async (params) => {
         if (!isValidDate(date)) errors.push("Дата: YYYY-MM-DD, YYYY-MM или YYYY.");
         if (!["Художественные", "Non-fiction"].includes(section) || workType === undefined) errors.push("Выбери раздел и тип произведения.");
         if (section === "Художественные" && rawRating && (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 10)) errors.push("Оценка должна быть целым числом от 1 до 10.");
-        if (series && (!Number.isInteger(seriesIndex) || seriesIndex < 1)) errors.push("Номер в серии должен быть положительным целым числом.");
+        if (series && rawIndex && (!Number.isInteger(seriesIndex) || seriesIndex < 1)) errors.push("Номер в серии должен быть положительным целым числом.");
         if (!series && rawIndex) errors.push("Для номера сначала укажи серию.");
+        if (/<!-- BOOK-READINGS?:/.test(String(values.comment))) errors.push("Удали служебные маркеры истории из впечатлений. Остальные поля сохранены.");
         if (errors.length) { new Notice(errors.join("\n"), 7000); continue; }
         const confirmed = await confirmAuthors(authors);
         if (!confirmed) return;
@@ -377,76 +396,55 @@ module.exports = async (params) => {
         if (series) { series = await confirmNewSeries(series); if (!series) return; }
         rating = section === "Художественные" && rawRating ? numericRating : null;
         comment = String(values.comment).trim();
+        values.authors = authors.join(", ");
+        values.series = series;
+        try { await refreshBookFiles(); }
+        catch (error) { new Notice(error.message, 10000); return; }
+        const matches = matchingBooks(title, authors);
+        if (matches.length) {
+            const existing = matches.length === 1 ? matches[0] : await quickAddApi.suggester(
+                matches.map(file => `${getFrontmatter(file).title} — ${file.path}`), matches,
+                "Найдено несколько карточек. Выбери книгу для нового чтения");
+            if (!existing) return;
+            const action = await quickAddApi.suggester(["Добавить новое чтение", "Отмена"], ["reading", "cancel"], `Книга уже есть: ${getFrontmatter(existing).title}\n${existing.path}`);
+            if (action !== "reading") return;
+            await quickAddApi.executeChoice("Книги - Добавить чтение", { bookReadingRequest: { path: existing.path, values: { date, rating: values.rating, comment } } });
+            return;
+        }
+        if (series) {
+            const used = bookFiles.map(file => getFrontmatter(file)).filter(fm => String(fm.series ?? "").trim() === series)
+                .map(fm => Number(fm.series_index)).filter(value => Number.isInteger(value) && value > 0);
+            if (!rawIndex) seriesIndex = Math.max(0, ...used) + 1;
+            if (used.includes(seriesIndex)) { new Notice(`Номер ${seriesIndex} уже занят в серии. Исправь его или оставь пустым для номера ${Math.max(0, ...used) + 1}. Остальные поля сохранены.`, 7000); continue; }
+        }
         break;
     }
 
-    // A book may have arrived through sync while the form was open.
-    bookFiles.splice(0, bookFiles.length, ...core.books());
-    const matches = matchingBooks(title, authors);
-    if (matches.length) {
-        const existing = matches.length === 1 ? matches[0] : await quickAddApi.suggester(
-            matches.map(file => `${getFrontmatter(file).title} — ${file.path}`),
-            matches,
-            "Найдено несколько карточек. Выбери книгу для нового чтения"
-        );
-        if (!existing) return;
-        const action = await quickAddApi.suggester(
-            ["Добавить новое чтение", "Отмена"],
-            ["reading", "cancel"],
-            `Книга уже есть: ${getFrontmatter(existing).title}\n${existing.path}`
-        );
-        if (action !== "reading") return;
-        await quickAddApi.executeChoice("Книги - Добавить чтение", {
-            bookReadingRequest: {
-                path: existing.path,
-                values: { date, rating: values.rating, comment }
-            }
-        });
-        return;
-    }
-
-    if (series && bookFiles.some(file => {
-        const fm = getFrontmatter(file);
-        return String(fm.series ?? "").trim() === series && Number(fm.series_index) === seriesIndex;
-    })) {
-        new Notice("Этот номер уже занят в серии. Запиши произведение с другим номером.", 7000);
-        return;
-    }
-
     const sectionFolder = normalizePath(`${BOOKS_ROOT}/${section}`);
-    await ensureFolder(sectionFolder);
-
-    // Если папка автора есть, новые книги идут в неё как «Название.md».
-    // Если папки ещё нет, сначала проверяем старый файл «Автор. Название.md».
-    // При его наличии создаём папку, переносим старый файл внутрь и сохраняем новую книгу там же.
     const authorFolder = normalizePath(`${sectionFolder}/${safeName(authors[0])}`);
-    let destinationFolder = sectionFolder;
     let filePath = normalizePath(`${sectionFolder}/${safeName(`${authors[0]}. ${title}`)}.md`);
     const authorFolderFile = app.vault.getAbstractFileByPath(authorFolder);
+    const moves = [];
     if (authorFolderFile) {
-        destinationFolder = authorFolder;
+        if (authorFolderFile.extension !== undefined) { new Notice(`Путь папки автора занят файлом: ${authorFolder}`, 9000); return; }
         filePath = normalizePath(`${authorFolder}/${safeName(title)}.md`);
     } else {
         const legacyPrefix = `${safeName(authors[0])}. `;
         const legacyFiles = bookFiles
             .filter(file => file.parent?.path === sectionFolder && file.basename.startsWith(legacyPrefix));
         if (legacyFiles.length) {
-            await ensureFolder(authorFolder);
             for (const legacyFile of legacyFiles) {
                 const legacyTitle = legacyFile.basename.slice(legacyPrefix.length);
                 const movedPath = normalizePath(`${authorFolder}/${safeName(legacyTitle)}.md`);
-                if (!app.vault.getAbstractFileByPath(movedPath)) {
-                    const previousPath = legacyFile.path;
-                    await app.fileManager.renameFile(legacyFile, movedPath);
-                    await appendStructureJournal(`Перенесена карточка: ${previousPath} → ${movedPath}.`);
-                }
+                if (app.vault.getAbstractFileByPath(movedPath) || moves.some(move => move.path === movedPath)) { new Notice(`Перенос отменён: путь уже занят ${movedPath}.`, 9000); return; }
+                moves.push({ file: legacyFile, path: movedPath });
             }
-            destinationFolder = authorFolder;
             filePath = normalizePath(`${authorFolder}/${safeName(title)}.md`);
         }
     }
 
-    if (app.vault.getAbstractFileByPath(filePath)) {
+    // Preflight every destination before creating folders or moving old cards.
+    if (app.vault.getAbstractFileByPath(filePath) || moves.some(move => move.path === filePath)) {
         new Notice(`Произведение уже существует:\n${filePath}`);
         return;
     }
@@ -469,6 +467,14 @@ module.exports = async (params) => {
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);
 
+    await ensureFolder(sectionFolder);
+    if (authorFolderFile || moves.length) await ensureFolder(authorFolder);
+    for (const move of moves) {
+        const previousPath = move.file.path;
+        await app.fileManager.renameFile(move.file, move.path);
+        try { await appendStructureJournal(`Перенесена карточка: ${previousPath} → ${move.path}.`); }
+        catch (error) { new Notice(`Карточка перенесена, но журнал не обновлён: ${error.message}`, 7000); }
+    }
     const bookFile = await app.vault.create(filePath, content);
     await core.refreshFrontmatter(bookFile);
     try {

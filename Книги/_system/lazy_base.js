@@ -19,6 +19,7 @@ module.exports = async ({ dv, app, obsidian = {}, target, label, mode = "base", 
                 buttons.forEach(button => { button.disabled = true; });
                 try { await api.executeChoice(choice); }
                 catch (error) {
+                    if (/^Input cancel(?:led|ed) by user\.?$/i.test(String(error?.message || error))) return;
                     if (obsidian.Notice) new obsidian.Notice(`Не удалось открыть «${label}»: ${String(error?.message || error)}`);
                 } finally { buttons.forEach(button => { button.disabled = false; }); }
             };
@@ -61,7 +62,7 @@ module.exports = async ({ dv, app, obsidian = {}, target, label, mode = "base", 
             const values = metrics.map(([key, text]) => {
                 const card = grid.createDiv({ cls: "books-stat-card" });
                 const value = card.createEl("strong", { cls: "books-stat-value" });
-                card.createEl("span", { text, cls: "books-stat-label" });
+                card.createEl("span", { text: ` ${text}`, cls: "books-stat-label" });
                 return [key, value];
             });
             const render = () => {
