@@ -1,0 +1,35 @@
+/* Enable as an Obsidian snippet. All rules are local to library pages. */
+:is(.books-library, .books-entity) { --books-radius: 12px; }
+:is(.books-library, .books-entity) .books-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(90px, 1fr));
+    gap: 10px;
+    margin: 16px 0 24px;
+}
+:is(.books-library, .books-entity) .books-stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--books-radius);
+    background: var(--background-secondary);
+}
+:is(.books-library, .books-entity) .books-stat-value { font-size: 1.55em; line-height: 1.15; }
+:is(.books-library, .books-entity) .books-stat-label { color: var(--text-muted); font-size: .82em; }
+:is(.books-library, .books-entity) .books-empty { color: var(--text-muted); font-size: .9em; margin: 8px 0; }
+:is(.books-library, .books-entity) .books-base-toggle { min-height: 36px; margin-bottom: 10px; border-radius: 8px; }
+:is(.books-library, .books-entity) .books-base-content { overflow-x: auto; }
+:is(.books-library, .books-entity) .button { min-height: 40px; margin: 4px 6px 4px 0; border-radius: 8px; }
+:is(.books-library, .books-entity) h2 { margin-top: 1.8em; }
+:is(.books-library, .books-entity) .callout { border-radius: var(--books-radius); }
+:is(.books-library, .books-entity) .table-wrapper { max-width: 100%; overflow-x: auto; }
+:is(.books-library, .books-entity) .books-error { color: var(--text-error); }
+@media (max-width: 700px) {
+    :is(.books-library, .books-entity) .books-stat-grid { grid-template-columns: repeat(3, minmax(80px, 1fr)); }
+    :is(.books-library, .books-entity) .books-stat-card { padding: 11px; }
+    :is(.books-library, .books-entity) .button { display: block; width: 100%; margin-right: 0; }
+}
+@media (max-width: 420px) {
+    :is(.books-library, .books-entity) .books-stat-grid { grid-template-columns: repeat(2, minmax(80px, 1fr)); }
+}
