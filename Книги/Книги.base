@@ -225,7 +225,7 @@ views:
         direction: ASC
       - property: date
         direction: DESC
-  - type: list
+  - type: table
     name: Главная
     order:
       - formula.book_link
