@@ -439,6 +439,7 @@ module.exports = async (params) => {
         return { changedFiles, replacements, variantChanges };
     }
 
+    const warnings = [];
     const normalizationLog = [];
     const seriesNormalizationLog = [];
     const journalEntries = [];
@@ -671,7 +672,6 @@ module.exports = async (params) => {
     }
 
     const errors = [];
-    const warnings = [];
     const cinemaErrors = [];
     const mutualErrors = [];
     const adaptationSuggestions = [];
