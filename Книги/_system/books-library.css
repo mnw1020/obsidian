@@ -3,6 +3,8 @@
 .book-card {
     --book-card-accent: var(--text-accent);
     --file-line-width: 820px;
+    container-type: inline-size;
+    container-name: book-note;
 }
 .book-card.markdown-preview-view .inline-title,
 .book-card.markdown-source-view .inline-title { display: none; }
@@ -19,7 +21,7 @@
 .book-card .book-card-kind { color: var(--text-muted); text-align: right; }
 .book-card .book-card-main { display: flex; align-items: flex-start; gap: 20px; }
 .book-card .book-card-heading { flex: 1; min-width: 0; }
-.book-card .book-card-title { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.8em, 4vw, 2.7em); line-height: 1.13; letter-spacing: -.025em; margin: 0 0 14px; overflow-wrap: anywhere; border: 0; padding: 0; }
+.book-card .book-card-title { font-family: Georgia, 'Times New Roman', serif; color: var(--text-normal); font-size: clamp(1.8em, 4vw, 2.7em); line-height: 1.13; letter-spacing: -.025em; margin: 0 0 14px; overflow-wrap: anywhere; border: 0; padding: 0; }
 .book-card .book-card-authors { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 1em; }
 .book-card :is(.book-card-author, .book-card-link) { color: var(--text-muted); text-decoration: none; cursor: pointer; }
 .book-card :is(.book-card-author, .book-card-link):hover { color: var(--text-accent); text-decoration: underline; }
@@ -56,6 +58,20 @@
 .book-card .callout { border-radius: 12px; }
 .book-card :is(.table-wrapper, pre) { max-width: 100%; overflow-x: auto; }
 @media (max-width: 520px) {
+    .book-card .book-card-hero { padding: 20px 16px; margin-bottom: 24px; }
+    .book-card .book-card-topline { margin-bottom: 22px; }
+    .book-card .book-card-main { gap: 12px; }
+    .book-card .book-card-title { font-size: 1.8em; }
+    .book-card .book-card-rating { flex-basis: 56px; min-height: 68px; border-radius: 12px; }
+    .book-card .book-card-rating strong { font-size: 1.7em; }
+    .book-card .book-card-actions > a { flex: 1 1 100%; }
+    .book-card .book-card-more { flex-basis: 100%; }
+    .book-card .book-card-more > summary { width: 100%; }
+    .book-card .book-card-secondary > * { flex: 1 1 100%; }
+    .book-card .book-card-facts { gap: 14px 24px; }
+}
+/* Narrow split panes on a wide desktop also need the compact layout. */
+@container book-note (max-width: 520px) {
     .book-card .book-card-hero { padding: 20px 16px; margin-bottom: 24px; }
     .book-card .book-card-topline { margin-bottom: 22px; }
     .book-card .book-card-main { gap: 12px; }

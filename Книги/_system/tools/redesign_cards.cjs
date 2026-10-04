@@ -51,7 +51,7 @@ function main() {
     if (process.argv.includes('--apply')) {
         for (const change of changes) {
             if (fs.readFileSync(change.full, 'utf8') !== change.original) throw new Error('Concurrent edit: ' + change.full);
-            const backup = path.join(root, '_system/backups/card-redesign', path.relative(root, change.full));
+            const backup = path.join(root, '_system/backups/card-redesign', path.relative(root, change.full) + '.before');
             fs.mkdirSync(path.dirname(backup), { recursive: true });
             if (!fs.existsSync(backup)) fs.writeFileSync(backup, change.original);
             fs.writeFileSync(change.full, change.next);

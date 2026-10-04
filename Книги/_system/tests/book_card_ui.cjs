@@ -16,7 +16,7 @@ function scan(folder) {
         if (!item.name.endsWith('.md') || item.name === '_index.md') continue;
         const text = fs.readFileSync(full, 'utf8'), fm = fromText(text);
         if (!fm.title || !fm.authors) continue;
-        const original = fs.readFileSync(path.join(root, '_system/backups/card-redesign', path.relative(root, full)), 'utf8');
+        const original = fs.readFileSync(path.join(root, '_system/backups/card-redesign', path.relative(root, full) + '.before'), 'utf8');
         assert.equal(migrate(original), text, 'Migration changed personal text: ' + full);
         assert.equal(migrate(text), text, 'Migration must be idempotent');
         cards.push({ path: 'Книги/' + path.relative(root, full).replaceAll('\\', '/'), basename: item.name.slice(0, -3), fm, text });
@@ -36,11 +36,12 @@ async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     let count = 0;
     try {
-        for (const width of [320, 390, 1024]) for (const theme of ['dark', 'light']) for (const card of [azimov, kurpatov, long]) {
+        for (const layout of [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1024, pane: 320 }, { width: 1024, pane: 390 }]) for (const theme of ['dark', 'light']) for (const card of [azimov, kurpatov, long]) {
+            const { width, pane } = layout;
             const page = await browser.newPage({ viewport: { width, height: 1000 } });
             const errors = []; page.on('pageerror', e => errors.push(e.message));
             const body = card.text.split('<!-- BOOK-CARD:END -->')[1];
-            await page.setContent('<!doctype html><html><head><meta charset="utf-8"><style>' + baseline + '\n' + css + '</style></head><body class="' + theme + '"><article class="book-card markdown-preview-view"><div class="inline-title">Duplicate title</div><div class="metadata-container">Свойства карточки</div><div id="header"></div><div class="notes">' + marked.parse(body) + '</div></article></body></html>');
+            await page.setContent('<!doctype html><html><head><meta charset="utf-8"><style>' + baseline + '\n' + css + '</style></head><body class="' + theme + '"><article class="book-card markdown-preview-view"' + (pane ? ' style="width:' + pane + 'px"' : '') + '><div class="inline-title">Duplicate title</div><div class="metadata-container">Свойства карточки</div><div id="header"></div><div class="notes">' + marked.parse(body) + '</div></article></body></html>');
             await page.evaluate(async ({ card, source }) => {
                 const container = document.querySelector('#header');
                 const leaf = { view: { file: card, containerEl: document.querySelector('article') } };
@@ -62,10 +63,11 @@ async function main() {
             assert.equal(await page.locator('.book-card-rating').count(), card.path.includes('Non-fiction') ? 0 : 1);
             const bounds = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, clipped: [...document.querySelectorAll('.book-card-hero a,.book-card-title,.book-card-rating')].filter(el => { const r = el.getBoundingClientRect(); return r.width && (r.right > innerWidth + 1 || r.left < 0); }).map(el => el.textContent) }));
             assert(bounds.scroll <= width + 1, 'Page overflow: ' + JSON.stringify(bounds)); assert.deepEqual(bounds.clipped, []);
+            if (pane || width < 520) assert(await page.evaluate(() => Math.abs(document.querySelector('.book-card-primary').getBoundingClientRect().width - document.querySelector('.book-card-actions').getBoundingClientRect().width) < 2), 'Actions must expand in a narrow pane');
             await page.getByText('Записать чтение', { exact: true }).click();
             await page.locator('.book-card-author').first().click();
             assert.deepEqual(await page.evaluate(() => window.calls.slice(0, 2)), [{ name: 'Книги - Добавить чтение', vars: {}, active: card.path }, { name: 'Книги - Открыть автора', vars: { author: [].concat(card.fm.authors)[0] }, active: card.path }]);
-            if (out && card === azimov) { fs.mkdirSync(out, { recursive: true }); await page.screenshot({ path: path.join(out, `book-${theme}-${width}.png`), fullPage: true }); }
+            if (out && card === azimov) { fs.mkdirSync(out, { recursive: true }); await page.screenshot({ path: path.join(out, `book-${theme}-${width}${pane ? '-pane-' + pane : ''}.png`), fullPage: true }); }
             await page.locator('summary').click();
             await page.getByText('Показать свойства', { exact: true }).click();
             assert.equal(await page.locator('.metadata-container').isVisible(), true);
