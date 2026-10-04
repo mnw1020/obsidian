@@ -216,29 +216,18 @@ module.exports = async (params) => {
         return content;
     }
 
-    function cardPanel(hasSeries) {
-        let nav =
-            "[[Книги/_index|← Книги]] · " +
-            "[👤 Автор](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0)";
-        if (hasSeries) {
-            nav += " · [🧩 Серия](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%81%D0%B5%D1%80%D0%B8%D1%8E)";
-        }
-        nav += " · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8)";
-
-        const actions =
-            "[💡 Сохранить выписку](obsidian://quickadd?choice=" + encodeURIComponent("Книги - Добавить выписку") + ") · " +
-            "[📖 Записать чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
-            "[✏️ Редактировать чтение](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%87%D1%82%D0%B5%D0%BD%D0%B8%D0%B5) · " +
-            "[🎬 Кино](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B2%D1%8F%D0%B7%D0%B0%D1%82%D1%8C%20%D1%81%20%D0%BA%D0%B8%D0%BD%D0%BE)";
-
+    function cardPanel() {
         return [
-            "> [!info] 🧭 Навигация",
-            `> ${nav}`,
-            "",
-            "> [!abstract] ⚡ Действия",
-            `> ${actions}`,
-            "",
-            ""
+            '<!-- BOOK-CARD:START -->',
+            '```dataviewjs',
+            'const cardFile = app.vault.getAbstractFileByPath("Книги/_system/book_card.js");',
+            'if (cardFile) {',
+            '  const cardModule = { exports: {} };',
+            '  new Function("module", await app.vault.read(cardFile))(cardModule);',
+            '  await cardModule.exports.render({ app, dv });',
+            '} else { dv.paragraph("[[Книги/_index|← Библиотека]] · Модуль карточки не найден."); }',
+            '```',
+            '<!-- BOOK-CARD:END -->'
         ].join("\n");
     }
 
@@ -457,13 +446,13 @@ module.exports = async (params) => {
     content += `date: ${yamlString(date)}\n`;
     if (rating !== null) content += `rating: ${rating}\n`;
     content += "read_count: 1\n";
+    content += "cssclasses:\n  - book-card\n";
     if (series) {
         content += `series: ${yamlString(series)}\n`;
         content += `series_index: ${seriesIndex}\n`;
     }
     content += "---\n\n";
-    content += cardPanel(Boolean(series)) + "\n";
-    content += `# ${title}\n\n`;
+    content += cardPanel() + "\n\n";
     content += "## Заметки\n\n";
     content += historyBlock(date, rating, comment);
 
