@@ -68,6 +68,18 @@ test('unmarked legacy callouts and examples inside fenced code are excluded', ()
     assert.equal(knowledge.parseExcerpts(explicit.replace('^book-excerpt-included', '> ^book-excerpt-included')).length, 0);
 });
 
+test('excerpt saved dates are optional, validated and never inferred from an id or old text', () => {
+    const raw = knowledge.renderExcerpt({ text: 'Датированная мысль', type: 'idea', id: 'book-excerpt-dated', savedDate: '2026-10-04' });
+    assert.match(raw, /\*\*Сохранено:\*\* 2026-10-04/);
+    assert.equal(knowledge.parseExcerpts(raw)[0].savedDate, '2026-10-04');
+    const legacy = knowledge.renderExcerpt({ text: 'Старая мысль', id: 'book-excerpt-2024-10-04' });
+    assert.equal(knowledge.parseExcerpts(legacy)[0].savedDate, '');
+    assert.doesNotMatch(legacy, /Сохранено/);
+    assert.throws(() => knowledge.renderExcerpt({ text: 'Мысль', savedDate: '2026-02-30' }), /действительной датой/);
+    assert.equal(knowledge.parseExcerpts(raw.replace('2026-10-04', '2026-02-30'))[0].savedDate, '');
+    assert.equal(knowledge.localDate(new Date(2026, 9, 4, 0, 5)), '2026-10-04');
+});
+
 test('append leaves every byte of frontmatter, notes and reading history intact', () => {
     const raw = ('---\ntitle: "Книга"\n---\n\nЛичный конспект\n\n' + managedHistory + '\n  ').replace(/\n/g, '\r\n');
     const next = knowledge.applyExcerpt(raw, { text: 'Новая мысль', type: 'idea', id: 'book-excerpt-append' });
@@ -173,10 +185,46 @@ test('reading totals count rereadings and preserve month/year precision without 
     assert.equal(records[0].history[0].date, '2024-10');
 });
 
+test('year summaries use selected history ratings and dated excerpts without YAML counts or fabricated legacy years', () => {
+    const records = [
+        { file: { path: 'Книги/Художественные/А.md', basename: 'А' }, fm: { title: 'А', authors: ['Автор А'], rating: 10, read_count: 999, work_type: 'story' }, history: [
+            { number: 1, date: '2024-10', rating: 10 }, { number: 2, date: '2025-10', rating: 4 }, { number: 3, date: '2025-11-02', rating: null }
+        ], excerpts: [{ type: 'quote', savedDate: '2025-03-02' }, { type: 'idea', savedDate: '' }] },
+        { file: { path: 'Книги/Non-fiction/Б.md', basename: 'Б' }, fm: { title: 'Б', authors: ['Автор Б'], work_type: 'lecture', rating: 9 }, history: [{ number: 1, date: '2025', rating: 9 }], excerpts: [{ type: 'quote', savedDate: '2024-05-01' }] },
+        { file: { path: 'Книги/Художественные/В.md', basename: 'В' }, fm: { title: 'В', authors: ['Автор В'], rating: 9 }, history: [{ number: 1, date: '2020-01-01', rating: 9 }], excerpts: [{ type: 'idea', savedDate: '2025-10-04' }] },
+        { file: { path: 'Книги/Художественные/Г.md', basename: 'Г' }, fm: { title: 'Г', authors: ['Автор Г'] }, history: [], excerpts: [{ type: 'quote', savedDate: '2027-01-01' }] }
+    ];
+    const original = JSON.stringify(records), now = new Date(2026, 9, 4);
+    const result = dashboard.buildDashboard(records, { now, year: '2025' });
+    assert.equal(result.books, 3);
+    assert.equal(result.authors, 3);
+    assert.equal(result.readings, 3);
+    assert.equal(result.reread, 1);
+    assert.equal(result.ideas, 1);
+    assert.equal(result.quotes, 1);
+    assert.equal(result.undatedExcerpts, 1);
+    assert.deepEqual(result.types.map(row => [row.type, row.count]), [['story', 2], ['lecture', 1]]);
+    assert.deepEqual(result.favoriteBooks, []);
+    assert.equal(result.authorRows.find(row => row.name === 'Автор А').average, 4);
+    assert.equal(result.authorRows.find(row => row.name === 'Автор В').readings, 0);
+    assert.equal(result.authorRows.find(row => row.name === 'Автор В').average, null);
+    assert.ok(result.earlierThisMonth.some(entry => entry.date === '2024-10'));
+    assert.deepEqual(dashboard.availableYears(records), ['2027', '2025', '2024', '2020']);
+    const previous = dashboard.buildDashboard(records, { now, year: 2024 });
+    assert.equal(previous.favoriteBooks[0].rating, 10);
+    const excerptsOnly = dashboard.buildDashboard(records, { now, year: '2027' });
+    assert.equal(excerptsOnly.books, 1);
+    assert.equal(excerptsOnly.readings, 0);
+    assert.equal(excerptsOnly.quotes, 1);
+    assert.deepEqual(excerptsOnly.types, []);
+    assert.equal(JSON.stringify(records), original);
+});
+
 test('QuickAdd saves atomically with fresh field ids and can cancel without any write', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
     const ids = [];
     const api = {
+        date: { now: () => '2026-10-04' },
         suggester: async (labels, values) => values[0],
         requestInputs: async fields => {
             ids.push(fields.map(field => field.id));
@@ -188,6 +236,7 @@ test('QuickAdd saves atomically with fresh field ids and can cancel without any 
     assert.equal(h.changes.length, 2);
     assert.ok(h.changes[0].next.startsWith(managedHistory));
     assert.equal(knowledge.parseExcerpts(h.books[0].text).length, 2);
+    assert.ok(knowledge.parseExcerpts(h.books[0].text).every(entry => entry.savedDate === '2026-10-04'));
     assert.equal(new Set(ids.flat()).size, ids.flat().length);
     assert.match(h.opened[0][0], /#\^book-excerpt-/);
     await addExcerpt({ ...h, quickAddApi: { ...api, requestInputs: async () => undefined } });
@@ -284,7 +333,19 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 const source = all(container).find(node => node.tagName === 'a');
                 assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
                 if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 3);
-            } else assert.match(container.textContent, /1 произведений · 1 чтений/);
+            } else {
+                assert.match(container.textContent, /1 произведений · 1 чтений/);
+                const selects = all(container).filter(node => node.tagName === 'select');
+                assert.equal(selects.length, mode === 'home' ? 0 : 1);
+                if (mode === 'index') {
+                    assert.deepEqual(selects[0].children.map(option => option.value), ['', '2024']);
+                    selects[0].value = '2024';
+                    selects[0].events.change();
+                    assert.match(container.textContent, /За 2024: 1 произведений · 1 чтений/);
+                    assert.match(container.textContent, /Выписок без даты сохранения: 1/);
+                    assert.match(container.textContent, /0 идей · 0 цитат/);
+                }
+            }
             handle.dispose();
             for (const callback of cleanup) callback();
         }
