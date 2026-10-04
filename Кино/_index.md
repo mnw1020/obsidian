@@ -1,19 +1,48 @@
 ---
 cssclasses:
   - movies-dashboard
+  - kino-page
+  - kino-dashboard
 ---
-# 🎬 [[_Кино.base|Кинотека]]
-
-[[Кино/_system/README|📘 README]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка кинотеки]] · [[Кино/_system/Журнал изменений|📜 Журнал изменений]]
-
 ```dataviewjs
+const uiFile = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+if (uiFile) {
+    const ui = {exports:{}};
+    new Function("module", await app.vault.read(uiFile))(ui);
+    await ui.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, kind: "dashboard"});
+}
+
+const header = dv.container.createDiv({cls: "kino-dashboard-header"});
+header.createDiv({cls: "kino-eyebrow", text: "ЛИЧНАЯ КОЛЛЕКЦИЯ"});
+header.createEl("h1", {text: "Кинотека"});
+header.createEl("p", {cls: "kino-subtitle", text: "Фильмы, к которым хочется вернуться. Истории, которые ещё впереди."});
+const nav = header.createEl("nav", {cls: "kino-nav"});
+nav.setAttribute("aria-label", "Разделы кинотеки");
+function internalLink(parent, text, target) {
+    const link = parent.createEl("a", {cls: "internal-link", text, href: target});
+    link.setAttribute("data-href", target);
+    link.addEventListener("click", event => {
+        event.preventDefault();
+        app.workspace.openLinkText(target, dv.current().file.path, event.ctrlKey || event.metaKey);
+    });
+    return link;
+}
+for (const [label, target] of [
+    ["Вся коллекция", "Кино/_Кино.base#Карточки"],
+    ["Рекомендации", "Кино/_system/Рекомендации"],
+    ["Аналитика", "Кино/_system/Аналитика прогнозов"],
+    ["Проверка", "Кино/_system/Проверка кинотеки"],
+    ["Инструкция", "Кино/_system/README"],
+    ["Журнал", "Кино/_system/Журнал изменений"]
+]) internalLink(nav, label, target);
+
 const all = app.vault.getMarkdownFiles()
     .filter(f => f.path.startsWith("Кино/Media/") && !f.path.slice(11).includes("/"))
     .map(f => ({...app.metadataCache.getFileCache(f)?.frontmatter, file: {tags: app.metadataCache.getFileCache(f)?.frontmatter?.tags || []}}));
 
 function hasTag(page, tag) {
     const raw = page?.file?.tags ?? [];
-    const tags = Array.from(raw).map(t => String(t).replace(/^#/, ""));
+    const tags = (Array.isArray(raw) ? raw : [raw]).map(t => String(t).replace(/^#/, ""));
     return tags.includes(tag);
 }
 
@@ -61,12 +90,25 @@ for (const [icon, label, value] of stats) {
     card.append(iconEl, valueEl, labelEl);
     grid.appendChild(card);
 }
+
+function commandLink(parent, label, choice, primary = false) {
+    const link = parent.createEl("a", {text: label, href: `obsidian://quickadd?choice=${encodeURIComponent(choice)}`, cls: primary ? "kino-action kino-action-primary" : "kino-action"});
+    return link;
+}
+const actions = dv.container.createDiv({cls: "kino-actions"});
+commandLink(actions, "Добавить фильм или сериал", "movie_imdb", true);
+commandLink(actions, "Добавить просмотр", "Добавить просмотр");
+commandLink(actions, "Добавить сезон", "Добавить сезон");
+const editing = dv.container.createEl("details", {cls: "kino-edit-actions"});
+editing.createEl("summary", {text: "Управление коллекцией"});
+const editActions = editing.createDiv({cls: "kino-actions"});
+for (const [label, choice] of [["Редактировать сезон", "Редактировать сезон"], ["Редактировать просмотр", "Редактировать просмотр"], ["Пересобрать карточку", "Пересобрать карточку"], ["Изменить франшизу", "Франшиза"]]) commandLink(editActions, label, choice);
 ```
-`button-add-movie` `button-add-viewing` `button-add-season`
 
-Редактировать `^button-edit-season` `^button-edit-viewing` `^button-rebuild-card` `^button-kino-franshise`
+## Последние просмотры
 
-## 🕐 Последние просмотры
+Недавно просмотренное — впечатления и оценки рядом с постерами.
+
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {
@@ -75,7 +117,10 @@ if (file) {
     m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Последние", label: "последние просмотры"});
 }
 ```
-## 🔁 Перепросмотры
+## Хочется пересмотреть
+
+Любимые истории, к которым ты уже возвращался.
+
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {
@@ -84,7 +129,10 @@ if (file) {
     m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Перепросмотры", label: "перепросмотры"});
 }
 ```
-## 📺 Последние сериалы
+## Последние сериалы
+
+Продолжения и новые сезоны твоих сериалов.
+
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
 if (file) {
@@ -93,7 +141,9 @@ if (file) {
     m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Последние сериалы", label: "последние сериалы"});
 }
 ```
-## 📊 [[_Кино.base#Сравнение оценок|Сравнение оценок]]
+## [[_Кино.base#Сравнение оценок|Сравнение оценок]]
+
+Личные впечатления, прогноз, IMDb и Кинопоиск в одной таблице.
 
 ---
 

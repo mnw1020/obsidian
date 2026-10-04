@@ -69,6 +69,30 @@ properties:
     displayName: Жанр
 views:
   - type: dynamic-views-grid
+    name: Карточки
+    order:
+      - file.name
+      - formula.rating
+      - formula.type
+    sort:
+      - property: Просмотрено
+        direction: DESC
+      - property: file.name
+        direction: ASC
+    cardSize: 220
+    imageFit: contain
+    textPreviewProperty: note.Описание
+    fallbackToContent: false
+    textPreviewLines: 4
+    imageProperty: note.poster
+    imageFormat: poster
+    propertyNames: hide
+    id: kino-cinematheque-cards
+    displayFirstAsTitle: true
+    showFileImages: never
+    minimumColumns: one
+    displaySecondAsSubtitle: false
+  - type: dynamic-views-grid
     name: Последние
     order:
       - file.name
