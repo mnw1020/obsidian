@@ -18,6 +18,19 @@ function themes(value) {
     });
 }
 
+function isExactDate(value) {
+    const match = String(value ?? "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match || Number(match[1]) < 1) return false;
+    const date = new Date(0);
+    date.setUTCFullYear(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    return date.getUTCFullYear() === Number(match[1]) && date.getUTCMonth() === Number(match[2]) - 1 && date.getUTCDate() === Number(match[3]);
+}
+
+function localDate(now = new Date()) {
+    const pad = value => String(value).padStart(2, "0");
+    return `${String(now.getFullYear()).padStart(4, "0")}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 function parseExcerpts(text) {
     const lines = String(text ?? "").split(/\r?\n/);
     const excerpts = [];
@@ -40,12 +53,12 @@ function parseExcerpts(text) {
         const id = lines[anchor]?.match(/^\^(book-excerpt-[a-z0-9-]+)\s*$/i)?.[1];
         const meta = body.indexOf(META);
         if (!id || meta < 0) continue;
-        const fields = { themes: "", conclusion: "", location: "" };
+        const fields = { themes: "", conclusion: "", location: "", savedDate: "" };
         let field = null;
         for (const line of body.slice(meta + 1)) {
-            const match = line.match(/^\*\*(Темы|Вывод|Место в источнике):\*\*\s*(.*)$/);
+            const match = line.match(/^\*\*(Темы|Вывод|Место в источнике|Сохранено):\*\*\s*(.*)$/);
             if (match) {
-                field = { "Темы": "themes", "Вывод": "conclusion", "Место в источнике": "location" }[match[1]];
+                field = { "Темы": "themes", "Вывод": "conclusion", "Место в источнике": "location", "Сохранено": "savedDate" }[match[1]];
                 fields[field] = match[2];
             } else if (field) fields[field] += `\n${line.startsWith("  ") ? line.slice(2) : line}`;
         }
@@ -53,6 +66,7 @@ function parseExcerpts(text) {
         if (excerptText) excerpts.push({
             id, type: header[1].toLowerCase(), text: excerptText,
             themes: themes(fields.themes), conclusion: fields.conclusion.trim(), location: fields.location.trim(),
+            savedDate: isExactDate(fields.savedDate.trim()) ? fields.savedDate.trim() : "",
             line: i, endLine: anchor
         });
         i = anchor;
@@ -78,13 +92,16 @@ function renderExcerpt(value, newline = "\n") {
     if (!/^book-excerpt-[a-z0-9-]+$/i.test(id)) throw new Error("Некорректный идентификатор выписки.");
     const conclusion = String(value.conclusion ?? "").replace(/\r\n/g, "\n").trim();
     const location = String(value.location ?? "").replace(/[\r\n]+/g, " ").trim();
+    const savedDate = String(value.savedDate ?? "").trim();
+    if (savedDate && !isExactDate(savedDate)) throw new Error("Дата сохранения выписки должна быть действительной датой YYYY-MM-DD.");
     const content = [
         `> [!${type}] ${type === "quote" ? "Цитата" : "Идея"}`,
         ...text.split("\n").map(line => `> ${line}`), ">", `> ${META}`,
         `> **Темы:** ${themes(value.themes).join("; ")}`,
         `> **Вывод:** ${conclusion.split("\n")[0]}`,
         ...conclusion.split("\n").slice(1).map(line => `>   ${line}`),
-        `> **Место в источнике:** ${location}`, "", `^${id}`, ""
+        `> **Место в источнике:** ${location}`,
+        ...(savedDate ? [`> **Сохранено:** ${savedDate}`] : []), "", `^${id}`, ""
     ];
     return content.join(newline);
 }
@@ -146,7 +163,7 @@ function filterExcerpts(entries, filters = {}) {
         (!filters.type || entry.type === filters.type) &&
         (!filters.author || entry.authors.includes(filters.author)) &&
         (!filters.theme || entry.themes.some(theme => normalize(theme) === normalize(filters.theme))) &&
-        (!query || normalize([entry.text, entry.conclusion, entry.location, entry.title, ...entry.authors, ...entry.themes].join(" ")).includes(query))
+        (!query || normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, ...entry.authors, ...entry.themes].join(" ")).includes(query))
     );
 }
 
@@ -289,6 +306,10 @@ function renderCard(parent, entry, app) {
         conclusion.style.whiteSpace = "pre-wrap";
     }
     if (entry.location) element(card, "small", entry.location);
+    if (entry.savedDate) {
+        const [year, month, day] = entry.savedDate.split("-");
+        element(card, "div", `Сохранено: ${day}.${month}.${year}`, "book-excerpt-meta");
+    }
     sourceLink(element(card, "div"), entry, app);
 }
 
@@ -373,4 +394,4 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     return { reload, dispose };
 }
 
-module.exports = Object.assign(render, { parseExcerpts, renderExcerpt, applyExcerpt, filterExcerpts, noteSearch, createId, getService, loadCore, themes, normalize });
+module.exports = Object.assign(render, { parseExcerpts, renderExcerpt, applyExcerpt, filterExcerpts, noteSearch, createId, getService, loadCore, themes, normalize, isExactDate, localDate });

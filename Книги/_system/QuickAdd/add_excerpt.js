@@ -52,6 +52,7 @@ module.exports = async ({ app, quickAddApi, obsidian }) => {
     if (!values) return;
     const input = { type };
     for (const { key } of fields) input[key] = values[`${token}-${key}`] ?? "";
+    input.savedDate = quickAddApi.date?.now?.("YYYY-MM-DD") || knowledge.localDate();
     try {
         if (!String(input.text).trim()) throw new Error("Введите текст выписки.");
         if (!app.vault.process) throw new Error("Для безопасного сохранения требуется актуальная версия Obsidian с Vault.process.");

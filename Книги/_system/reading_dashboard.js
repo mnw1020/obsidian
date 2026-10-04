@@ -1,22 +1,47 @@
 // Reading totals use history entries; month-only dates remain month-only.
 const TYPE_LABELS = { book: "Книги", story: "Рассказы", lecture: "Лекции", article: "Статьи", other: "Другие" };
 
-function buildDashboard(records, { now = new Date() } = {}) {
+function availableYears(records) {
+    const years = new Set();
+    for (const record of records) {
+        for (const entry of record.history || []) if (/^\d{4}(?:-|$)/.test(entry.date)) years.add(entry.date.slice(0, 4));
+        for (const entry of record.excerpts || []) if (/^\d{4}-\d{2}-\d{2}$/.test(entry.savedDate || "")) years.add(entry.savedDate.slice(0, 4));
+    }
+    return [...years].sort((a, b) => b.localeCompare(a));
+}
+
+function buildDashboard(records, { now = new Date(), year = "" } = {}) {
+    year = String(year ?? "");
     const readings = [], authors = new Map(), favorites = [], types = new Map(), years = new Map();
-    let ideas = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0;
+    const allReadings = [];
+    let books = 0, ideas = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0;
     for (const record of records) {
         const fm = record.fm;
         const names = [...new Set((Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(v => String(v ?? "").trim()).filter(Boolean))];
-        const history = record.history || [];
+        const fullHistory = record.history || [];
+        const history = year ? fullHistory.filter(entry => entry.date.slice(0, 4) === year) : fullHistory;
+        const fullExcerpts = record.excerpts || [];
+        const excerpts = year ? fullExcerpts.filter(entry => entry.savedDate?.slice(0, 4) === year) : fullExcerpts;
         const type = fm.work_type || "book";
         const kind = Object.hasOwn(TYPE_LABELS, type) ? type : "other";
         const title = String(fm.title || record.file.basename);
         if (record.historyError || record.error) invalidHistory++;
-        if (history.length > 1) reread++;
-        for (const excerpt of record.excerpts || []) excerpt.type === "idea" ? ideas++ : quotes++;
+        undatedExcerpts += fullExcerpts.filter(entry => !entry.savedDate).length;
+        const fiction = record.file.path.startsWith("Книги/Художественные/");
+        for (const entry of fullHistory) {
+            allReadings.push({ ...entry, file: record.file, title, authors: names, type: kind });
+            const readingYear = entry.date.slice(0, 4);
+            if (!years.has(readingYear)) years.set(readingYear, { year: readingYear, readings: 0, fiction: 0, nonfiction: 0 });
+            const row = years.get(readingYear);
+            row.readings++;
+            row[fiction ? "fiction" : "nonfiction"]++;
+        }
+        if (year && !history.length && !excerpts.length) continue;
+        books++;
+        if (year ? history.some(entry => entry.number > 1) : history.length > 1) reread++;
+        for (const excerpt of excerpts) excerpt.type === "idea" ? ideas++ : quotes++;
         const chronological = [...history].sort((a, b) => a.date.localeCompare(b.date) || a.number - b.number);
         const latestRating = [...chronological].reverse().find(entry => entry.rating !== null && entry.rating !== undefined)?.rating;
-        const fiction = record.file.path.startsWith("Книги/Художественные/");
         if (fiction && Number(latestRating) >= 8 && Number(latestRating) <= 10) favorites.push({ file: record.file, title, authors: names, rating: Number(latestRating) });
         for (const author of names) {
             if (!authors.has(author)) authors.set(author, { name: author, books: 0, readings: 0, ratings: [] });
@@ -29,20 +54,15 @@ function buildDashboard(records, { now = new Date() } = {}) {
             const reading = { ...entry, file: record.file, title, authors: names, type: kind };
             readings.push(reading);
             types.set(kind, (types.get(kind) || 0) + 1);
-            const year = entry.date.slice(0, 4);
-            if (!years.has(year)) years.set(year, { year, readings: 0, fiction: 0, nonfiction: 0 });
-            const row = years.get(year);
-            row.readings++;
-            row[fiction ? "fiction" : "nonfiction"]++;
             if (entry.date.length < 10) imprecise++;
         }
     }
     const currentYear = now.getFullYear(), currentMonth = String(now.getMonth() + 1).padStart(2, "0");
     const monthKey = `${currentYear}-${currentMonth}`;
     return {
-        books: records.length, authors: authors.size, readings: readings.length, reread, ideas, quotes, imprecise, invalidHistory,
-        currentMonth: readings.filter(entry => entry.date.startsWith(monthKey)).length,
-        earlierThisMonth: readings.filter(entry => entry.date.length >= 7 && Number(entry.date.slice(0, 4)) < currentYear && entry.date.slice(5, 7) === currentMonth)
+        books, authors: authors.size, readings: readings.length, reread, ideas, quotes, imprecise, invalidHistory, year, undatedExcerpts,
+        currentMonth: allReadings.filter(entry => entry.date.startsWith(monthKey)).length,
+        earlierThisMonth: allReadings.filter(entry => entry.date.length >= 7 && Number(entry.date.slice(0, 4)) < currentYear && entry.date.slice(5, 7) === currentMonth)
             .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "ru")),
         types: [...types].map(([type, count]) => ({ type, label: TYPE_LABELS[type], count })),
         years: [...years.values()].sort((a, b) => b.year.localeCompare(a.year)),
@@ -91,8 +111,16 @@ function table(parent, headings, rows) {
 async function render({ dv, app, obsidian, mode = "index" }) {
     const root = element(dv.container, "div", undefined, "book-reading-dashboard");
     const status = element(root, "p", "Считаю историю чтений…");
+    let selectedYear = "", yearSelect;
+    if (mode !== "home") {
+        const controls = element(root, "div", undefined, "book-knowledge-controls");
+        const label = element(controls, "label", "Период ");
+        yearSelect = element(label, "select");
+        yearSelect.setAttribute("aria-label", "Год чтения");
+        yearSelect.addEventListener("change", () => { selectedYear = yearSelect.value; draw(); });
+    }
     const content = element(root, "div");
-    let disposed = false, timer, generation = 0;
+    let disposed = false, timer, generation = 0, records = [];
     const file = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
     if (!file) { status.textContent = "Не найден модуль библиотеки."; return; }
     const mod = { exports: {} };
@@ -101,23 +129,21 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         new Function("module", await app.vault.read(file))(mod);
         service = await mod.exports.getService({ app, obsidian });
     } catch (error) { status.textContent = `Не удалось собрать итоги: ${error.message || error}`; return; }
-    async function reload() {
-        const current = ++generation;
-        try {
-            const records = await service.snapshot();
-            if (disposed || current !== generation) return;
-            const model = buildDashboard(records);
+    function draw() {
+            const model = buildDashboard(records, { year: mode === "home" ? "" : selectedYear });
             content.replaceChildren();
-            status.textContent = `${model.books} произведений · ${model.readings} чтений · ${model.authors} авторов · ${model.ideas} идей · ${model.quotes} цитат`;
+            status.textContent = `${selectedYear ? `За ${selectedYear}: ` : ""}${model.books} произведений · ${model.readings} чтений · ${model.authors} авторов · ${model.ideas} идей · ${model.quotes} цитат`;
             if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку; значения YAML не подставляются вместо истории.`, "book-dashboard-warning");
             const metrics = element(content, "div", undefined, "book-dashboard-metrics");
-            for (const [label, count] of [["Чтений в этом месяце", model.currentMonth], ["Перечитано произведений", model.reread], ["Любимых произведений (8–10)", model.favoriteBooks.length]]) {
+            for (const [label, count] of [[selectedYear ? `Чтений за ${selectedYear}` : "Чтений в этом месяце", selectedYear ? model.readings : model.currentMonth], [selectedYear ? "Перечитано в этом году" : "Перечитано произведений", model.reread], ["Любимых произведений (8–10)", model.favoriteBooks.length]]) {
                 const metric = element(metrics, "div", undefined, "book-dashboard-metric");
                 element(metric, "strong", String(count));
                 element(metric, "span", label);
             }
             if (mode !== "home") {
-                element(content, "h2", "По годам");
+                if (selectedYear) element(content, "p", "Произведения и авторы включены, если в этом году есть чтение или сохранённая выписка. Оценки и типы чтений учитываются только по истории выбранного года.");
+                if (model.undatedExcerpts) element(content, "p", `Выписок без даты сохранения: ${model.undatedExcerpts}. Они входят в общие итоги, но не относятся к отдельному году автоматически.`);
+                element(content, "h2", "История по годам");
                 table(content, ["Год", "Чтений", "Художественных", "Non-fiction"], model.years.map(row => [row.year, row.readings, row.fiction, row.nonfiction]));
                 if (model.imprecise) element(content, "p", `Чтений с датой до месяца или года: ${model.imprecise}. Отсутствующие дни не восстанавливаются.`);
                 element(content, "h2", "Что читалось");
@@ -138,6 +164,22 @@ async function render({ dv, app, obsidian, mode = "index" }) {
                     element(row, "span", ` · ${service.core.displayDate(item.date)}`);
                 }
             }
+    }
+    async function reload() {
+        const current = ++generation;
+        try {
+            const next = await service.snapshot();
+            if (disposed || current !== generation) return;
+            records = next;
+            if (yearSelect) {
+                const years = availableYears(records);
+                yearSelect.replaceChildren();
+                element(yearSelect, "option", "За всё время").value = "";
+                for (const year of years) element(yearSelect, "option", year).value = year;
+                if (!years.includes(selectedYear)) selectedYear = "";
+                yearSelect.value = selectedYear;
+            }
+            draw();
         } catch (error) { if (!disposed) status.textContent = `Не удалось собрать итоги: ${error.message || error}`; }
     }
     const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
@@ -147,4 +189,4 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     return { reload, dispose };
 }
 
-module.exports = Object.assign(render, { buildDashboard });
+module.exports = Object.assign(render, { buildDashboard, availableYears });

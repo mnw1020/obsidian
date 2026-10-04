@@ -8,6 +8,10 @@ module.exports = async (params) => {
     const core = coreModule.exports({ app, obsidian });
     const request = params.variables?.bookReadingRequest;
     let bookFile = request ? app.vault.getAbstractFileByPath(request.path) : app.workspace.getActiveFile();
+    if (request && bookFile) {
+        try { await core.refreshFrontmatter(bookFile); }
+        catch (error) { new Notice(error.message, 10000); return; }
+    }
     if (request && !core.isBook(bookFile)) { new Notice("Карточка для нового чтения не найдена."); return; }
     if (!core.isBook(bookFile)) {
         const books = core.books().sort((a, b) => String(core.getFrontmatter(a).title).localeCompare(String(core.getFrontmatter(b).title), "ru"));
