@@ -1,6 +1,7 @@
 // Portable Obsidian module: explicit excerpts and a read-only index.
 const META = "<!-- BOOK-EXCERPT:META -->";
-const STATE_KEY = "__bookKnowledgeV1";
+// A new format version prevents a live Obsidian session from reusing old parsed metadata.
+const STATE_KEY = "__bookKnowledgeV2";
 const CORE_PATH = "Книги/_system/book_core.js";
 
 function normalize(value) {

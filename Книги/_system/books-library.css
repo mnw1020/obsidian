@@ -1,5 +1,8 @@
 /* Enable as an Obsidian snippet. All rules are local to library pages. */
 :is(.books-library, .books-entity, .book-knowledge, .book-reading-dashboard) { --books-radius: 12px; }
+.books-entity .inline-title,
+.books-entity .metadata-container,
+.books-library .metadata-container { display: none; }
 :is(.books-library, .books-entity, .book-knowledge, .book-reading-dashboard) .books-stat-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(90px, 1fr));

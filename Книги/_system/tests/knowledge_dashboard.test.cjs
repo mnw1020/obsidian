@@ -142,6 +142,16 @@ test('cache reuses unchanged content and invalidates modification, rename and de
     assert.equal((await service.snapshot()).length, 0);
 });
 
+test('new excerpt metadata does not reuse an older live parser cache', async () => {
+    const raw = managedHistory + '\n\n' + knowledge.renderExcerpt({ text: 'Новая идея', type: 'idea', id: 'book-excerpt-new-format', savedDate: '2026-10-04' });
+    const h = harness([{ path: 'Книги/Художественные/Книга.md', text: raw }]);
+    h.app.__bookKnowledgeV1 = { cache: new Map([[h.books[0].path, { mtime: 1, text: raw, excerpts: [{ id: 'book-excerpt-new-format', type: 'idea', text: 'Новая идея' }], history: [] }]]) };
+    const service = await knowledge.getService(h), records = await service.snapshot();
+    assert.equal(records[0].excerpts[0].savedDate, '2026-10-04');
+    assert.equal(dashboard.buildDashboard(records, { year: '2026' }).ideas, 1);
+    assert.equal(h.reads.get(h.books[0].path), 1);
+});
+
 test('full text search covers book notes and excludes other vault and system cards', async () => {
     const h = harness([
         { path: 'Книги/Художественные/Первая.md', text: 'Конспект о редкой идее\n\n' + managedHistory },
