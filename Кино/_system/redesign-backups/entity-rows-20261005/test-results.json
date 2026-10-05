@@ -1,0 +1,22 @@
+{
+  "passed": 23,
+  "failed": 0,
+  "suites": {
+    "person-pages": 8,
+    "person-ui": 6,
+    "system_views": 9
+  },
+  "browser": "Chrome",
+  "widths": [
+    390,
+    768,
+    1440
+  ],
+  "previews": 9,
+  "ordinaryRowMaximumHeight": {
+    "desktop": 100,
+    "mobile": 145
+  },
+  "genreIntegrated": true,
+  "snippetInstalled": true
+}

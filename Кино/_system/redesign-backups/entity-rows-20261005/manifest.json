@@ -1,0 +1,41 @@
+{
+  "created": "2026-10-05T08:37:49.669Z",
+  "files": {
+    "_system/person_ui.js": {
+      "sha256": "579f720909b2766f986803a8ea02b585c515b003b49fff7dbc660469ed5ae6c1",
+      "bytes": 21432
+    },
+    "_system/person_page_layout.js": {
+      "sha256": "3c060ffd1ec21d41007b1ca0a44ad7a59b217e6366fd6803cb8e7d5ef6d9a9cc",
+      "bytes": 5181
+    },
+    "_system/Жанр.md": {
+      "sha256": "c9b7c22bb86b3d01925e1caa90d3fc1bdf68dc0064f4e5e33d13ff91368447cc",
+      "bytes": 10764
+    },
+    "_system/open_kino_genre.js": {
+      "sha256": "dfc4bea6d121e7259e73cc0cc2b8fd0b87cdb137832a0e98be5ec7dda38e9262",
+      "bytes": 19668
+    },
+    "_system/kino-design.css": {
+      "sha256": "e117343e2887f56adcc1fa099586fa410dde7de7eadae2c5f8007fb7c8a89d8a",
+      "bytes": 34781
+    },
+    "_system/redesign_migrate.cjs": {
+      "sha256": "50ef8a0bcb00240271f17feb198b8075900ef6ce8a6bf30d0b8b04bfdf5665b0",
+      "bytes": 9114
+    },
+    "_system/Редизайн — прогресс.md": {
+      "sha256": "dfcb8ac036468270ededace1021b23c838f97daf7992ef7cebfaec5b6cf20b97",
+      "bytes": 15330
+    },
+    "_system/tests/person-ui.test.cjs": {
+      "sha256": "642efbbbf0d5acc5e12f1c280b2329d00b46cd1f96e3e2daf9c621ae75e8c41c",
+      "bytes": 19115
+    },
+    "_system/tests/person-pages.test.cjs": {
+      "sha256": "747d6419ae04149c44d603eecaf291749c2ac8ba815c35b941366a297d7cf710",
+      "bytes": 12113
+    }
+  }
+}

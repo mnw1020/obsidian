@@ -1,12 +1,12 @@
-/* Decorate generated actor/director pages without changing their data queries.
+/* Decorate generated actor/director/genre pages without changing their data queries.
  * No vault writes here. The caller owns reading, validation and persistence. */
 module.exports = function personPageLayout(raw, { kind } = {}) {
-    if (!["actor", "director"].includes(kind)) return raw;
+    if (!["actor", "director", "genre"].includes(kind)) return raw;
     if (raw.includes("// KINO:PERSON:PRESENTATION:V1")) return raw;
     const newline = raw.includes("\r\n") ? "\r\n" : "\n";
     const generated = /<!-- KINO:ENTITY:V1 -->[\s\S]*?```dataviewjs\r?\n([\s\S]*?)\r?\n```/.exec(raw);
     if (!generated) throw new Error("Не найден созданный блок страницы персоны");
-    const base = kind === "director" ? /```base\r?\n[\s\S]*?\r?\n```/.exec(raw.slice(generated.index + generated[0].length)) : null;
+    const base = kind !== "actor" ? /```base\r?\n[\s\S]*?\r?\n```/.exec(raw.slice(generated.index + generated[0].length)) : null;
     const baseSource = base?.[0] ?? "";
     let script = generated[1].replace(/\r\n/g, "\n");
     const helper = `// KINO:PERSON:PRESENTATION:V1
@@ -25,10 +25,12 @@ async function kinoPersonPresentation(name, entries) {
     }
 }
 `;
-    const selectedLine = kind === "actor" ? 'const selectedValue = dv.current()["Выбрано"] || "";' : 'const selected = kinoPersonDisplay(dv.current()["Выбрано"] || "");';
+    const selectedLine = kind === "actor" ? 'const selectedValue = dv.current()["Выбрано"] || "";'
+        : kind === "genre" ? 'const selected = kinoGenre(dv.current()["Выбрано"] || "");'
+        : 'const selected = kinoPersonDisplay(dv.current()["Выбрано"] || "");';
     if (!script.includes(selectedLine)) throw new Error("Не найден выбор персоны");
     script = script.replace(selectedLine, helper + selectedLine);
-    const empty = '    dv.paragraph("Выбери имя в кинотеке или запусти соответствующую команду QuickAdd.");';
+    const empty = '    dv.paragraph("Выбери ' + (kind === "genre" ? "жанр" : "имя") + ' в кинотеке или запусти соответствующую команду QuickAdd.");';
     if (!script.includes(empty)) throw new Error("Не найдена подсказка выбора");
     script = script.replace(empty, '    if (!await kinoPersonPresentation("", [])) {\n' + empty + '\n    }');
     const heading = '    dv.header(2, selected);\n';
@@ -60,7 +62,7 @@ async function kinoPersonPresentation(name, entries) {
     // Rendering it lazily in this note preserves the meaning of this.Выбрано.
     if (baseSource) {
         const start = updated.indexOf(baseSource, generated.index + updatedGenerated.length);
-        if (start < 0) throw new Error("Не найдена исходная таблица режиссёра");
+        if (start < 0) throw new Error("Не найдена исходная таблица страницы");
         updated = updated.slice(0, start) + updated.slice(start + baseSource.length);
     }
     return updated;

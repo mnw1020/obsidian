@@ -65,7 +65,7 @@ function targets() {
 }
 function assertRetained(original, updated, rel, options = {}) {
     const a=split(original), b=split(updated);
-    const personKind=rel==='_system/Актер.md'?'actor':rel==='_system/Режиссер.md'?'director':null;
+    const personKind=rel==='_system/Актер.md'?'actor':rel==='_system/Режиссер.md'?'director':rel==='_system/Жанр.md'?'genre':null;
     const comparableYaml=yaml=>{
         const clean=withoutClasses(yaml);
         // QuickAdd changes this view-selection field during normal use.

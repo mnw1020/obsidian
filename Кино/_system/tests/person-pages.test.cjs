@@ -6,8 +6,10 @@ const crypto=require('node:crypto');
 
 const system=path.resolve(__dirname,'..');
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
-const noteNames={actor:'Актер',director:'Режиссер'};
-const selected={actor:'Vitaly Gogunsky (Виталий Гогунский)',director:'Shawn Levy'};
+const noteNames={actor:'Актер',director:'Режиссер',genre:'Жанр'};
+const selected={actor:'Vitaly Gogunsky (Виталий Гогунский)',director:'Shawn Levy',genre:'Криминал'};
+const kinds=Object.keys(noteNames);
+const baseHashes={director:'1c93e5d312b312b4e6642fb9363df95c816db387bd514a607bede263b69d7147',genre:'b60b9446ebeb8b7aa90946fa52041bbe86ea5e852d08cf69e09bab3b49126e24'};
 
 function queryBlock(raw){
     const blocks=[...raw.matchAll(/```dataviewjs\r?\n([\s\S]*?)\r?\n```/g)].map(match=>match[1]);
@@ -18,13 +20,13 @@ function queryBlock(raw){
 function noteSource(kind){return fs.readFileSync(path.join(system,noteNames[kind]+'.md'),'utf8');}
 function movie(name,values={}){
     return {file:{path:'Кино/Media/'+name+'.md',name,link:{path:'Кино/Media/'+name+'.md'},tags:['#movies']},
-        tags:['movies'],'Режисер':['Shawn Levy'],'Релиз':'2025','Оценка':'9,5','Оценка Imdb':8.1,
+        tags:['movies'],'Режисер':['Shawn Levy'],'Жанр':['Криминал'],'Релиз':'2025','Оценка':'9,5','Оценка Imdb':8.1,
         'Оценка Кинопоиск':7.8,'Франшиза':'[[Кино/Франшизы/Пример]]',...values};
 }
 function fixture(){
     const a=movie('A');
-    const b=movie('B',{file:{path:'Кино/Media/B.md',name:'B',link:{path:'Кино/Media/B.md'},tags:['#serial']},tags:['serial'],'Оценка':7,'Релиз':'2020 — 2025'});
-    const unrelated=movie('Unrelated',{'Режисер':['Other Director']});
+    const b=movie('B',{file:{path:'Кино/Media/B.md',name:'B',link:{path:'Кино/Media/B.md'},tags:['#serial']},tags:['serial'],'Жанр':'cRiMe','Оценка':7,'Релиз':'2020 — 2025'});
+    const unrelated=movie('Unrelated',{'Режисер':['Other Director'],'Жанр':['Drama']});
     const notMedia=movie('NotMedia',{tags:['books']});
     const systemPage=movie('System',{file:{path:'Кино/_system/System.md',name:'System',link:{path:'Кино/_system/System.md'},tags:['#movies']}});
     const roles=[
@@ -77,24 +79,34 @@ test('director filmography keeps original media/tag filtering and original nativ
     // Snapshot of the existing native Base, normalizing line endings only.
     // Its original four views, filters, columns and summaries must stay available.
     const hash=crypto.createHash('sha256').update(view.baseSource.replace(/\r\n/g,'\n')).digest('hex');
-    assert.equal(hash,'1c93e5d312b312b4e6642fb9363df95c816db387bd514a607bede263b69d7147');
+    assert.equal(hash,baseHashes.director);
     assert.match(view.baseSource,/list\(note\["Режисер"\]\)\.contains\(this\.Выбрано\)/);
     assert.equal(result.output.length,0);assert.equal(result.writes.length,0);
 });
 
+test('genre catalogue keeps alias matching, media filtering and complete original native table',async()=>{
+    const result=await execute('genre',{selection:'  crime  '});
+    assert.equal(result.captured.length,1);
+    const view=result.captured[0];assert.equal(view.kind,'genre');assert.equal(view.selected,'Криминал');
+    assert.deepEqual(view.rows,[{page:result.data.a,role:''},{page:result.data.b,role:''}]);
+    assert.equal(crypto.createHash('sha256').update(view.baseSource.replace(/\r\n/g,'\n')).digest('hex'),baseHashes.genre);
+    assert.match(view.baseSource,/list\(note\["Жанр"\]\)\.contains\(this\.Выбрано\)/);
+    assert.equal(result.output.length,0);assert.deepEqual(result.queries,['"Кино/Media"']);assert.equal(result.writes.length,0);
+});
+
 test('empty selections stay usable and avoid scanning the collection',async()=>{
-    for(const kind of ['actor','director']){
+    for(const kind of kinds){
         const result=await execute(kind,{selection:''});
         assert.equal(result.captured.length,1);assert.equal(result.captured[0].selected,'');assert.deepEqual(result.captured[0].rows,[]);
         assert.equal(result.queries.length,0);assert.equal(result.writes.length,0);
         const fallback=await execute(kind,{selection:'',missing:true});
         assert.equal(fallback.captured.length,0);assert.equal(fallback.queries.length,0);
-        assert.ok(fallback.output.some(value=>typeof value==='string'&&/Выбери имя/.test(value)));
+        assert.ok(fallback.output.some(value=>typeof value==='string'&&/Выбери (?:имя|жанр)/.test(value)));
     }
 });
 
 test('missing or failing presentation helper preserves readable statistics and actor table',async()=>{
-    for(const kind of ['actor','director'])for(const failure of [{missing:true},{fail:true}]){
+    for(const kind of kinds)for(const failure of [{missing:true},{fail:true}]){
         const result=await execute(kind,failure);
         assert.equal(result.captured.length,0);
         assert.ok(result.output.some(value=>value?.level===2&&value.text===selected[kind]));
@@ -109,13 +121,15 @@ test('missing or failing presentation helper preserves readable statistics and a
     }
 });
 
-test('director fallback renders the original native table in the person note context',async()=>{
-    const calls=[];
-    await execute('director',{missing:true,obsidian:{MarkdownRenderer:{render:async(...args)=>calls.push(args)}}});
-    assert.equal(calls.length,1);
-    assert.equal(calls[0][3],'Кино/_system/Режиссер.md','this.Выбрано remains bound to the director note');
-    const hash=crypto.createHash('sha256').update(calls[0][1].replace(/\r\n/g,'\n')).digest('hex');
-    assert.equal(hash,'1c93e5d312b312b4e6642fb9363df95c816db387bd514a607bede263b69d7147');
+test('director and genre fallback tables render in the original note context',async()=>{
+    for(const kind of ['director','genre']){
+        const calls=[];
+        await execute(kind,{missing:true,obsidian:{MarkdownRenderer:{render:async(...args)=>calls.push(args)}}});
+        assert.equal(calls.length,1);
+        assert.equal(calls[0][3],'Кино/_system/'+noteNames[kind]+'.md','this.Выбрано remains bound to the original note');
+        const hash=crypto.createHash('sha256').update(calls[0][1].replace(/\r\n/g,'\n')).digest('hex');
+        assert.equal(hash,baseHashes[kind]);
+    }
 });
 
 async function openFixture(kind,{existing=false}={}){
@@ -141,7 +155,7 @@ async function openFixture(kind,{existing=false}={}){
 }
 
 test('person commands preserve existing note content and unrelated frontmatter while changing selection',async()=>{
-    for(const kind of ['actor','director']){
+    for(const kind of kinds){
         const result=await openFixture(kind,{existing:true});
         assert.equal(result.file.raw,'Личная заметка без изменений.');
         assert.deepEqual(result.fm,{...result.personal,Выбрано:selected[kind]});
@@ -149,11 +163,12 @@ test('person commands preserve existing note content and unrelated frontmatter w
 });
 
 test('person commands recreate usable filmography pages with the new presentation',async()=>{
-    for(const kind of ['actor','director']){
+    for(const kind of kinds){
         const result=await openFixture(kind);
         const view=await execute(kind,{raw:result.file.raw,app:result.app});
         assert.equal(view.captured.length,1);assert.equal(view.captured[0].kind,kind);assert.equal(view.captured[0].selected,selected[kind]);
         assert.deepEqual(view.captured[0].rows.map(row=>row.page.file.path),['Кино/Media/A.md','Кино/Media/B.md']);
         if(kind==='actor')assert.deepEqual(view.captured[0].rows.map(row=>row.role),['Вторая роль · Персонаж','Хорошая роль']);
+        else assert.match(view.captured[0].baseSource,/```base[\s\S]*?name: Лучшие/,'recreated page retains its original native table');
     }
 });

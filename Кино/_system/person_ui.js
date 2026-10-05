@@ -1,19 +1,20 @@
-/* Actor/director reading-view presentation. Input rows and notes are never modified. */
+/* Actor/director/genre reading-view presentation. Input rows and notes are never modified. */
 module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "actor", selected, rows, baseSource = "" }) {
     const container = dv?.container;
     if (!container?.ownerDocument) return;
     const doc = container.ownerDocument;
     const current = dv.current?.() ?? {};
     const sourcePath = String(current.file?.path ?? "");
-    const isActor = kind !== "director";
-    const profession = isActor ? "Актёр" : "Режиссёр";
-    const choice = isActor ? "Кино - Открыть актера" : "Кино - Открыть режиссера";
-    const chooseLabel = isActor ? "Выбрать актёра" : "Выбрать режиссёра";
+    const isGenre = kind === "genre";
+    const isActor = !isGenre && kind !== "director";
+    const profession = isGenre ? "Жанр" : isActor ? "Актёр" : "Режиссёр";
+    const choice = isGenre ? "Кино - Открыть жанр" : isActor ? "Кино - Открыть актера" : "Кино - Открыть режиссера";
+    const chooseLabel = isGenre ? "Выбрать жанр" : isActor ? "Выбрать актёра" : "Выбрать режиссёра";
     const view = container.closest(".markdown-preview-view, .markdown-source-view") ?? container;
     const leases = view.kinoPresentationClassLeases ?? (view.kinoPresentationClassLeases = new Map());
     const lease = leases.get("kino-person-page") ?? { count: 0, original: view.classList.contains("kino-person-page") };
     const root = element(container, "section", "kino-person");
-    root.dataset.kind = isActor ? "actor" : "director";
+    root.dataset.kind = isGenre ? "genre" : isActor ? "actor" : "director";
     let disposed = false;
     const cleanups = [];
 
@@ -100,18 +101,19 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         return { name: match ? match[1].trim() : name, subtitle: match ? match[2].trim() : "" };
     }
 
-    const name = nameParts(selected ?? current["Выбрано"]);
+    const selectedName = selected ?? current["Выбрано"];
+    const name = isGenre ? { name: text(selectedName).trim(), subtitle: "" } : nameParts(selectedName);
     const hasSelection = present(name.name);
     const header = element(root, "header", "kino-person-header");
     const identity = element(header, "div", "kino-person-identity");
     const monogram = element(identity, "div", "kino-person-monogram", hasSelection
-        ? name.name.split(/[\s-]+/).filter(Boolean).slice(0, 2).map(part => Array.from(part)[0]).join("").toLocaleUpperCase("ru") : isActor ? "А" : "Р");
+        ? name.name.split(/[\s-]+/).filter(Boolean).slice(0, 2).map(part => Array.from(part)[0]).join("").toLocaleUpperCase("ru") : isGenre ? "Ж" : isActor ? "А" : "Р");
     monogram.setAttribute("aria-hidden", "true");
     const heading = element(identity, "div", "kino-person-heading");
     element(heading, "div", "kino-person-eyebrow", `Кинотека / ${profession}`);
     element(heading, "h1", "kino-person-name", hasSelection ? name.name : profession);
     if (name.subtitle) element(heading, "p", "kino-person-subtitle", name.subtitle);
-    else if (!hasSelection) element(heading, "p", "kino-person-subtitle", isActor ? "Роли и истории в вашей коллекции" : "Фильмы и сериалы в вашей коллекции");
+    else if (!hasSelection) element(heading, "p", "kino-person-subtitle", isGenre ? "Фильмы и сериалы по жанрам" : isActor ? "Роли и истории в вашей коллекции" : "Фильмы и сериалы в вашей коллекции");
     choose(header);
 
     const items = values(rows).map((row, index) => {
@@ -145,12 +147,12 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
 
     const filmography = element(root, "section", "kino-person-filmography");
     const sectionHeading = element(filmography, "div", "kino-person-section-heading");
-    element(sectionHeading, "h2", "kino-person-section-title", "Фильмография");
+    element(sectionHeading, "h2", "kino-person-section-title", isGenre ? "Произведения" : "Фильмография");
     const count = element(sectionHeading, "span", "kino-person-result-count");
     count.setAttribute("aria-live", "polite");
     const controls = element(filmography, "div", "kino-person-controls");
     const searchLabel = element(controls, "label", "kino-person-search");
-    element(searchLabel, "span", "kino-person-control-label", "Поиск в фильмографии");
+    element(searchLabel, "span", "kino-person-control-label", isGenre ? "Поиск в жанре" : "Поиск в фильмографии");
     const search = element(searchLabel, "input", "kino-person-search-input");
     search.type = "search"; search.autocomplete = "off";
     search.placeholder = isActor ? "Название фильма, сериала или роль" : "Название фильма или сериала";
@@ -176,7 +178,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
     for (const [value, label] of [["newest", "Сначала новые"], ["name", "По названию"], ["myrating", "По моей оценке"]]) {
         const option = element(sort, "option", "", label); option.value = value;
     }
-    const grid = element(filmography, "div", "kino-person-grid");
+    const grid = element(filmography, "div", "kino-person-grid kino-person-rows");
     let cardListeners = [];
     function cardLink(parent, ref, label) {
         const link = internalLink(parent, ref, label);
@@ -199,24 +201,24 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         count.textContent = `${shown.length} ${plural(shown.length)}`;
         if (!hasSelection || !items.length || !shown.length) {
             const empty = element(grid, "div", "kino-person-empty");
-            element(empty, "h3", "", !hasSelection ? isActor ? "Чья фильмография вам интересна?" : "Чьи работы вам интересны?"
+            element(empty, "h3", "", !hasSelection ? isGenre ? "Какой жанр вам интересен?" : isActor ? "Чья фильмография вам интересна?" : "Чьи работы вам интересны?"
                 : !items.length ? "В коллекции пока нет произведений" : "Ничего не найдено");
-            element(empty, "p", "", !hasSelection ? isActor ? "Выберите актёра, чтобы увидеть фильмы, сериалы и роли." : "Выберите режиссёра, чтобы увидеть фильмы и сериалы."
+            element(empty, "p", "", !hasSelection ? isGenre ? "Выберите жанр, чтобы увидеть фильмы и сериалы." : isActor ? "Выберите актёра, чтобы увидеть фильмы, сериалы и роли." : "Выберите режиссёра, чтобы увидеть фильмы и сериалы."
                 : !items.length ? "Когда появятся связанные карточки, они будут здесь." : "Попробуйте другой запрос или фильтр.");
             return;
         }
         shown.forEach((item, index) => {
-            const card = element(grid, "article", "kino-person-card"); card.dataset.type = item.type;
-            const top = element(card, "div", "kino-person-card-top");
-            element(top, "span", "kino-person-card-number", String(index + 1).padStart(2, "0"));
-            element(top, "span", "kino-person-card-type", item.type === "series" ? "Сериал" : "Фильм");
-            const title = element(card, "h3", "kino-person-card-title");
+            const card = element(grid, "article", "kino-person-card kino-person-row"); card.dataset.type = item.type;
+            element(card, "span", "kino-person-card-number", String(index + 1).padStart(2, "0"));
+            const main = element(card, "div", "kino-person-row-main");
+            const title = element(main, "h3", "kino-person-card-title");
             cardLink(title, { path: item.path, label: item.title }, item.title);
-            const meta = element(card, "div", "kino-person-card-meta");
+            const meta = element(main, "div", "kino-person-card-meta kino-person-row-meta");
+            element(meta, "span", "kino-person-card-type", item.type === "series" ? "Сериал" : "Фильм");
             element(meta, "span", "kino-person-card-meta-label", "Релиз");
             element(meta, "span", "kino-person-card-release", item.release.label);
             if (isActor) {
-                const role = element(card, "div", "kino-person-card-role");
+                const role = element(main, "div", "kino-person-card-role");
                 element(role, "span", "kino-person-card-label", "Роль");
                 element(role, "span", "kino-person-card-role-value", item.role || "—");
             }
@@ -227,7 +229,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
                 element(score, "span", "kino-person-card-score-value", scoreText(item.page[key]));
             }
             if (item.franchises.length) {
-                const franchise = element(card, "div", "kino-person-card-franchise");
+                const franchise = element(main, "div", "kino-person-card-franchise");
                 element(franchise, "span", "kino-person-card-label", "Франшиза");
                 const links = element(franchise, "div", "kino-person-card-franchise-values");
                 item.franchises.forEach((value, valueIndex) => {
@@ -285,7 +287,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
     const legacyHeadings = [];
     if (view.classList.contains("markdown-preview-view")) {
         const scope = container.closest(".markdown-preview-section") ?? view;
-        const expected = isActor ? /^(?:Актер|Актёр)$/ : /^(?:Режиссер|Режиссёр)$/;
+        const expected = isGenre ? /^Жанр$/ : isActor ? /^(?:Актер|Актёр)$/ : /^(?:Режиссер|Режиссёр)$/;
         for (const title of scope.querySelectorAll("h1")) {
             if (root.contains(title) || !expected.test(title.textContent.trim())) continue;
             const titleLease = title.kinoPersonHeadingLease ?? (title.kinoPersonHeadingLease = { count: 0, original: title.classList.contains("kino-person-legacy-heading") });
