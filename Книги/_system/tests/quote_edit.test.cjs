@@ -156,6 +156,26 @@ test('modal saves one atomic update, keeps external edits, and can clear an inhe
     assert.deepEqual(changed.sourceAuthors, ['Автор, Имя', 'Второй автор']);
 });
 
+test('collection authors inherit for the form; no-op stays absent, explicit clearing stores blank and stops fallback', async () => {
+    const h = harness(quote(), { authors: ['Сергей Стиллавин'] });
+    assert.equal(knowledge.parseExcerpts(h.file.text)[0].sourceAuthors, undefined);
+    const unchanged = await h.open();
+    assert.equal(unchanged.fields.sourceAuthors.value, 'Сергей Стиллавин');
+    await unchanged.save();
+    assert.equal(h.writes.length, 0);
+    assert.equal(knowledge.parseExcerpts(h.file.text)[0].sourceAuthors, undefined);
+    const clearing = await h.open();
+    clearing.fields.sourceAuthors.value = '';
+    await clearing.save();
+    assert.equal(h.writes.length, 1);
+    assert.match(h.file.text, /> \*\*Автор:\*\* \n/);
+    assert.deepEqual(knowledge.parseExcerpts(h.file.text)[0].sourceAuthors, []);
+    const reopened = await h.open();
+    assert.equal(reopened.fields.sourceAuthors.value, '');
+    await reopened.save();
+    assert.equal(h.writes.length, 1);
+});
+
 test('book provenance is read-only and absent metadata is not injected on unrelated edits', async () => {
     const h = harness(quote(), { collection: false, title: 'Книга', authors: ['Автор'], section: 'Воспитание' });
     const modal = await h.open();

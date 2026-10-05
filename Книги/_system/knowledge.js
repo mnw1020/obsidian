@@ -59,7 +59,7 @@ function parseExcerpts(text) {
         const id = lines[anchor]?.match(/^\^(book-excerpt-[a-z0-9-]+)\s*$/i)?.[1];
         const meta = body.indexOf(META);
         if (!id || meta < 0) continue;
-        const fields = { themes: "", section: undefined, conclusion: "", location: "", sourceTitle: "", sourceAuthors: "", savedDate: "" };
+        const fields = { themes: "", section: undefined, conclusion: "", location: "", sourceTitle: "", sourceAuthors: undefined, savedDate: "" };
         const names = { "Темы": "themes", "Раздел": "section", "Вывод": "conclusion", "Место в источнике": "location", "Произведение": "sourceTitle", "Автор": "sourceAuthors", "Сохранено": "savedDate" };
         let field = null;
         for (const line of body.slice(meta + 1)) {
@@ -74,7 +74,8 @@ function parseExcerpts(text) {
             id, type: "quote", text: excerptText,
             themes: themes(fields.themes), conclusion: fields.conclusion.trim(), location: fields.location.trim(),
             ...(fields.section !== undefined ? { section: themePath(fields.section) } : {}),
-            sourceTitle: fields.sourceTitle.trim(), sourceAuthors: excerptAuthors(fields.sourceAuthors),
+            sourceTitle: fields.sourceTitle.trim(),
+            ...(fields.sourceAuthors !== undefined ? { sourceAuthors: excerptAuthors(fields.sourceAuthors) } : {}),
             savedDate: isExactDate(fields.savedDate.trim()) ? fields.savedDate.trim() : "",
             line: i, endLine: anchor
         });
@@ -111,7 +112,7 @@ function renderExcerpt(value, newline = "\n") {
         ...conclusion.split("\n").slice(1).map(line => `>   ${line}`),
         `> **Место в источнике:** ${location}`,
         ...(String(value.sourceTitle ?? "").trim() ? [`> **Произведение:** ${String(value.sourceTitle).replace(/[\r\n]+/g, " ").trim()}`] : []),
-        ...(excerptAuthors(value.sourceAuthors).length ? [`> **Автор:** ${excerptAuthors(value.sourceAuthors).join("; ")}`] : []),
+        ...(value.sourceAuthors !== undefined ? [`> **Автор:** ${excerptAuthors(value.sourceAuthors).join("; ")}`] : []),
         ...(savedDate ? [`> **Сохранено:** ${savedDate}`] : []), "", `^${id}`, ""
     ];
     return content.join(newline);
@@ -207,6 +208,11 @@ function excerptPage(entries, page = 1, size = 20) {
     const current = Math.min(pages, Math.max(1, Math.floor(Number(page) || 1)));
     const offset = (current - 1) * size;
     return { page: current, pages, start: entries.length ? offset + 1 : 0, end: Math.min(offset + size, entries.length), entries: entries.slice(offset, offset + size) };
+}
+
+function quoteCountLabel(count) {
+    const last = count % 10, teen = count % 100 >= 11 && count % 100 <= 14;
+    return `${count} ${teen ? "цитат" : last === 1 ? "цитата" : last >= 2 && last <= 4 ? "цитаты" : "цитат"}`;
 }
 
 function noteSearch(records, query) {
@@ -347,7 +353,7 @@ function sourceLink(parent, entry, app) {
 }
 
 function quoteSource(entry) {
-    const authors = entry.collection ? (entry.sourceAuthors?.length ? entry.sourceAuthors : entry.authors) : entry.authors;
+    const authors = entry.collection ? (entry.sourceAuthors !== undefined ? entry.sourceAuthors : entry.authors) : entry.authors;
     if (!entry.collection) return { key: `source:${entry.path}`, title: entry.title, authors, label: entry.title };
     if (entry.sourceTitle) return { key: `external:${normalize(entry.sourceTitle)}:${authors.map(normalize).join(";")}`, title: entry.sourceTitle, authors, label: entry.sourceTitle };
     if (authors.length) return { key: `author:${authors.map(normalize).join(";")}`, title: "", authors, label: authors.join(", ") };
@@ -399,13 +405,13 @@ function renderQuote(parent, entry, app, onEdit, home = false) {
     const source = quoteSource(entry);
     if (source.authors.length) element(info, "span", source.authors.join(", "), "book-quote-authors");
     const target = `${entry.path.replace(/\.md$/i, "")}#^${entry.id}`;
-    const link = element(info, "a", source.title || (entry.collection ? "Открыть заметку" : entry.title), "internal-link");
+    const link = element(info, "a", source.title || (source.authors.length ? "Открыть заметку" : "Источник не указан"), "internal-link");
+    link.title = `Открыть цитату: ${entry.title}`;
     link.href = target; link.setAttribute("data-href", target);
     link.addEventListener("click", event => {
         event.preventDefault();
         if (app.vault.getAbstractFileByPath(entry.path)) app.workspace.openLinkText(target, entry.path, event.ctrlKey || event.metaKey);
     });
-    if (!source.title && !source.authors.length) element(info, "small", "Источник не указан", "book-quote-source-unknown");
     if (entry.location) element(info, "small", entry.location, "book-quote-location");
     const edit = element(footer, "button", "Редактировать", "book-quote-edit");
     edit.setAttribute("aria-label", "Редактировать цитату");
@@ -431,7 +437,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     let entries = [], selected = remembered?.selected || "", view = remembered?.view || "sections", page = 1, randomId = null, treeData = [], editorPromise;
     let queryValue = remembered?.query || "", navigationQuery = "", searchVisible = Boolean(queryValue);
     const opened = new Set(remembered?.opened || []), limits = new Map(), modeButtons = [];
-    let status, content, tree, treeBody, treeSearch, heading, pagination, searchPanel, search, resetQuery, breadcrumb;
+    let status, content, tree, treeBody, treeSearch, heading, pagination, searchPanel, search, resetQuery, breadcrumb, navigationButton;
     function remember() {
         if (!home) app.__bookQuotesNavigationV1 = { selected, view, query: queryValue, opened: [...opened] };
     }
@@ -446,9 +452,12 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             await editor({ app, obsidian, entry, onSaved: async () => {
                 service.invalidate(entry.path); await reload();
                 const updated = entries.find(value => value.path === entry.path && value.id === entry.id);
-                if (!home && updated && !quoteInNode(updated, selected, view)) {
-                    selected = view === "sources" ? quoteSource(updated).key : `section:${normalize(quoteSectionPath(updated))}`;
-                    page = 1; revealSelection(); draw(); remember();
+                if (!home && updated) {
+                    if (queryValue && !filterExcerpts([updated], { query: queryValue }).length) { queryValue = ""; search.value = ""; }
+                    if (!quoteInNode(updated, selected, view)) selected = view === "sources" ? quoteSource(updated).key : `section:${normalize(quoteSectionPath(updated))}`;
+                    const visible = queryValue ? filterExcerpts(entries, { query: queryValue }) : entries.filter(value => quoteInNode(value, selected, view));
+                    page = Math.floor(Math.max(0, visible.indexOf(updated)) / 20) + 1;
+                    revealSelection(); drawTree(); draw(); remember();
                 }
             } });
         } catch (error) { status.textContent = `Не удалось открыть редактор: ${error.message || error}`; }
@@ -474,7 +483,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
                 treeData = buildQuoteTree(entries, view); ensureSelection(); revealSelection(); drawTree(); draw(); remember();
             }); modeButtons.push({ value, button });
         }
-        const navigation = element(toolbar, "button", "Навигация", "book-quotes-navigation-toggle");
+        const navigation = navigationButton = element(toolbar, "button", "Навигация", "book-quotes-navigation-toggle");
         navigation.setAttribute("aria-expanded", "false");
         navigation.addEventListener("click", () => {
             const expanded = navigation.getAttribute("aria-expanded") !== "true";
@@ -521,6 +530,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     function selectNode(key) {
         selected = key; page = 1; queryValue = ""; search.value = "";
         root.setAttribute("data-navigation-open", "false");
+        navigationButton.setAttribute("aria-expanded", "false");
         for (const row of modeButtons) row.button.setAttribute("aria-pressed", String(row.value === view));
         drawTree(); draw(); remember();
     }
@@ -565,7 +575,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     function draw() {
         content.replaceChildren();
         if (home) {
-            status.textContent = entries.length ? `${entries.length} цитат` : "Добавь первую цитату из карточки книги.";
+            status.textContent = entries.length ? quoteCountLabel(entries.length) : "Добавь первую цитату из карточки книги.";
             if (entries.length) {
                 const entry = entries.find(entry => `${entry.path}:${entry.id}` === randomId) || entries[Math.floor(Math.random() * entries.length)];
                 randomId = `${entry.path}:${entry.id}`; renderQuote(content, entry, app, edit, true);
@@ -586,7 +596,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         }
         const filtered = queryValue ? filterExcerpts(entries, { query: queryValue }) : entries.filter(entry => quoteInNode(entry, selected, view));
         const current = excerptPage(filtered, page); page = current.page;
-        status.textContent = `${current.start}–${current.end} из ${filtered.length} цитат`;
+        status.textContent = current.pages === 1 ? quoteCountLabel(filtered.length) : `${current.start}–${current.end} из ${filtered.length} цитат`;
         resetQuery.hidden = !queryValue;
         for (const entry of current.entries) renderQuote(content, entry, app, edit);
         if (!filtered.length) element(content, "p", entries.length ? "В этой подборке цитат пока нет." : "Добавь первую цитату из карточки книги.", "book-quotes-empty");
@@ -606,7 +616,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             const records = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
             entries = sortExcerpts(service.excerpts(records)).map(entry => ({ ...entry, searchText: excerptSearchText(entry) }));
-            loading.hidden = true;
+            loading.hidden = true; loading.textContent = "";
             if (!home) { treeData = buildQuoteTree(entries, view); ensureSelection(); revealSelection(); drawTree(); }
             draw();
             const failed = records.filter(record => record.error).length;

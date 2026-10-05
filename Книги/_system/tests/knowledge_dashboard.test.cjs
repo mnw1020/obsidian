@@ -163,6 +163,34 @@ test('stable pagination covers a large collection once and clamps the last page 
     assert.equal(JSON.stringify(entries), original);
 });
 
+test('quote sections and provenance round-trip separately from themes and ignore opaque metadata', () => {
+    const input = { id: 'book-excerpt-structured', text: 'Цитата', section: 'Мышление / Память', themes: ['сон'], conclusion: 'Мой вывод\nВторая строка', sourceTitle: 'Произведение', sourceAuthors: ['Фамилия, Имя', 'Другой автор'] };
+    const raw = knowledge.renderExcerpt(input) + '';
+    const [entry] = knowledge.parseExcerpts(raw.replace('> **Место в источнике:**', '> **Своё поле:** сохранить\n> **Место в источнике:**'));
+    assert.equal(entry.section, 'Мышление/Память'); assert.deepEqual(entry.themes, ['сон']);
+    assert.equal(entry.conclusion, input.conclusion); assert.equal(entry.sourceTitle, 'Произведение');
+    assert.deepEqual(entry.sourceAuthors, input.sourceAuthors);
+    const [legacy] = knowledge.parseExcerpts(knowledge.renderExcerpt({ id: 'book-excerpt-no-section', text: 'Старый текст' }));
+    assert.equal(legacy.section, undefined); assert.equal(legacy.sourceAuthors, undefined);
+    const [cleared] = knowledge.parseExcerpts(knowledge.renderExcerpt({ text: 'Текст', section: '', sourceAuthors: [] }));
+    assert.equal(cleared.section, ''); assert.deepEqual(cleared.sourceAuthors, []);
+});
+
+test('tree counts explicit sections once, preserves hierarchy and keeps identically titled books separate', () => {
+    const base = { title: 'Одинаковая книга', authors: ['Автор'], themes: ['Нельзя создавать раздел'], text: 'Цитата', collection: false };
+    const entries = [{ ...base, id: 'a', path: 'Книги/А.md', section: 'Мышление/Память' }, { ...base, id: 'b', path: 'Книги/Б.md', section: 'мышление/Внимание' }, { ...base, id: 'c', path: 'Книги/В.md', section: '' }];
+    const tree = knowledge.buildQuoteTree(entries);
+    assert.equal(tree[0].label, 'Мышление'); assert.equal(tree[0].count, 2); assert.equal(tree[0].children.length, 2);
+    assert.equal(tree[1].label, 'Неразобранное'); assert.equal(tree[1].count, 1);
+    assert.equal(knowledge.buildQuoteTree(entries, 'sources').length, 3);
+    assert.deepEqual(entries.filter(entry => knowledge.quoteInNode(entry, 'section:мышление')).map(entry => entry.id), ['a', 'b']);
+    const unknown = { ...base, collection: true, authors: [], title: 'Название подборки', path: 'Книги/Цитаты/Заметка.md' };
+    assert.equal(knowledge.quoteSource(unknown).key, 'source:unknown'); assert.equal(knowledge.quoteSource(unknown).title, '');
+    const attributed = { ...unknown, sourceTitle: 'Внешнее произведение', sourceAuthors: ['Писатель'] };
+    assert.equal(knowledge.quoteSource(attributed).title, 'Внешнее произведение');
+    assert.deepEqual(knowledge.quoteSource({ ...unknown, authors: ['Унаследованный автор'], sourceAuthors: [] }).authors, []);
+});
+
 test('cache reuses unchanged content and invalidates modification, rename and deletion', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
     const service = await knowledge.getService(h);
@@ -450,7 +478,11 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 assert.match(container.textContent, /Цитата для показа/);
                 const source = all(container).find(node => node.tagName === 'a');
                 assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
-                if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 2);
+                if (mode === 'index') {
+                    assert.equal(all(container).filter(node => node.tagName === 'select').length, 0);
+                    assert.ok(all(container).some(node => node.className === 'book-quotes-tree'));
+                    assert.ok(all(container).some(node => node.className === 'book-quote-edit'));
+                }
             } else {
                 const selects = all(container).filter(node => node.tagName === 'select');
                 assert.equal(selects.length, mode === 'home' ? 0 : 2);

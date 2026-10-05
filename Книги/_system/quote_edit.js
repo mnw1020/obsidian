@@ -97,8 +97,8 @@ function replaceExcerpt(raw, id, value, baseline) {
         if (field === "text" && !next) throw new Error("Введите текст цитаты.");
         if (field === "text" && (next.includes(META) || /^\^book-excerpt-/m.test(next))) throw new Error("Текст уже содержит служебные маркеры цитаты.");
         const matching = label ? segments.filter(segment => segment.label === label) : [];
-        const explicitEmptySection = field === "section" && !matching.length;
-        if (cleanValue(field, original[field]) === next && !explicitEmptySection) continue;
+        const explicitInheritedOverride = (field === "section" || field === "sourceAuthors") && !matching.length;
+        if (cleanValue(field, original[field]) === next && !explicitInheritedOverride) continue;
         if (field === "text") {
             edits.push({ from: block.lines[block.header + 1].start, to: block.lines[block.marker].start, text: next.split("\n").map(line => `> ${line}`).join(newline) + newline + ">" + newline });
             continue;
@@ -109,7 +109,7 @@ function replaceExcerpt(raw, id, value, baseline) {
         if (matching.length) {
             const segment = matching[0];
             edits.push({ from: block.lines[segment.first].start, to: block.lines[segment.last - 1].end, text: replacement });
-        } else if (next || field === "section") {
+        } else if (next || field === "section" || field === "sourceAuthors") {
             const last = block.lines[block.bodyEnd - 1];
             edits.push({ from: last.end, to: last.end, text: (last.newline ? "" : newline) + replacement });
         }
@@ -148,6 +148,7 @@ async function editQuote({ app, obsidian, entry, onSaved } = {}) {
         const block = findExcerptBlock(initialRaw, id), baseline = block.raw;
         const original = { ...parsed[0], ...editableValues(block) };
         original.section = parsed[0].section !== undefined ? parsed[0].section : entry.section || "";
+        if (entry.collection) original.sourceAuthors = parsed[0].sourceAuthors !== undefined ? parsed[0].sourceAuthors : entry.authors || [];
         class QuoteEditModal extends obsidian.Modal {
             onOpen() {
                 const content = this.contentEl;

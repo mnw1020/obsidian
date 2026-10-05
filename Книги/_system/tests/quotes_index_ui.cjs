@@ -24,18 +24,20 @@ function realFiles() {
     return files;
 }
 
+function makeFile(filePath, fm, excerpts) {
+    return { path: filePath, basename: filePath.split('/').at(-1).replace(/\.md$/u, ''), extension: 'md', stat: { mtime: 1 }, fm,
+        text: excerpts.map(excerpt => knowledge.renderExcerpt(excerpt)).join('\n') };
+}
 function syntheticFiles() {
     return Array.from({ length: 130 }, (_, index) => {
         const suffix = String(index).padStart(3, '0');
         const excerpts = Array.from({ length: 9 }, (_, number) => ({
             id: `book-excerpt-synthetic-${suffix}-${number}`,
-            text: index === 0 && number === 0 ? 'Начало длинной цитаты. ' + 'Текст, который не требуется добавлять в DOM до раскрытия. '.repeat(120) + '\nУникальныйХвост в самом конце.' : `Цитата ${suffix}/${number}. Текст для проверки большого каталога.`,
-            themes: [`${index < 65 ? 'Психология' : 'Практика'}/Тема ${suffix}/Подтема ${number}`, 'Общее'],
-            conclusion: number === 0 ? `Вывод ${suffix}` : '', location: `Глава ${number + 1}`, savedDate: number === 8 ? '' : '2026-10-05'
+            text: index === 0 && number === 0 ? 'Начало длинной цитаты. ' + 'Полный текст длинной цитаты для проверки переноса и поиска. '.repeat(120) + '\nУникальныйХвост в самом конце.' : `Цитата ${suffix}/${number}. Текст для проверки большого каталога.`,
+            section: `${index < 65 ? 'Психология' : 'Практика'}/Раздел ${suffix}/Подраздел ${number}`,
+            themes: ['Не раздел', 'Служебная метка'], conclusion: number === 0 ? `Вывод ${suffix}` : '', location: `Глава ${number + 1}`, savedDate: number === 8 ? '' : '2026-10-05'
         }));
-        return { path: `Книги/Non-fiction/synthetic-${suffix}.md`, basename: `synthetic-${suffix}`, extension: 'md', stat: { mtime: 1 },
-            fm: { title: index >= 128 ? 'Одинаковое название' : `Источник ${suffix}`, authors: [`Автор ${suffix}`] },
-            text: excerpts.map(excerpt => knowledge.renderExcerpt(excerpt)).join('\n') };
+        return makeFile(`Книги/Non-fiction/synthetic-${suffix}.md`, { title: index >= 128 ? 'Одинаковое название' : `Источник ${suffix}`, authors: [`Автор ${suffix}`] }, excerpts);
     });
 }
 
@@ -47,13 +49,14 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light' } = {
         const map = new Map(files.map(file => [file.path, file]));
         map.set('Книги/_system/book_core.js', { path: 'Книги/_system/book_core.js', text: core });
         map.set('Книги/_system/quotes-index.css', { path: 'Книги/_system/quotes-index.css', text: css });
-        const events = new Map(), opened = [], disposers = [];
+        map.set('Книги/_system/quote_edit.js', { path: 'Книги/_system/quote_edit.js', text: 'module.exports = async ({entry, onSaved}) => { window.fixture.editCalls.push({entry, onSaved}); };' });
+        const events = new Map(), opened = [], disposers = [], editCalls = [];
         const on = (name, callback) => { if (!events.has(name)) events.set(name, []); events.get(name).push(callback); return { name, callback }; };
         const emit = (name, ...args) => { for (const callback of events.get(name) || []) callback(...args); };
         const app = { vault: { getAbstractFileByPath: filePath => map.get(filePath), read: async file => file.text, getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), on },
             metadataCache: { getFileCache: file => ({ frontmatter: file.fm }), on }, workspace: { openLinkText: (...args) => { opened.push(args); } } };
         const module = { exports: {} }; new Function('module', source)(module);
-        window.fixture = { map, app, opened, emit, disposers,
+        window.fixture = { map, app, opened, emit, disposers, editCalls,
             remove(paths) { for (const filePath of paths) { const file = map.get(filePath); map.delete(filePath); if (file) emit('delete', file); } },
             add(file) { map.set(file.path, file); emit('create', file); },
             modify(filePath, text) { const file = map.get(filePath); file.text = text; file.stat.mtime++; emit('modify', file); } };
@@ -63,27 +66,35 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light' } = {
 }
 
 async function expectStatus(page, value) {
-    await page.waitForFunction(expected => { const actual = document.querySelector('.book-quotes-status')?.textContent; return actual === expected || actual?.startsWith(expected + ' · всего '); }, value);
-    const actual = await page.locator('.book-quotes-status').textContent();
-    assert(actual === value || actual.startsWith(value + ' · всего '), `Quote status: ${actual}`);
+    await page.waitForFunction(expected => document.querySelector('.book-quotes-status')?.textContent === expected, value);
+    assert.equal(await page.locator('.book-quotes-status').textContent(), value);
 }
 async function rowTargets(page) { return page.locator('.book-quotes-row a.internal-link').evaluateAll(links => links.map(link => link.getAttribute('data-href'))); }
-async function assertBounded(page, expectedRows) {
+function treeNode(page, key) { return page.locator(`.book-quotes-tree-row[data-node-key=${JSON.stringify(key)}]`); }
+async function showNavigation(page) {
+    const button = page.getByRole('button', { name: 'Навигация', exact: true });
+    if (await button.isVisible() && await button.getAttribute('aria-expanded') !== 'true') await button.click();
+}
+async function choose(page, key) { await showNavigation(page); await treeNode(page, key).click(); }
+async function mode(page, label) { await page.locator('.book-quotes-modes').getByRole('button', { name: label, exact: true }).click(); }
+async function search(page, query) {
+    const input = page.getByLabel('Поиск цитат', { exact: true });
+    if (!(await input.isVisible())) await page.getByRole('button', { name: 'Поиск', exact: true }).click();
+    await input.fill(query);
+}
+async function assertBounded(page, expectedRows, maxDom = 1200) {
     assert.equal(await page.locator('.book-quotes-row').count(), expectedRows);
-    assert.equal(await page.locator('.book-quotes-row .book-quote-details').count(), expectedRows);
+    assert.equal(await page.locator('.book-quotes-row .book-quote-text').count(), expectedRows);
     assert.equal(await page.locator('.book-quotes-row a.internal-link').count(), expectedRows);
-    assert((await page.locator('.book-quote-text').count()) <= expectedRows, 'Full quote texts are limited to the current page');
-    assert((await page.locator('.book-quotes-index *').count()) < 1000, 'The catalogue DOM stays bounded');
-    for (const label of ['Тема', 'Источник']) assert((await page.getByLabel(label, { exact: true }).locator('option').count()) <= 43, `${label} options stay bounded`);
-    assert.equal(await page.locator('.book-quotes-section-tile, .book-quotes-group').count(), 0);
+    assert.equal(await page.getByRole('button', { name: 'Редактировать цитату', exact: true }).count(), expectedRows);
+    assert((await page.locator('.book-quotes-index *').count()) < maxDom, 'The catalogue DOM stays bounded');
+    assert.equal(await page.locator('.book-quotes-section-tile, .book-quotes-group, .book-quote-details').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'The page fits its viewport');
 }
-async function reset(page) { await page.getByRole('button', { name: 'Сбросить', exact: true }).click(); }
-async function chooseTheme(page, label) {
-    const select = page.getByLabel('Тема', { exact: true });
-    const value = await select.locator('option').evaluateAll((options, expected) => options.find(option => option.textContent.trim().replace(/\s*[·(]\s*\d+\)?\s*$/, '') === expected)?.value, label);
-    assert(value, `Theme option is available: ${label}`);
-    await select.selectOption(value);
+async function screenshot(page, name) {
+    if (!process.env.QUOTES_SCREENSHOT_DIR) return;
+    fs.mkdirSync(process.env.QUOTES_SCREENSHOT_DIR, { recursive: true });
+    await page.screenshot({ path: path.join(process.env.QUOTES_SCREENSHOT_DIR, name) });
 }
 
 async function realCollectionChecks(browser) {
@@ -91,32 +102,37 @@ async function realCollectionChecks(browser) {
     for (const width of [320, 390, 1024]) for (const theme of ['theme-light', 'theme-dark']) {
         const { page, errors } = await mount(browser, files, { width, theme });
         try {
-            const status = await page.locator('.book-quotes-status').textContent(), total = Number(status.match(/из (\d+) цитат/u)?.[1]);
-            assert(total >= 18, `Real collection loaded: ${status}`);
-            await expectStatus(page, `1–${Math.min(20, total)} из ${total} цитат`);
-            await assertBounded(page, Math.min(20, total));
-            assert.equal(await page.locator('.book-quote-text').count(), 0, 'Initial rows do not contain complete quote texts');
-            assert.equal(await page.getByRole('button', { name: 'Сбросить', exact: true }).isVisible(), false);
-            await page.locator('.book-quote-details > summary').first().click();
-            await page.locator('.book-quote-text').first().waitFor({ state: 'visible' });
-            assert.equal(await page.locator('.book-quote-text').count(), 1);
-            assert.equal(await page.locator('.book-quote-text').first().isVisible(), true);
-            await page.locator('.book-quotes-filters > summary').click();
-            assert.equal(await page.getByLabel('Найти тему', { exact: true }).isVisible(), true);
-            assert.equal(await page.getByLabel('Найти источник', { exact: true }).isVisible(), true);
-            await page.getByLabel('Поиск цитат', { exact: true }).fill('мелкой моторики');
-            await expectStatus(page, '1–1 из 1 цитат');
-            assert.equal(await page.locator('.book-quotes-row').count(), 1);
-            await page.locator('.book-quote-details > summary').click();
-            assert.match(await page.locator('.book-quote-text').textContent(), /мелкой моторики/u);
-            await reset(page);
-            await expectStatus(page, `1–${Math.min(20, total)} из ${total} цитат`);
-            await assertBounded(page, Math.min(20, total));
-            if (process.env.QUOTES_SCREENSHOT_DIR && [390, 1024].includes(width) && theme === 'theme-light') {
-                fs.mkdirSync(process.env.QUOTES_SCREENSHOT_DIR, { recursive: true });
-                await page.locator('.book-quotes-filters').evaluate(details => { details.open = false; });
-                await page.screenshot({ path: path.join(process.env.QUOTES_SCREENSHOT_DIR, width === 390 ? 'quotes-minimal.png' : 'quotes-minimal-desktop.png') });
+            await expectStatus(page, '1–11 из 11 цитат'); await assertBounded(page, 11);
+            assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Мотивация');
+            assert.equal(await page.locator('.book-quotes-modes').getByRole('button', { name: 'Разделы', exact: true }).getAttribute('aria-pressed'), 'true');
+            assert.equal(await page.getByLabel('Поиск цитат', { exact: true }).isVisible(), false);
+            const navigation = page.getByRole('button', { name: 'Навигация', exact: true });
+            if (width < 600) {
+                assert.equal(await page.locator('.book-quotes-tree').isVisible(), false);
+                await navigation.click(); assert.equal(await navigation.getAttribute('aria-expanded'), 'true');
+                assert.equal(await page.locator('.book-quotes-tree').isVisible(), true);
+            } else {
+                const treeBox = await page.locator('.book-quotes-tree').boundingBox(), readingBox = await page.locator('.book-quotes-reading').boundingBox();
+                assert(treeBox.x + treeBox.width <= readingBox.x, 'Desktop tree and reading are adjacent columns');
             }
+            for (const [key, count] of [['мотивация', 11], ['мышление', 1], ['отношения', 1], ['юмор', 4], ['воспитание', 1]]) {
+                assert.equal(await treeNode(page, `section:${key}`).locator('.book-quotes-tree-count').textContent(), String(count));
+            }
+            await choose(page, 'section:воспитание'); await expectStatus(page, '1–1 из 1 цитат');
+            assert.match(await page.locator('.book-quote-text').textContent(), /мелкой моторики/u);
+            await search(page, 'мелкой моторики'); await expectStatus(page, '1–1 из 1 цитат');
+            assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Результаты поиска');
+            await page.getByRole('button', { name: 'Сбросить поиск', exact: true }).click();
+            await choose(page, 'section:мотивация'); await expectStatus(page, '1–11 из 11 цитат');
+            if (theme === 'theme-light' && [390, 1024].includes(width)) {
+                if (await page.getByLabel('Поиск цитат', { exact: true }).isVisible()) await page.getByRole('button', { name: 'Поиск', exact: true }).click();
+                await page.evaluate(() => window.scrollTo(0, 0));
+                await screenshot(page, width === 390 ? 'quotes-tree-mobile.png' : 'quotes-tree-desktop.png');
+                if (width === 390) { await showNavigation(page); await screenshot(page, 'quotes-tree-mobile-navigation.png'); }
+            }
+            await mode(page, 'Источники'); await showNavigation(page);
+            assert.equal(await treeNode(page, 'source:unknown').locator('.book-quotes-tree-label').textContent(), 'Без источника');
+            assert.equal(await page.locator('.book-quotes-tree-label').filter({ hasText: /^Мотивация$/u }).count(), 0, 'Old collection titles are not fictional sources');
             await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []); checks++;
         } finally { await page.close(); }
     }
@@ -126,91 +142,115 @@ async function realCollectionChecks(browser) {
 async function largeCollectionChecks(browser) {
     const files = syntheticFiles(), total = 1170, { page, errors } = await mount(browser, files);
     try {
-        await expectStatus(page, '1–20 из 1170 цитат'); await assertBounded(page, 20);
-        assert.equal(await page.locator('.book-quote-text').count(), 0);
-        assert.equal(await page.getByRole('navigation', { name: 'Страницы цитат', exact: true }).isVisible(), true);
-        assert.equal(await page.getByRole('button', { name: 'Назад', exact: true }).isDisabled(), true);
-        assert.match(await page.getByRole('navigation', { name: 'Страницы цитат', exact: true }).textContent(), /1\s*\/\s*59/u);
-        const initialTargets = await rowTargets(page);
-        await page.locator('.book-quotes-filters > summary').click();
-        for (const label of ['Тема', 'Источник']) assert((await page.getByLabel(label, { exact: true }).locator('option:disabled').count()) > 0, `${label} prompts to narrow the option search`);
-        await page.getByLabel('Найти тему', { exact: true }).fill('Психология'); await chooseTheme(page, 'Психология');
-        await expectStatus(page, '1–20 из 585 цитат');
-        const psychologyTargets = await rowTargets(page);
-        assert.equal(new Set(psychologyTargets).size, 20);
-        assert(psychologyTargets.every(target => Number(target.match(/synthetic-(\d+)/u)[1]) < 65), 'A parent theme includes child themes');
-        assert.match(await page.getByRole('navigation', { name: 'Страницы цитат', exact: true }).textContent(), /1\s*\/\s*30/u);
-        await page.getByLabel('Найти тему', { exact: true }).fill('Тема 000/Подтема 0'); await chooseTheme(page, 'Психология/Тема 000/Подтема 0');
-        await expectStatus(page, '1–1 из 1 цитат');
-        assert.equal((await rowTargets(page))[0], 'Книги/Non-fiction/synthetic-000#^book-excerpt-synthetic-000-0'); await reset(page);
+        await expectStatus(page, '1–20 из 585 цитат'); await assertBounded(page, 20);
+        assert.equal(await page.locator('.book-quotes-tree-label').filter({ hasText: 'Не раздел' }).count(), 0, 'Themes are not sections');
+        const rootBranch = page.locator('.book-quotes-tree-branch').filter({ has: page.locator('summary[aria-label="Подразделы: Психология"]') }).first();
+        assert.equal(await rootBranch.getAttribute('open'), null);
+        await choose(page, 'section:психология');
+        assert.equal(await rootBranch.getAttribute('open'), null, 'Selecting a branch does not expand it');
+        await rootBranch.evaluate(branch => { branch.open = true; });
+        await treeNode(page, 'section:психология/раздел 000').waitFor({ state: 'visible' });
+        assert.equal(await rootBranch.locator(':scope > .book-quotes-tree-children > .book-quotes-tree-branch').count(), 40);
+        assert.equal(await rootBranch.getByRole('button', { name: 'Ещё разделы', exact: true }).count(), 1);
+        await assertBounded(page, 20);
+        await rootBranch.getByRole('button', { name: 'Ещё разделы', exact: true }).click();
+        assert.equal(await rootBranch.locator(':scope > .book-quotes-tree-children > .book-quotes-tree-branch').count(), 65);
+        await choose(page, 'section:психология/раздел 000'); await expectStatus(page, '1–9 из 9 цитат');
+        const childBranch = treeNode(page, 'section:психология/раздел 000').locator('xpath=../..');
+        await childBranch.evaluate(branch => { branch.open = true; });
+        await treeNode(page, 'section:психология/раздел 000/подраздел 0').waitFor({ state: 'visible' });
+        await choose(page, 'section:психология/раздел 000/подраздел 0'); await expectStatus(page, '1–1 из 1 цитат');
+        assert.match(await page.locator('.book-quote-text').textContent(), /УникальныйХвост/u);
+        assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Вывод 000');
 
-        await page.getByLabel('Найти источник', { exact: true }).fill('Одинаковое название');
-        const sameTitleOptions = await page.getByLabel('Источник', { exact: true }).locator('option').evaluateAll(options => options.filter(option => option.textContent.includes('Одинаковое название')).map(option => option.value));
-        assert.deepEqual(sameTitleOptions.sort(), ['Книги/Non-fiction/synthetic-128.md', 'Книги/Non-fiction/synthetic-129.md']);
-        await page.getByLabel('Источник', { exact: true }).selectOption('Книги/Non-fiction/synthetic-129.md');
-        await expectStatus(page, '1–9 из 9 цитат');
+        await page.getByRole('button', { name: 'Редактировать цитату', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.editCalls.length === 1);
+        assert.equal(await page.evaluate(() => window.fixture.editCalls[0].entry.id), 'book-excerpt-synthetic-000-0');
+        const edited = knowledge.parseExcerpts(files[0].text).map(entry => knowledge.renderExcerpt(entry.id.endsWith('-0') ? { ...entry, text: 'Отредактированная цитата.', section: 'Редактирование/Новый раздел', conclusion: 'Отредактированный вывод' } : entry)).join('\n');
+        await page.evaluate(async ({ filePath, text }) => { window.fixture.modify(filePath, text); await window.fixture.editCalls[0].onSaved({ path: filePath, id: 'book-excerpt-synthetic-000-0' }); }, { filePath: files[0].path, text: edited });
+        await expectStatus(page, '1–1 из 1 цитат');
+        assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Новый раздел', 'Saving follows a quote moved to another section');
+        assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Отредактированный вывод');
+
+        await mode(page, 'Источники'); await expectStatus(page, '1–9 из 9 цитат');
+        assert.equal(await page.locator('.book-quotes-tree-row').count(), 41, 'Source tree starts with at most 40 sources and All');
+        await page.getByRole('button', { name: 'Ещё источники', exact: true }).click();
+        assert.equal(await page.locator('.book-quotes-tree-row').count(), 81);
+        await page.getByLabel('Поиск разделов и источников', { exact: true }).fill('Одинаковое название');
+        assert.equal(await page.locator('.book-quotes-tree-row').count(), 3);
+        await choose(page, 'source:Книги/Non-fiction/synthetic-129.md'); await expectStatus(page, '1–9 из 9 цитат');
         assert((await rowTargets(page)).every(target => target.startsWith('Книги/Non-fiction/synthetic-129#^')));
-        await page.getByLabel('Найти источник', { exact: true }).fill('такого источника нет');
-        assert.equal(await page.getByLabel('Источник', { exact: true }).inputValue(), 'Книги/Non-fiction/synthetic-129.md', 'Narrowing options retains the active source'); await reset(page);
-
-        await page.getByLabel('Поиск цитат', { exact: true }).fill('УникальныйХвост 000 Автор');
-        await expectStatus(page, '1–1 из 1 цитат');
-        assert.equal(await page.locator('.book-quote-text').count(), 0, 'Search indexes the full quote without rendering it');
-        assert((await page.locator('.book-quote-details > summary').textContent()).length < 700, 'A long quote preview stays short');
-        await page.locator('.book-quote-details > summary').click(); assert.match(await page.locator('.book-quote-text').textContent(), /УникальныйХвост/u);
-        const exactTarget = 'Книги/Non-fiction/synthetic-000#^book-excerpt-synthetic-000-0';
+        await search(page, 'Хвоста больше нет'); await expectStatus(page, '0–0 из 0 цитат');
+        await search(page, 'Отредактированный 000 Автор'); await expectStatus(page, '1–1 из 1 цитат');
+        assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Отредактированный вывод');
+        const target = 'Книги/Non-fiction/synthetic-000#^book-excerpt-synthetic-000-0';
         await page.locator('.book-quotes-row a.internal-link').click({ modifiers: ['Control'] });
-        assert.deepEqual(await page.evaluate(() => window.fixture.opened.at(-1)), [exactTarget, 'Книги/Non-fiction/synthetic-000.md', true]);
-        await reset(page); assert.deepEqual(await rowTargets(page), initialTargets, 'Reset restores stable initial ordering');
-
-        const visited = [];
+        assert.deepEqual(await page.evaluate(() => window.fixture.opened.at(-1)), [target, files[0].path, true]);
+        await page.getByRole('button', { name: 'Сбросить поиск', exact: true }).click();
+        await choose(page, 'all'); await expectStatus(page, '1–20 из 1170 цитат');
+        const initialTargets = await rowTargets(page), visited = [];
         for (let number = 1; number <= 59; number++) {
             const count = Math.min(20, total - (number - 1) * 20);
             await expectStatus(page, `${(number - 1) * 20 + 1}–${(number - 1) * 20 + count} из ${total} цитат`);
             await assertBounded(page, count); visited.push(...await rowTargets(page));
             if (number < 59) await page.getByRole('button', { name: 'Далее', exact: true }).click();
         }
-        assert.equal(visited.length, total); assert.equal(new Set(visited).size, total, 'Pagination contains every quote exactly once');
+        assert.equal(visited.length, total); assert.equal(new Set(visited).size, total, 'Every quote appears exactly once across pages');
         assert.equal(await page.getByRole('button', { name: 'Далее', exact: true }).isDisabled(), true);
         await page.evaluate(paths => window.fixture.remove(paths), files.slice(110).map(file => file.path));
         await expectStatus(page, '981–990 из 990 цитат'); await assertBounded(page, 10);
-        assert.match(await page.getByRole('navigation', { name: 'Страницы цитат', exact: true }).textContent(), /50\s*\/\s*50/u);
-        await page.getByLabel('Поиск цитат', { exact: true }).fill('УникальныйХвост'); await expectStatus(page, '1–1 из 1 цитат');
-        await reset(page); await expectStatus(page, '1–20 из 990 цитат');
-        const live = { path: 'Книги/Non-fiction/synthetic-live.md', basename: 'synthetic-live', extension: 'md', stat: { mtime: 1 }, fm: { title: 'А свежий источник', authors: ['Живой Автор'] },
-            text: knowledge.renderExcerpt({ id: 'book-excerpt-live', text: 'Новая цитата для живого обновления.', themes: ['Новая/Подтема'], savedDate: '2026-10-06' }) };
+        await choose(page, 'all'); assert.deepEqual(await rowTargets(page), initialTargets, 'All restores stable initial ordering');
+        const live = makeFile('Книги/Non-fiction/synthetic-live.md', { title: 'А свежий источник', authors: ['Живой Автор'] }, [{ id: 'book-excerpt-live', text: 'Новая цитата для живого обновления.', section: 'Новая/Подраздел', savedDate: '2026-10-06' }]);
         await page.evaluate(file => window.fixture.add(file), live); await expectStatus(page, '1–20 из 991 цитат');
-        assert.equal((await rowTargets(page))[0], 'Книги/Non-fiction/synthetic-live#^book-excerpt-live', 'A newly saved quote sorts first');
-        await page.getByLabel('Поиск цитат', { exact: true }).fill('Живая правка');
-        await page.waitForFunction(() => document.querySelectorAll('.book-quotes-row').length === 0);
-        const changed = knowledge.renderExcerpt({ id: 'book-excerpt-live', text: 'Живая правка цитаты.', themes: ['Новая/Подтема'], savedDate: '2026-10-06' });
+        assert.equal((await rowTargets(page))[0], 'Книги/Non-fiction/synthetic-live#^book-excerpt-live');
+        await search(page, 'Живая правка'); await expectStatus(page, '0–0 из 0 цитат');
+        const changed = knowledge.renderExcerpt({ id: 'book-excerpt-live', text: 'Живая правка цитаты.', section: 'Новая/Подраздел', conclusion: 'Живой вывод', savedDate: '2026-10-06' });
         await page.evaluate(({ filePath, text }) => window.fixture.modify(filePath, text), { filePath: live.path, text: changed });
-        await expectStatus(page, '1–1 из 1 цитат'); await page.locator('.book-quote-details > summary').click();
-        assert.equal(await page.locator('.book-quote-text').textContent(), 'Живая правка цитаты.');
-        await reset(page); await assertBounded(page, 20); await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
+        await expectStatus(page, '1–1 из 1 цитат'); assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Живой вывод');
+        await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
     } finally { await page.close(); }
 }
 
-async function themeCaseChecks(browser) {
-    const files = ['Память/Обучение', 'память/обучение', 'Другая тема'].map((theme, index) => ({
-        path: `Книги/Non-fiction/case-${index}.md`, basename: `case-${index}`, extension: 'md', stat: { mtime: 1 },
-        fm: { title: `Источник ${index}`, authors: ['Автор'] },
-        text: knowledge.renderExcerpt({ id: `book-excerpt-case-${index}`, text: `Цитата ${index}`, themes: [theme] })
-    }));
+async function attributionChecks(browser) {
+    const files = [makeFile('Книги/Цитаты/catalog-a.md', { note_type: 'excerpt_collection', title: 'Каталог А', authors: [], quote_section: 'Архив/Мысли' }, [
+        { id: 'book-excerpt-external-1', text: 'Первый фрагмент.', sourceTitle: 'Один источник', sourceAuthors: ['Настоящий Автор'], conclusion: 'Осмысленный вывод\nСтрока2' },
+        { id: 'book-excerpt-unknown', text: 'Неизвестный фрагмент.', section: '' }
+    ]), makeFile('Книги/Цитаты/catalog-b.md', { note_type: 'excerpt_collection', title: 'Каталог Б', authors: [], quote_section: 'Архив/Мысли' }, [
+        { id: 'book-excerpt-external-2', text: 'Второй фрагмент.', sourceTitle: 'Один источник', sourceAuthors: ['Настоящий Автор'] },
+        { id: 'book-excerpt-author', text: 'Только автор.', section: '', sourceAuthors: ['Автор без произведения'] }
+    ])];
     const { page, errors } = await mount(browser, files);
     try {
-        await expectStatus(page, '1–3 из 3 цитат');
-        await page.locator('.book-quotes-row-themes button').filter({ hasText: /^память\/обучение$/u }).click();
+        await expectStatus(page, '1–2 из 2 цитат'); assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Архив');
+        assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Осмысленный вывод\nСтрока2');
+        await choose(page, 'all'); await expectStatus(page, '1–4 из 4 цитат');
+        assert(!/Каталог [АБ]/u.test(await page.locator('.book-knowledge-results').textContent()), 'Collection labels are not presented as source titles');
+        await mode(page, 'Источники');
+        await choose(page, 'external:один источник:настоящий автор'); await expectStatus(page, '1–2 из 2 цитат');
+        assert.equal(await page.locator('.book-quotes-row .book-quote-authors').first().textContent(), 'Настоящий Автор');
+        await choose(page, 'source:unknown'); await expectStatus(page, '1–1 из 1 цитат');
+        assert.equal(await page.locator('.book-quote-source-unknown').textContent(), 'Источник не указан');
+        await choose(page, 'author:автор без произведения'); await expectStatus(page, '1–1 из 1 цитат');
+        assert.equal(await page.locator('.book-quote-authors').textContent(), 'Автор без произведения');
+        await search(page, 'Строка2 Настоящий Один'); await expectStatus(page, '1–1 из 1 цитат');
+        assert.equal(await page.locator('.book-quote-conclusion p').isVisible(), true, 'Saved conclusions are visible without expansion');
+        await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
+async function sectionCaseChecks(browser) {
+    const files = ['Память/Обучение', 'память/обучение', 'Другое'].map((section, index) => makeFile(`Книги/Non-fiction/case-${index}.md`, { title: `Источник ${index}`, authors: ['Автор'] }, [{ id: `book-excerpt-case-${index}`, text: `Цитата ${index}`, section, themes: ['Не раздел'] }]));
+    const { page, errors } = await mount(browser, files);
+    try {
         await expectStatus(page, '1–2 из 2 цитат');
-        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'Память/Обучение', 'Clicking a case variant selects the canonical theme');
-        await page.evaluate(() => window.handle.reload());
-        await expectStatus(page, '1–2 из 2 цитат');
-        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'Память/Обучение', 'Reload preserves the selected theme across case variants');
-        const changed = knowledge.renderExcerpt({ id: 'book-excerpt-case-0', text: 'Цитата 0', themes: ['ПАМЯТЬ/ОБУЧЕНИЕ'] });
+        const branch = page.locator('summary[aria-label="Подразделы: Память"]').locator('xpath=..');
+        await branch.evaluate(node => { node.open = true; }); await treeNode(page, 'section:память/обучение').waitFor({ state: 'visible' });
+        await choose(page, 'section:память/обучение'); await expectStatus(page, '1–2 из 2 цитат');
+        await page.evaluate(() => window.handle.reload()); assert.equal(await treeNode(page, 'section:память/обучение').getAttribute('aria-current'), 'page');
+        const changed = knowledge.renderExcerpt({ id: 'book-excerpt-case-0', text: 'Цитата 0', section: 'ПАМЯТЬ/ОБУЧЕНИЕ' });
         await page.evaluate(async ({ filePath, text }) => { window.fixture.modify(filePath, text); await window.handle.reload(); }, { filePath: files[0].path, text: changed });
-        await expectStatus(page, '1–2 из 2 цитат');
-        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'ПАМЯТЬ/ОБУЧЕНИЕ', 'A case-only rename keeps the filter and adopts the new canonical spelling');
-        assert.equal(await page.locator('.book-quotes-row').count(), 2);
+        await expectStatus(page, '1–2 из 2 цитат'); assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'ОБУЧЕНИЕ');
+        assert.equal(await treeNode(page, 'section:память/обучение').getAttribute('aria-current'), 'page');
         await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
     } finally { await page.close(); }
 }
@@ -218,8 +258,8 @@ async function themeCaseChecks(browser) {
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await themeCaseChecks(browser);
-        console.log(`${checks} real quote layouts, a 1170-quote Chromium scenario and a theme-case regression passed: lazy text, bounded filters and DOM, hierarchy, exact sources, AND search, pagination, reset, deletion and live updates.`);
+        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser);
+        console.log(`${checks} real quote layouts, a 1170-quote tree scenario, attribution and section-case regressions passed: hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
