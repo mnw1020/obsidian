@@ -27,6 +27,7 @@ module.exports = async ({ app, quickAddApi, obsidian }) => {
     const token = `excerpt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const fields = [
         { key: "text", label: "Текст цитаты", type: "textarea", defaultValue: selectedText },
+        { key: "section", label: "Раздел: путь через /", type: "text", optional: true },
         { key: "themes", label: "Темы, через точку с запятой", type: "text", optional: true },
         { key: "conclusion", label: "Мой вывод", type: "textarea", optional: true },
         { key: "location", label: "Место в источнике: страница, глава или время", type: "text", optional: true }

@@ -1,7 +1,7 @@
-// Portable Obsidian module: explicit excerpts and a read-only index.
+// Portable Obsidian module: explicit excerpts and a live reading index.
 const META = "<!-- BOOK-EXCERPT:META -->";
 // A new format version prevents a live Obsidian session from reusing old parsed metadata.
-const STATE_KEY = "__bookKnowledgeV4";
+const STATE_KEY = "__bookKnowledgeV5";
 const CORE_PATH = "Книги/_system/book_core.js";
 
 function normalize(value) {
@@ -17,6 +17,11 @@ function themes(value) {
         seen.add(key);
         return true;
     });
+}
+
+function excerptAuthors(value) {
+    const values = Array.isArray(value) ? value : String(value ?? "").split(/[;\n]+/);
+    return [...new Set(values.map(value => String(value).replace(/[\r\n]+/g, " ").trim()).filter(Boolean))];
 }
 
 function isExactDate(value) {
@@ -54,19 +59,22 @@ function parseExcerpts(text) {
         const id = lines[anchor]?.match(/^\^(book-excerpt-[a-z0-9-]+)\s*$/i)?.[1];
         const meta = body.indexOf(META);
         if (!id || meta < 0) continue;
-        const fields = { themes: "", conclusion: "", location: "", savedDate: "" };
+        const fields = { themes: "", section: undefined, conclusion: "", location: "", sourceTitle: "", sourceAuthors: "", savedDate: "" };
+        const names = { "Темы": "themes", "Раздел": "section", "Вывод": "conclusion", "Место в источнике": "location", "Произведение": "sourceTitle", "Автор": "sourceAuthors", "Сохранено": "savedDate" };
         let field = null;
         for (const line of body.slice(meta + 1)) {
-            const match = line.match(/^\*\*(Темы|Вывод|Место в источнике|Сохранено):\*\*\s*(.*)$/);
+            const match = line.match(/^\*\*([^*]+):\*\*\s*(.*)$/);
             if (match) {
-                field = { "Темы": "themes", "Вывод": "conclusion", "Место в источнике": "location", "Сохранено": "savedDate" }[match[1]];
-                fields[field] = match[2];
+                field = names[match[1]] || null;
+                if (field) fields[field] = match[2];
             } else if (field) fields[field] += `\n${line.startsWith("  ") ? line.slice(2) : line}`;
         }
         const excerptText = body.slice(0, meta).join("\n").trim();
         if (excerptText) excerpts.push({
             id, type: "quote", text: excerptText,
             themes: themes(fields.themes), conclusion: fields.conclusion.trim(), location: fields.location.trim(),
+            ...(fields.section !== undefined ? { section: themePath(fields.section) } : {}),
+            sourceTitle: fields.sourceTitle.trim(), sourceAuthors: excerptAuthors(fields.sourceAuthors),
             savedDate: isExactDate(fields.savedDate.trim()) ? fields.savedDate.trim() : "",
             line: i, endLine: anchor
         });
@@ -98,9 +106,12 @@ function renderExcerpt(value, newline = "\n") {
         `> [!quote] Цитата`,
         ...text.split("\n").map(line => `> ${line}`), ">", `> ${META}`,
         `> **Темы:** ${themes(value.themes).join("; ")}`,
+        ...(value.section !== undefined ? [`> **Раздел:** ${themePath(String(value.section).replace(/[\r\n]+/g, " "))}`] : []),
         `> **Вывод:** ${conclusion.split("\n")[0]}`,
         ...conclusion.split("\n").slice(1).map(line => `>   ${line}`),
         `> **Место в источнике:** ${location}`,
+        ...(String(value.sourceTitle ?? "").trim() ? [`> **Произведение:** ${String(value.sourceTitle).replace(/[\r\n]+/g, " ").trim()}`] : []),
+        ...(excerptAuthors(value.sourceAuthors).length ? [`> **Автор:** ${excerptAuthors(value.sourceAuthors).join("; ")}`] : []),
         ...(savedDate ? [`> **Сохранено:** ${savedDate}`] : []), "", `^${id}`, ""
     ];
     return content.join(newline);
@@ -168,7 +179,7 @@ function filterExcerpts(entries, filters = {}) {
 }
 
 function excerptSearchText(entry) {
-    return normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, ...entry.authors, ...entry.themes].join(" "));
+    return normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, entry.section, entry.sourceTitle, ...(entry.sourceAuthors || []), ...entry.authors, ...entry.themes].join(" "));
 }
 
 // Hierarchy comes only from explicit theme paths; existing flat themes stay flat.
@@ -307,6 +318,7 @@ async function getService({ app, obsidian }) {
         excerpts(records) {
             return records.flatMap(record => record.excerpts.map(excerpt => ({ ...excerpt,
                 collection: Boolean(record.collection), file: record.file, path: record.file.path, title: String(record.fm.title || record.file.basename),
+                section: excerpt.section !== undefined ? excerpt.section : themePath(record.fm.quote_section),
                 authors: (Array.isArray(record.fm.authors) ? record.fm.authors : [record.fm.authors]).map(value => String(value ?? "").trim()).filter(Boolean)
             })));
         },
