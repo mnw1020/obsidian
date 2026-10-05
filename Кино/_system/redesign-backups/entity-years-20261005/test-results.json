@@ -1,0 +1,27 @@
+{
+  "passed": 9,
+  "failed": 0,
+  "browser": "Chrome",
+  "actualNarrowPanes": [
+    250,
+    320,
+    330,
+    390,
+    768
+  ],
+  "windowWidth": 1440,
+  "responsiveWidths": [
+    390,
+    768,
+    1440
+  ],
+  "allActiveSnippetsWithGruvboxAfterCinema": true,
+  "theme": "Things",
+  "exactYearFilter": true,
+  "yearOptionsGroupedByDecade": true,
+  "narrowPaneElementsContained": true,
+  "scriptsSyntaxChecked": 27,
+  "dataviewBlocksSyntaxChecked": 6577,
+  "noteDataWritten": false,
+  "snippetInstalled": true
+}

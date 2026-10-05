@@ -177,6 +177,21 @@ test('short genre headings use available pane width and keep cinema colors under
             assert.equal(heading.lines,1,`Боевик at actual ${width}px pane uses one line`);
             assert.equal(heading.color,'rgb(240, 236, 227)');assert.match(heading.font,/Segoe UI/);
             assert.ok(heading.available>=heading.titleWidth-1);assert.equal(heading.overflow,false);
+            const contents=await page.locator('.kino-person').evaluate(root=>{
+                const bounds=root.getBoundingClientRect();
+                return {
+                    overflow:root.scrollWidth>root.clientWidth+1,
+                    outside:[...root.querySelectorAll('*')].some(el=>{
+                        const rect=el.getBoundingClientRect();
+                        return rect.width>0&&rect.height>0&&(rect.left<bounds.left-1||rect.right>bounds.right+1);
+                    }),
+                    crowdedScores:[...root.querySelectorAll('.kino-person-card-score')].some(score=>{
+                        const badge=score.getBoundingClientRect();
+                        return [...score.children].some(child=>{const rect=child.getBoundingClientRect();return rect.left<badge.left-1||rect.right>badge.right+1;});
+                    })
+                };
+            });
+            assert.deepEqual(contents,{overflow:false,outside:false,crowdedScores:false},`all entity content fits actual ${width}px pane`);
             if(width===250||width===390)await page.locator('.markdown-preview-view').screenshot({path:path.join(previewDir,`header-genre-${width}.png`)});
         }
         for(const selected of ['Guillermo del Toro (Гильермо дель Торо)','AnIncrediblyLongUnbrokenPersonNameThatMustWrapInsideThePaneWithoutLosingText']){
