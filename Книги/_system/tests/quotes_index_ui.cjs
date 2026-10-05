@@ -191,11 +191,35 @@ async function largeCollectionChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function themeCaseChecks(browser) {
+    const files = ['Память/Обучение', 'память/обучение', 'Другая тема'].map((theme, index) => ({
+        path: `Книги/Non-fiction/case-${index}.md`, basename: `case-${index}`, extension: 'md', stat: { mtime: 1 },
+        fm: { title: `Источник ${index}`, authors: ['Автор'] },
+        text: knowledge.renderExcerpt({ id: `book-excerpt-case-${index}`, text: `Цитата ${index}`, themes: [theme] })
+    }));
+    const { page, errors } = await mount(browser, files);
+    try {
+        await expectStatus(page, '1–3 из 3 цитат');
+        await page.locator('.book-quotes-row-themes button').filter({ hasText: /^память\/обучение$/u }).click();
+        await expectStatus(page, '1–2 из 2 цитат');
+        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'Память/Обучение', 'Clicking a case variant selects the canonical theme');
+        await page.evaluate(() => window.handle.reload());
+        await expectStatus(page, '1–2 из 2 цитат');
+        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'Память/Обучение', 'Reload preserves the selected theme across case variants');
+        const changed = knowledge.renderExcerpt({ id: 'book-excerpt-case-0', text: 'Цитата 0', themes: ['ПАМЯТЬ/ОБУЧЕНИЕ'] });
+        await page.evaluate(async ({ filePath, text }) => { window.fixture.modify(filePath, text); await window.handle.reload(); }, { filePath: files[0].path, text: changed });
+        await expectStatus(page, '1–2 из 2 цитат');
+        assert.equal(await page.getByLabel('Тема', { exact: true }).inputValue(), 'ПАМЯТЬ/ОБУЧЕНИЕ', 'A case-only rename keeps the filter and adopts the new canonical spelling');
+        assert.equal(await page.locator('.book-quotes-row').count(), 2);
+        await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser);
-        console.log(`${checks} real quote layouts and a 1170-quote Chromium scenario passed: lazy text, bounded filters and DOM, hierarchy, exact sources, AND search, pagination, reset, deletion and live updates.`);
+        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await themeCaseChecks(browser);
+        console.log(`${checks} real quote layouts, a 1170-quote Chromium scenario and a theme-case regression passed: lazy text, bounded filters and DOM, hierarchy, exact sources, AND search, pagination, reset, deletion and live updates.`);
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
