@@ -101,6 +101,26 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         draw();
     });
     const grid = el(section, 'div', 'book-authors-list');
+    let tableChild = null;
+    if (!index) {
+        const table = el(root, 'details', 'book-authors-info');
+        el(table, 'summary', '', 'Таблица и представления');
+        const body = el(table, 'div', 'book-authors-table');
+        listen(table, 'toggle', async () => {
+            if (!table.open || tableChild || disposed) return;
+            if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !dv.component?.addChild) {
+                if (!body.children.length) internal(body, 'Открыть подробный каталог', 'Книги/Книги.base');
+                return;
+            }
+            tableChild = new obsidian.Component();
+            dv.component.addChild(tableChild);
+            try { await obsidian.MarkdownRenderer.render(app, '![[Книги/Книги.base#Автор]]', body, source, tableChild); }
+            catch (problem) {
+                dv.component.removeChild?.(tableChild); tableChild = null;
+                body.textContent = `Не удалось показать таблицу: ${problem.message || problem}`;
+            }
+        });
+    }
     const error = el(root, 'p', 'book-authors-warning');
     const info = el(root, 'details', 'book-authors-info');
     el(info, 'summary', '', 'Об оценках и подсчётах');
@@ -159,7 +179,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 const examples = [...row.items].sort((a, b) => compare(b.date, a.date)).slice(0, 3).map(item => item.title).join(' · ');
                 el(main, 'p', 'book-authors-row-examples', examples);
                 const chips = el(card, 'div', 'book-authors-chips');
-                chip(chips, 'Произведений', row.count); chip(chips, 'Средняя', score(row.average), true);
+                chip(chips, 'В коллекции', row.count); chip(chips, 'Средняя', score(row.average), true);
                 chip(chips, 'Любимые', row.favorites); chip(chips, 'Симпатия', row.points);
             });
             if (!rows.length) empty();
@@ -224,7 +244,10 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         } catch (problem) { if (!disposed) error.textContent = `Не удалось загрузить авторов: ${problem.message || problem}`; }
     }
     const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
-    function dispose() { disposed = true; clearTimeout(timer); unsubscribe(); listeners.forEach(cleanup => cleanup()); }
+    function dispose() {
+        disposed = true; clearTimeout(timer); unsubscribe(); listeners.forEach(cleanup => cleanup());
+        if (tableChild) { dv.component.removeChild?.(tableChild); tableChild = null; }
+    }
     dv.component?.register?.(dispose);
     await reload();
     return { reload, dispose };

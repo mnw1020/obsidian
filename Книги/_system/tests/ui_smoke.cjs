@@ -29,6 +29,7 @@ fixture('Книги/Художественные/Вторая.md', {title:'Вт�
 fixture('Книги/Художественные/Третья.md', {title:'Третья',authors:['Олдос Хаксли'],rating:7,date:'2023-09',read_count:1});
 makeFile('Книги/_index.md', fs.readFileSync(path.join(root,'_index.md'),'utf8'));
 makeFile('Книги/_system/book_core.js',fs.readFileSync(path.join(root,'_system/book_core.js'),'utf8'));
+makeFile('Книги/_system/author_pages.js',fs.readFileSync(path.join(root,'_system/author_pages.js'),'utf8'));
 class Events {
   constructor(){this.handlers=[];}
   on(name,cb){const handle={emitter:this,name,cb};this.handlers.push(handle);return handle;}
@@ -105,11 +106,11 @@ async function main(){
  assert.ok(authorA.text.endsWith(personal),'personal notes preserved byte-for-byte');
  const atomicProcess=vault.process;
  const concurrentText='\nConcurrent user edit preserved by atomic generated-region merge.\n';
- authorA.text=authorA.text.replace('**Произведений:** 2','**Произведений:** 0');
+ authorA.text=authorA.text.replace('mode: "author"','mode: "broken"');
  vault.process=async(file,fn)=>{if(file===authorA)file.text+=concurrentText;return atomicProcess(file,fn);};
  await openAuthor({...params,variables:{author:'Леонид Каганов'}});
  assert.ok(authorA.text.endsWith(concurrentText),'concurrent personal edit must survive');
- assert.match(authorA.text,/\*\*Произведений:\*\* 2/);
+ assert.match(authorA.text,/mode: "author"/);
  vault.process=atomicProcess;
  authorA.text=authorA.text.replace(concurrentText,'');
  const afterAuthor=writes;
