@@ -476,7 +476,7 @@ test('both read-only renderers work in home and full modes with native DOM contr
             assert.doesNotMatch(container.textContent, /Не удалось|Загружаю|Считаю/);
             if (renderer === knowledge) {
                 assert.match(container.textContent, /Цитата для показа/);
-                const source = all(container).find(node => node.tagName === 'a');
+                const source = all(container).find(node => node.className?.split(' ').includes('book-quote-work-link'));
                 assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
                 if (mode === 'index') {
                     assert.equal(all(container).filter(node => node.tagName === 'select').length, 0);

@@ -150,6 +150,15 @@ async function realCollectionChecks(browser) {
             await mode(page, 'Источники'); await showNavigation(page);
             assert.equal(await treeNode(page, 'source:unknown').locator('.book-quotes-tree-label').textContent(), 'Без источника');
             assert.equal(await page.locator('.book-quotes-tree-label').filter({ hasText: /^Мотивация$/u }).count(), 0, 'Old collection titles are not fictional sources');
+            const book = files.find(file => file.path === 'Книги/Художественные/Леонид Каганов/Гастарбайтер.md');
+            const quotes = knowledge.parseExcerpts(book.text);
+            await choose(page, 'source:' + book.path); await expectStatus(page, `1–${quotes.length} из ${quotes.length} цитат`);
+            assert.deepEqual(await page.locator('.book-quote-author-link').allTextContents(), Array(quotes.length).fill('Леонид Каганов'));
+            assert.deepEqual(await page.locator('.book-quote-conclusion p').allTextContents(), quotes.filter(quote => quote.conclusion).map(quote => quote.conclusion));
+            if (theme === 'theme-light' && [390, 1024].includes(width)) {
+                await page.evaluate(() => window.scrollTo(0, 0));
+                await screenshot(page, width === 390 ? 'quotes-tree-source-mobile.png' : 'quotes-tree-source-desktop.png');
+            }
             await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []); checks++;
         } finally { await page.close(); }
     }

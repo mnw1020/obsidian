@@ -1,18 +1,28 @@
-.book-quotes-index { --quotes-line: var(--background-modifier-border, #d8d3c9); --quotes-muted: var(--text-muted, #716b62); --quotes-accent: var(--text-accent, #a46830); min-width: 0; container: quotes-index / inline-size; }
+.book-quotes-index {
+    --quotes-line: var(--background-modifier-border, #d8d3c9);
+    --quotes-muted: var(--text-muted, #716b62);
+    --quotes-accent: var(--text-accent, #a46830);
+    --quotes-soft-line: color-mix(in srgb, var(--quotes-line) 65%, transparent);
+    --quotes-selected: color-mix(in srgb, var(--quotes-accent) 10%, var(--background-primary));
+    min-width: 0;
+    container: quotes-index / inline-size;
+}
 .book-quotes-index * { box-sizing: border-box; }
 .book-quotes-index [hidden] { display: none !important; }
 .book-quotes-index button { font: inherit; box-shadow: none; white-space: normal; height: auto; color: var(--text-normal); cursor: pointer; }
 .book-quotes-index :is(button,input,a,summary):focus-visible { outline: 2px solid var(--quotes-accent); outline-offset: 3px; }
-.book-quotes-index .book-quotes-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 18px 0 22px; border-bottom: 1px solid var(--quotes-line); }
-.book-quotes-index .book-quotes-modes { display: flex; flex: 1; gap: 22px; }
-.book-quotes-index .book-quotes-toolbar button { border: 0; border-radius: 0; background: transparent; padding: 8px 0; font-size: .88em; color: var(--quotes-muted); }
-.book-quotes-index .book-quotes-modes button[aria-pressed="true"] { color: var(--text-normal); border-bottom: 1px solid var(--text-normal); }
+.book-quotes-index .book-quotes-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; margin: 20px 0 28px; border-bottom: 1px solid var(--quotes-soft-line); }
+.book-quotes-index .book-quotes-modes { display: flex; flex: 1; gap: 24px; }
+.book-quotes-index .book-quotes-toolbar button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; padding: 10px 0; font-size: .85em; color: var(--quotes-muted); }
+.book-quotes-index .book-quotes-toolbar button:hover { color: var(--text-normal); }
+.book-quotes-index .book-quotes-modes button[aria-pressed="true"] { color: var(--text-normal); border-bottom-color: var(--quotes-accent); font-weight: 600; }
 .book-quotes-index .book-quotes-navigation-toggle { display: none; }
-.book-quotes-index .book-quotes-shell { display: grid; grid-template-columns: minmax(160px,23%) minmax(0,1fr); gap: 28px; align-items: start; }
-.book-quotes-index .book-quotes-tree { min-width: 0; border-right: 1px solid var(--quotes-line); padding-right: 16px; position: sticky; top: 12px; max-height: 65vh; overflow-y: auto; }
-.book-quotes-index .book-quotes-tree-row { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: baseline; gap: 2px 10px; text-align: left; padding: 8px 6px; min-height: 38px; border: 0; border-radius: 3px; background: transparent; font-size: .82em; }
-.book-quotes-index .book-quotes-tree-row:hover { background: var(--background-secondary); }
-.book-quotes-index .book-quotes-tree-row[aria-current="page"] { background: var(--background-secondary); color: var(--text-normal); }
+.book-quotes-index .book-quotes-shell { display: grid; grid-template-columns: minmax(172px,24%) minmax(0,1fr); gap: 34px; align-items: start; }
+.book-quotes-index .book-quotes-tree { min-width: 0; padding: 8px; border: 1px solid var(--quotes-soft-line); border-radius: 10px; background: color-mix(in srgb, var(--background-secondary) 55%, var(--background-primary)); position: sticky; top: 12px; max-height: 65vh; overflow-y: auto; scrollbar-width: thin; }
+.book-quotes-index .book-quotes-tree-row { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: baseline; gap: 3px 10px; text-align: left; padding: 9px 10px; min-height: 38px; border: 0; border-radius: 6px; background: transparent; font-size: .82em; line-height: 1.45; }
+.book-quotes-index .book-quotes-tree-row:hover { background: var(--background-modifier-hover, var(--background-secondary)); }
+.book-quotes-index .book-quotes-tree-row[aria-current="page"] { background: var(--quotes-selected); color: var(--text-normal); box-shadow: inset 2px 0 var(--quotes-accent); }
+.book-quotes-index .book-quotes-tree-row[aria-current="page"] .book-quotes-tree-label { font-weight: 600; }
 .book-quotes-index .book-quotes-tree-label { min-width: 0; overflow-wrap: anywhere; }
 .book-quotes-index .book-quotes-tree-count { color: var(--quotes-muted); font-size: .9em; font-variant-numeric: tabular-nums; }
 .book-quotes-index .book-quotes-tree-caption { grid-column: 1 / -1; color: var(--quotes-muted); font-size: .9em; overflow-wrap: anywhere; }
@@ -20,47 +30,55 @@
 .book-quotes-index .book-quotes-tree-branch > summary::-webkit-details-marker { display: none; }
 .book-quotes-index .book-quotes-tree-branch > summary::before { content: '›'; width: 14px; flex-shrink: 0; padding-top: 8px; text-align: center; color: var(--quotes-muted); }
 .book-quotes-index .book-quotes-tree-branch[open] > summary::before { content: '⌄'; }
-.book-quotes-index .book-quotes-tree-children { padding-left: 14px; }
-.book-quotes-index .book-quotes-tree-more { font-size: .75em; border: 0; background: transparent; color: var(--quotes-muted); padding: 10px 6px; }
-.book-quotes-index .book-quotes-tree-search, .book-quotes-index .book-quotes-search-panel input { width: 100%; min-width: 0; max-width: 100%; font: inherit; border: 1px solid var(--quotes-line); border-radius: 4px; background: var(--background-primary); color: var(--text-normal); padding: 7px 9px; min-height: 36px; }
-.book-quotes-index .book-quotes-tree-search { margin-bottom: 10px; font-size: .75em; }
-.book-quotes-index .book-quotes-search-panel { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.book-quotes-index .book-quotes-tree-children { margin-left: 7px; padding-left: 7px; border-left: 1px solid var(--quotes-soft-line); }
+.book-quotes-index .book-quotes-tree-more { font-size: .75em; border: 0; background: transparent; color: var(--quotes-muted); padding: 10px; }
+.book-quotes-index .book-quotes-tree-more:hover { color: var(--quotes-accent); }
+.book-quotes-index .book-quotes-tree-search, .book-quotes-index .book-quotes-search-panel input { width: 100%; min-width: 0; max-width: 100%; font: inherit; border: 1px solid var(--quotes-line); border-radius: 7px; background: var(--background-primary); color: var(--text-normal); padding: 9px 11px; min-height: 38px; }
+.book-quotes-index .book-quotes-tree-search { margin-bottom: 8px; font-size: .75em; }
+.book-quotes-index .book-quotes-search-panel { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
 .book-quotes-index .book-quotes-search-panel input { flex: 1; font-size: .88em; }
 .book-quotes-index .book-quotes-search-panel button { border: 0; background: transparent; padding: 6px 0; color: var(--quotes-muted); font-size: .78em; }
-.book-quotes-index .book-quotes-reading { min-width: 0; }
-.book-quotes-index .book-quotes-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; color: var(--quotes-muted); font-size: .75em; }
+.book-quotes-index .book-quotes-reading { min-width: 0; padding-top: 3px; }
+.book-quotes-index .book-quotes-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; color: var(--quotes-muted); font-size: .75em; }
 .book-quotes-index .book-quotes-breadcrumb:empty { display: none; }
 .book-quotes-index .book-quotes-breadcrumb button { border: 0; background: transparent; color: inherit; padding: 0; font-size: inherit; }
-.book-quotes-index .book-quotes-breadcrumb button:hover { text-decoration: underline; }
-.book-quotes-index .book-quotes-reading-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 22px; }
-.book-quotes-index h2.book-quotes-reading-title { font-size: 1.2em; margin: 0; line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+.book-quotes-index .book-quotes-breadcrumb button:hover { color: var(--quotes-accent); text-decoration: underline; }
+.book-quotes-index .book-quotes-reading-header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 26px; }
+.book-quotes-index h2.book-quotes-reading-title { font-size: 1.35em; margin: 0; line-height: 1.35; font-weight: 600; letter-spacing: -.015em; overflow-wrap: anywhere; }
 .book-quotes-index .book-quotes-status { color: var(--quotes-muted); font-size: .75em; margin: 0; font-variant-numeric: tabular-nums; }
 .book-quotes-index .book-knowledge-results { display: block; }
-.book-quotes-index .book-quotes-row { min-width: 0; padding: 18px 0; border-bottom: 1px solid var(--quotes-line); overflow-wrap: anywhere; }
+.book-quotes-index .book-quotes-row { min-width: 0; padding: 25px 0; border-bottom: 1px solid var(--quotes-soft-line); overflow-wrap: anywhere; }
 .book-quotes-index .book-quotes-row:first-child { padding-top: 0; }
-.book-quotes-index .book-quote-text { white-space: pre-wrap; font-size: .95em; line-height: 1.7; margin: 0; }
-.book-quotes-index .book-quote-footer { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; margin-top: 10px; color: var(--quotes-muted); }
-.book-quotes-index .book-quote-source { display: flex; align-items: baseline; flex: 1; flex-wrap: wrap; gap: 3px 8px; min-width: 0; font-size: .78em; }
+.book-quotes-index .book-quote-text { white-space: pre-wrap; font-size: 1em; line-height: 1.75; margin: 0; }
+.book-quotes-index .book-quote-footer { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 14px; margin-top: 13px; color: var(--quotes-muted); }
+.book-quotes-index .book-quote-source { display: flex; align-items: baseline; flex: 1; flex-wrap: wrap; gap: 4px 8px; min-width: 0; font-size: .8em; line-height: 1.6; }
 .book-quotes-index .book-quote-source .internal-link { color: var(--quotes-muted); text-decoration: none; }
-.book-quotes-index .book-quote-source .internal-link:hover { color: var(--quotes-accent); text-decoration: underline; }
+.book-quotes-index .book-quote-source .book-quote-author-link { color: var(--quotes-accent); }
+.book-quotes-index .book-quote-source .internal-link:hover { color: var(--quotes-accent); text-decoration: underline; text-underline-offset: 3px; }
 .book-quotes-index .book-quote-source small { font-size: 1em; }
-.book-quotes-index .book-quote-authors + .internal-link::before { content: '· '; }
-.book-quotes-index .book-quote-edit { border: 0; background: transparent; padding: 4px 0; color: var(--quotes-muted); font-size: .75em; min-height: 30px; }
-.book-quotes-index .book-quote-edit:hover { color: var(--quotes-accent); text-decoration: underline; }
-.book-quotes-index .book-quote-conclusion { border-left: 2px solid var(--quotes-line); padding-left: 12px; margin-top: 14px; }
-.book-quotes-index .book-quote-conclusion small { color: var(--quotes-muted); font-size: .75em; }
-.book-quotes-index .book-quote-conclusion p { white-space: pre-wrap; margin: 6px 0 0; font-size: .88em; line-height: 1.6; }
-.book-quotes-index .book-quotes-pagination { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 18px 0; font-size: .8em; color: var(--quotes-muted); }
-.book-quotes-index .book-quotes-pagination button { border: 1px solid var(--quotes-line); border-radius: 4px; min-height: 36px; padding: 6px 12px; background: transparent; color: inherit; }
+.book-quotes-index .book-quote-authors + .book-quote-work-link::before { content: '· '; color: var(--quotes-muted); }
+.book-quotes-index .book-quote-edit { border: 1px solid transparent; border-radius: 5px; background: transparent; padding: 5px 8px; margin-right: -8px; color: var(--quotes-muted); font-size: .75em; min-height: 30px; }
+.book-quotes-index .book-quote-edit:hover { color: var(--text-normal); border-color: var(--quotes-soft-line); background: var(--background-secondary); }
+.book-quotes-index .book-quote-conclusion { border-left: 2px solid var(--quotes-accent); border-radius: 0 6px 6px 0; padding: 10px 14px 12px; margin-top: 16px; background: color-mix(in srgb, var(--background-secondary) 60%, var(--background-primary)); }
+.book-quotes-index .book-quote-conclusion small { color: var(--quotes-muted); font-size: .72em; font-weight: 600; }
+.book-quotes-index .book-quote-conclusion p { white-space: pre-wrap; margin: 5px 0 0; font-size: .9em; line-height: 1.65; }
+.book-quotes-index .book-quotes-pagination { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 24px 0; font-size: .8em; color: var(--quotes-muted); }
+.book-quotes-index .book-quotes-pagination button { border: 1px solid var(--quotes-line); border-radius: 6px; min-height: 38px; padding: 7px 13px; background: transparent; color: inherit; }
+.book-quotes-index .book-quotes-pagination button:hover:not(:disabled) { background: var(--background-secondary); color: var(--text-normal); }
 .book-quotes-index .book-quotes-pagination button:disabled { opacity: .35; cursor: default; }
 .book-quotes-index .book-quotes-empty { font-size: .9em; color: var(--quotes-muted); }
 @container quotes-index (max-width: 600px) {
-    .book-quotes-index .book-quotes-shell { grid-template-columns: minmax(0,1fr); gap: 20px; }
+    .book-quotes-index .book-quotes-shell { grid-template-columns: minmax(0,1fr); gap: 24px; }
     .book-quotes-index .book-quotes-navigation-toggle { display: block; }
-    .book-quotes-index .book-quotes-tree { position: static; max-height: 300px; border-right: 0; border-bottom: 1px solid var(--quotes-line); padding: 0 0 14px; }
+    .book-quotes-index .book-quotes-tree { position: static; max-height: 300px; }
     .book-quotes-index[data-navigation-open="false"] .book-quotes-tree { display: none; }
-    .book-quotes-index .book-quotes-toolbar { gap: 8px 14px; }
+    .book-quotes-index .book-quotes-toolbar { gap: 8px 14px; margin-bottom: 24px; }
+    .book-quotes-index .book-quotes-modes { gap: 18px; }
     .book-quotes-index .book-quotes-search-panel { flex-wrap: wrap; }
     .book-quotes-index .book-quotes-search-panel input { flex-basis: 100%; }
+    .book-quotes-index .book-quotes-reading { padding-top: 0; }
+    .book-quotes-index .book-quotes-reading-header { margin-bottom: 22px; }
+    .book-quotes-index .book-quotes-row { padding-bottom: 22px; }
+    .book-quotes-index .book-quote-text { line-height: 1.7; }
 }
 @media(pointer:coarse) { .book-quotes-index button { min-height: 44px; } }
