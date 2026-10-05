@@ -1,0 +1,14 @@
+{
+  "notesChecked": 3290,
+  "notesPreserved": true,
+  "approvedPersonPresentation": true,
+  "currentPersonSelectionPreserved": true,
+  "unchangedProtectedStateFiles": 4,
+  "stateChangesSinceOriginalRedesign": [
+    {
+      "file": "_system/Прогноз/рекомендации_state.json",
+      "lastWrite": "2026-10-05T08:09:50.158Z"
+    }
+  ],
+  "followupDidNotWriteStateFiles": true
+}

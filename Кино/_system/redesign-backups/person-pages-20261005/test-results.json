@@ -1,0 +1,25 @@
+{
+  "passed": 43,
+  "failed": 0,
+  "suites": {
+    "card-layout": 13,
+    "system_views": 9,
+    "person-pages": 7,
+    "design-ui": 8,
+    "person-ui": 6
+  },
+  "syntax": {
+    "scripts": 27,
+    "dataviewBlocks": 6577
+  },
+  "previews": {
+    "browser": "Chrome",
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "count": 6
+  },
+  "installedSnippet": true
+}

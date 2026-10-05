@@ -136,14 +136,15 @@ test('missing selection and empty search stay usable; disposal restores native t
         assert.notEqual(await page.locator('.inline-title').evaluate(el=>getComputedStyle(el).display),'none');
         assert.notEqual(await page.locator('#original-person-heading').evaluate(el=>getComputedStyle(el).display),'none');
         assert.notEqual(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
+        assert.equal(await page.locator('.kino-person').count(),0);
         await mount(page,'actor',{frontmatter:{'Личная заметка':'My own property'}});
         assert.notEqual(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
         await mount(page,'actor');
         assert.equal(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
-        assert.equal(await page.locator('.kino-person').count(),0);
         await mount(page,'actor',{source:true});
         assert.notEqual(await page.locator('.inline-title').evaluate(el=>getComputedStyle(el).display),'none');
         assert.notEqual(await page.locator('#original-person-heading').evaluate(el=>getComputedStyle(el).display),'none');
+        assert.notEqual(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
     }finally{await page.close();}
 });
 

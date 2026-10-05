@@ -63,16 +63,25 @@ function targets() {
     }
     return result.sort();
 }
-function assertRetained(original, updated, rel) {
+function assertRetained(original, updated, rel, options = {}) {
     const a=split(original), b=split(updated);
-    if (withoutClasses(a.yaml) !== withoutClasses(b.yaml)) throw Error('Изменены исходные свойства: '+rel);
+    const personKind=rel==='_system/Актер.md'?'actor':rel==='_system/Режиссер.md'?'director':null;
+    const comparableYaml=yaml=>{
+        const clean=withoutClasses(yaml);
+        // QuickAdd changes this view-selection field during normal use.
+        return personKind && options.allowLiveSelection ? clean.replace(/^Выбрано:[^\n]*\n?/m,'').trim() : clean;
+    };
+    if (personKind && options.allowLiveSelection && /^Выбрано:/m.test(a.yaml)!==/^Выбрано:/m.test(b.yaml)) throw Error('Потеря поля выбора: '+rel);
+    if (comparableYaml(a.yaml) !== comparableYaml(b.yaml)) throw Error('Изменены исходные свойства: '+rel);
     const prior=briefYaml(a.yaml).cssclasses;
     const next=briefYaml(b.yaml).cssclasses;
     for (const cls of Array.isArray(prior)?prior:prior?[prior]:[]) if (!(Array.isArray(next)?next:[next]).includes(cls)) throw Error('Потерян CSS-класс: '+rel);
     const kind=kindFor(rel), poster=kind==='media'?briefYaml(a.yaml).poster:'';
     const comparisonBody = rel==='_system/README.md'
         ? b.body.replace(/<!-- KINO:REDESIGN:DOCS:START -->[\s\S]*?<!-- KINO:REDESIGN:DOCS:END -->\r?\n?/g,'') : b.body;
-    if (withoutStandardPoster(withoutUi(a.body),poster) !== withoutStandardPoster(withoutUi(comparisonBody),poster)) throw Error('Изменено исходное тело заметки: '+rel);
+    const expectedBody = personKind && updated.includes('// KINO:PERSON:PRESENTATION:V1') && !original.includes('// KINO:PERSON:PRESENTATION:V1')
+        ? split(require('./person_page_layout.js')(original,{kind:personKind})).body : a.body;
+    if (withoutStandardPoster(withoutUi(expectedBody),poster) !== withoutStandardPoster(withoutUi(comparisonBody),poster)) throw Error('Изменено исходное тело заметки: '+rel);
     if ((updated.match(/<!-- KINO:UI:START -->/g)||[]).length !== 1 || (updated.match(/<!-- KINO:UI:END -->/g)||[]).length !== 1) throw Error('Дубликат интерфейса: '+rel);
     if (kind==='media') {
         const originalButtons=(original.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g)||[]).length;
@@ -92,7 +101,7 @@ async function run(mode) {
         for (const rel of files) {
             const original=await zip.file('Кино/'+rel).async('string');
             const current=fs.readFileSync(path.join(root,rel),'utf8');
-            assertRetained(original,current,rel);
+            assertRetained(original,current,rel,{allowLiveSelection:true});
             const again=layout().ensureLayout(current,{kind:kindFor(rel),parseYaml:briefYaml});
             if (again!==current) throw Error('Неидемпотентная карточка: '+rel);
             totals[kindFor(rel)]=(totals[kindFor(rel)]||0)+1;
@@ -102,7 +111,7 @@ async function run(mode) {
             const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,rel))).digest('hex');
             if (hash!==baseline.files[rel].sha256) throw Error('Изменён файл состояния/настроек: '+rel);
         }
-        const report={mode,checked:files.length,totals,protectedFilesChecked:protectedFiles.length,metadata:'unchanged except cssclasses',body:'unchanged except generated UI and appended README design documentation',idempotent:true};
+        const report={mode,checked:files.length,totals,protectedFilesChecked:protectedFiles.length,metadata:'unchanged except cssclasses and current person view selection',body:'unchanged except generated UI, approved person presentation and appended README design documentation',idempotent:true};
         fs.writeFileSync(path.join(backupDir,'verification.json'),JSON.stringify(report,null,2));
         console.log(JSON.stringify(report));return;
     }
