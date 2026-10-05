@@ -22,7 +22,7 @@ for(const width of [320,390,1024])for(const theme of ['theme-light','theme-dark'
  await page.getByRole('button',{name:'По источникам',exact:true}).click();
  assert.equal(await page.locator('.book-quotes-group[open]').count(),0);
  assert((await page.locator('.book-quotes-group').count())>=6);
- await page.getByLabel('Поиск выписок',{exact:true}).fill('мелкой моторики');
+ await page.getByLabel('Поиск цитат',{exact:true}).fill('мелкой моторики');
  assert.equal(await page.locator('.book-excerpt-card').count(),1);assert.equal(await page.locator('.book-quotes-group[open]').count(),1);
  await page.getByRole('button',{name:'Сбросить',exact:true}).click();assert.equal(await page.locator('.book-excerpt-card').count(),total);
  await page.getByRole('button',{name:'Раскрыть все',exact:true}).click();

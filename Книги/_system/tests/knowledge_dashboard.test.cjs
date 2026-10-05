@@ -115,10 +115,10 @@ test('an existing excerpt cannot be registered again or replaced by a nested exc
     assert.throws(() => knowledge.applyExcerpt(raw, { text: 'Ещё', id: 'book-excerpt-twice' }, { baseline: raw, text: '> Цитата', from, to: from + '> Цитата'.length }), /уже оформлен/);
 });
 
-test('excerpt filters combine text, theme, author and type with Russian ё normalisation', () => {
+test('quote filters combine text, theme and author with Russian ё normalisation', () => {
     const entries = [{ id: '1', text: 'Ёж и познание', conclusion: 'Проверить идею', location: 'Глава 1', title: 'Книга', authors: ['Автор'], themes: ['Мышление'], type: 'idea' }, { id: '2', text: 'Другая цитата', conclusion: '', location: '', title: 'Книга', authors: ['Автор'], themes: [], type: 'quote' }];
-    assert.deepEqual(knowledge.filterExcerpts(entries, { query: 'еж', author: 'Автор', theme: 'мышление', type: 'idea' }).map(entry => entry.id), ['1']);
-    assert.equal(knowledge.filterExcerpts(entries, { query: 'проверить', type: 'quote' }).length, 0);
+    assert.deepEqual(knowledge.filterExcerpts(entries, { query: 'еж', author: 'Автор', theme: 'мышление' }).map(entry => entry.id), ['1']);
+    assert.equal(knowledge.filterExcerpts(entries, { query: 'проверить' }).length, 1);
 });
 
 test('cache reuses unchanged content and invalidates modification, rename and deletion', async () => {
@@ -145,10 +145,11 @@ test('cache reuses unchanged content and invalidates modification, rename and de
 test('new excerpt metadata does not reuse an older live parser cache', async () => {
     const raw = managedHistory + '\n\n' + knowledge.renderExcerpt({ text: 'Новая идея', type: 'idea', id: 'book-excerpt-new-format', savedDate: '2026-10-04' });
     const h = harness([{ path: 'Книги/Художественные/Книга.md', text: raw }]);
-    h.app.__bookKnowledgeV1 = { cache: new Map([[h.books[0].path, { mtime: 1, text: raw, excerpts: [{ id: 'book-excerpt-new-format', type: 'idea', text: 'Новая идея' }], history: [] }]]) };
+    h.app.__bookKnowledgeV3 = { cache: new Map([[h.books[0].path, { mtime: 1, text: raw, excerpts: [{ id: 'book-excerpt-new-format', type: 'idea', text: 'Новая идея' }], history: [] }]]) };
     const service = await knowledge.getService(h), records = await service.snapshot();
     assert.equal(records[0].excerpts[0].savedDate, '2026-10-04');
-    assert.equal(dashboard.buildDashboard(records, { year: '2026' }).ideas, 1);
+    assert.equal(dashboard.buildDashboard(records, { year: '2026' }).quotes, 1);
+    assert.equal(records[0].excerpts[0].type, 'quote');
     assert.equal(h.reads.get(h.books[0].path), 1);
 });
 
@@ -174,7 +175,7 @@ test('damaged history remains visible as an error without hiding valid excerpts 
     const result = dashboard.buildDashboard(records);
     assert.equal(result.invalidHistory, 1);
     assert.equal(result.readings, 0);
-    assert.equal(result.ideas, 1);
+    assert.equal(result.quotes, 1);
 });
 
 test('reading totals count rereadings and preserve month/year precision without fabricated dates', () => {
@@ -210,8 +211,8 @@ test('year summaries use selected history ratings and dated excerpts without YAM
     assert.equal(result.authors, 3);
     assert.equal(result.readings, 3);
     assert.equal(result.reread, 1);
-    assert.equal(result.ideas, 1);
-    assert.equal(result.quotes, 1);
+    assert.equal(result.ideas, 0);
+    assert.equal(result.quotes, 2);
     assert.equal(result.undatedExcerpts, 1);
     assert.deepEqual(result.types.map(row => [row.type, row.count]), [['story', 2], ['lecture', 1]]);
     assert.deepEqual(result.favoriteBooks, []);
@@ -253,31 +254,49 @@ test('QuickAdd saves atomically with fresh field ids and can cancel without any 
     assert.equal(h.changes.length, 2);
 });
 
-test('format command uses the editor selection and refuses a concurrent source change', async () => {
+test('book action opens the quote form directly and accepts partial selections without replacing the source', async () => {
     const raw = 'До\n\nСтарый абзац\n\nПосле\n\n' + managedHistory;
     const h = harness([{ path: 'Книги/Художественные/Книга.md', text: raw }]);
-    const from = raw.indexOf('Старый абзац'), to = from + 'Старый абзац'.length;
-    h.app.workspace.activeEditor = { file: h.books[0], editor: {
-        getValue: () => raw, getSelection: () => 'Старый абзац',
-        getCursor: side => side === 'from' ? from : to, posToOffset: value => value
-    } };
-    let concurrent = false;
+    h.app.workspace.getActiveFile = () => h.books[0];
+    h.app.workspace.activeEditor = { file: h.books[0], editor: { getSelection: () => 'тарый абза' } };
+    let concurrent = false, forms = 0;
     const api = {
-        suggester: async (labels, values, prompt) => prompt === 'Как использовать выделение?' ? 'format' : 'quote',
+        suggester: async () => { throw Error('No intermediate menu is allowed inside a book'); },
         requestInputs: async fields => {
+            forms++;
+            assert.equal(fields[0].label, 'Текст цитаты');
+            assert.equal(fields[0].defaultValue, 'тарый абза');
             if (concurrent) h.books[0].text += '\nКонкурирующая правка';
             return Object.fromEntries(fields.map(field => [field.id, field.defaultValue ?? '']));
         }
     };
     await addExcerpt({ ...h, quickAddApi: api });
-    assert.equal(h.changes.length, 1);
-    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'Старый абзац');
-    assert.ok(h.books[0].text.endsWith('После\n\n' + managedHistory));
-    h.books[0].text = raw;
-    concurrent = true;
+    assert.equal(forms, 1); assert.equal(h.changes.length, 1);
+    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'тарый абза');
+    assert.ok(h.books[0].text.startsWith(raw));
+    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].type, 'quote');
+    h.books[0].text = raw; concurrent = true;
     await addExcerpt({ ...h, quickAddApi: api });
-    assert.equal(h.changes.length, 1);
-    assert.match(h.notices.at(-1), /изменился/);
+    assert.equal(forms, 2); assert.equal(h.changes.length, 2);
+    assert.ok(h.books[0].text.startsWith(raw + '\nКонкурирующая правка'));
+    const saved = h.books[0].text;
+    await addExcerpt({ ...h, quickAddApi: { ...api, requestInputs: async () => undefined } });
+    assert.equal(h.books[0].text, saved); assert.equal(h.changes.length, 2);
+});
+
+test('book action without selection opens a blank quote form and never asks for a type', async () => {
+    const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
+    h.app.workspace.getActiveFile = () => h.books[0];
+    let forms = 0;
+    await addExcerpt({ ...h, quickAddApi: {
+        suggester: async () => { throw Error('Unexpected menu'); },
+        requestInputs: async fields => {
+            forms++; assert.equal(fields[0].defaultValue, '');
+            return Object.fromEntries(fields.map(field => [field.id, field.id.endsWith('-text') ? 'Цитата без выделения' : '']));
+        }
+    } });
+    assert.equal(forms, 1); assert.equal(h.changes.length, 1);
+    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'Цитата без выделения');
 });
 
 test('search command opens the selected book at the matching note line and cancellation is read-only', async () => {
@@ -341,7 +360,7 @@ test('standalone quote collections join the excerpt index without inflating libr
     changed.stat.mtime++; h.emit('modify', changed);
     const next = await service.snapshot({ includeCollections: true });
     assert.equal(service.excerpts(next).length, 2);
-    assert.equal(dashboard.buildDashboard(next, { year: '2026' }).ideas, 1);
+    assert.equal(dashboard.buildDashboard(next, { year: '2026' }).quotes, 1);
     assert.equal(dashboard.buildDashboard(next, { year: '2026' }).books, 0);
 });
 
@@ -389,7 +408,7 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 assert.match(container.textContent, /Цитата для показа/);
                 const source = all(container).find(node => node.tagName === 'a');
                 assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
-                if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 3);
+                if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 2);
             } else {
                 const selects = all(container).filter(node => node.tagName === 'select');
                 assert.equal(selects.length, mode === 'home' ? 0 : 2);
