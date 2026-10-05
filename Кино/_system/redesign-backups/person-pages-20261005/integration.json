@@ -1,0 +1,18 @@
+{
+  "files": [
+    {
+      "file": "_system/Актер.md",
+      "kind": "actor",
+      "frontmatter": "byte identical at update",
+      "idempotent": true,
+      "sha256": "1ff1a709941c8a5c94259c050ed381f1078573a41526ee57c046d7b061122a6b"
+    },
+    {
+      "file": "_system/Режиссер.md",
+      "kind": "director",
+      "frontmatter": "byte identical at update",
+      "idempotent": true,
+      "sha256": "7a83bc0e10254f7d10afc51b6589f1e9662bfe1a9eb72e00a3e0d3104ea29624"
+    }
+  ]
+}

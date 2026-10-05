@@ -1,0 +1,29 @@
+{
+  "created": "2026-10-05T08:20:29.362Z",
+  "files": {
+    "_system/Актер.md": {
+      "sha256": "3ad9113266bddafa4791ed9c15fb26df1786e800012835d4f11754587c44b81d",
+      "bytes": 44110
+    },
+    "_system/Режиссер.md": {
+      "sha256": "70e8b0c3524145abbeaeda7e877e37e506be904a0f0353cbf94811c2cd12220c",
+      "bytes": 42749
+    },
+    "_system/open_kino_actor.js": {
+      "sha256": "3f5cfda5f0d67100c0442463b31a3ae42f74ed8a365f5111403f94a371c4b1b7",
+      "bytes": 143869
+    },
+    "_system/open_kino_director.js": {
+      "sha256": "d79a3a8847e196a832705925ac2dab7ff0da794e3d49914699f8bf40c9795aba",
+      "bytes": 94656
+    },
+    "_system/kino-design.css": {
+      "sha256": "8fcd412ea5a753ae45e7d2b9656f8c334210befd8d154740faf75bda9407b67d",
+      "bytes": 24921
+    },
+    "_system/Редизайн — прогресс.md": {
+      "sha256": "b009b48e1fbe8efff015d1ff0cd42c86f966682a2203fa48d93c91575415f1ef",
+      "bytes": 8708
+    }
+  }
+}

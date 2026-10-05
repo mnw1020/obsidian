@@ -293,6 +293,12 @@ module.exports=async function openEntity(params) {
 
 // Add the shared presentation without rewriting the generated note's data.
 async function withKinoLayout(app,obsidian,raw,kind){
+    const presentation=app.vault.getAbstractFileByPath("Кино/_system/person_page_layout.js");
+    if(presentation){
+        const module={exports:{}};
+        new Function("module","exports",await app.vault.read(presentation))(module,module.exports);
+        raw=module.exports(raw,{kind:"actor"});
+    }
     const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
     if(!file)return raw;
     const module={exports:{}};

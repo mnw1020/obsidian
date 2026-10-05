@@ -227,7 +227,7 @@ module.exports=async function openEntity(params) {
     selected=sourcePersonDisplay(selected);
     if(!selected)return;
     let file=app.vault.getAbstractFileByPath(PAGE);
-    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,await withKinoLayout(app,ob,withKpColumns(FINAL_PAGE_TEXT),"entity"));}
+    if(!file){await makeFolders(app,PAGE);file=await app.vault.create(PAGE,await withKinoLayout(app,ob,withKpColumns(SOURCE_PAGE_TEXT),"entity"));}
     if(file.extension!=='md')throw new Error('Путь служебной страницы занят: '+PAGE);
     await app.fileManager.processFrontMatter(file,fm=>{fm['Выбрано']=selected;});
     await refreshKinoSelection(app, file, selected);
@@ -235,6 +235,12 @@ module.exports=async function openEntity(params) {
 
 // Add the shared presentation without rewriting the generated note's data.
 async function withKinoLayout(app,obsidian,raw,kind){
+    const presentation=app.vault.getAbstractFileByPath("Кино/_system/person_page_layout.js");
+    if(presentation){
+        const module={exports:{}};
+        new Function("module","exports",await app.vault.read(presentation))(module,module.exports);
+        raw=module.exports(raw,{kind:"director"});
+    }
     const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
     if(!file)return raw;
     const module={exports:{}};
