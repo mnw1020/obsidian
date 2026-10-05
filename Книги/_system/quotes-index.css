@@ -1,7 +1,7 @@
 .book-quotes-index { --quotes-line: var(--background-modifier-border, #d8d3c9); --quotes-muted: var(--text-muted, #716b62); --quotes-surface: var(--background-secondary, #efede7); --quotes-accent: var(--text-accent, #a46830); min-width: 0; }
 .book-quotes-index * { box-sizing: border-box; }
 .book-quotes-index > p { color: var(--quotes-muted); font-size: .9em; margin: 12px 0; }
-.book-quotes-index .book-knowledge-controls { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin: 16px 0; }
+.book-quotes-index .book-knowledge-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 16px 0; }
 .book-quotes-index .book-knowledge-controls input { grid-column: 1 / -1; }
 .book-quotes-index .book-knowledge-controls :is(input,select) { width: 100%; min-width: 0; max-width: 100%; min-height: 42px; border: 1px solid var(--quotes-line); border-radius: 9px; padding: 8px 12px; font: inherit; font-size: .85em; color: var(--text-normal); background: var(--quotes-surface); }
 .book-quotes-index .book-quotes-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin: 18px 0; }
@@ -25,7 +25,6 @@
 .book-quotes-index .book-excerpt-card .internal-link { font-size: .8em; color: var(--quotes-accent); }
 @media (max-width: 500px) {
     .book-quotes-index .book-knowledge-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .book-quotes-index .book-knowledge-controls select:last-child { grid-column: 1 / -1; }
     .book-quotes-index .book-quotes-group > summary { padding: 13px; }
     .book-quotes-index .book-quotes-group-body { padding: 10px; }
 }

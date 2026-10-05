@@ -17,7 +17,7 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
     const period = month ? `${year}-${month}` : year;
     const readings = [], authors = new Map(), favorites = [], types = new Map(), years = new Map();
     const allReadings = [];
-    let books = 0, ideas = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0;
+    let books = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0;
     for (const record of records) {
         const fm = record.fm;
         const names = [...new Set((Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(v => String(v ?? "").trim()).filter(Boolean))];
@@ -31,7 +31,7 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
         if (!record.collection && (record.historyError || record.error)) invalidHistory++;
         undatedExcerpts += fullExcerpts.filter(entry => !entry.savedDate).length;
         if (record.collection) {
-            for (const excerpt of excerpts) excerpt.type === "idea" ? ideas++ : quotes++;
+            quotes += excerpts.length;
             continue;
         }
         const fiction = record.file.path.startsWith("Книги/Художественные/");
@@ -46,7 +46,7 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
         if (year && !history.length && !excerpts.length) continue;
         books++;
         if (year ? history.some(entry => entry.number > 1) : history.length > 1) reread++;
-        for (const excerpt of excerpts) excerpt.type === "idea" ? ideas++ : quotes++;
+        quotes += excerpts.length;
         const chronological = [...history].sort((a, b) => a.date.localeCompare(b.date) || a.number - b.number);
         const latestRating = [...chronological].reverse().find(entry => entry.rating !== null && entry.rating !== undefined)?.rating;
         if (fiction && Number(latestRating) >= 8 && Number(latestRating) <= 10) favorites.push({ file: record.file, title, authors: names, rating: Number(latestRating) });
@@ -68,7 +68,7 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
     const monthKey = `${currentYear}-${currentMonth}`;
     const memoryMonth = month || currentMonth, memoryYear = year ? Number(year) : currentYear;
     return {
-        books, authors: authors.size, readings: readings.length, reread, ideas, quotes, imprecise, invalidHistory, year, month, undatedExcerpts,
+        books, authors: authors.size, readings: readings.length, reread, ideas: 0, quotes, imprecise, invalidHistory, year, month, undatedExcerpts,
         readingRows: [...readings].sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "ru")),
         months: MONTH_LABELS.map((label, index) => ({ label, month: String(index + 1).padStart(2, "0"), count: readings.filter(entry => entry.date.slice(5, 7) === String(index + 1).padStart(2, "0")).length })),
         yearOnly: readings.filter(entry => entry.date.length === 4).length,
@@ -228,11 +228,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку.`, "book-dashboard-warning");
         if (home) {
             const month = buildDashboard(records, { now, year: currentYear, month: currentMonth });
-            metrics(content, [["Чтений в этом месяце", month.readings], ["Чтений в этом году", model.readings], ["Выписок в этом месяце", month.ideas + month.quotes]]);
+            metrics(content, [["Чтений в этом месяце", month.readings], ["Чтений в этом году", model.readings], ["Цитат в этом месяце", month.quotes]]);
             memories(model);
             return;
         }
-        metrics(content, [["Чтений за период", model.readings], ["Произведений", model.books], ["Авторов", model.authors], ["Перечитано произведений", model.reread], ["Сохранено идей", model.ideas], ["Сохранено цитат", model.quotes]]);
+        metrics(content, [["Чтений за период", model.readings], ["Произведений", model.books], ["Авторов", model.authors], ["Перечитано произведений", model.reread], ["Сохранено цитат", model.quotes]]);
         if (selectedYear) {
             const previousYear = String(Number(selectedYear) - 1);
             const previous = buildDashboard(records, { now, year: previousYear, month: selectedMonth });
@@ -288,7 +288,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         memories(model);
         const methodology = element(content, "details", undefined, "book-dashboard-methodology");
         element(methodology, "summary", "Как считаются итоги и точность дат");
-        element(methodology, "p", "Каждое чтение считается по истории карточки. В произведения и авторов входят также карточки с сохранённой выпиской за период. Идеи и цитаты учитываются по дате сохранения. Средние оценки авторов и любимые произведения используют последнюю доступную оценку художественного произведения за период.");
+        element(methodology, "p", "Каждое чтение считается по истории карточки. В произведения и авторов входят также карточки с сохранённой выпиской за период. Цитаты учитываются по дате сохранения. Средние оценки авторов и любимые произведения используют последнюю доступную оценку художественного произведения за период.");
         if (model.imprecise) element(methodology, "p", `Чтений с датой до месяца или года: ${model.imprecise}. Отсутствующие дни не восстанавливаются.`);
         if (selectedMonth) element(methodology, "p", "Чтения с датой только до года не входят в отдельный месяц.");
         if (model.undatedExcerpts) element(methodology, "p", `Выписок без даты сохранения: ${model.undatedExcerpts}. ${selectedYear ? "В выбранный период они не включены." : "Они включены в общие итоги."}`);

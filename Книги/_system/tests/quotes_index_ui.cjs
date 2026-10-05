@@ -8,7 +8,7 @@ const baseline=`*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;backgr
 async function main(){const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});let checks=0;try{
 for(const width of [320,390,1024])for(const theme of ['theme-light','theme-dark']){
  const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.setContent(`<style>${baseline}</style><body class="${theme}"><main><h1>Идеи и цитаты</h1><div id="content"></div></main></body>`);
+ await page.setContent(`<style>${baseline}</style><body class="${theme}"><main><h1>Цитаты</h1><div id="content"></div></main></body>`);
  await page.evaluate(async({source,core,css,files})=>{
   const map=new Map(files.map(file=>[file.path,file]));
   map.set('Книги/_system/book_core.js',{path:'Книги/_system/book_core.js',text:core});map.set('Книги/_system/quotes-index.css',{path:'Книги/_system/quotes-index.css',text:css});

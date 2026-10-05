@@ -125,7 +125,7 @@ async function render({ app, dv }) {
     const contents = el(hero, 'nav', 'book-card-contents');
     contents.setAttribute('aria-label', 'Разделы произведения');
     internal(contents, 'История чтений ↓', source + '#История чтений');
-    internal(contents, 'Все идеи и цитаты ↗', 'Книги/Цитаты/_Идеи и цитаты');
+    internal(contents, 'Все цитаты ↗', 'Книги/Цитаты/_Цитаты');
 }
 
 module.exports = { header, render, displayDate };

@@ -1,7 +1,7 @@
 // Portable Obsidian module: explicit excerpts and a read-only index.
 const META = "<!-- BOOK-EXCERPT:META -->";
 // A new format version prevents a live Obsidian session from reusing old parsed metadata.
-const STATE_KEY = "__bookKnowledgeV3";
+const STATE_KEY = "__bookKnowledgeV4";
 const CORE_PATH = "Книги/_system/book_core.js";
 
 function normalize(value) {
@@ -65,7 +65,7 @@ function parseExcerpts(text) {
         }
         const excerptText = body.slice(0, meta).join("\n").trim();
         if (excerptText) excerpts.push({
-            id, type: header[1].toLowerCase(), text: excerptText,
+            id, type: "quote", text: excerptText,
             themes: themes(fields.themes), conclusion: fields.conclusion.trim(), location: fields.location.trim(),
             savedDate: isExactDate(fields.savedDate.trim()) ? fields.savedDate.trim() : "",
             line: i, endLine: anchor
@@ -85,7 +85,6 @@ function createId(text = "") {
 }
 
 function renderExcerpt(value, newline = "\n") {
-    const type = value.type === "idea" ? "idea" : "quote";
     const text = String(value.text ?? "").replace(/\r\n/g, "\n").trim();
     const id = value.id || createId();
     if (!text) throw new Error("Введите текст выписки.");
@@ -96,7 +95,7 @@ function renderExcerpt(value, newline = "\n") {
     const savedDate = String(value.savedDate ?? "").trim();
     if (savedDate && !isExactDate(savedDate)) throw new Error("Дата сохранения выписки должна быть действительной датой YYYY-MM-DD.");
     const content = [
-        `> [!${type}] ${type === "quote" ? "Цитата" : "Идея"}`,
+        `> [!quote] Цитата`,
         ...text.split("\n").map(line => `> ${line}`), ">", `> ${META}`,
         `> **Темы:** ${themes(value.themes).join("; ")}`,
         `> **Вывод:** ${conclusion.split("\n")[0]}`,
@@ -161,7 +160,6 @@ function applyExcerpt(raw, value, selection = null) {
 function filterExcerpts(entries, filters = {}) {
     const query = normalize(filters.query);
     return entries.filter(entry =>
-        (!filters.type || entry.type === filters.type) &&
         (!filters.author || entry.authors.includes(filters.author)) &&
         (!filters.theme || entry.themes.some(theme => normalize(theme) === normalize(filters.theme))) &&
         (!query || normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, ...entry.authors, ...entry.themes].join(" ")).includes(query))
@@ -320,7 +318,7 @@ function sourceLink(parent, entry, app) {
 function renderCard(parent, entry, app) {
     const card = element(parent, "article", undefined, "book-excerpt-card");
     const top = element(card, "div", undefined, "book-excerpt-meta");
-    element(top, "strong", entry.type === "idea" ? "💡 Идея" : "💬 Цитата");
+    element(top, "strong", "💬 Цитата");
     if (entry.themes.length) element(top, "span", " · " + entry.themes.join(" · "));
     const text = element(card, "p", entry.text);
     text.style.whiteSpace = "pre-wrap";
@@ -342,22 +340,22 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const stylesheet = app.vault.getAbstractFileByPath("Книги/_system/quotes-index.css");
         if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
     }
-    const status = element(root, "p", "Загружаю выписки…");
+    const status = element(root, "p", "Загружаю цитаты…");
     let disposed = false, generation = 0, timer;
     let service;
     try { service = await getService({ app, obsidian }); }
-    catch (error) { status.textContent = `Не удалось загрузить выписки: ${error.message || error}`; return; }
+    catch (error) { status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; return; }
     const controls = element(root, "div", undefined, "book-knowledge-controls");
     const toolbar = mode === "home" ? null : element(root, "div", undefined, "book-quotes-toolbar");
     const content = element(root, "div", undefined, "book-knowledge-results");
     let entries = [], randomId = null, groupBy = "theme", expandAll = false;
     const openGroups = new Set(), groupingButtons = [];
-    const filters = { query: "", theme: "", author: "", type: "" };
+    const filters = { query: "", theme: "", author: "" };
     const selects = {};
     function draw() {
         content.replaceChildren();
         const filtered = filterExcerpts(entries, filters);
-        status.textContent = entries.length ? `${filtered.length} из ${entries.length} выписок` : "Добавь первую выписку из карточки книги.";
+        status.textContent = entries.length ? `${filtered.length} из ${entries.length} цитат` : "Добавь первую цитату из карточки книги.";
         if (mode === "home") {
             if (entries.length) {
                 const entry = entries.find(entry => `${entry.path}:${entry.id}` === randomId) || entries[Math.floor(Math.random() * entries.length)];
@@ -392,11 +390,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             }
             showEntries();
         }
-        if (!filtered.length && entries.length) element(content, "p", "По этим условиям выписок пока нет.");
+        if (!filtered.length && entries.length) element(content, "p", "По этим условиям цитат пока нет.");
     }
     let expandButton;
     if (mode === "home") {
-        element(controls, "button", "Другая выписка").addEventListener("click", () => {
+        element(controls, "button", "Другая цитата").addEventListener("click", () => {
             const choices = entries.filter(entry => `${entry.path}:${entry.id}` !== randomId);
             const entry = choices[Math.floor(Math.random() * choices.length)];
             if (entry) randomId = `${entry.path}:${entry.id}`;
@@ -406,15 +404,15 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const query = element(controls, "input");
         query.type = "search";
         query.placeholder = "Текст, тема, автор или вывод";
-        query.setAttribute("aria-label", "Поиск выписок");
+        query.setAttribute("aria-label", "Поиск цитат");
         query.addEventListener("input", () => { filters.query = query.value; draw(); });
-        for (const [field, label] of [["theme", "Все темы"], ["author", "Все авторы"], ["type", "Цитаты и идеи"]]) {
+        for (const [field, label] of [["theme", "Все темы"], ["author", "Все авторы"]]) {
             const select = selects[field] = element(controls, "select");
             select.setAttribute("aria-label", label);
             select.addEventListener("change", () => { filters[field] = select.value; draw(); });
         }
         const grouping = element(toolbar, "div", undefined, "book-quotes-grouping");
-        grouping.setAttribute("role", "group"); grouping.setAttribute("aria-label", "Группировка выписок");
+        grouping.setAttribute("role", "group"); grouping.setAttribute("aria-label", "Группировка цитат");
         for (const [value, label] of [["theme", "По темам"], ["source", "По источникам"]]) {
             const button = element(grouping, "button", label);
             button.setAttribute("aria-pressed", String(groupBy === value));
@@ -450,12 +448,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
                 for (const [field, values, label] of [
                     ["theme", [...new Set(entries.flatMap(entry => entry.themes))].sort((a, b) => a.localeCompare(b, "ru")), "Все темы"],
                     ["author", [...new Set(entries.flatMap(entry => entry.authors))].sort((a, b) => a.localeCompare(b, "ru")), "Все авторы"],
-                    ["type", ["quote", "idea"], "Цитаты и идеи"]
                 ]) {
                     const select = selects[field];
                     select.replaceChildren();
                     element(select, "option", label).value = "";
-                    for (const value of values) element(select, "option", field === "type" ? value === "quote" ? "Цитаты" : "Идеи" : value).value = value;
+                    for (const value of values) element(select, "option", value).value = value;
                     select.value = values.includes(filters[field]) ? filters[field] : "";
                     filters[field] = select.value;
                 }
@@ -463,7 +460,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             draw();
             const failed = records.filter(record => record.error).length;
             if (failed) status.textContent += ` · Не удалось прочитать карточек: ${failed}`;
-        } catch (error) { if (!disposed) status.textContent = `Не удалось загрузить выписки: ${error.message || error}`; }
+        } catch (error) { if (!disposed) status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; }
     }
     const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
     function dispose() { disposed = true; clearTimeout(timer); unsubscribe(); }

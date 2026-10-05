@@ -33,7 +33,7 @@ const rendererSource=pluginJs.slice(start,end+1);
 const css=fs.readFileSync(path.join(root,'_system/books-library.css'),'utf8');
 const pluginCss=fs.readFileSync(path.join(plugin,'styles.css'),'utf8');
 const yamlSource=fs.readFileSync(path.join(__dirname,'yaml_fixture.cjs'),'utf8');
-const notes=['_index.md','_system/Идеи и цитаты.md','_system/Итоги чтения.md'].map(name=>({name,text:fs.readFileSync(path.join(root,name),'utf8')}));
+const notes=['_index.md','_system/Цитаты.md','_system/Итоги чтения.md'].map(name=>({name,text:fs.readFileSync(path.join(root,name),'utf8')}));
 const knowledge=require('../knowledge.js');
 core.books().slice(0,3).forEach((book,index)=>{book.text+='\n'+knowledge.renderExcerpt({id:'book-excerpt-layout-'+index,type:index===1?'quote':'idea',text:'Тест переноса: '+'длинноеслово'.repeat(25),themes:['длинная тема для проверки мобильного интерфейса','мышление'],conclusion:'Личный вывод с несколькими предложениями.',location:'глава 2, страница 17'});});
 const baseline=[

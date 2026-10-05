@@ -46,7 +46,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     internal(nav, '← Библиотека', 'Книги/_index');
     if (!index) internal(nav, 'Все авторы', 'Книги/_system/Авторы');
     internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
-    internal(nav, 'Идеи и цитаты', 'Книги/Цитаты/_Идеи и цитаты');
+    internal(nav, 'Цитаты', 'Книги/Цитаты/_Цитаты');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     const monogram = el(identity, 'div', 'book-authors-monogram', index ? 'Аа' : initials(author) || 'А');

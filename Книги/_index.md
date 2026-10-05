@@ -46,7 +46,7 @@ if (file) {
 
 ## Из заметок
 
-[[Книги/Цитаты/_Идеи и цитаты|Идеи и цитаты]]
+[[Книги/Цитаты/_Цитаты|Цитаты]]
 
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
