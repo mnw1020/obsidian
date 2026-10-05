@@ -122,18 +122,44 @@ test('quote filters combine text, theme and author with Russian ё normalisation
     assert.equal(knowledge.filterExcerpts(entries, { query: 'проверить' }).length, 1);
 });
 
-test('sections separate specific motivation themes without duplicating or changing quotes', () => {
+test('explicit theme branches include descendants once and keep independent themes intact', () => {
+    const base = { title: 'Источник', authors: [], text: 'Цитата', path: 'Книги/Источник.md' };
     const entries = [
-        { id: 'sleep', path: 'Мотивация', title: 'Мотивация', text: 'Сон', themes: ['мотивация', 'сон'], line: 1 },
-        { id: 'action', path: 'Мотивация', title: 'Мотивация', text: 'Действие', themes: ['мотивация', 'действие'], line: 2 },
-        { id: 'talk', path: 'Мотивация', title: 'Мотивация', text: 'Общение', themes: ['мотивация', 'общение'], line: 3 },
-        { id: 'guilt', path: 'Мотивация', title: 'Мотивация', text: 'Вина', themes: ['мотивация', 'вина', 'тревога'], line: 4 }
+        { ...base, id: 'a', themes: ['Психология/Привычки/Сон', 'Психология/Тревога'] },
+        { ...base, id: 'b', themes: ['Психология/Привычки'] },
+        { ...base, id: 'c', themes: ['Мотивация', 'Сон'] },
+        { ...base, id: 'd', themes: ['Психология другая/Привычки'] }
     ];
-    const original = JSON.stringify(entries), groups = knowledge.groupExcerpts(entries);
-    assert.deepEqual(groups.map(group => group.title), ['Ритм жизни', 'Действие и перемены', 'Мысли и убеждения', 'Отношения и общение']);
-    assert.equal(groups.flatMap(group => group.entries).length, entries.length);
-    assert.equal(new Set(groups.flatMap(group => group.entries.map(entry => entry.id))).size, entries.length);
-    assert.equal(knowledge.groupExcerpts(entries, { by: 'source' }).length, 1);
+    const original = JSON.stringify(entries);
+    assert.deepEqual(knowledge.filterExcerpts(entries, { theme: 'психология' }).map(entry => entry.id), ['a', 'b']);
+    assert.deepEqual(knowledge.filterExcerpts(entries, { theme: 'Психология / Привычки' }).map(entry => entry.id), ['a', 'b']);
+    assert.deepEqual(knowledge.filterExcerpts(entries, { theme: 'сон' }).map(entry => entry.id), ['c']);
+    assert.deepEqual(knowledge.themeOptions(entries), ['Мотивация', 'Психология', 'Психология другая', 'Психология другая/Привычки', 'Психология/Привычки', 'Психология/Привычки/Сон', 'Психология/Тревога', 'Сон']);
+    assert.equal(JSON.stringify(entries), original);
+});
+
+test('full text word search combines source and theme without merging equal source titles', () => {
+    const base = { title: 'Одинаковое название', authors: ['Автор'], themes: ['Мышление'], text: 'Ёж замечает ' + 'длинный текст '.repeat(200) + 'редкую подробность', conclusion: 'Другой порядок слов' };
+    const entries = [{ ...base, id: 'a', path: 'Книги/А.md' }, { ...base, id: 'b', path: 'Книги/Б.md' }];
+    assert.deepEqual(knowledge.filterExcerpts(entries, { query: 'подробность ЕЖ', theme: 'мышление', source: 'Книги/Б.md' }).map(entry => entry.id), ['b']);
+    assert.equal(knowledge.filterExcerpts(entries, { query: 'порядок автор' }).length, 2);
+    assert.equal(knowledge.filterExcerpts(entries, { query: 'несуществующее' }).length, 0);
+});
+
+test('stable pagination covers a large collection once and clamps the last page after removal', () => {
+    const entries = Array.from({ length: 1001 }, (_, n) => ({ id: `id-${n}`, path: `Книги/${String(n).padStart(4, '0')}.md`, title: 'Название', line: n, savedDate: n === 4 ? '2026-10-05' : '' }));
+    const original = JSON.stringify(entries), sorted = knowledge.sortExcerpts([...entries].reverse());
+    assert.equal(sorted[0].id, 'id-4');
+    assert.deepEqual(sorted, knowledge.sortExcerpts(entries));
+    const visited = [];
+    for (let page = 1; page <= 51; page++) {
+        const result = knowledge.excerptPage(sorted, page);
+        assert.ok(result.entries.length <= 20); visited.push(...result.entries.map(entry => entry.id));
+    }
+    assert.equal(visited.length, entries.length); assert.equal(new Set(visited).size, entries.length);
+    assert.deepEqual(knowledge.excerptPage([], 500), { page: 1, pages: 1, start: 0, end: 0, entries: [] });
+    assert.equal(knowledge.excerptPage(sorted.slice(0, 980), 51).page, 49);
+    assert.equal(knowledge.excerptPage(sorted, -1).page, 1);
     assert.equal(JSON.stringify(entries), original);
 });
 

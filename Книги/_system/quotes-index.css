@@ -2,7 +2,8 @@
 .book-quotes-index * { box-sizing: border-box; }
 .book-quotes-index [hidden] { display: none !important; }
 .book-quotes-index .book-quotes-status { color: var(--quotes-muted); font-size: .8em; margin: 12px 0; font-variant-numeric: tabular-nums; }
-.book-quotes-index .book-knowledge-controls { margin: 12px 0 16px; }
+.book-quotes-index .book-knowledge-controls { display: block; margin: 12px 0 16px; }
+.book-quotes-index .book-knowledge-results { display: block; }
 .book-quotes-index :is(input,select) { width: 100%; min-width: 0; max-width: 100%; min-height: 38px; border: 1px solid var(--quotes-line); border-radius: 5px; padding: 7px 10px; font: inherit; font-size: .85em; color: var(--text-normal); background: var(--background-primary); }
 .book-quotes-index .book-quotes-toolbar { display: flex; flex-wrap: wrap; align-items: start; gap: 8px 16px; margin-top: 10px; }
 .book-quotes-index button { box-shadow: none; font: inherit; cursor: pointer; }

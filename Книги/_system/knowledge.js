@@ -408,6 +408,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
     }
     const status = element(root, "p", "Загружаю цитаты…", "book-quotes-status");
+    status.tabIndex = -1;
     let disposed = false, generation = 0, timer, service;
     try { service = await getService({ app, obsidian }); }
     catch (error) { status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; return; }
@@ -418,12 +419,17 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     let entries = [], randomId = null, page = 1, failed = 0;
     const filters = { query: "", theme: "", source: "" }, pickers = {};
     let query, filterSummary, reset, chips;
+    function pickerOption(field, value) {
+        return pickers[field].options.find(option => field === "theme"
+            ? normalize(themePath(option.value)) === normalize(themePath(value))
+            : option.value === value);
+    }
     function refreshPicker(field) {
         const picker = pickers[field];
         const selected = filters[field];
         const matching = picker.options.filter(option => normalize(option.label).includes(normalize(picker.search.value)));
         const visible = matching.slice(0, 40);
-        const current = picker.options.find(option => option.value === selected);
+        const current = pickerOption(field, selected);
         if (current && !visible.includes(current)) visible.unshift(current);
         picker.select.replaceChildren();
         element(picker.select, "option", picker.all).value = "";
@@ -435,9 +441,14 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         picker.select.value = selected;
     }
     function changeFilter(field, value) {
-        filters[field] = value; page = 1;
+        filters[field] = field === "theme" ? (pickerOption(field, value)?.value ?? value) : value; page = 1;
         if (pickers[field]) refreshPicker(field);
         draw();
+    }
+    function changePage(value) {
+        page = value; draw();
+        status.scrollIntoView?.({ block: "start" });
+        status.focus?.({ preventScroll: true });
     }
     function draw() {
         content.replaceChildren();
@@ -469,11 +480,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         pagination.hidden = current.pages === 1;
         if (current.pages > 1) {
             const previous = element(pagination, "button", "Назад"); previous.disabled = page === 1;
-            previous.addEventListener("click", () => { page--; draw(); });
+            previous.addEventListener("click", () => changePage(page - 1));
             const label = element(pagination, "span", `${page} / ${current.pages}`);
             label.setAttribute("aria-live", "polite");
             const next = element(pagination, "button", "Далее"); next.disabled = page === current.pages;
-            next.addEventListener("click", () => { page++; draw(); });
+            next.addEventListener("click", () => changePage(page + 1));
         }
     }
     if (home) {
@@ -528,7 +539,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
                 for (const entry of sources) titles.set(entry.title, (titles.get(entry.title) || 0) + 1);
                 pickers.source.options = sources.map(entry => ({ value: entry.path, label: titles.get(entry.title) > 1 ? `${entry.title} · ${entry.path.replace(/^Книги\//, "")}` : entry.title })).sort((a, b) => a.label.localeCompare(b.label, "ru"));
                 for (const field of Object.keys(pickers)) {
-                    if (!pickers[field].options.some(option => option.value === filters[field])) filters[field] = "";
+                    filters[field] = pickerOption(field, filters[field])?.value || "";
                     refreshPicker(field);
                 }
             }
