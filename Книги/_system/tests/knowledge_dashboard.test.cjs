@@ -319,6 +319,53 @@ test('all current library histories aggregate in memory without changing their o
     assert.equal(result.invalidHistory, 0);
 });
 
+test('standalone quote collections join the excerpt index without inflating library totals', async () => {
+    const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
+    h.file('Книги/Цитаты/Без источника.md', knowledge.renderExcerpt({ id: 'book-excerpt-standalone-test', text: 'Сохранённое высказывание', themes: ['мышление'] }), { note_type: 'excerpt_collection', title: 'Без источника', authors: [] });
+    h.file('Книги/Цитаты/Не коллекция.md', knowledge.renderExcerpt({ id: 'book-excerpt-excluded-test', text: 'Не включать автоматически' }), { title: 'Другая заметка' });
+    const service = await knowledge.getService(h);
+    assert.equal((await service.snapshot()).length, 1);
+    const records = await service.snapshot({ includeCollections: true });
+    assert.equal(records.length, 2);
+    const collection = records.find(record => record.collection);
+    assert.equal(collection.historyError, '');
+    assert.deepEqual(collection.history, []);
+    assert.deepEqual(service.excerpts(records)[0].authors, []);
+    const total = dashboard.buildDashboard(records);
+    assert.equal(total.books, 1); assert.equal(total.authors, 1);
+    assert.equal(total.readings, 1); assert.equal(total.quotes, 1); assert.equal(total.invalidHistory, 0);
+    assert.equal(dashboard.buildDashboard(records, { year: '2026' }).quotes, 0);
+    assert.equal((await service.snapshot()).length, 1);
+    const changed = h.files.get('Книги/Цитаты/Без источника.md');
+    changed.text += '\n' + knowledge.renderExcerpt({ id: 'book-excerpt-standalone-next', text: 'Новая мысль', type: 'idea', savedDate: '2026-10-05' });
+    changed.stat.mtime++; h.emit('modify', changed);
+    const next = await service.snapshot({ includeCollections: true });
+    assert.equal(service.excerpts(next).length, 2);
+    assert.equal(dashboard.buildDashboard(next, { year: '2026' }).ideas, 1);
+    assert.equal(dashboard.buildDashboard(next, { year: '2026' }).books, 0);
+});
+
+test('all 18 migrated quotes are searchable and retain unknown saving dates', async () => {
+    const h = harness([]);
+    const { fromText } = require('./yaml_fixture.cjs');
+    const folder = path.join(__dirname, '../../Цитаты');
+    for (const name of fs.readdirSync(folder)) {
+        if (!name.endsWith('.md')) continue;
+        const text = fs.readFileSync(path.join(folder, name), 'utf8');
+        h.file('Книги/Цитаты/' + name, text, fromText(text));
+    }
+    const service = await knowledge.getService(h), records = await service.snapshot({ includeCollections: true });
+    const excerpts = service.excerpts(records);
+    assert.equal(excerpts.length, 18);
+    assert.equal(new Set(excerpts.map(entry => entry.id)).size, 18);
+    assert.ok(excerpts.every(entry => !entry.savedDate));
+    assert.equal(knowledge.filterExcerpts(excerpts, { author: 'Сергей Стиллавин' }).length, 1);
+    assert.equal(knowledge.filterExcerpts(excerpts, { theme: 'мотивация' }).length, 11);
+    assert.equal(knowledge.filterExcerpts(excerpts, { query: 'мелкой моторики' }).length, 1);
+    assert.equal(dashboard.buildDashboard(records).books, 0);
+    assert.equal(dashboard.buildDashboard(records).quotes, 18);
+});
+
 test('both read-only renderers work in home and full modes with native DOM controls', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md', text: managedHistory + '\n\n' + knowledge.renderExcerpt({ text: 'Цитата для показа', id: 'book-excerpt-render', type: 'quote' }) }]);
     const document = { createElement: tag => new Node(tag) };

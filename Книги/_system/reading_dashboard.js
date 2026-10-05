@@ -28,8 +28,12 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
         const type = fm.work_type || "book";
         const kind = Object.hasOwn(TYPE_LABELS, type) ? type : "other";
         const title = String(fm.title || record.file.basename);
-        if (record.historyError || record.error) invalidHistory++;
+        if (!record.collection && (record.historyError || record.error)) invalidHistory++;
         undatedExcerpts += fullExcerpts.filter(entry => !entry.savedDate).length;
+        if (record.collection) {
+            for (const excerpt of excerpts) excerpt.type === "idea" ? ideas++ : quotes++;
+            continue;
+        }
         const fiction = record.file.path.startsWith("Книги/Художественные/");
         for (const entry of fullHistory) {
             allReadings.push({ ...entry, file: record.file, title, authors: names, type: kind });
@@ -299,7 +303,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     async function reload() {
         const current = ++generation;
         try {
-            const next = await service.snapshot();
+            const next = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
             records = next;
             if (yearSelect) {

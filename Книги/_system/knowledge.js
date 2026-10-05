@@ -1,7 +1,7 @@
 // Portable Obsidian module: explicit excerpts and a read-only index.
 const META = "<!-- BOOK-EXCERPT:META -->";
 // A new format version prevents a live Obsidian session from reusing old parsed metadata.
-const STATE_KEY = "__bookKnowledgeV2";
+const STATE_KEY = "__bookKnowledgeV3";
 const CORE_PATH = "Книги/_system/book_core.js";
 
 function normalize(value) {
@@ -222,13 +222,20 @@ async function getService({ app, obsidian }) {
             if (file.path.startsWith("Книги/")) for (const callback of state.listeners) callback();
         }));
     }
-    async function snapshot() {
+    async function snapshot({ includeCollections = false } = {}) {
         const cards = await core.snapshot();
+        if (includeCollections) {
+            for (const file of app.vault.getMarkdownFiles()) {
+                if (!file.path.startsWith("Книги/Цитаты/")) continue;
+                const fm = core.getFrontmatter(file);
+                if (fm.note_type === "excerpt_collection" && String(fm.title ?? "").trim()) cards.push({ file, fm, collection: true });
+            }
+        }
         const paths = new Set(cards.map(card => card.file.path));
         for (const path of state.cache.keys()) if (!paths.has(path)) state.cache.delete(path);
         const records = [];
         for (let i = 0; i < cards.length; i += 4) {
-            const batch = await Promise.all(cards.slice(i, i + 4).map(async ({ file, fm }) => {
+            const batch = await Promise.all(cards.slice(i, i + 4).map(async ({ file, fm, collection = false }) => {
                 const mtime = file.stat?.mtime;
                 let item = state.cache.get(file.path);
                 if (!item || mtime === undefined || item.mtime !== mtime) {
@@ -240,8 +247,10 @@ async function getService({ app, obsidian }) {
                             try {
                                 const text = (await app.vault.read(file)).replace(/\r\n/g, "\n");
                                 const value = { mtime, text, excerpts: parseExcerpts(text), history: [], historyError: "" };
-                                try { value.history = core.parseHistory(text).entries; }
-                                catch (error) { value.historyError = error.message || String(error); }
+                                if (!collection) {
+                                    try { value.history = core.parseHistory(text).entries; }
+                                    catch (error) { value.historyError = error.message || String(error); }
+                                }
                                 if (state.pending.get(filePath) === pending && file.path === filePath && mtime !== undefined && mtime === file.stat?.mtime) state.cache.set(filePath, value);
                                 return value;
                             } catch (error) {
@@ -255,7 +264,7 @@ async function getService({ app, obsidian }) {
                     finally { if (state.pending.get(filePath) === pending) state.pending.delete(filePath); }
                     if (!item) return null;
                 }
-                return { file, fm, ...item };
+                return { file, fm, collection, ...item };
             }));
             records.push(...batch.filter(Boolean));
             if (i + 4 < cards.length) await new Promise(resolve => setTimeout(resolve, 0));
@@ -268,7 +277,7 @@ async function getService({ app, obsidian }) {
         excerpts(records) {
             return records.flatMap(record => record.excerpts.map(excerpt => ({ ...excerpt,
                 file: record.file, path: record.file.path, title: String(record.fm.title || record.file.basename),
-                authors: Array.isArray(record.fm.authors) ? record.fm.authors.map(String) : [String(record.fm.authors || "")]
+                authors: (Array.isArray(record.fm.authors) ? record.fm.authors : [record.fm.authors]).map(value => String(value ?? "").trim()).filter(Boolean)
             })));
         },
         search: noteSearch
@@ -284,7 +293,7 @@ function element(parent, tag, text, cls) {
 }
 
 function sourceLink(parent, entry, app) {
-    const link = element(parent, "a", `${entry.title} · ${entry.authors.join(", ")}`, "internal-link");
+    const link = element(parent, "a", [entry.title, entry.authors.join(", ")].filter(Boolean).join(" · "), "internal-link");
     const target = `${entry.path.replace(/\.md$/i, "")}#^${entry.id}`;
     link.href = target;
     link.setAttribute("data-href", target);
@@ -329,7 +338,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     function draw() {
         content.replaceChildren();
         const filtered = filterExcerpts(entries, filters);
-        status.textContent = entries.length ? `${filtered.length} из ${entries.length} выписок` : "Добавь первую выписку из карточки книги. Старые конспекты можно включать по одному выделенному фрагменту.";
+        status.textContent = entries.length ? `${filtered.length} из ${entries.length} выписок` : "Добавь первую выписку из карточки книги.";
         if (mode === "home") {
             if (entries.length) {
                 const entry = entries.find(entry => `${entry.path}:${entry.id}` === randomId) || entries[Math.floor(Math.random() * entries.length)];
@@ -366,7 +375,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     async function reload() {
         const current = ++generation;
         try {
-            const records = await service.snapshot();
+            const records = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
             entries = service.excerpts(records);
             if (mode !== "home") {
