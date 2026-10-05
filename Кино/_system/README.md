@@ -1,3 +1,40 @@
+---
+cssclasses: ["kino-page","kino-system"]
+---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "system" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
+<!-- KINO:REDESIGN:DOCS:START -->
+## Новое оформление · 05.10.2026
+
+Кинотека оформлена в тёплом тёмном стиле для компьютера и телефона. Постер остаётся последним блоком открытой карточки. Все исходные оценки, описания, личные заметки, ссылки и идентификаторы сохранены.
+
+- Шапка карточки и подробности читают существующий YAML через общий `Кино/_system/kino_ui.js`. Полные свойства и роли раскрываются по нажатию; редактор и исходный Markdown доступны как прежде.
+- Роли по-прежнему хранятся в `Кино/_system/Роли/`. Их раскрывает новый интерфейс из поля `Роли файл`; старый маркер `KINO:ROLES:EMBED:V2` не нужен. Упоминания старого embed-блока в инструкции ниже относятся к предыдущему интерфейсу.
+- Общие стили — `_system/kino-design.css`; подключаемая копия — `.obsidian/snippets/kino-design.css`. В Appearance должен быть включён snippet `kino-design`. Другие темы и snippets сохраняются. После изменения CSS повторно запусти `_system/install_design.ps1`.
+- В каталоге добавлено представление «Карточки»; все девять прежних представлений сохранены.
+- `card_layout.js` защищает личный Markdown при add/edit/rebuild и сохраняет неизвестные свойства при обновлении ролей. Не удаляй маркеры `KINO:UI:START/END`, `SEASONS:START/END`, `KINO:VIEWINGS:START/END` и кнопку `KINO:RECOMMEND:BUTTON:V2`.
+- Новые карточки получают оформление автоматически после работы существующего QuickAdd-шаблона. Для повторяемого обновления старых заметок: `node _system/redesign_migrate.cjs dry-run`, затем `apply`; проверка данных — `verify`. Эти команды запускаются из папки «Кино».
+- Проверки: `node --test _system/tests/card-layout.test.cjs _system/tests/system_views.test.cjs _system/tests/design-ui.test.cjs _system/tests/ai.test.cjs`. Для браузерных проверок нужны Playwright и Chrome; может использоваться `AI_TEST_BROWSER=msedge`.
+- Резервная копия, манифест и отчёты находятся в `_system/redesign-backups/`. Состояние работ — в `Редизайн — прогресс.md`. Резервный ZIP хранит исходные личные файлы проекта, включая служебные настройки.
+
+Полная инструкция и прежние технические сведения сохранены ниже.
+<!-- KINO:REDESIGN:DOCS:END -->
+
+
 # Кинотека - актуальная инструкция
 
 > Версия сборки: 24.09.2026. Основной каталог: `Кино/`.

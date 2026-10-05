@@ -7,7 +7,24 @@ imdb Id: "tt1560220"
 Режисер: ["Ruben Fleischer"]
 Актеры: ["Abigail Breslin","Al Roker","Andrew R. McCallister","Anthony Dilio","Ari Loeb","Avan Jogia","Bill Murray","Brianna Gardner","David Fleischer","Devin Mojica","Emma Stone","Evan J. Mackey","Felix Betancourt","Gianni Biasetti Jr.","Grace Randolph","Heng Theng","Ian Gregg","Isabelle Fretheim","Jason M. White","Jenin Gonzalez","Jess Durham","Jesse Eisenberg","Jessica Medina","John Dixon","Josh Horowitz","Julia Vasi","Julian B Lin","Kandis Hargrave","Kyra Elise Gardner","Lewis Wright","Lili Estefan","Louie g Maldonado","Lucas Fleischer","Luke Endyan","Luke Wilson","Michael A. Martinez","MWW Michael Wilkerson","Nathan W. Collins","NeShaunda Mays","Oscar Rodriguez III","Rachel Luttrell","Ronny Mathew","Rosario Dawson","Ruben Vidal","Sergio Briones","Thomas Middleditch","Tim McAdams","Timothy Carr","Victor Rivera","Victoria Hall","Woody Harrelson","Zara McDowell","Zoey Deutch"]
 Роли актеров: ["Albuquerque - Luke Wilson","Arcade Employee - Heng - Heng Theng","Babylonian Gatekeeper - Victoria Hall","Beatrix Hawking - Jess Durham","Berkeley - Avan Jogia","Bill Murray - Bill Murray","Bowel Blast Guy - Ian Gregg","Cameraman - Tim McAdams","Civil War Bearded Guy - Victor Rivera","Columbus - Jesse Eisenberg","Cool Hat Guy - Devin Mojica","Dave Sanderman - Lucas Fleischer","Dept. Store Female Zombie - Kandis Hargrave","Exoculated Scientist - David Fleischer","Flagstaff - Thomas Middleditch","Haybale Z - Gianni Biasetti Jr.","Homer Zombie in Snow - John Dixon","Hotel Guest - Isabelle Fretheim","Indian Poker Player - Ruben Vidal","Little Rock - Abigail Breslin","Madison - Zoey Deutch","Matteo Bianchi - Anthony Dilio","Nevada - Rosario Dawson","Ninja Zombie - Felix Betancourt","Publicist - Julia Vasi","Reporter - Al Roker","Reporter - Grace Randolph","Reporter - Josh Horowitz","Reporter - Lili Estefan","Scared Lab Tech - Ronny Mathew","Straggler Zombie - Louie g Maldonado","Survivor with Flashlight - Jenin Gonzalez","T-800 - Sergio Briones","T-800 Attack Zombie - Brianna Gardner","T-800 Attack Zombie - Kyra Elise Gardner","T-800 Z - Ari Loeb","T-800 Zombie - Evan J. Mackey","T-800 Zombie - Julian B Lin","T-800 Zombie - Luke Endyan","T-800 Zombie - MWW Michael Wilkerson","T-800 Zombie - NeShaunda Mays","T-800 Zombie - Timothy Carr","T800 - Andrew R. McCallister","Tallahassee - Woody Harrelson","Terrified Woman in Snow - Rachel Luttrell","White House Zombie - Jason M. White","White House Zombie - Jessica Medina","White House Zombie - Michael A. Martinez","Wichita - Emma Stone","Zombie - Lewis Wright","Zombie - Nathan W. Collins","Zombie - Zara McDowell","Zombie / T800 - Oscar Rodriguez III"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

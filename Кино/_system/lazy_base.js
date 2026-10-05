@@ -7,9 +7,16 @@ module.exports=({dv,app,obsidian,target,label})=>{
     button.addEventListener("click",async()=>{
         if(busy)return;
         if(child){dv.component.removeChild(child);child=null;content.empty();button.textContent=`Показать ${label}`;button.setAttribute("aria-expanded","false");return;}
-        if(!obsidian?.MarkdownRenderer||!obsidian?.Component||!dv.component){content.textContent="Открой таблицу по ссылке выше.";return;}
+        if(!obsidian?.MarkdownRenderer||!obsidian?.Component||!dv.component){
+            content.empty();
+            const link=content.createEl("a",{text:`Открыть ${label}`,href:target,cls:"internal-link"});
+            link.setAttribute("data-href",target);
+            link.addEventListener("click",event=>{event.preventDefault();app.workspace.openLinkText(target,dv.current().file.path,event.ctrlKey||event.metaKey);});
+            return;
+        }
         busy=true;button.disabled=true;
         try{
+            content.empty();
             child=new obsidian.Component();dv.component.addChild(child);
             await obsidian.MarkdownRenderer.render(app,`![[${target}]]`,content,dv.current().file.path,child);
             button.textContent=`Скрыть ${label}`;

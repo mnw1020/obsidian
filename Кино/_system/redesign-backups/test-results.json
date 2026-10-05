@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-05",
+  "suites": {
+    "card-layout": 13,
+    "system_views": 9,
+    "design-ui": 8,
+    "ai": 13
+  },
+  "passed": 43,
+  "failed": 0,
+  "widths": [
+    390,
+    768,
+    1440
+  ],
+  "visualHarness": "Chromium with actual UI modules and installed Gruvbox/Dynamic Views CSS; not a capture of Obsidian",
+  "appearanceChanges": "enabled kino-design only",
+  "existingSnippetsUnchanged": true
+}

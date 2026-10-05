@@ -7,7 +7,24 @@ imdb Id: "tt13560574"
 Режисер: ["Ti West"]
 Актеры: ["Brittany Snow","Bryony Skillington","Geoff Dolan","James Gaylyn","Jenna Ortega","Kid Cudi","Martin Henderson","Matthew J. Saville","Mia Goth","Owen Campbell","Simon Prast","Stephen Ure"]
 Роли актеров: ["Bobby-Lynne - Brittany Snow","Deputy - Geoff Dolan","Howard - Stephen Ure","Jackson - Kid Cudi","Lorraine - Jenna Ortega","Maxine / Pearl - Mia Goth","Officer Mitchell - Matthew J. Saville","RJ - Owen Campbell","Sheriff Dentler - James Gaylyn","Store Clerk - Bryony Skillington","Televangelist - Simon Prast","Wayne - Martin Henderson"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [

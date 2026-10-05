@@ -5,6 +5,8 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     async function load(name){const file=app.vault.getAbstractFileByPath(`Кино/_system/${name}.js`);if(!file)throw new Error(`Не найден ${name}.js`);const m={exports:{}};new Function("module",await app.vault.read(file))(m);return m.exports;}
     const crypt=await load("ai_crypto"),core=await load("ai_core");
     const host=container.createDiv({cls:"kino-ai"});
+    host.setAttribute("role","region");host.setAttribute("aria-label","Рекомендации ИИ");
+    host.createEl("div",{cls:"kino-ai-heading",text:"Рекомендации ИИ"});
     host.createEl("style",{text:`
         .kino-ai{margin:12px 0}.kino-ai-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:end;padding:12px;border:1px solid var(--background-modifier-border);border-radius:12px;background:var(--background-secondary)}
         .kino-ai label,.kino-ai-modal label{display:flex;flex-direction:column;gap:5px;font-size:var(--font-ui-small)}
@@ -24,7 +26,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     const file=app.vault.getAbstractFileByPath(path),plainText=!encryptedFile&&file?await app.vault.read(file):"";
     if(session)settings=core.normalize(app[sessionId].settings);
     else if(!encryptedFile){settings=core.normalize(plainText?JSON.parse(plainText):{version:3,connections:[]});}
-    const view=host.createDiv(),status=host.createEl("p",{cls:"kino-ai-state"});status.setAttribute("role","status");
+    const view=host.createDiv({cls:"kino-ai-selector"}),status=host.createEl("p",{cls:"kino-ai-state"});status.setAttribute("role","status");status.setAttribute("aria-live","polite");
     function field(parent,label,tag="input",type="text"){
         const holder=parent.createEl("label");holder.createEl("span",{text:label});const el=holder.createEl(tag,tag==="input"?{type}:{});el.setAttribute("aria-label",label);return el;
     }
@@ -103,7 +105,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
                 for(const c of this.draft.connections){const b=button(sidebar,c.name||"Новое подключение",()=>{this.selected=c.id;this.draw();});if(c.id===this.selected)b.classList.add("is-active");}
                 button(sidebar,"+ Добавить подключение",()=>{const c={id:core.newId(),name:"Новое подключение",baseUrl:"",protocol:"responses",apiKey:"",models:[],model:""};this.draft.connections.push(c);this.selected=c.id;if(!this.draft.activeConnectionId)this.draft.activeConnectionId=c.id;this.draw();});
                 const c=this.draft.connections.find(c=>c.id===this.selected);if(c)this.drawConnection(edit,c);else edit.createEl("p",{text:"Добавь подключение: сервер, ключ API и модели."});
-                this.message=this.contentEl.createEl("p",{cls:"kino-ai-state"});this.message.setAttribute("role","status");
+                this.message=this.contentEl.createEl("p",{cls:"kino-ai-state"});this.message.setAttribute("role","status");this.message.setAttribute("aria-live","polite");
                 const footer=this.contentEl.createDiv({cls:"kino-ai-footer"});button(footer,"Отмена",()=>this.requestClose());
                 const save=button(footer,"Сохранить",()=>this.run(async()=>{
                     if(busy)throw new Error("Дождись сохранения выбранной модели");busy=true;try{await persist(this.draft);}finally{busy=false;}

@@ -7,7 +7,24 @@ imdb Id: "tt2364841"
 Режисер: ["Brad Furman"]
 Актеры: ["Adriana Fontanals Cuebas","Anthony Mackie","Antonio Esfandiari","Ben Affleck","Ben Schwartz","Bernie O. Ramos Robledo","Bob Gunton","Brian Tester","Carlos Alberto Alvarez-Viñas","Carlos M. Gonzalez","Carlos Sanz","Christian George","Christopher McLinden","Clifford Myatt","Dalissa Nevarez","David Castro","David Costabile","David Davila","Dayo Okeniyi","Deadmau5","Diana Noris Smith","Doug Bryant","Doug Weinberg","Efrain Canino Santos","Eric Pérez","Gemma Arterton","Geronimo Mercado","Gil O'Brien","Guillermo Fornaris","Hugh Scott","Hugo Fuentes","James Molina","Jean Pierre Prats","Jeannine Kaspar","Jeremy E. Gonzalez","Jim Cruz","Joel Isaac","John Heard","Jon Douglas Rainey","Jordan Beder","Juan Padilla-Lallave","Justin Paul","Justin Timberlake","Larissa Santiago","Laura Aleman","Laurence Mason","Louis Lombardi","Manuel Gilberto Santiago","Margarita Álvarez","Mekaiela Rey","Michael Esper","Mike Sampedro","Natasha Lopez","Nayka M. Vallejo","Nilo Verdejo","Oliver Cooper","Omar Cruz Soto","Phil Laak","Randall M. Corsi","Sam Klein","Sam Mendoza","Sam Palladio","Sam Upton","Samuel Verdejo","Sandha Khin","Steven Weisz","Vincent Laresca","Wifredo Alejandro","Yessenia Monge","Yul Vazquez"]
 Роли актеров: ["Agent Poole - Sam Upton","Agent Shavers - Anthony Mackie","Airport Security - David Castro","Andrew Cronin - Oliver Cooper","Angle Shooter - Doug Weinberg","Archie - Louis Lombardi","Ashley - Jeannine Kaspar","Baggage Supv - Omar Cruz Soto","Bar Back - Justin Paul","Bikini Girl - Larissa Santiago","Billy 'Pet' Petricoff - Michael Esper","Businessman - Jon Douglas Rainey","Car Salesman for Richie - Manuel Gilberto Santiago","Casino Whale - Brian Tester","Club Bouncer - Eric Pérez","Costa Rican Policeman - Wifredo Alejandro","Costa Rican Worker - Joel Isaac","Craig - Ben Schwartz","Dean Alex Monroe - Bob Gunton","Delegate Herrera - Yul Vazquez","DJ - Deadmau5","Doorman John - Steven Weisz","Esteban - James Molina","Esteban's Sons - Jeremy E. Gonzalez","Esteban's Sons - Juan Padilla-Lallave","Esteban's Wife - Yessenia Monge","Flight Attendant - Natasha Lopez","Gamer - Hugo Fuentes","Girl - Dalissa Nevarez","Governor - Laurence Mason","Ground Crew Member - Sam Mendoza","Hacker - Guillermo Fornaris","Handlebar Mustache - Bernie O. Ramos Robledo","Handlebar Mustache Bodyguards - Nilo Verdejo","Handlebar Mustache Bodyguards - Samuel Verdejo","Harry Furst - John Heard","Helicopter Pilot - Jim Cruz","Hotel Guest - Carlos Alberto Alvarez-Viñas","Ivan Block - Ben Affleck","Jane - Mekaiela Rey","Junior Executive - Margarita Álvarez","Lico (1st Student) - Christopher McLinden","Lionel - Dayo Okeniyi","Lou Roach - Mike Sampedro","Masseuse - Laura Aleman","NYC Pedestrian - Gil O'Brien","Passport Official - Efrain Canino Santos","Paul Arnaud - Jordan Beder","Pilot at Bar - David Davila","Poker Players - Antonio Esfandiari","Poker Players - Phil Laak","Poker Whale - Doug Bryant","Police Captain - Carlos Sanz","Princeton Pedestrian - Sam Klein","Professor Horstein - David Costabile","Rebecca Shafran - Gemma Arterton","Richie Furst - Justin Timberlake","Robe - Randall M. Corsi","Sandra Leon - Diana Noris Smith","Self - Geronimo Mercado","Sergeant Barrancas - Vincent Laresca","Shecky - Sam Palladio","Shooter - Hugh Scott","Shooter's Girlfriend - Sandha Khin","Stickman - Carlos M. Gonzalez","Student - Adriana Fontanals Cuebas","SUV Girl - Nayka M. Vallejo","Tourist - Jean Pierre Prats","Towel - Clifford Myatt","Wilson - Christian George"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

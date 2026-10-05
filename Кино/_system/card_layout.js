@@ -143,7 +143,18 @@ function rebuildCard(raw, generated, options = {}) {
         for (const pair of kind === "viewings" ? [markers, legacy] : [markers]) {
             body = body.replace(regionPattern(pair[0], pair[1], true), () => { if (placed) return ""; placed = true; return replacement; });
         }
-        if (kind === "viewings") body = body.replace(legacyHistoryPattern(), () => { if (placed) return ""; placed = true; return replacement; });
+        if (kind === "viewings") {
+            // Do not match the history query inside the region just inserted.
+            // Otherwise the next rebuild deletes its own generated history.
+            const covered = [markers, legacy].flatMap(pair => [...body.matchAll(regionPattern(pair[0], pair[1], true))]
+                .map(block => [block.index, block.index + block[0].length]));
+            body = body.replace(legacyHistoryPattern(), (block, offset) => {
+                if (covered.some(([start, end]) => offset >= start && offset < end)) return block;
+                if (placed) return "";
+                placed = true;
+                return replacement;
+            });
+        }
         if (!placed) body += (body.endsWith(newline) ? newline : newline + newline) + replacement + newline;
     }
     return ensureLayout(parts.opening + parts.yaml + parts.closing + body, { kind: "media", ...options });
@@ -160,4 +171,30 @@ function personalBody(body, poster = "") {
     return result.trim();
 }
 
-module.exports = { ensureLayout, rebuildCard, region, personalBody, splitRaw, uiBlock, UI_START, UI_END, MARKERS };
+// Credits are refreshable data, but other properties and personal role notes
+// belong to the user. Replace only fields owned by the two credit generators.
+function mergeRoleCard(raw, generated, { parseYaml } = {}) {
+    const previous = splitRaw(raw), next = splitRaw(generated), newline = newlineOf(raw || generated);
+    if (!next.opening) throw new Error("Generated roles card requires YAML frontmatter");
+    if (!previous.opening && /^\ufeff?---(?:\r?\n|$)/.test(String(raw ?? ""))) throw new Error("Cannot replace incomplete roles frontmatter");
+    let yaml = previous.opening ? previous.yaml : next.yaml;
+    if (previous.opening) {
+        for (const key of ["Название", "Основная карточка", "imdb Id", "Кинопоиск ID", "Жанр", "Режисер", "Актеры", "Роли актеров"]) {
+            const updated = fieldBlock(next.yaml, key);
+            if (!updated) continue;
+            const original = fieldBlock(yaml, key), replacement = asNewlines(updated[0], newline);
+            yaml = original ? yaml.slice(0, original.index) + replacement + yaml.slice(original.index + original[0].length)
+                : yaml + newline + replacement;
+        }
+    }
+    const entityLinks = /^<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n```dataviewjs\r?\n[\s\S]*?^```[ \t]*\r?$/gm;
+    const personal = previous.body.replace(regionPattern(UI_START, UI_END, true), "").replace(entityLinks, "")
+        .replace(/^(?:\r?\n)+/, "").replace(/(?:\r?\n)+$/, "");
+    const generatedBody = next.body.replace(regionPattern(UI_START, UI_END, true), "").trim();
+    const opening = previous.opening || asNewlines(next.opening, newline);
+    const closing = previous.closing || asNewlines(next.closing, newline);
+    return ensureLayout(opening + yaml + closing + asNewlines(generatedBody, newline) + newline + newline + personal,
+        { kind: "roles", parseYaml });
+}
+
+module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, personalBody, splitRaw, uiBlock, UI_START, UI_END, MARKERS };

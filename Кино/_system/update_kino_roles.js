@@ -1351,9 +1351,7 @@ async function writeRoleFile(app, mainFile, fm, values) {
     const existing = app.vault.getAbstractFileByPath(rolePath);
     if (existing) {
         const previous = await app.vault.read(existing);
-        const personal = cardLayout.personalBody(cardLayout.splitRaw(previous).body)
-            .replace(/<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n`{3}dataviewjs\r?\n[\s\S]*?^`{3}[ \t]*\r?$/gm, "");
-        await app.vault.modify(existing, cardLayout.ensureLayout(content + (personal.trim() ? "\n" + personal + "\n" : ""), { kind: "roles" }));
+        await app.vault.modify(existing, cardLayout.mergeRoleCard(previous, content));
     }
     else await app.vault.create(rolePath, cardLayout.ensureLayout(content, { kind: "roles" }));
 }

@@ -7,7 +7,24 @@ imdb Id: "tt3013602"
 Режисер: ["Nicolas Benamou","Philippe Lacheau"]
 Актеры: ["Alice David","Alice Dufour","Azedine Kasri","Aziliz Le Guern","Charlotte Gabris","Cherley Raveau","Cindy Bonafini","Clotilde Courau","David Marsais","David Salles","Enzo Tomasini","Grégoire Ludig","Guillaume Doradoux","Gérard Jugnot","Julien Arruti","Laetitia Carrere","Marie Wadoux","Marvin Beyster","Michèle Raingeval","Nicolas Grandhomme","Pascal Boisson","Philippe Brigaud","Philippe Duquesne","Philippe Lacheau","Raphaël Hidrot","Sakhone Holaphong","Sylvia Fasolo","Tarek Boudali","Thomas Blumenthal","Vincent Desagnat","Vladimir Houbart","Yun Lai"]
 Роли актеров: ["Agent Caillaud - Philippe Duquesne","Alex - Julien Arruti","Anthony - Pascal Boisson","Appearing - Sakhone Holaphong","Commissaire Laville - David Salles","Copine Paul - Alice Dufour","Employé - Guillaume Doradoux","Enfant à la fête foraine - Marvin Beyster","Ernest - Vincent Desagnat","Estelle - Charlotte Gabris","Franck - Philippe Lacheau","Fêtard exta 1 - Azedine Kasri","Fêtard exta 2 - Thomas Blumenthal","Guest to the party - Cherley Raveau","Homme de la soirée - Yun Lai","Jean - David Marsais","La bombe atomique - Cindy Bonafini","La strip-teaseuse - Sylvia Fasolo","Le forain - Vladimir Houbart","Le policier téléphone - Raphaël Hidrot","M. Schaudel - Gérard Jugnot","Mme Schaudel - Clotilde Courau","Monsieur Monet - Philippe Brigaud","Paul - Grégoire Ludig","Policier caméra - Nicolas Grandhomme","Rémi - Enzo Tomasini","Sam - Tarek Boudali","Sonia - Alice David","uncredited - Aziliz Le Guern","uncredited - Laetitia Carrere","uncredited - Marie Wadoux","Une spectatrice - Michèle Raingeval"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

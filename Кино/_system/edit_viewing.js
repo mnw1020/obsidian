@@ -425,7 +425,9 @@ module.exports = async (params) => {
             await readLegacyViewingBody(file);
 
         const finalComment =
-            yamlComment || bodyComment;
+            Object.prototype.hasOwnProperty.call(before, "Комментарий")
+                ? yamlComment
+                : bodyComment;
 
         await app.fileManager
             .processFrontMatter(
@@ -598,7 +600,7 @@ module.exports = async (params) => {
                     ""
                 ).trim();
 
-            if (!comment) {
+            if (!Object.prototype.hasOwnProperty.call(fm, "Комментарий")) {
                 const raw =
                     await app.vault.read(
                         file
@@ -608,7 +610,7 @@ module.exports = async (params) => {
                     splitFrontmatter(raw);
 
                 comment =
-                    parts.body.trim();
+                    cardLayout.personalBody(parts.body);
             }
 
             rows.push({

@@ -1,7 +1,7 @@
 /* Кино — тёплая синематека. Every rule is limited to Kino pages or Kino Bases. */
 :is(.kino-page, .movies-dashboard, .kino-ai, .kino-ai-modal, .kino-recommendation-panel,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"]),
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) {
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) {
     --kino-bg: #16181c;
     --kino-surface: #202329;
     --kino-raised: #282b31;
@@ -33,6 +33,8 @@
     --link-external-color-hover: var(--kino-accent-hover);
     --font-text: var(--kino-font);
     --font-interface: var(--kino-font);
+    --default-font: var(--kino-font);
+    --editor-font: var(--kino-font);
     --h1-color: var(--kino-text);
     --h2-color: var(--kino-text);
     --h3-color: var(--kino-text);
@@ -43,6 +45,22 @@
     --table-border-color: var(--kino-line);
     --table-header-color: var(--kino-muted);
     --table-row-background-hover: var(--kino-raised);
+    /* Dynamic Views resolves its wrapper tokens on body. Resolve them again here
+       so a Kino pane remains dark even when the surrounding vault is light. */
+    --dynamic-views-background-primary: var(--kino-bg);
+    --dynamic-views-background-primary-alt: var(--kino-surface);
+    --dynamic-views-background-modifier-border: var(--kino-line);
+    --dynamic-views-background-modifier-border-hover: #87684a;
+    --dynamic-views-background-modifier-border-focus: var(--kino-accent);
+    --dynamic-views-background-modifier-hover: var(--kino-raised);
+    --dynamic-views-text-normal: var(--kino-text);
+    --dynamic-views-text-muted: var(--kino-muted);
+    --dynamic-views-text-faint: var(--kino-muted);
+    --dynamic-views-text-accent: var(--kino-accent);
+    --dynamic-views-link-color: var(--kino-accent);
+    --dynamic-views-link-color-hover: var(--kino-accent-hover);
+    --dynamic-views-font-text: var(--kino-font);
+    --dynamic-views-font-interface: var(--kino-font);
     color: var(--kino-text);
     font-family: var(--kino-font);
     color-scheme: dark;
@@ -60,19 +78,27 @@
 .kino-ai-modal :is(h1, h2, h3) {
     color: var(--kino-text) !important;
     font-family: var(--kino-font) !important;
-    font-weight: 650;
+    font-weight: 650 !important;
     line-height: 1.24;
     letter-spacing: -.025em;
     text-shadow: none;
 }
-.kino-page h1 { font-size: clamp(1.8rem, 3.8vw, 2.65rem); margin-block: 2rem 1rem; }
-.kino-page h2 { font-size: 1.4rem; margin-block: 2rem .8rem; }
-.kino-page h3 { font-size: 1.13rem; }
+.kino-page h1 { font-size: clamp(1.8rem, 3.8vw, 2.65rem) !important; margin-block: 2rem 1rem; }
+.kino-page h2 { font-size: 1.4rem !important; margin-block: 2rem .8rem; }
+.kino-page h3 { font-size: 1.13rem !important; }
+.kino-page :is(h4, h5, h6) { font-size: 1rem !important; }
+.markdown-source-view.kino-page :is(.cm-header-1, .cm-header-2, .cm-header-3, .cm-header-4, .cm-header-5, .cm-header-6) {
+    color: var(--kino-text) !important; font-family: var(--kino-font) !important; font-weight: 650 !important;
+}
+.markdown-source-view.kino-page .cm-header-1 { font-size: 1.8em !important; }
+.markdown-source-view.kino-page .cm-header-2 { font-size: 1.4em !important; }
+.markdown-source-view.kino-page .cm-header-3 { font-size: 1.13em !important; }
+.markdown-source-view.kino-page :is(.cm-header-4, .cm-header-5, .cm-header-6) { font-size: 1em !important; }
 .kino-page .markdown-rendered :is(p, li, td, th), .kino-page.markdown-rendered :is(p, li, td, th),
 .kino-page .dataview { font-family: var(--kino-font); }
 .kino-page :is(code, pre), .kino-ai-modal :is(code, pre) { font-family: var(--font-monospace); }
-.kino-page a, .kino-ai-modal a { color: var(--kino-accent); text-decoration-thickness: 1px; text-underline-offset: .18em; }
-.kino-page a:hover, .kino-ai-modal a:hover { color: var(--kino-accent-hover); }
+.kino-page :is(a, .internal-link), .kino-ai-modal a { color: var(--kino-accent); text-decoration-thickness: 1px; text-underline-offset: .18em; }
+.kino-page :is(a, .internal-link):hover, .kino-ai-modal a:hover { color: var(--kino-accent-hover); }
 .kino-page a:focus-visible, .kino-page button:focus-visible, .kino-page summary:focus-visible,
 .kino-page input:focus-visible, .kino-page select:focus-visible, .kino-ai-modal :focus-visible {
     outline: 2px solid var(--kino-accent); outline-offset: 3px;
@@ -81,6 +107,8 @@
 .markdown-preview-view.kino-has-card-title .inline-title,
 .markdown-preview-view.kino-dashboard .inline-title { display: none; }
 .markdown-preview-view.kino-has-properties .metadata-container { display: none; }
+.markdown-preview-view.kino-cosmetic-properties .metadata-container,
+.markdown-preview-view.kino-page .kino-duplicate-title { display: none; }
 .kino-page hr { border: 0; border-top: 1px solid var(--kino-line); margin-block: 2rem; }
 .kino-page blockquote {
     color: var(--kino-text); background: var(--kino-surface); border-left: 3px solid var(--kino-accent);
@@ -91,7 +119,7 @@
 .kino-ui-root:empty { display: none; }
 .kino-card-header { padding-top: 20px; padding-bottom: 22px; }
 .kino-eyebrow { color: var(--kino-accent); font-size: 11px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }
-.kino-card-title { font-size: clamp(28px, 4.2vw, 46px) !important; margin: 12px 0 8px !important; }
+.kino-page .kino-card-title { font-size: clamp(28px, 4.2vw, 46px) !important; margin: 12px 0 8px !important; overflow-wrap: anywhere; }
 .kino-original-title { color: var(--kino-muted); font-size: 17px; margin: 0 0 17px; line-height: 1.5; }
 .kino-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--kino-muted); font-size: 13px; }
 .kino-meta-chip { display: inline-flex; padding: 4px 10px; background: var(--kino-surface); border: 1px solid var(--kino-line); border-radius: 6px; }
@@ -145,7 +173,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-page .kino-recommend-action button { background: var(--kino-accent); color: #211a13; border: 0; padding: 11px 17px !important; border-radius: 8px; height: auto; }
 .kino-page .kino-recommend-action button:hover { background: var(--kino-accent-hover); }
 .kino-page img:not(.emoji):not(.twemoji) { border-radius: 10px; }
-.kino-media .markdown-preview-section > div:last-child img { display: block; max-width: min(100%, 350px); margin: 30px auto 10px; border: 1px solid var(--kino-line); }
+.kino-media .markdown-preview-section > div:last-child img { display: block; max-width: min(100%, 350px); height: auto; margin: 30px auto 10px; border: 1px solid var(--kino-line); }
 
 /* Home: typographic masthead, quiet statistics, useful actions. */
 .kino-dashboard-header { padding: 26px 0 25px; border-bottom: 1px solid var(--kino-line); margin-bottom: 24px; }
@@ -169,7 +197,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-edit-actions .kino-actions { margin: 12px 0; }
 .kino-section-intro { color: var(--kino-muted); font-size: 13px; margin: -.3rem 0 18px; }
 .kino-lazy-section { border: 1px solid var(--kino-line); border-radius: 10px; overflow: hidden; margin: 16px 0 25px; }
-.kino-lazy-toggle { width: 100%; padding: 13px 17px !important; height: auto; background: var(--kino-surface); text-align: left; box-shadow: none; border-radius: 0; color: var(--kino-text); }
+.kino-lazy-toggle { width: 100%; padding: 13px 17px !important; height: auto; background: var(--kino-surface); border: 0; text-align: left; box-shadow: none; border-radius: 0; color: var(--kino-text); }
 .kino-lazy-toggle:hover { background: var(--kino-raised); }
 .kino-lazy-content:not(:empty) { padding: 16px; border-top: 1px solid var(--kino-line); }
 
@@ -192,6 +220,9 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-page :is(input:not([type="checkbox"]):not([type="radio"]), select), .kino-ai-modal :is(input:not([type="checkbox"]):not([type="radio"]), select) { background: var(--kino-bg); border: 1px solid var(--kino-line); border-radius: 7px; color: var(--kino-text); min-height: 36px; }
 .kino-page input:is([type="checkbox"], [type="radio"]), .kino-ai-modal input:is([type="checkbox"], [type="radio"]) { accent-color: var(--kino-accent); }
 .kino-ai .kino-ai-bar { background: var(--kino-bg); border-color: var(--kino-line); border-radius: 9px; padding: 15px; gap: 12px; }
+.kino-ai .kino-ai-heading { color: var(--kino-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; font-weight: 650; margin-bottom: 14px; }
+.kino-ai .kino-ai-selector { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; }
+.kino-ai .kino-ai-selector select { max-width: 100%; min-width: 0; }
 .kino-ai-state { color: var(--kino-muted); }
 .kino-ai-modal { background: var(--kino-bg); color: var(--kino-text); width: min(900px, 94vw); max-width: 94vw; border-color: var(--kino-line); border-radius: 15px; }
 .kino-ai-modal .modal-content { overflow-y: auto; padding-top: 12px; }
@@ -222,14 +253,16 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 /* Native Bases + Dynamic Views. Cold-open scope comes from actual Kino data paths. */
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"]),
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) :is(.bases-view, .bases-table, .bases-cards-container) {
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) :is(.bases-view, .bases-table, .bases-cards-container) {
     color: var(--kino-text); background: var(--kino-bg); font-family: var(--kino-font);
 }
 :is(.kino-page,
+    .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .dynamic-views-grid { gap: 16px; }
+:is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"]),
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) .card {
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) .card {
     background: var(--kino-surface) !important; border: 1px solid var(--kino-line) !important;
-    border-radius: 12px !important; overflow: hidden; box-shadow: none !important;
+    border-radius: 12px !important; overflow: hidden; box-shadow: none !important; padding: 0 !important;
     transition: border-color .16s ease, transform .16s ease;
 }
 :is(.kino-page,
@@ -238,24 +271,24 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 }
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .card :is(.card-title, .card-title-text, .internal-link) {
-    color: var(--kino-text) !important; font-family: var(--kino-font) !important; font-weight: 650; line-height: 1.45; text-decoration: none;
+    color: var(--kino-text) !important; font-family: var(--kino-font) !important; font-weight: 650; font-style: normal; line-height: 1.45; text-decoration: none;
 }
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .card :is(.card-cover, .card-image) { background: #24262a; }
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .card img { object-fit: cover; }
 :is(.kino-page,
-    .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .card :is(.card-content, .card-body, .card-properties) { padding: 12px 14px; }
+    .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .card .card-content { padding: 14px; }
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"]),
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) :is(.bases-td, .bases-th) {
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) :is(.bases-td, .bases-th) {
     border-color: var(--kino-line); color: var(--kino-text); font-family: var(--kino-font); font-size: 13px;
 }
 :is(.kino-page,
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) .bases-td .internal-link { color: var(--kino-accent); }
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) .bases-td .internal-link { color: var(--kino-accent); }
 :is(.kino-page,
     .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"]),
-    .workspace-leaf-content[data-type="bases"]:has(.bases-td[data-property="file.name"] .internal-link[data-href^="Кино/Media/"])) .bases-header {
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Кино/Media/"])) .bases-header {
     background: var(--kino-bg); border-color: var(--kino-line);
 }
 @media (max-width: 768px) {
@@ -266,9 +299,11 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     .movie-stats-grid { gap: 9px !important; }
 }
 @media (max-width: 520px) {
+    :is(.kino-page,
+        .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Кино/Media/"])) .dynamic-views-grid { gap: 12px; }
     .kino-page .markdown-preview-sizer { padding-inline: 16px; }
     .kino-card-header { padding-top: 10px; }
-    .kino-card-title { font-size: 30px !important; }
+    .kino-page .kino-card-title { font-size: 30px !important; }
     .kino-original-title { font-size: 15px; }
     .kino-scores { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
     .kino-scores-single { grid-template-columns: 1fr; }

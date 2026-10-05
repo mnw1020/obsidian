@@ -7069,9 +7069,7 @@ async function writeRoleFile(app, ob, mainFile, movie = {}, kinopoiskId = "", pe
     const existing = app.vault.getAbstractFileByPath(rolePath);
     if (existing) {
         const previous = await app.vault.read(existing);
-        const personal = cardLayout.personalBody(cardLayout.splitRaw(previous).body)
-            .replace(/<!-- KINO:ENTITY:LINKS:V(?:1|2|3) -->\r?\n`{3}dataviewjs\r?\n[\s\S]*?^`{3}[ \t]*\r?$/gm, "");
-        await app.vault.modify(existing, cardLayout.ensureLayout(content + (personal.trim() ? "\n" + personal + "\n" : ""), { kind: "roles", parseYaml: ob.parseYaml }));
+        await app.vault.modify(existing, cardLayout.mergeRoleCard(previous, content, { parseYaml: ob.parseYaml }));
     }
     else await app.vault.create(rolePath, content);
     return rolePath;

@@ -7,7 +7,24 @@ imdb Id: "tt37660303"
 Режисер: ["Tulegenov Darkhan"]
 Актеры: ["Ansar Ilyasov","Azat Zhumadil","Berik Aytzhanov","Gani Kulzhanov","Willy Zogo","Yerzhan Tusupov"]
 Роли актеров: ["Aldik - Azat Zhumadil","Azat - Gani Kulzhanov","Berik - Berik Aytzhanov","Dauren - Yerzhan Tusupov","Kana - Ansar Ilyasov","Kidnapper at the airport - Willy Zogo"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

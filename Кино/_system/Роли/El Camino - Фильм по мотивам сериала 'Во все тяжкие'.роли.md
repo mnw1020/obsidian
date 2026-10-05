@@ -7,7 +7,24 @@ imdb Id: "tt9243946"
 Режисер: ["Vince Gilligan"]
 Актеры: ["Aaron Paul","Alison Law","Brendan Sexton III","Bryan Cranston","Carlos Sepulveda","Charles Baker","Chris Bylsma","Cody Renee Cameron","Danielle Todesco","David Mattey","Gabriela Alicia Ortega","Gloria Sandoval","Gregory Steven Soliz","Jesse Plemons","Johnny Ortiz","Jonathan Banks","Julie Pearl","Kevin Rankin","Krysten Ritter","Larry Hankin","Marla Gibbs","Matt Jones","Matthew Van Wettering","Michael Bofshever","Robert Forster","Scott MacArthur","Scott Shepherd","Simon Drobik","Tess Harper","Todd Terry","Tom Bower","Yvette Fazio-Delaney"]
 Роли актеров: ["ADA Suzanne Ericsen - Julie Pearl","April - Gabriela Alicia Ortega","Badger - Matt Jones","Busboy - Johnny Ortiz","Candy - Cody Renee Cameron","Casey - Scott Shepherd","Clarence - David Mattey","Colin - Matthew Van Wettering","Ed - Robert Forster","Jane - Krysten Ritter","Jean - Marla Gibbs","Jesse - Aaron Paul","Kenny - Kevin Rankin","Kyle - Brendan Sexton III","Lou - Tom Bower","Mike - Jonathan Banks","Mr. Pinkman - Michael Bofshever","Mrs. Pinkman - Tess Harper","Neil - Scott MacArthur","Officer - Carlos Sepulveda","Old Joe - Larry Hankin","Reporter - Danielle Todesco","SAC Ramey - Todd Terry","Sean - Chris Bylsma","Senior Officer - Simon Drobik","Skinny Pete - Charles Baker","Sonia - Gloria Sandoval","Timelapse driver - Yvette Fazio-Delaney","Todd - Jesse Plemons","TV News Anchor - Gregory Steven Soliz","Walt - Bryan Cranston","Wanda - Alison Law"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

@@ -7,7 +7,24 @@ imdb Id: "tt33094176"
 Режисер: ["David Kocharov","David Sahakyants","Gosha Evdokimov","Hayk Sahakyants","Ivan Glubokov","Katya Yak","Sasha Abdullaev","Shabad Jonathan"]
 Актеры: ["Aleksandr Garanin","Aleksandr Onipko","Aleksandr Serov","Aleksandra Buryanova","Aleksandra Nizhegorodova","Aleksei Voropanov","Anna Ukolova","Anna Yekaterininskaya","Antonina Medvedeva","Artur Kazberov","David Petrosyan","Demis Karibidis","Elena Melentyeva","Erik Yaralov","Garik Martirosyan","Gor Kosakyan","Grigoriy Leps","Irina Vybornova","Karen Egisapetov","Kirill Solomennikov","Lyubov Uspenskaya","Lyudmila Chebotina","Marina Bogatova","Mikhail Galustyan","Mikhail Pavlik","Oleg Malyshev","Pavel Prushchik","Philipp Kirkorov","Sasha Gross","Seda Khachatryan","Sergey Lazarev","Sergey Svetlakov","Stas Mikhaylov","Stepan Shevyakov","Svetlana Listova","Tatyana Lotova","Tatyana Mitienko","Vladimir Lukyanchikov"]
 Роли актеров: ["Aleksandr Serov - Aleksandr Serov","Armyanin 1 - David Petrosyan","Armyanin 2 - Erik Yaralov","Borya - Vladimir Lukyanchikov","Denis - Kirill Solomennikov","Devushka - Elena Melentyeva","Devushka v avtomasterskoy - Tatyana Mitienko","Filipp Kirkorov - Philipp Kirkorov","Grigoriy Leps - Grigoriy Leps","Irishka - Anna Ukolova","Lyubov Uspenskaya - Lyubov Uspenskaya","Lyusya Chebotina - Lyudmila Chebotina","Nevesta - Aleksandra Buryanova","Ofitsiant - Karen Egisapetov","Politseyskiy - Oleg Malyshev","Politseyskiy v ROVD - Artur Kazberov","Prodavets tsvetov - Irina Vybornova","Rabotnik avtomasterskoy 1 - Mikhail Pavlik","Rabotnik avtomasterskoy 2 - Gor Kosakyan","Roditel 1 - Aleksei Voropanov","Roditel 2 - Marina Bogatova","Roditel 3 - Aleksandra Nizhegorodova","Rudik - Garik Martirosyan","Sergey Lazarev - Sergey Lazarev","Skvortsova - Sasha Gross","Stas Mikhaylov - Stas Mikhaylov","Styopa - Pavel Prushchik","Susanna - Seda Khachatryan","Syn Gaishnika - Stepan Shevyakov","Terentich - Aleksandr Onipko","Uchitelnitsa IZO - Anna Yekaterininskaya","Vakhitov - Demis Karibidis","Various - Mikhail Galustyan","Various - Sergey Svetlakov","Zhena Belyakova - Svetlana Listova","Zhena Gaishnika - Tatyana Lotova","Zhenikh - Aleksandr Garanin","Zritel kontserta - Antonina Medvedeva"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

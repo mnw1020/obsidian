@@ -7,7 +7,24 @@ imdb Id: "tt0756500"
 Режисер: ["Tony Dow"]
 Актеры: ["Alan David","David Ross","Ella Kenion","Ivan Kaye","Jack Doolan","John Challis","Peter Heppelthwaite","Sue Holderness"]
 Роли актеров: ["Boycie - John Challis","Bryan - Ivan Kaye","Elgin - David Ross","Jed - Peter Heppelthwaite","Llewellyn - Alan David","Marlene - Sue Holderness","Mrs. Cakeworthy - Ella Kenion","Tyler - Jack Doolan"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

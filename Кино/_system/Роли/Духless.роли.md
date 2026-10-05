@@ -7,7 +7,24 @@ imdb Id: "tt1826660"
 Режисер: ["Roman Prygunov"]
 Актеры: ["Aleksey Shakhbanov","Aleksey Varnavskiy","Alena Orlova","Anatoliy Beliy","Anna Naumenko","Artur Smolyaninov","Artyom Mikhalkov","Daniil Vorobyov","Danila Kozlovskiy","Danila Polyakov","Darya Chichkina","Dmitriy Dorokhov","Dmitriy Fomin","Dmitriy Grachev","Egor Belov","Elena Chernyavskaya","Elena Safarova","Elizaveta Kyubler","Evgeniy Pilipenko","Gubanov Sergei","Igor Larin","Igor Voynarovskiy","Ildar Kuyanchiyev","Ivan Potekhin","Larisa Leyman","Mari Kuznetsova","Marina Kazankova","Mariya Andreeva","Mariya Kozhevnikova","Mikhail Efremov","Natalya Samolyotova","Nikita Makarov","Nikita Panfilov","Nikolay Efremov","Oksana Kutuzova","Oleg Blinov","Oleg Nazarov","Pavel Yasenok","Rinat Khairullin","Roman Demchenko","Roman Radov","Sacha Bourdo","Sergey Belogolovtsev","Sergey Krapiva","Svetlana Korchagina","Tatyana Bondareva","Timur Pshukov","Valeriya Lunina","Vladimir Sychyov"]
 Роли актеров: ["Alena Suvorova - Oksana Kutuzova","Avdey - Artur Smolyaninov","Belobrysyy - Vladimir Sychyov","Danila - Danila Polyakov","Elvira - Mariya Kozhevnikova","Garrido - Sacha Bourdo","Girl in restaurant, covered in paint - Elena Chernyavskaya","Gulyakin - Sergey Belogolovtsev","Kavkazets - Rinat Khairullin","Kondratov - Mikhail Efremov","Kostya - Aleksey Shakhbanov","Maks - Danila Kozlovskiy","Malchik - Nikita Makarov","Menedzher - Ildar Kuyanchiyev","Menedzher No. 1 - Gubanov Sergei","Menedzher No. 2 - Roman Demchenko","Menedzher No. 3 - Oleg Nazarov","Misha Vudu - Nikita Panfilov","Mister Iks - Daniil Vorobyov","Mrachnyy muzhik No. 1 - Ivan Potekhin","Mrachnyy muzhik No. 2 - Aleksey Varnavskiy","Natalya Viktorovna - Marina Kazankova","Normann - Igor Larin","Oksana - Natalya Samolyotova","Paren - Dmitriy Fomin","Parkhomenko - Igor Voynarovskiy","Pasha - Anatoliy Beliy","Patlatyy - Roman Radov","Perevodchitsa - Mari Kuznetsova","Podruga Suvorovoy - Tatyana Bondareva","Radikal - Nikolay Efremov","Radikal-khaker - Oleg Blinov","Radikal-zdorovyak - Egor Belov","Radikal-zloy - Pavel Yasenok","Radikalka - Larisa Leyman","Regional - Elena Safarova","Regional - Evgeniy Pilipenko","Reporter - Darya Chichkina","Sasha - Dmitriy Dorokhov","Sekretarsha Katya - Anna Naumenko","Sergey Krapiventsev - Sergey Krapiva","Striptizersha - Alena Orlova","Striptizersha - Valeriya Lunina","Supermen - Dmitriy Grachev","Uchastnik gruppy Parkhomenko No. 1 - Timur Pshukov","Uchastnik gruppy Parkhomenko No. 2 - Svetlana Korchagina","Uchastnik gruppy Parkhomenko No. 3 - Elizaveta Kyubler","Vadim - Artyom Mikhalkov","Yulya - Mariya Andreeva"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

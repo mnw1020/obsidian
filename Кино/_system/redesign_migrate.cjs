@@ -40,7 +40,7 @@ function withoutUi(body) {
 function withoutStandardPoster(body,poster) {
     if (!poster || ['N/A','null','undefined'].includes(poster)) return body.trim();
     const lines=body.split('\n');
-    for(let i=lines.length-1;i>=0;i--) if(lines[i].trim()==='![]('+poster+')'){lines.splice(i,1);break;}
+    for(let i=lines.length-1;i>=0;i--) if(lines[i].trim()==='![]('+poster+')'){lines[i]='';break;}
     return lines.join('\n').trim();
 }
 function kindFor(rel) {
@@ -70,7 +70,9 @@ function assertRetained(original, updated, rel) {
     const next=briefYaml(b.yaml).cssclasses;
     for (const cls of Array.isArray(prior)?prior:prior?[prior]:[]) if (!(Array.isArray(next)?next:[next]).includes(cls)) throw Error('Потерян CSS-класс: '+rel);
     const kind=kindFor(rel), poster=kind==='media'?briefYaml(a.yaml).poster:'';
-    if (withoutStandardPoster(withoutUi(a.body),poster) !== withoutStandardPoster(withoutUi(b.body),poster)) throw Error('Изменено исходное тело заметки: '+rel);
+    const comparisonBody = rel==='_system/README.md'
+        ? b.body.replace(/<!-- KINO:REDESIGN:DOCS:START -->[\s\S]*?<!-- KINO:REDESIGN:DOCS:END -->\r?\n?/g,'') : b.body;
+    if (withoutStandardPoster(withoutUi(a.body),poster) !== withoutStandardPoster(withoutUi(comparisonBody),poster)) throw Error('Изменено исходное тело заметки: '+rel);
     if ((updated.match(/<!-- KINO:UI:START -->/g)||[]).length !== 1 || (updated.match(/<!-- KINO:UI:END -->/g)||[]).length !== 1) throw Error('Дубликат интерфейса: '+rel);
     if (kind==='media') {
         const originalButtons=(original.match(/<!-- KINO:RECOMMEND:BUTTON:V2 -->/g)||[]).length;
@@ -100,7 +102,7 @@ async function run(mode) {
             const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,rel))).digest('hex');
             if (hash!==baseline.files[rel].sha256) throw Error('Изменён файл состояния/настроек: '+rel);
         }
-        const report={mode,checked:files.length,totals,protectedFilesChecked:protectedFiles.length,metadata:'unchanged except cssclasses',body:'unchanged except generated UI',idempotent:true};
+        const report={mode,checked:files.length,totals,protectedFilesChecked:protectedFiles.length,metadata:'unchanged except cssclasses',body:'unchanged except generated UI and appended README design documentation',idempotent:true};
         fs.writeFileSync(path.join(backupDir,'verification.json'),JSON.stringify(report,null,2));
         console.log(JSON.stringify(report));return;
     }
@@ -110,11 +112,17 @@ async function run(mode) {
         const next=layout().ensureLayout(original,{kind:kindFor(rel),parseYaml:briefYaml});
         assertRetained(original,next,rel);
         if(layout().ensureLayout(next,{kind:kindFor(rel),parseYaml:briefYaml})!==next) throw Error('Повторный запуск меняет карточку: '+rel);
-        if(next!==original){staged.push([rel,next]);changed.push(rel);}
+        if(next!==original){staged.push([rel,next,original]);changed.push(rel);}
         totals[kindFor(rel)]=(totals[kindFor(rel)]||0)+1;
     }
     // All cards are validated before the first write; dry-run never writes note files.
-    if(mode==='apply') for(const [rel,next] of staged) fs.writeFileSync(path.join(root,rel),next,'utf8');
+    if(mode==='apply') for(const [rel,next,original] of staged) {
+        const target=path.join(root,rel);
+        if(fs.readFileSync(target,'utf8')!==original) throw Error('Заметка изменена во время миграции; повторите проверку: '+rel);
+        const temporary=target+'.kino-redesign.tmp';
+        fs.writeFileSync(temporary,next,'utf8');
+        fs.renameSync(temporary,target);
+    }
     const report={mode,checked:files.length,changed:changed.length,totals,files:changed};
     fs.writeFileSync(path.join(backupDir,'migration-'+mode+'.json'),JSON.stringify(report,null,2));
     console.log(JSON.stringify({mode,checked:report.checked,changed:report.changed,totals}));

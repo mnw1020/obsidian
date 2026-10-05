@@ -7,7 +7,24 @@ imdb Id: "tt3039378"
 Режисер: ["Kirill Kemnits"]
 Актеры: ["Aleksandr Efremov","Alexander Leventschuk","Anton Zinovev","Darya Torchilina","Dasha Chagall","Denis Moiseychik","George W. Bush","Mikhail Efremov","Valeriy Shushkevich","Valeriy Zelenskiy","Violetta Nesterovich","Yuliya Volkova"]
 Роли актеров: ["Chieff - Valeriy Shushkevich","Dasha - Violetta Nesterovich","Final Zombiehunter - George W. Bush","Ivan - Anton Zinovev","Kostya - Aleksandr Efremov","Natasha - Yuliya Volkova","Peter - Alexander Leventschuk","Professor Dudikov - Mikhail Efremov","Sanya - Valeriy Zelenskiy","Vadim - Denis Moiseychik","Victoria - Dasha Chagall","Vika - Darya Torchilina"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

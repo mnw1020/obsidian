@@ -1,0 +1,17 @@
+{
+  "mode": "verify",
+  "checked": 3290,
+  "totals": {
+    "media": 1551,
+    "system": 7,
+    "entity": 3,
+    "roles": 1551,
+    "viewing": 4,
+    "season": 2,
+    "franchise": 172
+  },
+  "protectedFilesChecked": 5,
+  "metadata": "unchanged except cssclasses",
+  "body": "unchanged except generated UI and appended README design documentation",
+  "idempotent": true
+}

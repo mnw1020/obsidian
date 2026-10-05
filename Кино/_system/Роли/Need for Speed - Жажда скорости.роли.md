@@ -7,7 +7,24 @@ imdb Id: "tt2369135"
 Режисер: ["Scott Waugh"]
 Актеры: ["Aaron Paul","Adora Dei","Alan Pflueger","Amy Blackthorne","AnnaCorey","Anthony B. Harris","Antoni Corone","Austin Freeman","Becky Boyd","Beth Waugh","Biff O'Hara","Brent Fletcher","Brian L. Keaulana","Bryan Tanaka","Buddy Joe Hooker","Cabran E. Chamberlain","Carmela Zumbado","Chad Randall","Charles Black","Chelsea Small","Chloe Warren","Dakota Johnson","Dennis Doyle Jr.","Derrick J. Haywood","Diezel Ramos","Dominic Cooper","E. Roger Mitchell","Evan D. Anderson","Frank Brennan","Fred Galle","Grace Hartsfield","Harrison Sloan Gilbertson","Imogen Poots","Jacki Hill","Jaden Alexander","Jae Shawl","Jalil Jay Lynch","James Jerome","Jason M. Varso","Jeff George","Jeff Trink","Jeffrey J. Fernandez","Jessica McLarty","Jill Jane Clements","John Fleischmann","John Gatins","John Lobato","John Meier","Josh Turner","Kanin Howell","Kerry Gatins","Kevin McGaffey","Kid Cudi","Landon Salgado","Lee Vang","Lil Cory","Logan Holladay","Mahal Montoya","Marcus Goddard","Mary Ellen Itson","Mary Lu Marr","Michael C. Smith","Michael Keaton","Michael Koske","Michael Rose","Micky Francis","Mike Massa","Nick Chinlund","Ozzy Ojito","Pam German","Paul Dallenbach","Ralph H. Meyer","Rami Malek","Ramón Rodríguez","Ray Kendrick","Rich Rutherford","Rick Mischke","Rick Shuster","Ricky Dew","Samantha Kelly","Scott Lane","Scott Ledbetter","Scott Oakley","Sir Maejor","Stevie Ray Dallimore","Tara Lombardo","Thomas Rosales Jr.","Tierre Turner","Tim Gilbert","Tony Bellissimo","Tony Brakohiapa","Valdez Williams","William Grammer"]
 Роли актеров: ["60 Year Old Man - Frank Brennan","Air Force Pilot - John Gatins","Alex Key Witness - AnnaCorey","Anita - Dakota Johnson","Art Gallery Patron - Jeff Trink","Benny - Kid Cudi","Big Al - Chad Randall","Bill Ingram - Stevie Ray Dallimore","Business Man - Jason M. Varso","Business Man / Pedestrian - James Jerome","Business Man / Pedestrian - Lil Cory","Business Women - Pam German","Businessman - Dennis Doyle Jr.","Businessman - Kevin McGaffey","Car Buyer VIP - Fred Galle","Car Washer #1 - Valdez Williams","CHP #1 - Kanin Howell","CHP #2 - Michael C. Smith","CHP #3 - Tim Gilbert","CHP #4 - Mike Massa","CHP #5 - John Meier","CHP Pilot - Rick Shuster","Club Patron - Micky Francis","Cocktail Waitress - Grace Hartsfield","Detective #1 - E. Roger Mitchell","Detective #2 - Antoni Corone","Detroit Cop #1 - Buddy Joe Hooker","Detroit Cop #2 - Tierre Turner","Dino Brewster - Dominic Cooper","Discharging NY Prison Guard - Scott Oakley","DJ' Joseph - Logan Holladay","Drive-In Fan - Austin Freeman","Drive-In Fan - Chelsea Small","Driver #1 - Biff O'Hara","English Paul - Rich Rutherford","Family Member at Funeral - Mary Ellen Itson","Female EMT - Adora Dei","Finn - Rami Malek","First Race Judge - Tony Bellissimo","Flyin' Hawaiian - Alan Pflueger","Funeral Attendee - Becky Boyd","Funeral Attendee - John Lobato","Girl at the Bar - Chloe Warren","Hotel Guest - Jaden Alexander","Hotel Patron - Rick Mischke","Inmate - Josh Turner","Inmate - Scott Lane","Investor - Michael Rose","Investor's Wife - Beth Waugh","Jacki - Jacki Hill","Jeff (Dancing Prison Inmate) - Jeffrey J. Fernandez","Jeny 'B - Carmela Zumbado","Jimmy MacIntosh - Jalil Jay Lynch","Joe Peck - Ramón Rodríguez","Johnny V - Paul Dallenbach","Julia Maddon - Imogen Poots","Leigh Dennis - Inmate - Sir Maejor","Leon Marshall - Landon Salgado","Little Pete - Harrison Sloan Gilbertson","Monarch - Michael Keaton","Mustang Rollout Party Attendee - John Fleischmann","N.Y. Pit Crew - Michael Koske","N.Y. Pit Crew - William Grammer","News Anchor - Tara Lombardo","Office Employee - Evan D. Anderson","Office Guy - Jae Shawl","Officer Lejeune - Nick Chinlund","Older Smaller Woman - Jill Jane Clements","Onlooker - Cabran E. Chamberlain","Onlooker - Diezel Ramos","Party Guest - Ray Kendrick","Party Guest - Samantha Kelly","Patron - Derrick J. Haywood","Pedestrian - Anthony B. Harris","Pedestrian - Jeff George","Pedestrian - Marcus Goddard","Pedestrian - Ralph H. Meyer","Pedestrian - Ricky Dew","Preacher - Charles Black","Prison Guard - Scott Ledbetter","Race Fan - Jessica McLarty","Raver / Barmaid - Amy Blackthorne","Right Seater - Brian L. Keaulana","SF City Girl - Mahal Montoya","Street Pedestrian - Lee Vang","Teenage Waitress - Kerry Gatins","Texas Mike - Brent Fletcher","The Gooch - Tony Brakohiapa","Third Race Judge - Bryan Tanaka","Tobey Marshall - Aaron Paul","Tourist - Mary Lu Marr","Valet - Thomas Rosales Jr.","VIP New York Party - Ozzy Ojito"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [
@@ -61,4 +78,3 @@ for (const [field, label, choice] of KINO_ENTITY_FIELDS) {
     });
 }
 ```
-

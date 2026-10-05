@@ -7,9 +7,13 @@ cssclasses:
 ```dataviewjs
 const uiFile = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
 if (uiFile) {
-    const ui = {exports:{}};
-    new Function("module", await app.vault.read(uiFile))(ui);
-    await ui.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, kind: "dashboard"});
+    try {
+        const ui = {exports:{}};
+        new Function("module", await app.vault.read(uiFile))(ui);
+        await ui.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, kind: "dashboard"});
+    } catch (error) {
+        console.warn("Кино: оформление главной временно недоступно", error);
+    }
 }
 
 const header = dv.container.createDiv({cls: "kino-dashboard-header"});
@@ -117,9 +121,9 @@ if (file) {
     m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Последние", label: "последние просмотры"});
 }
 ```
-## Хочется пересмотреть
+## Перепросмотры
 
-Любимые истории, к которым ты уже возвращался.
+Истории, к которым ты уже возвращался.
 
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
@@ -131,7 +135,7 @@ if (file) {
 ```
 ## Последние сериалы
 
-Продолжения и новые сезоны твоих сериалов.
+Сериалы из последних просмотров.
 
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");

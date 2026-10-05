@@ -755,10 +755,13 @@ module.exports = async (params) => {
         const legacyBody =
             await readLegacySeasonBody(file);
 
-        // YAML - единственный источник.
-        // Если YAML уже заполнен, старое тело не перезаписывает его.
+        // Даже явно пустой комментарий в YAML является выбором пользователя.
+        // Старое тело переносим лишь когда самого свойства ещё нет.
+        const before = parseYaml(cardLayout.splitRaw(await app.vault.read(file)).yaml) ?? {};
         const finalComment =
-            yamlComment || legacyBody;
+            Object.prototype.hasOwnProperty.call(before, "Комментарий")
+                ? yamlComment
+                : legacyBody;
 
         await app.fileManager.processFrontMatter(
             file,

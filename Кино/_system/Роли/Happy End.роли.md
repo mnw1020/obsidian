@@ -7,7 +7,24 @@ imdb Id: "tt12908084"
 Режисер: ["Evgeniy Sangadzhiev"]
 Актеры: ["Aleksandr Gorchilin","Aleksandra Rebenok","Aleksey Agranovich","Aleksey Makarov","Daniil Vorobyov","Daniyar Alshinov","Darya Feklenko","Denis Vlasenko","Jonathan Salway","Lena Tronina","Lukerya Ilyashenko","Lyubov Tolkalina","Maksim Karushev"]
 Роли актеров: ["British Businessman - Jonathan Salway","Dmitry - Aleksey Makarov","Edik - Daniil Vorobyov","Lera - Lena Tronina","Lera's dad - Aleksey Agranovich","Lera's mom - Darya Feklenko","Max / Vlad's friend - Aleksandr Gorchilin","Polina - Lyubov Tolkalina","Polina's friend - Aleksandra Rebenok","Polina's son / Rusik - Maksim Karushev","Shona - Daniyar Alshinov","Vlad - Denis Vlasenko","Yana - Lukerya Ilyashenko"]
+cssclasses: ["kino-page","kino-roles"]
 ---
+
+<!-- KINO:UI:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "roles" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:UI:END -->
+
 <!-- KINO:ENTITY:LINKS:V3 -->
 ```dataviewjs
 const KINO_ENTITY_FIELDS = [

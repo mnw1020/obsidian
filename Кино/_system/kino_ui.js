@@ -6,15 +6,33 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     const current = dv.current?.() ?? {};
     const sourcePath = String(current.file?.path ?? "");
     const file = app.vault.getAbstractFileByPath(sourcePath);
-    const fm = app.metadataCache.getFileCache(file)?.frontmatter ?? current;
+    const fm = (file ? app.metadataCache.getFileCache(file)?.frontmatter : null) ?? current;
     const view = container.closest(".markdown-preview-view, .markdown-source-view") ?? container;
-    view.classList.add("kino-page", `kino-${kind}`);
+    // A leaf can host several embedded renderers and can later show a non-Kino note.
+    // Count each renderer's transient classes while keeping Obsidian's own cssclasses.
+    const leases = view.kinoPresentationClassLeases ?? (view.kinoPresentationClassLeases = new Map());
+    const ownedClasses = [];
+    function acquireClass(cls) {
+        if (ownedClasses.includes(cls)) return;
+        const lease = leases.get(cls) ?? { count: 0, original: view.classList.contains(cls) };
+        lease.count++; leases.set(cls, lease); ownedClasses.push(cls); view.classList.add(cls);
+    }
+    acquireClass("kino-page"); acquireClass(`kino-${kind}`);
     const root = element(container, "section", "kino-ui-root");
     root.dataset.kind = kind;
     let disposed = false;
     const cleanups = [];
     function cleanup(fn) { cleanups.push(fn); }
     dv.component?.register?.(() => { disposed = true; for (const fn of cleanups) fn(); });
+    cleanup(() => {
+        root.remove();
+        for (const cls of ownedClasses) {
+            const lease = leases.get(cls);
+            if (!lease || --lease.count > 0) continue;
+            if (!lease.original) view.classList.remove(cls);
+            leases.delete(cls);
+        }
+    });
 
     function element(parent, tag, cls, text) {
         const el = doc.createElement(tag);
@@ -53,7 +71,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         if (!ref) return element(parent, "span", "", text(value));
         const link = element(parent, "a", "internal-link", ref.label);
         link.dataset.href = ref.path;
-        link.href = ref.path;
+        link.href = "obsidian://open?vault=" + encodeURIComponent(app.vault.getName()) + "&file=" + encodeURIComponent(ref.path);
         link.addEventListener("click", event => {
             event.preventDefault();
             app.workspace.openLinkText(ref.path, sourcePath, Boolean(event.ctrlKey || event.metaKey));
@@ -169,13 +187,14 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         });
     }
 
-    if (!["dashboard", "system", "roles", "entity"].includes(kind)) {
+    if (!["dashboard", "system", "entity"].includes(kind)) {
         const header = element(root, "header", "kino-card-header");
         const tags = values(fm.tags).map(value => text(value).replace(/^#/, ""));
         const type = kind === "media" ? tags.includes("serial") ? "Сериал" : "Фильм"
-            : kind === "franchise" ? "Франшиза" : kind === "season" ? "Сезон" : "Просмотр";
+            : kind === "franchise" ? "Франшиза" : kind === "season" ? "Сезон" : kind === "roles" ? "Роли и создатели" : "Просмотр";
         element(header, "div", "kino-eyebrow", type);
-        const title = current.file?.name ?? file?.basename ?? "Кино";
+        const rawTitle = String(current.file?.name ?? file?.basename ?? "Кино");
+        const title = kind === "roles" ? rawTitle.replace(/\.роли$/, "") : rawTitle;
         element(header, "h1", "kino-card-title", title);
         const original = text(fm["Название"]).trim();
         if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
@@ -187,11 +206,15 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             if (number(fm["Количество сезонов"]) != null) element(meta, "span", "kino-meta-chip", `Сезонов: ${text(fm["Количество сезонов"])}`);
             if (present(fm["Просмотрено"])) element(meta, "span", "kino-meta-chip kino-meta-muted", `Просмотрено ${dateLabel(fm["Просмотрено"])}`);
         } else {
-            const related = fm["Фильм"] ?? fm["Сериал"];
+            const related = kind === "roles" ? fm["Основная карточка"] : fm["Фильм"] ?? fm["Сериал"];
             if (related) internalLink(meta, related);
             if (present(fm["Дата"]) || present(fm["Год"])) element(meta, "span", "kino-meta-chip", dateLabel(fm["Дата"] ?? fm["Год"]));
             if (kind === "season" && present(fm["Сезон"])) element(meta, "span", "kino-meta-chip", `Сезон ${text(fm["Сезон"])}`);
             if (kind === "viewing" && present(fm["Просмотр"])) element(meta, "span", "kino-meta-chip", `Просмотр ${text(fm["Просмотр"])}`);
+            if (kind === "roles") {
+                const count = values(fm["Роли актеров"]).filter(present).length;
+                if (count) element(meta, "span", "kino-meta-chip", `Ролей: ${count}`);
+            }
         }
         if (kind === "media") {
             const ratings = element(root, "div", "kino-scores");
@@ -224,10 +247,24 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         element(notes, "h2", "kino-section-label", "Мои впечатления");
         await richText(notes, "kino-comment-text", fm["Комментарий"]);
     }
-    if (!["dashboard", "system", "entity", "roles"].includes(kind)) propertyDetails();
+    if (!["dashboard", "system", "entity"].includes(kind)) propertyDetails();
     if (kind === "media") roleDetails();
-    if (root.querySelector(".kino-card-title")) view.classList.add("kino-has-card-title");
-    if (root.querySelector(".kino-properties")) view.classList.add("kino-has-properties");
+    if (disposed) return;
+    for (const [selector, cls] of [[".kino-card-title", "kino-has-card-title"], [".kino-properties", "kino-has-properties"]]) {
+        if (root.querySelector(selector)) acquireClass(cls);
+    }
+    if (!Object.keys(fm).some(key => !["position", "file", "cssclasses"].includes(key))) acquireClass("kino-cosmetic-properties");
+
+    const duplicateTitles = new Set();
+    cleanup(() => { for (const heading of duplicateTitles) heading.classList.remove("kino-duplicate-title"); });
+    function markDuplicateTitle() {
+        if (kind !== "franchise") return;
+        const title = root.querySelector(".kino-card-title")?.textContent.trim();
+        const original = [...view.querySelectorAll(".markdown-preview-section h1")]
+            .find(heading => !heading.closest(".kino-ui-root, .markdown-embed, .block-language-dataviewjs"));
+        if (original?.textContent.trim() !== title || original.classList.contains("kino-duplicate-title")) return;
+        original.classList.add("kino-duplicate-title"); duplicateTitles.add(original);
+    }
 
     // Wrap read-only tables, including those Dataview renders after this block.
     function wrapTables() {
@@ -239,6 +276,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             table.before(wrapper); wrapper.appendChild(table);
         }
     }
+    markDuplicateTitle();
     wrapTables();
     const Observer = doc.defaultView?.MutationObserver;
     if (Observer) {
@@ -246,7 +284,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const observer = new Observer(() => {
             if (queued || disposed) return;
             queued = true;
-            Promise.resolve().then(() => { queued = false; if (!disposed) wrapTables(); });
+            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); wrapTables(); } });
         });
         observer.observe(view, { childList: true, subtree: true });
         cleanup(() => observer.disconnect());
