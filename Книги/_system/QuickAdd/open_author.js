@@ -35,33 +35,15 @@ module.exports = async (params) => {
     const folder = "Книги/_system/Авторы";
     if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
     const pagePath = normalizePath(`${folder}/${entityName(author)}.md`);
-    const books = core.snapshot().filter(({ fm }) => authorsOf(fm).includes(author));
-    const rated = books.filter(({ file }) => core.isFiction(file)).map(({ fm }) => Number(fm.rating)).filter(value => Number.isFinite(value) && value >= 1 && value <= 10);
-    const average = rated.length ? (rated.reduce((sum, value) => sum + value, 0) / rated.length).toFixed(1) : "—";
-    const favorites = rated.filter(value => value >= 8).length;
-    const points = rated.reduce((sum, value) => sum + Math.max(0, value - 5), 0);
-    const choice = name => `obsidian://quickadd?choice=${encodeURIComponent(name)}`;
-    const generated = [
-        "<!-- BOOK-AUTHOR-GENERATED:START -->",
-        `# 👤 ${author.replace(/\r?\n/g, " ")}`,
-        "",
-        `[[Книги/_index|← Библиотека]] · [👥 Все авторы](${choice("Книги - Авторы")}) · [🧩 Серии](${choice("Книги - Серии")}) · [[Книги/_system/Идеи и цитаты|✒️ Выписки]]`,
-        "",
-        `[➕ Записать произведение](${choice("Книги - Добавить книгу")})`,
-        "",
-        "> [!abstract] Произведения и впечатления",
-        `> **Произведений:** ${books.length} · **Средняя оценка:** ${average} · **Оценено:** ${rated.length} · **Любимые 8–10:** ${favorites} · **Баллы симпатии:** ${points}`,
-        "",
-        "Оценки — только для художественных произведений. Баллы симпатии: сумма превышения оценки над 5.",
-        "",
-        "![[Книги/Книги.base#Автор]]",
-        "<!-- BOOK-AUTHOR-GENERATED:END -->"
-    ].join("\n");
+    const layoutFile = app.vault.getAbstractFileByPath("Книги/_system/author_pages.js");
+    if (!layoutFile) throw new Error("Модуль страниц авторов не найден.");
+    const layout = { exports: {} };
+    new Function("module", await app.vault.read(layoutFile))(layout);
+    const generated = layout.exports.authorRegion();
     const existing = app.vault.getAbstractFileByPath(pagePath);
     let page;
     if (existing) {
-        const region = /<!-- BOOK-AUTHOR-GENERATED:START -->[\s\S]*?<!-- BOOK-AUTHOR-GENERATED:END -->/;
-        const merge = content => region.test(content) ? content.replace(region, () => generated) : content.replace(/\s*$/, "\n\n") + generated + "\n";
+        const merge = layout.exports.mergeAuthor;
         const original = await app.vault.read(existing);
         // Merge against the newest text inside the atomic Vault callback.
         if (merge(original) !== original) await app.vault.process(existing, merge);
