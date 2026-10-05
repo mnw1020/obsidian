@@ -57,7 +57,8 @@ test('explicit callout round-trips raw excerpt text, themes, conclusion and a se
     assert.equal(entry.conclusion, input.conclusion);
     assert.deepEqual(entry.themes, ['Мышление', 'Ёж']);
     assert.equal(entry.location, input.location);
-    assert.equal(entry.type, 'idea');
+    assert.equal(entry.type, 'quote');
+    assert.match(raw, /> \[!quote\] Цитата/);
     assert.equal(entry.id, input.id);
 });
 
@@ -119,6 +120,21 @@ test('quote filters combine text, theme and author with Russian ё normalisation
     const entries = [{ id: '1', text: 'Ёж и познание', conclusion: 'Проверить идею', location: 'Глава 1', title: 'Книга', authors: ['Автор'], themes: ['Мышление'], type: 'idea' }, { id: '2', text: 'Другая цитата', conclusion: '', location: '', title: 'Книга', authors: ['Автор'], themes: [], type: 'quote' }];
     assert.deepEqual(knowledge.filterExcerpts(entries, { query: 'еж', author: 'Автор', theme: 'мышление' }).map(entry => entry.id), ['1']);
     assert.equal(knowledge.filterExcerpts(entries, { query: 'проверить' }).length, 1);
+});
+
+test('sections separate specific motivation themes without duplicating or changing quotes', () => {
+    const entries = [
+        { id: 'sleep', path: 'Мотивация', title: 'Мотивация', text: 'Сон', themes: ['мотивация', 'сон'], line: 1 },
+        { id: 'action', path: 'Мотивация', title: 'Мотивация', text: 'Действие', themes: ['мотивация', 'действие'], line: 2 },
+        { id: 'talk', path: 'Мотивация', title: 'Мотивация', text: 'Общение', themes: ['мотивация', 'общение'], line: 3 },
+        { id: 'guilt', path: 'Мотивация', title: 'Мотивация', text: 'Вина', themes: ['мотивация', 'вина', 'тревога'], line: 4 }
+    ];
+    const original = JSON.stringify(entries), groups = knowledge.groupExcerpts(entries);
+    assert.deepEqual(groups.map(group => group.title), ['Ритм жизни', 'Действие и перемены', 'Мысли и убеждения', 'Отношения и общение']);
+    assert.equal(groups.flatMap(group => group.entries).length, entries.length);
+    assert.equal(new Set(groups.flatMap(group => group.entries.map(entry => entry.id))).size, entries.length);
+    assert.equal(knowledge.groupExcerpts(entries, { by: 'source' }).length, 1);
+    assert.equal(JSON.stringify(entries), original);
 });
 
 test('cache reuses unchanged content and invalidates modification, rename and deletion', async () => {
@@ -463,7 +479,7 @@ test('both read-only renderers work in home and full modes with native DOM contr
     for (const mode of ['home', 'index']) {
         const container = document.createElement('div');
         const handle = await knowledge({ ...h, dv: { container, component: { register: () => {} } }, mode });
-        assert.match(container.textContent, /Добавь первую выписку/);
+        assert.match(container.textContent, /Добавь первую цитату/);
         assert.ok(container.textContent.trim());
         handle.dispose();
     }

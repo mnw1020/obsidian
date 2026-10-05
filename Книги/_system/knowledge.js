@@ -166,15 +166,34 @@ function filterExcerpts(entries, filters = {}) {
     );
 }
 
-function groupExcerpts(entries, { by = "theme", theme = "" } = {}) {
+const QUOTE_SECTIONS = [
+    { title: "Ритм жизни", themes: ["сон", "утро", "ритм жизни", "планирование", "привычки"] },
+    { title: "Действие и перемены", themes: ["успех", "эксперименты", "прокрастинация", "действие", "неудачи", "мотивация"] },
+    { title: "Мысли и убеждения", themes: ["убеждения", "мышление", "вина", "тревога", "познание"] },
+    { title: "Отношения и общение", themes: ["отношения", "гордость", "общение"] },
+    { title: "Юмор и ирония", themes: ["юмор", "ирония"] },
+    { title: "Воспитание", themes: ["воспитание", "видеоигры"] }
+];
+function quoteSection(entry) {
+    const names = entry.themes.map(normalize);
+    // Prefer specific themes to the broad motivation label shared by old fragments.
+    for (const index of [4, 5, 3, 0, 2, 1]) {
+        const section = QUOTE_SECTIONS[index];
+        if (section.themes.some(theme => names.includes(theme))) return { title: section.title, key: `section:${index}`, order: index };
+    }
+    const title = entry.themes[0] || "Без темы";
+    return { title, key: `section:${normalize(title)}`, order: 6 };
+}
+function groupExcerpts(entries, { by = "section", theme = "" } = {}) {
     const groups = new Map();
     for (const entry of entries) {
-        const title = by === "source" ? entry.title : theme || entry.themes[0] || "Без темы";
-        const key = by === "source" ? `source:${entry.path}` : `theme:${normalize(title)}`;
-        if (!groups.has(key)) groups.set(key, { key, title, entries: [] });
-        groups.get(key).entries.push(entry);
+        const info = by === "source" ? { title: entry.title, key: `source:${entry.path}`, order: 0 }
+            : by === "theme" ? { title: theme || entry.themes[0] || "Без темы", key: `theme:${normalize(theme || entry.themes[0] || "Без темы")}`, order: 0 }
+            : quoteSection(entry);
+        if (!groups.has(info.key)) groups.set(info.key, { ...info, entries: [] });
+        groups.get(info.key).entries.push(entry);
     }
-    return [...groups.values()].sort((a, b) => a.title.localeCompare(b.title, "ru")).map(group => ({ ...group,
+    return [...groups.values()].sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, "ru")).map(group => ({ ...group,
         entries: [...group.entries].sort((a, b) => (b.savedDate || "").localeCompare(a.savedDate || "") || a.title.localeCompare(b.title, "ru") || a.line - b.line)
     }));
 }
@@ -287,7 +306,7 @@ async function getService({ app, obsidian }) {
         subscribe(callback) { state.listeners.add(callback); return () => state.listeners.delete(callback); },
         excerpts(records) {
             return records.flatMap(record => record.excerpts.map(excerpt => ({ ...excerpt,
-                file: record.file, path: record.file.path, title: String(record.fm.title || record.file.basename),
+                collection: Boolean(record.collection), file: record.file, path: record.file.path, title: String(record.fm.title || record.file.basename),
                 authors: (Array.isArray(record.fm.authors) ? record.fm.authors : [record.fm.authors]).map(value => String(value ?? "").trim()).filter(Boolean)
             })));
         },
@@ -315,85 +334,118 @@ function sourceLink(parent, entry, app) {
     });
 }
 
-function renderCard(parent, entry, app) {
+function renderCard(parent, entry, app, { compact = false } = {}) {
     const card = element(parent, "article", undefined, "book-excerpt-card");
     const top = element(card, "div", undefined, "book-excerpt-meta");
-    element(top, "strong", "💬 Цитата");
-    if (entry.themes.length) element(top, "span", " · " + entry.themes.join(" · "));
-    const text = element(card, "p", entry.text);
-    text.style.whiteSpace = "pre-wrap";
-    if (entry.conclusion) {
-        const conclusion = element(card, "p", "Мой вывод: " + entry.conclusion);
-        conclusion.style.whiteSpace = "pre-wrap";
+    for (const theme of entry.themes) element(top, "span", theme, "book-quote-tag");
+    if (compact && entry.text.length > 450) {
+        const full = element(card, "details", undefined, "book-quote-long-text");
+        const preview = entry.text.slice(0, 300).replace(/\s+\S*$/, "") + "…";
+        const summary = element(full, "summary", preview);
+        const text = element(full, "p", entry.text); text.style.whiteSpace = "pre-wrap";
+        full.addEventListener("toggle", () => { summary.textContent = full.open ? "Свернуть текст" : preview; });
+    } else {
+        const text = element(card, "p", entry.text, "book-quote-text"); text.style.whiteSpace = "pre-wrap";
     }
-    if (entry.location) element(card, "small", entry.location);
+    if (entry.conclusion) {
+        const conclusion = element(card, "details", undefined, "book-quote-conclusion");
+        element(conclusion, "summary", "Мой вывод");
+        const text = element(conclusion, "p", entry.conclusion); text.style.whiteSpace = "pre-wrap";
+    }
+    const footer = element(card, "footer", undefined, "book-quote-footer");
+    const source = element(footer, "div");
+    element(source, "span", entry.collection ? "Коллекция · " : "Произведение · ", "book-quote-source-label");
+    sourceLink(source, entry, app);
+    if (entry.location) element(footer, "small", entry.location);
     if (entry.savedDate) {
         const [year, month, day] = entry.savedDate.split("-");
-        element(card, "div", `Сохранено: ${day}.${month}.${year}`, "book-excerpt-meta");
+        element(footer, "small", `${day}.${month}.${year}`);
     }
-    sourceLink(element(card, "div"), entry, app);
 }
 
 async function render({ dv, app, obsidian, mode = "index" }) {
-    const root = element(dv.container, "div", undefined, mode === "home" ? "book-knowledge" : "book-knowledge book-quotes-index");
-    if (mode !== "home") {
+    const home = mode === "home";
+    const root = element(dv.container, "div", undefined, home ? "book-knowledge" : "book-knowledge book-quotes-index");
+    if (!home) {
         const stylesheet = app.vault.getAbstractFileByPath("Книги/_system/quotes-index.css");
         if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
     }
-    const status = element(root, "p", "Загружаю цитаты…");
-    let disposed = false, generation = 0, timer;
-    let service;
+    const status = element(root, "p", "Загружаю цитаты…", "book-quotes-status");
+    let disposed = false, generation = 0, timer, service;
     try { service = await getService({ app, obsidian }); }
     catch (error) { status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; return; }
     const controls = element(root, "div", undefined, "book-knowledge-controls");
-    const toolbar = mode === "home" ? null : element(root, "div", undefined, "book-quotes-toolbar");
+    const toolbar = home ? null : element(root, "div", undefined, "book-quotes-toolbar");
+    const sections = home ? null : element(root, "nav", undefined, "book-quotes-section-nav");
+    if (sections) sections.setAttribute("aria-label", "Разделы коллекции");
     const content = element(root, "div", undefined, "book-knowledge-results");
-    let entries = [], randomId = null, groupBy = "theme", expandAll = false;
-    const openGroups = new Set(), groupingButtons = [];
+    let entries = [], randomId = null, groupBy = "section", activeSection = "", expandAll = null, allExpanded = false;
+    const expandedGroups = new Set(), groupingButtons = [], selects = {};
     const filters = { query: "", theme: "", author: "" };
-    const selects = {};
+    let expandButton;
+    function filteredEntries() { return filterExcerpts(entries, filters); }
     function draw() {
         content.replaceChildren();
-        const filtered = filterExcerpts(entries, filters);
-        status.textContent = entries.length ? `${filtered.length} из ${entries.length} цитат` : "Добавь первую цитату из карточки книги.";
-        if (mode === "home") {
+        const filtered = filteredEntries();
+        if (home) {
+            status.textContent = entries.length ? `${entries.length} цитат` : "Добавь первую цитату из карточки книги.";
             if (entries.length) {
                 const entry = entries.find(entry => `${entry.path}:${entry.id}` === randomId) || entries[Math.floor(Math.random() * entries.length)];
-                randomId = `${entry.path}:${entry.id}`;
-                renderCard(content, entry, app);
+                randomId = `${entry.path}:${entry.id}`; renderCard(content, entry, app);
             }
             return;
         }
-        const groups = groupExcerpts(filtered, { by: groupBy, theme: filters.theme });
-        if (entries.length) status.textContent += ` · Разделов: ${groups.length}`;
-        if (expandButton) expandButton.textContent = expandAll ? "Свернуть все" : "Раскрыть все";
-        for (const group of groups) {
-            const details = element(content, "details", undefined, "book-quotes-group");
-            details.open = expandAll || Object.values(filters).some(Boolean) || openGroups.has(group.key);
-            const summary = element(details, "summary");
-            const title = group.title.charAt(0).toLocaleUpperCase("ru") + group.title.slice(1);
-            element(summary, "strong", title, "book-quotes-group-title");
-            element(summary, "span", String(group.entries.length), "book-quotes-group-count");
-            details.addEventListener("toggle", () => {
-                if (disposed || details.isConnected === false) return;
-                if (details.open) openGroups.add(group.key); else openGroups.delete(group.key);
-            });
-            const body = element(details, "div", undefined, "book-quotes-group-body");
-            let limit = 25;
-            function showEntries() {
-                body.replaceChildren();
-                for (const entry of group.entries.slice(0, limit)) renderCard(body, entry, app);
-                if (group.entries.length > limit) {
-                    const more = element(body, "button", `Ещё ${Math.min(25, group.entries.length - limit)}`);
-                    more.addEventListener("click", () => { limit += 25; showEntries(); });
-                }
+        const available = groupExcerpts(filtered, { by: groupBy });
+        if (!available.some(group => group.key === activeSection)) activeSection = "";
+        const groups = activeSection ? available.filter(group => group.key === activeSection) : available;
+        status.textContent = entries.length ? `${filtered.length} из ${entries.length} цитат · Разделов: ${available.length}` : "Добавь первую цитату из карточки книги.";
+        sections.replaceChildren();
+        if (available.length) {
+            const resetSection = element(sections, "button", "Все разделы", "book-quotes-all-sections");
+            resetSection.setAttribute("aria-pressed", String(!activeSection));
+            resetSection.addEventListener("click", () => { activeSection = ""; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
+            const tiles = element(sections, "div", undefined, "book-quotes-section-tiles");
+            for (const group of available) {
+                const button = element(tiles, "button", undefined, "book-quotes-section-tile");
+                button.setAttribute("aria-pressed", String(activeSection === group.key));
+                element(button, "strong", group.title.charAt(0).toLocaleUpperCase("ru") + group.title.slice(1));
+                element(button, "span", `Цитат: ${group.entries.length}`, "book-quotes-tile-count");
+                button.addEventListener("click", () => { activeSection = activeSection === group.key ? "" : group.key; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
             }
-            showEntries();
         }
+        const matching = Object.values(filters).some(Boolean) || Boolean(activeSection);
+        const expanded = group => !collapsedGroups.has(group.key) && (expandedGroups.has(group.key) || (expandAll === null ? matching : expandAll));
+        allExpanded = groups.every(group => group.entries.length <= 2 || expanded(group));
+        if (expandButton) {
+            expandButton.textContent = allExpanded ? "Свернуть списки" : "Показать все цитаты";
+            expandButton.disabled = !groups.some(group => group.entries.length > 2);
+        }
+        groups.forEach((group, index) => {
+            const panel = element(content, "section", undefined, "book-quotes-group");
+            const header = element(panel, "header", undefined, "book-quotes-group-header");
+            element(header, "span", String(index + 1).padStart(2, "0"), "book-quotes-group-number");
+            element(header, "h2", group.title.charAt(0).toLocaleUpperCase("ru") + group.title.slice(1), "book-quotes-group-title");
+            element(header, "span", `Цитат: ${group.entries.length}`, "book-quotes-group-count");
+            const body = element(panel, "div", undefined, "book-quotes-group-body");
+            for (const entry of group.entries.slice(0, expanded(group) ? group.entries.length : 2)) renderCard(body, entry, app, { compact: true });
+            if (group.entries.length > 2) {
+                const button = element(panel, "button", expanded(group) ? "Свернуть раздел" : `Ещё цитат: ${group.entries.length - 2}`, "book-quotes-section-more");
+                button.addEventListener("click", () => {
+                    if (expanded(group)) {
+                        expandedGroups.delete(group.key);
+                        // Per-section override lets matching results collapse independently.
+                        collapsedGroups.add(group.key);
+                    } else { expandedGroups.add(group.key); collapsedGroups.delete(group.key); }
+                    draw();
+                });
+            }
+        });
         if (!filtered.length && entries.length) element(content, "p", "По этим условиям цитат пока нет.");
     }
-    let expandButton;
-    if (mode === "home") {
+    const collapsedGroups = new Set();
+    // Keep explicit per-section collapse separate from automatic search expansion.
+    function refreshFilters() { activeSection = ""; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); }
+    if (home) {
         element(controls, "button", "Другая цитата").addEventListener("click", () => {
             const choices = entries.filter(entry => `${entry.path}:${entry.id}` !== randomId);
             const entry = choices[Math.floor(Math.random() * choices.length)];
@@ -402,40 +454,34 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         });
     } else {
         const query = element(controls, "input");
-        query.type = "search";
-        query.placeholder = "Текст, тема, автор или вывод";
+        query.type = "search"; query.placeholder = "Найти цитату, тему, автора или вывод";
         query.setAttribute("aria-label", "Поиск цитат");
-        query.addEventListener("input", () => { filters.query = query.value; draw(); });
+        query.addEventListener("input", () => { filters.query = query.value; refreshFilters(); });
         for (const [field, label] of [["theme", "Все темы"], ["author", "Все авторы"]]) {
             const select = selects[field] = element(controls, "select");
             select.setAttribute("aria-label", label);
-            select.addEventListener("change", () => { filters[field] = select.value; draw(); });
+            select.addEventListener("change", () => { filters[field] = select.value; refreshFilters(); });
         }
         const grouping = element(toolbar, "div", undefined, "book-quotes-grouping");
         grouping.setAttribute("role", "group"); grouping.setAttribute("aria-label", "Группировка цитат");
-        for (const [value, label] of [["theme", "По темам"], ["source", "По источникам"]]) {
+        for (const [value, label] of [["section", "По разделам"], ["source", "По источникам"]]) {
             const button = element(grouping, "button", label);
             button.setAttribute("aria-pressed", String(groupBy === value));
             button.addEventListener("click", () => {
-                groupBy = value; openGroups.clear(); expandAll = false;
+                groupBy = value;
                 for (const row of groupingButtons) row.button.setAttribute("aria-pressed", String(row.value === value));
-                draw();
+                refreshFilters();
             });
             groupingButtons.push({ button, value });
         }
         const actions = element(toolbar, "div", undefined, "book-quotes-actions");
-        expandButton = element(actions, "button", "Раскрыть все");
-        expandButton.addEventListener("click", () => {
-            expandAll = !expandAll; openGroups.clear();
-            // Collapse also works while searching, without clearing the search results.
-            draw();
-            if (!expandAll) for (const details of Array.from(content.children)) details.open = false;
-        });
+        expandButton = element(actions, "button", "Показать все цитаты");
+        expandButton.addEventListener("click", () => { expandAll = !allExpanded; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
         element(actions, "button", "Сбросить").addEventListener("click", () => {
             query.value = "";
             for (const key of Object.keys(filters)) filters[key] = "";
             for (const select of Object.values(selects)) select.value = "";
-            expandAll = false; openGroups.clear(); draw();
+            refreshFilters();
         });
     }
     async function reload() {
@@ -444,18 +490,14 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             const records = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
             entries = service.excerpts(records);
-            if (mode !== "home") {
-                for (const [field, values, label] of [
-                    ["theme", [...new Set(entries.flatMap(entry => entry.themes))].sort((a, b) => a.localeCompare(b, "ru")), "Все темы"],
-                    ["author", [...new Set(entries.flatMap(entry => entry.authors))].sort((a, b) => a.localeCompare(b, "ru")), "Все авторы"],
-                ]) {
-                    const select = selects[field];
-                    select.replaceChildren();
-                    element(select, "option", label).value = "";
-                    for (const value of values) element(select, "option", value).value = value;
-                    select.value = values.includes(filters[field]) ? filters[field] : "";
-                    filters[field] = select.value;
-                }
+            if (!home) for (const [field, values, label] of [
+                ["theme", [...new Set(entries.flatMap(entry => entry.themes))].sort((a, b) => a.localeCompare(b, "ru")), "Все темы"],
+                ["author", [...new Set(entries.flatMap(entry => entry.authors))].sort((a, b) => a.localeCompare(b, "ru")), "Все авторы"]
+            ]) {
+                const select = selects[field]; select.replaceChildren();
+                element(select, "option", label).value = "";
+                for (const value of values) element(select, "option", value).value = value;
+                select.value = values.includes(filters[field]) ? filters[field] : ""; filters[field] = select.value;
             }
             draw();
             const failed = records.filter(record => record.error).length;
