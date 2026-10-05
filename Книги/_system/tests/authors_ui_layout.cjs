@@ -12,8 +12,9 @@ async function main(){const browser=await chromium.launch({headless:true,executa
   await page.setContent(`<style>${baseline}</style><body class="${theme}"><main class="markdown-preview-view"${layout.pane?' style="width:'+layout.pane+'px"':''}><div class="inline-title">Прежний заголовок</div><div id="content"></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></main></body>`);
   await page.evaluate(async({source,css,records,mode})=>{
    const m={exports:{}};new Function('module',source)(m);window.authorCalls=[];window.linkCalls=[];window.subscriptions=0;
-   window.authorService={core:{displayDate:value=>value.split('-').reverse().join('.')},snapshot:async()=>records,subscribe:()=>{window.subscriptions++;return()=>window.subscriptions--;}};
+   window.authorService={core:{displayDate:value=>value.split('-').reverse().join('.')},snapshot:async()=>records,subscribe:callback=>{window.refreshAuthors=callback;window.subscriptions++;return()=>window.subscriptions--;}};
    const app={vault:{getAbstractFileByPath:path=>({path}),read:async file=>file.path.endsWith('.css')?css:'module.exports.getService=async()=>window.authorService;'},workspace:{openLinkText:(...args)=>window.linkCalls.push(args)},plugins:{plugins:{quickadd:{api:{executeChoice:async(...args)=>window.authorCalls.push(args)}}}}};
+   window.originalAuthorSnapshot=window.authorService.snapshot;
    window.authorHandle=await m.exports({app,dv:{container:document.querySelector('#content'),current:()=>({selected_author:'Леонид Каганов',file:{path:'Книги/_system/Авторы/Леонид Каганов-93dfbaac.md'}})},mode});
   },{source,css,records,mode});
   assert.equal(await page.locator('.inline-title').isVisible(),false);
@@ -46,6 +47,17 @@ async function main(){const browser=await chromium.launch({headless:true,executa
   const clipped=await page.locator('.book-authors-ui').evaluate(root=>[...root.querySelectorAll('input,select,.book-authors-chip,.book-authors-row-title')].filter(node=>node.getBoundingClientRect().right>root.getBoundingClientRect().right+1).map(node=>node.className));assert.deepEqual(clipped,[]);
   assert.deepEqual(errors,[]);
   if(process.env.AUTHORS_SCREENSHOT_DIR && !layout.pane && (layout.width===390&&theme==='theme-light'||layout.width===1024&&theme==='theme-dark'))await page.screenshot({path:path.join(process.env.AUTHORS_SCREENSHOT_DIR,`authors-${mode}-${layout.width}.png`)});
+  await page.evaluate(()=>{
+    window.authorService.snapshot=async()=>{
+      const records=await window.originalAuthorSnapshot();
+      return [...records,{file:{path:'Книги/Художественные/Новая книга автора.md',basename:'Новая книга автора'},fm:{title:'Новая книга автора',authors:['Леонид Каганов'],rating:9,work_type:'book'},history:[{date:'2026-10-05',number:1,rating:9}],excerpts:[]}];
+    };
+    window.refreshAuthors();
+  });
+  if(mode==='index'){
+    await page.getByLabel('Поиск среди авторов',{exact:true}).fill('каганов');
+    await page.waitForFunction(()=>document.querySelector('.book-authors-chips strong')?.textContent==='19');
+  }else await page.waitForFunction(()=>document.querySelector('.book-authors-result-count')?.textContent==='Произведений: 19');
   await page.evaluate(()=>window.authorHandle.dispose());assert.equal(await page.evaluate(()=>window.subscriptions),0);
   checks++;await page.close();
  }
