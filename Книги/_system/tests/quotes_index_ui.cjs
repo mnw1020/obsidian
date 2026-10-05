@@ -6,7 +6,10 @@ const source = fs.readFileSync(path.join(root, '_system/knowledge.js'), 'utf8');
 const core = fs.readFileSync(path.join(root, '_system/book_core.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, '_system/quotes-index.css'), 'utf8');
 const libraryCss = fs.readFileSync(path.join(root, '_system/books-library.css'), 'utf8');
-const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:var(--background-primary);color:var(--text-normal);--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-accent:#9b561e}main{max-width:900px;margin:auto;padding:20px;min-width:0}button,select{font:inherit;cursor:pointer}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-accent:#efa76b}`;
+const thingsCss = fs.readFileSync(path.resolve(root, '../.obsidian/themes/Things/theme.css'), 'utf8');
+const gruvboxCss = fs.readFileSync(path.resolve(root, '../.obsidian/snippets/Obsidian gruvbox.css'), 'utf8');
+const dataviewCss = fs.readFileSync(path.resolve(root, '../.obsidian/plugins/dataview/styles.css'), 'utf8');
+const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 "JetBrains Mono",monospace;background:var(--background-primary);color:var(--text-normal);--editor-font:"JetBrains Mono",monospace;--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-accent:#9b561e}main{width:100%;max-width:1100px;margin:auto;padding:24px;min-width:0}.markdown-preview-sizer{width:100%;max-width:820px;margin-inline:auto;min-width:0}button,select{font:inherit;cursor:pointer}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-accent:#efa76b}`;
 
 function realFiles() {
     const files = [];
@@ -41,10 +44,11 @@ function syntheticFiles() {
     });
 }
 
-async function mount(browser, files, { width = 1024, theme = 'theme-light' } = {}) {
+async function mount(browser, files, { width = 1024, theme = 'theme-light', embeddedWidth } = {}) {
     const page = await browser.newPage({ viewport: { width, height: 1000 } }), errors = [];
     page.on('pageerror', error => errors.push(error.message));
-    await page.setContent(`<style>${baseline}</style><style>${libraryCss}</style><body class="${theme}"><main><h1>Цитаты</h1><div id="content"></div></main></body>`);
+    const paneStyle = embeddedWidth ? ` style="width:${Number(embeddedWidth)}px;margin-inline:0"` : '';
+    await page.setContent(`<style>${baseline}</style><style>${thingsCss}</style><style>${gruvboxCss}</style><style>${dataviewCss}</style><style>${libraryCss}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered book-quotes-page book-quotes-tree-page"${paneStyle}><div class="markdown-preview-sizer markdown-preview-section"><div class="metadata-container">Свойства<div>cssclasses: book-quotes-page</div></div><div class="inline-title">_Цитаты</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div></div></main></body>`);
     await page.evaluate(async ({ source, core, css, files }) => {
         const map = new Map(files.map(file => [file.path, file]));
         map.set('Книги/_system/book_core.js', { path: 'Книги/_system/book_core.js', text: core });
@@ -99,6 +103,23 @@ async function assertBounded(page, expectedRows, maxDom = 1200) {
     assert((await page.locator('.book-quotes-index *').count()) < maxDom, 'The catalogue DOM stays bounded');
     assert.equal(await page.locator('.book-quotes-section-tile, .book-quotes-group, .book-quote-details').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'The page fits its viewport');
+    const overflowing = await page.evaluate(() => ['.markdown-preview-view', '.markdown-preview-sizer', '#content', '.book-quotes-index', '.book-quotes-shell', '.book-quotes-reading', '.book-knowledge-results', '.book-quotes-tree'].flatMap(selector => {
+        const element = document.querySelector(selector);
+        if (!element || !element.getClientRects().length || element.scrollWidth <= element.clientWidth) return [];
+        return [{ selector, client: element.clientWidth, scroll: element.scrollWidth }];
+    }));
+    assert.deepEqual(overflowing, [], 'Nested Obsidian and Dataview containers do not have horizontal scrolling');
+}
+
+async function assertMasthead(page) {
+    assert.equal(await page.getByRole('heading', { name: 'Цитаты', level: 1, exact: true }).count(), 1);
+    assert.equal(await page.locator('.book-quotes-masthead .book-quotes-subtitle').textContent(), 'Из книг и собственных записей');
+    const nav = page.getByRole('navigation', { name: 'Навигация библиотеки', exact: true });
+    assert.equal(await nav.getByRole('link', { name: '← Библиотека', exact: true }).getAttribute('data-href'), 'Книги/_index');
+    assert.equal(await nav.getByRole('link', { name: 'Итоги чтения', exact: true }).getAttribute('data-href'), 'Книги/_system/Итоги чтения');
+    assert.equal(await page.getByRole('link', { name: '+ Добавить цитату', exact: true }).getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - Добавить выписку'));
+    assert.equal(await page.locator('.metadata-container').isVisible(), false, 'Note properties are hidden on this page');
+    assert.equal(await page.locator('.inline-title').isVisible(), false, 'The raw filename title is hidden');
 }
 async function screenshot(page, name) {
     if (!process.env.QUOTES_SCREENSHOT_DIR) return;
@@ -112,6 +133,7 @@ async function realCollectionChecks(browser) {
         const { page, errors } = await mount(browser, files, { width, theme });
         try {
             await expectStatus(page, '1–11 из 11 цитат'); await assertBounded(page, 11);
+            await assertMasthead(page);
             assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Мотивация');
             assert.equal(await page.locator('.book-quotes-modes').getByRole('button', { name: 'Разделы', exact: true }).getAttribute('aria-pressed'), 'true');
             assert.equal(await page.getByLabel('Поиск цитат', { exact: true }).isVisible(), false);
@@ -147,6 +169,7 @@ async function realCollectionChecks(browser) {
                 await screenshot(page, width === 390 ? 'quotes-tree-mobile.png' : 'quotes-tree-desktop.png');
                 if (width === 390) { await showNavigation(page); await screenshot(page, 'quotes-tree-mobile-navigation.png'); }
             }
+            if (theme === 'theme-dark' && width === 1024) { await page.evaluate(() => window.scrollTo(0, 0)); await screenshot(page, 'quotes-tree-desktop-dark.png'); }
             await mode(page, 'Источники'); await showNavigation(page);
             assert.equal(await treeNode(page, 'source:unknown').locator('.book-quotes-tree-label').textContent(), 'Без источника');
             assert.equal(await page.locator('.book-quotes-tree-label').filter({ hasText: /^Мотивация$/u }).count(), 0, 'Old collection titles are not fictional sources');
@@ -158,6 +181,33 @@ async function realCollectionChecks(browser) {
             if (theme === 'theme-light' && [390, 1024].includes(width)) {
                 await page.evaluate(() => window.scrollTo(0, 0));
                 await screenshot(page, width === 390 ? 'quotes-tree-source-mobile.png' : 'quotes-tree-source-desktop.png');
+            }
+            await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []); checks++;
+        } finally { await page.close(); }
+    }
+    return checks;
+}
+
+async function embeddedPaneChecks(browser) {
+    const files = realFiles(), book = files.find(file => file.path === 'Книги/Художественные/Леонид Каганов/Гастарбайтер.md');
+    const count = knowledge.parseExcerpts(book.text).length;
+    let checks = 0;
+    for (const embeddedWidth of [320, 390, 500, 600, 650, 700]) for (const theme of ['theme-light', 'theme-dark']) {
+        const { page, errors } = await mount(browser, files, { width: 1280, embeddedWidth, theme });
+        try {
+            await assertMasthead(page); await expectStatus(page, '1–11 из 11 цитат'); await assertBounded(page, 11);
+            assert.equal(await page.getByRole('button', { name: 'Навигация', exact: true }).isVisible(), true, 'The embedded container controls the narrow layout in a wide viewport');
+            assert.equal(await page.locator('.book-quotes-tree').isVisible(), false);
+            await showNavigation(page); await assertBounded(page, 11);
+            await mode(page, 'Источники'); await choose(page, 'source:' + book.path);
+            await expectStatus(page, `1–${count} из ${count} цитат`); await assertBounded(page, count);
+            await search(page, 'мелкой моторики'); await expectStatus(page, '1–1 из 1 цитат'); await assertBounded(page, 1);
+            await page.getByRole('button', { name: 'Сбросить поиск', exact: true }).click();
+            await choose(page, 'source:' + book.path);
+            if (embeddedWidth === 650 && theme === 'theme-light') {
+                await page.getByRole('button', { name: 'Поиск', exact: true }).click();
+                await showNavigation(page); await page.evaluate(() => window.scrollTo(0, 0));
+                await screenshot(page, 'quotes-tree-embedded-pane.png');
             }
             await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []); checks++;
         } finally { await page.close(); }
@@ -341,8 +391,8 @@ async function authorLinkChecks(browser) {
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser); await authorLinkChecks(browser);
-        console.log(`${checks} real quote layouts, a 1170-quote tree scenario, attribution, author links and section-case regressions passed: hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
+        const checks = await realCollectionChecks(browser), embeddedChecks = await embeddedPaneChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser); await authorLinkChecks(browser);
+        console.log(`${checks} real quote layouts, ${embeddedChecks} embedded Obsidian panes, a 1170-quote tree scenario, attribution, author links and section-case regressions passed: masthead, hidden properties, nested overflow, hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
