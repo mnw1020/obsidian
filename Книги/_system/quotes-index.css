@@ -1,51 +1,41 @@
-.book-quotes-index { --quotes-line: var(--background-modifier-border, #d8d3c9); --quotes-muted: var(--text-muted, #716b62); --quotes-surface: var(--background-secondary, #efede7); --quotes-accent: var(--text-accent, #a46830); min-width: 0; container: quotes-index / inline-size; }
+.book-quotes-index { --quotes-line: var(--background-modifier-border, #d8d3c9); --quotes-muted: var(--text-muted, #716b62); --quotes-accent: var(--text-accent, #a46830); min-width: 0; container: quotes-index / inline-size; }
 .book-quotes-index * { box-sizing: border-box; }
-.book-quotes-index .book-quotes-status { color: var(--quotes-muted); font-size: .85em; margin: 12px 0; }
-.book-quotes-index .book-knowledge-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 20px 0 12px; }
-.book-quotes-index .book-knowledge-controls input { grid-column: 1 / -1; }
-.book-quotes-index .book-knowledge-controls :is(input,select) { width: 100%; min-width: 0; max-width: 100%; min-height: 44px; border: 1px solid var(--quotes-line); border-radius: 9px; padding: 8px 12px; font: inherit; font-size: .85em; color: var(--text-normal); background: var(--quotes-surface); }
-.book-quotes-index .book-quotes-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin: 14px 0 22px; }
-.book-quotes-index :is(.book-quotes-grouping,.book-quotes-actions) { display: flex; flex-wrap: wrap; gap: 6px; }
-.book-quotes-index .book-quotes-toolbar button { min-height: 38px; padding: 7px 12px; border: 1px solid var(--quotes-line); border-radius: 8px; box-shadow: none; font: inherit; font-size: .8em; background: transparent; color: var(--quotes-muted); cursor: pointer; }
-.book-quotes-index .book-quotes-grouping button[aria-pressed="true"] { color: var(--quotes-accent); border-color: var(--quotes-accent); background: var(--quotes-surface); }
+.book-quotes-index [hidden] { display: none !important; }
+.book-quotes-index .book-quotes-status { color: var(--quotes-muted); font-size: .8em; margin: 12px 0; font-variant-numeric: tabular-nums; }
+.book-quotes-index .book-knowledge-controls { margin: 12px 0 16px; }
+.book-quotes-index :is(input,select) { width: 100%; min-width: 0; max-width: 100%; min-height: 38px; border: 1px solid var(--quotes-line); border-radius: 5px; padding: 7px 10px; font: inherit; font-size: .85em; color: var(--text-normal); background: var(--background-primary); }
+.book-quotes-index .book-quotes-toolbar { display: flex; flex-wrap: wrap; align-items: start; gap: 8px 16px; margin-top: 10px; }
+.book-quotes-index button { box-shadow: none; font: inherit; cursor: pointer; }
 .book-quotes-index :is(button,input,select,a,summary):focus-visible { outline: 2px solid var(--quotes-accent); outline-offset: 3px; }
-.book-quotes-index .book-quotes-section-nav { margin: 0 0 30px; }
-.book-quotes-index .book-quotes-all-sections { background: transparent; border: 0; box-shadow: none; color: var(--quotes-muted); padding: 4px 0; margin-bottom: 10px; font: inherit; font-size: .8em; cursor: pointer; }
-.book-quotes-index .book-quotes-all-sections[aria-pressed="true"] { color: var(--quotes-accent); font-weight: 600; }
-.book-quotes-index .book-quotes-section-tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(165px,1fr)); gap: 10px; }
-.book-quotes-index .book-quotes-section-tile { min-height: 86px; height: auto; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 10px; text-align: left; padding: 14px; border: 1px solid var(--quotes-line); border-radius: 10px; box-shadow: none; background: var(--quotes-surface); color: var(--text-normal); font: inherit; cursor: pointer; }
-.book-quotes-index .book-quotes-section-tile strong { font-size: .85em; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
-.book-quotes-index .book-quotes-tile-count { color: var(--quotes-muted); font-size: .73em; }
-.book-quotes-index .book-quotes-section-tile:hover { border-color: var(--quotes-accent); }
-.book-quotes-index .book-quotes-section-tile[aria-pressed="true"] { border-color: var(--quotes-accent); background: color-mix(in srgb, var(--quotes-accent) 10%, var(--quotes-surface)); }
-.book-quotes-index .book-knowledge-results { display: grid; gap: 28px; }
-.book-quotes-index .book-quotes-group { min-width: 0; }
-.book-quotes-index .book-quotes-group-header { display: flex; align-items: center; gap: 12px; padding: 0 0 12px; margin-bottom: 14px; border-bottom: 1px solid var(--quotes-line); }
-.book-quotes-index .book-quotes-group-number { flex-shrink: 0; color: var(--quotes-accent); font-size: .8em; font-variant-numeric: tabular-nums; }
-.book-quotes-index h2.book-quotes-group-title { flex: 1; min-width: 0; font-size: 1.3em; margin: 0; line-height: 1.35; overflow-wrap: anywhere; }
-.book-quotes-index .book-quotes-group-count { flex-shrink: 0; color: var(--quotes-muted); font-size: .75em; font-variant-numeric: tabular-nums; }
-.book-quotes-index .book-quotes-group-body { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; align-items: start; }
-.book-quotes-index .book-excerpt-card { min-width: 0; border: 1px solid var(--quotes-line); border-radius: 10px; padding: 18px; overflow-wrap: anywhere; background: var(--background-primary); }
-.book-quotes-index .book-excerpt-card .book-quote-text, .book-quotes-index .book-quote-long-text p { font-size: .95em; margin: 14px 0; line-height: 1.7; }
-.book-quotes-index .book-excerpt-meta { display: flex; flex-wrap: wrap; gap: 5px; color: var(--quotes-muted); font-size: .7em; }
-.book-quotes-index .book-quote-tag { padding: 2px 7px; border-radius: 4px; background: var(--quotes-surface); }
-.book-quotes-index .book-quote-footer { display: flex; flex-direction: column; gap: 4px; padding-top: 12px; margin-top: 14px; border-top: 1px solid var(--quotes-line); font-size: .75em; color: var(--quotes-muted); }
-.book-quotes-index .book-quote-footer .internal-link { color: var(--quotes-accent); text-decoration: none; }
-.book-quotes-index .book-quote-footer .internal-link:hover { text-decoration: underline; }
-.book-quotes-index .book-quote-source-label { color: var(--quotes-muted); }
-.book-quotes-index .book-quote-conclusion { margin-top: 14px; font-size: .85em; color: var(--quotes-muted); }
-.book-quotes-index .book-quote-conclusion summary { cursor: pointer; }
-.book-quotes-index .book-quote-long-text summary { cursor: pointer; font-size: .95em; line-height: 1.7; margin-top: 14px; list-style: none; }
-.book-quotes-index .book-quote-long-text summary::-webkit-details-marker { display: none; }
-.book-quotes-index .book-quote-long-text:not([open]) summary::after { content: 'Читать целиком ↓'; display: block; color: var(--quotes-accent); font-size: .8em; margin-top: 8px; }
-.book-quotes-index .book-quote-long-text[open] summary { color: var(--quotes-accent); font-size: .8em; }
-.book-quotes-index .book-quotes-section-more { border: 0; background: transparent; box-shadow: none; color: var(--quotes-accent); min-height: 40px; margin-top: 8px; padding: 8px 0; font: inherit; font-size: .8em; cursor: pointer; }
-@container quotes-index (max-width: 560px) {
-    .book-quotes-index .book-quotes-section-tiles { grid-template-columns: repeat(2,minmax(0,1fr)); }
-    .book-quotes-index .book-quotes-group-body { grid-template-columns: minmax(0,1fr); }
-    .book-quotes-index .book-quotes-section-tile { padding: 12px; }
-    .book-quotes-index .book-quotes-group-header { flex-wrap: wrap; gap: 8px; }
-    .book-quotes-index h2.book-quotes-group-title { font-size: 1.15em; }
-    .book-quotes-index .book-quotes-group-count { margin-left: auto; }
-    .book-quotes-index .book-excerpt-card { padding: 14px; }
+.book-quotes-index .book-quotes-filters { flex: 1 1 100%; min-width: 0; }
+.book-quotes-index .book-quotes-filters > summary { width: fit-content; color: var(--quotes-muted); cursor: pointer; font-size: .8em; }
+.book-quotes-index .book-quotes-filter-panel { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; padding: 14px 0 6px; }
+.book-quotes-index .book-quotes-filter-field { display: grid; gap: 7px; min-width: 0; font-size: .9em; }
+.book-quotes-index .book-quotes-filter-field > span { color: var(--quotes-muted); font-size: .85em; }
+.book-quotes-index .book-quotes-filter-chips { display: flex; flex: 1; flex-wrap: wrap; gap: 6px 12px; min-width: 0; }
+.book-quotes-index :is(.book-quotes-filter-chip,.book-quotes-reset) { border: 0; border-radius: 0; background: transparent; color: var(--quotes-muted); padding: 2px 0; height: auto; min-height: 28px; font-size: .78em; text-align: left; overflow-wrap: anywhere; }
+.book-quotes-index .book-quotes-filter-chip { color: var(--quotes-accent); }
+.book-quotes-index .book-quotes-row { min-width: 0; padding: 14px 0; border-bottom: 1px solid var(--quotes-line); overflow-wrap: anywhere; }
+.book-quotes-index .book-quotes-row:first-child { border-top: 1px solid var(--quotes-line); }
+.book-quotes-index .book-quote-details > summary { cursor: pointer; line-height: 1.55; font-size: .94em; list-style: none; position: relative; padding-right: 22px; }
+.book-quotes-index .book-quote-details > summary::-webkit-details-marker { display: none; }
+.book-quotes-index .book-quote-details > summary::after { content: '+'; position: absolute; top: 0; right: 2px; color: var(--quotes-muted); }
+.book-quotes-index .book-quote-details[open] > summary { color: var(--quotes-muted); font-size: .78em; }
+.book-quotes-index .book-quote-details[open] > summary::after { content: '−'; }
+.book-quotes-index .book-quote-body p { white-space: pre-wrap; line-height: 1.7; margin: 12px 0; }
+.book-quotes-index .book-quote-body .book-quote-text { font-size: .95em; }
+.book-quotes-index .book-quote-conclusion { border-left: 2px solid var(--quotes-line); padding-left: 12px; margin: 16px 0; font-size: .9em; }
+.book-quotes-index .book-quote-conclusion small, .book-quotes-index .book-quote-location { color: var(--quotes-muted); }
+.book-quotes-index .book-quotes-row-meta { display: flex; flex-direction: column; gap: 3px; margin-top: 8px; font-size: .74em; color: var(--quotes-muted); line-height: 1.5; }
+.book-quotes-index .book-quotes-row-meta .internal-link { color: var(--quotes-muted); text-decoration: none; }
+.book-quotes-index .book-quotes-row-meta .internal-link:hover { color: var(--quotes-accent); text-decoration: underline; }
+.book-quotes-index .book-quotes-row-themes { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.book-quotes-index .book-quotes-row-themes button { border: 0; border-radius: 0; background: transparent; padding: 0; color: var(--quotes-muted); font-size: .95em; height: auto; min-height: 24px; overflow-wrap: anywhere; text-align: left; }
+.book-quotes-index .book-quotes-row-themes button:hover { color: var(--quotes-accent); text-decoration: underline; }
+.book-quotes-index .book-quotes-pagination { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 18px 0; font-size: .8em; color: var(--quotes-muted); }
+.book-quotes-index .book-quotes-pagination button { border: 1px solid var(--quotes-line); border-radius: 5px; min-height: 36px; padding: 6px 12px; background: transparent; color: inherit; }
+.book-quotes-index .book-quotes-pagination button:disabled { opacity: .35; cursor: default; }
+.book-quotes-index .book-quotes-empty { font-size: .9em; color: var(--quotes-muted); padding: 14px 0; }
+@container quotes-index (max-width: 480px) {
+    .book-quotes-index .book-quotes-filter-panel { grid-template-columns: minmax(0,1fr); gap: 12px; }
 }

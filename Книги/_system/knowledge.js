@@ -158,44 +158,44 @@ function applyExcerpt(raw, value, selection = null) {
 }
 
 function filterExcerpts(entries, filters = {}) {
-    const query = normalize(filters.query);
+    const tokens = normalize(filters.query).split(" ").filter(Boolean);
     return entries.filter(entry =>
         (!filters.author || entry.authors.includes(filters.author)) &&
-        (!filters.theme || entry.themes.some(theme => normalize(theme) === normalize(filters.theme))) &&
-        (!query || normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, ...entry.authors, ...entry.themes].join(" ")).includes(query))
+        (!filters.source || entry.path === filters.source) &&
+        (!filters.theme || entry.themes.some(theme => themeMatches(theme, filters.theme))) &&
+        (!tokens.length || tokens.every(token => (entry.searchText ?? excerptSearchText(entry)).includes(token)))
     );
 }
 
-const QUOTE_SECTIONS = [
-    { title: "Ритм жизни", themes: ["сон", "утро", "ритм жизни", "планирование", "привычки"] },
-    { title: "Действие и перемены", themes: ["успех", "эксперименты", "прокрастинация", "действие", "неудачи", "мотивация"] },
-    { title: "Мысли и убеждения", themes: ["убеждения", "мышление", "вина", "тревога", "познание"] },
-    { title: "Отношения и общение", themes: ["отношения", "гордость", "общение"] },
-    { title: "Юмор и ирония", themes: ["юмор", "ирония"] },
-    { title: "Воспитание", themes: ["воспитание", "видеоигры"] }
-];
-function quoteSection(entry) {
-    const names = entry.themes.map(normalize);
-    // Prefer specific themes to the broad motivation label shared by old fragments.
-    for (const index of [4, 5, 3, 0, 2, 1]) {
-        const section = QUOTE_SECTIONS[index];
-        if (section.themes.some(theme => names.includes(theme))) return { title: section.title, key: `section:${index}`, order: index };
-    }
-    const title = entry.themes[0] || "Без темы";
-    return { title, key: `section:${normalize(title)}`, order: 6 };
+function excerptSearchText(entry) {
+    return normalize([entry.text, entry.conclusion, entry.location, entry.savedDate, entry.title, ...entry.authors, ...entry.themes].join(" "));
 }
-function groupExcerpts(entries, { by = "section", theme = "" } = {}) {
-    const groups = new Map();
-    for (const entry of entries) {
-        const info = by === "source" ? { title: entry.title, key: `source:${entry.path}`, order: 0 }
-            : by === "theme" ? { title: theme || entry.themes[0] || "Без темы", key: `theme:${normalize(theme || entry.themes[0] || "Без темы")}`, order: 0 }
-            : quoteSection(entry);
-        if (!groups.has(info.key)) groups.set(info.key, { ...info, entries: [] });
-        groups.get(info.key).entries.push(entry);
+
+// Hierarchy comes only from explicit theme paths; existing flat themes stay flat.
+function themePath(value) { return String(value ?? "").split("/").map(part => part.trim()).filter(Boolean).join("/"); }
+function themeMatches(value, selected) {
+    const actual = normalize(themePath(value)), target = normalize(themePath(selected));
+    return actual === target || actual.startsWith(target + "/");
+}
+function themeOptions(entries) {
+    const options = new Map();
+    for (const entry of entries) for (const theme of entry.themes) {
+        const parts = themePath(theme).split("/");
+        for (let depth = 1; depth <= parts.length; depth++) {
+            const label = parts.slice(0, depth).join("/");
+            if (label && !options.has(normalize(label))) options.set(normalize(label), label);
+        }
     }
-    return [...groups.values()].sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, "ru")).map(group => ({ ...group,
-        entries: [...group.entries].sort((a, b) => (b.savedDate || "").localeCompare(a.savedDate || "") || a.title.localeCompare(b.title, "ru") || a.line - b.line)
-    }));
+    return [...options.values()].sort((a, b) => a.localeCompare(b, "ru"));
+}
+function sortExcerpts(entries) {
+    return [...entries].sort((a, b) => (b.savedDate || "").localeCompare(a.savedDate || "") || a.title.localeCompare(b.title, "ru") || a.path.localeCompare(b.path, "ru") || a.line - b.line || a.id.localeCompare(b.id));
+}
+function excerptPage(entries, page = 1, size = 20) {
+    const pages = Math.max(1, Math.ceil(entries.length / size));
+    const current = Math.min(pages, Math.max(1, Math.floor(Number(page) || 1)));
+    const offset = (current - 1) * size;
+    return { page: current, pages, start: entries.length ? offset + 1 : 0, end: Math.min(offset + size, entries.length), entries: entries.slice(offset, offset + size) };
 }
 
 function noteSearch(records, query) {
@@ -363,6 +363,43 @@ function renderCard(parent, entry, app, { compact = false } = {}) {
     }
 }
 
+function renderRow(parent, entry, app, selectTheme) {
+    const row = element(parent, "article", undefined, "book-quotes-row");
+    const details = element(row, "details", undefined, "book-quote-details");
+    const flattened = entry.text.replace(/\s+/g, " ").trim();
+    const preview = flattened.length > 180 ? flattened.slice(0, 180).replace(/\s+\S*$/, "") + "…" : flattened;
+    const summary = element(details, "summary", preview);
+    let loaded = false;
+    details.addEventListener("toggle", () => {
+        summary.textContent = details.open ? "Свернуть цитату" : preview;
+        if (!details.open || loaded) return;
+        loaded = true;
+        const body = element(details, "div", undefined, "book-quote-body");
+        element(body, "p", entry.text, "book-quote-text");
+        if (entry.conclusion) {
+            const conclusion = element(body, "div", undefined, "book-quote-conclusion");
+            element(conclusion, "small", "Мой вывод");
+            element(conclusion, "p", entry.conclusion);
+        }
+        const meta = [entry.location, entry.savedDate ? entry.savedDate.split("-").reverse().join(".") : ""].filter(Boolean);
+        if (meta.length) element(body, "small", meta.join(" · "), "book-quote-location");
+    });
+    const meta = element(row, "div", undefined, "book-quotes-row-meta");
+    sourceLink(meta, entry, app);
+    if (entry.themes.length) {
+        const topics = element(meta, "div", undefined, "book-quotes-row-themes");
+        for (const theme of entry.themes.slice(0, 3)) {
+            const button = element(topics, "button", theme);
+            button.title = `Показать тему «${theme}»`;
+            button.addEventListener("click", () => selectTheme(themePath(theme)));
+        }
+        if (entry.themes.length > 3) {
+            const rest = element(topics, "span", `+${entry.themes.length - 3}`);
+            rest.title = entry.themes.slice(3).join(" · ");
+        }
+    }
+}
+
 async function render({ dv, app, obsidian, mode = "index" }) {
     const home = mode === "home";
     const root = element(dv.container, "div", undefined, home ? "book-knowledge" : "book-knowledge book-quotes-index");
@@ -375,18 +412,35 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     try { service = await getService({ app, obsidian }); }
     catch (error) { status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; return; }
     const controls = element(root, "div", undefined, "book-knowledge-controls");
-    const toolbar = home ? null : element(root, "div", undefined, "book-quotes-toolbar");
-    const sections = home ? null : element(root, "nav", undefined, "book-quotes-section-nav");
-    if (sections) sections.setAttribute("aria-label", "Разделы коллекции");
     const content = element(root, "div", undefined, "book-knowledge-results");
-    let entries = [], randomId = null, groupBy = "section", activeSection = "", expandAll = null, allExpanded = false;
-    const expandedGroups = new Set(), groupingButtons = [], selects = {};
-    const filters = { query: "", theme: "", author: "" };
-    let expandButton;
-    function filteredEntries() { return filterExcerpts(entries, filters); }
+    const pagination = home ? null : element(root, "nav", undefined, "book-quotes-pagination");
+    if (pagination) pagination.setAttribute("aria-label", "Страницы цитат");
+    let entries = [], randomId = null, page = 1, failed = 0;
+    const filters = { query: "", theme: "", source: "" }, pickers = {};
+    let query, filterSummary, reset, chips;
+    function refreshPicker(field) {
+        const picker = pickers[field];
+        const selected = filters[field];
+        const matching = picker.options.filter(option => normalize(option.label).includes(normalize(picker.search.value)));
+        const visible = matching.slice(0, 40);
+        const current = picker.options.find(option => option.value === selected);
+        if (current && !visible.includes(current)) visible.unshift(current);
+        picker.select.replaceChildren();
+        element(picker.select, "option", picker.all).value = "";
+        for (const option of visible) element(picker.select, "option", option.label).value = option.value;
+        if (matching.length > 40) {
+            const more = element(picker.select, "option", `Ещё ${matching.length - 40} — уточните поиск`);
+            more.disabled = true; more.value = "__more";
+        }
+        picker.select.value = selected;
+    }
+    function changeFilter(field, value) {
+        filters[field] = value; page = 1;
+        if (pickers[field]) refreshPicker(field);
+        draw();
+    }
     function draw() {
         content.replaceChildren();
-        const filtered = filteredEntries();
         if (home) {
             status.textContent = entries.length ? `${entries.length} цитат` : "Добавь первую цитату из карточки книги.";
             if (entries.length) {
@@ -395,56 +449,33 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             }
             return;
         }
-        const available = groupExcerpts(filtered, { by: groupBy });
-        if (!available.some(group => group.key === activeSection)) activeSection = "";
-        const groups = activeSection ? available.filter(group => group.key === activeSection) : available;
-        status.textContent = entries.length ? `${filtered.length} из ${entries.length} цитат · Разделов: ${available.length}` : "Добавь первую цитату из карточки книги.";
-        sections.replaceChildren();
-        if (available.length) {
-            const resetSection = element(sections, "button", "Все разделы", "book-quotes-all-sections");
-            resetSection.setAttribute("aria-pressed", String(!activeSection));
-            resetSection.addEventListener("click", () => { activeSection = ""; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
-            const tiles = element(sections, "div", undefined, "book-quotes-section-tiles");
-            for (const group of available) {
-                const button = element(tiles, "button", undefined, "book-quotes-section-tile");
-                button.setAttribute("aria-pressed", String(activeSection === group.key));
-                element(button, "strong", group.title.charAt(0).toLocaleUpperCase("ru") + group.title.slice(1));
-                element(button, "span", `Цитат: ${group.entries.length}`, "book-quotes-tile-count");
-                button.addEventListener("click", () => { activeSection = activeSection === group.key ? "" : group.key; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
-            }
+        const filtered = filterExcerpts(entries, filters), current = excerptPage(filtered, page);
+        page = current.page;
+        status.textContent = entries.length ? `${current.start}–${current.end} из ${filtered.length} цитат${filtered.length !== entries.length ? ` · всего ${entries.length}` : ""}` : "Добавь первую цитату из карточки книги.";
+        if (failed) status.textContent += ` · Не удалось прочитать карточек: ${failed}`;
+        const active = [filters.theme, filters.source].filter(Boolean).length;
+        filterSummary.textContent = active ? `Фильтры · ${active}` : "Фильтры";
+        reset.hidden = !Object.values(filters).some(Boolean) && !Object.values(pickers).some(picker => picker.search.value);
+        chips.replaceChildren();
+        for (const field of ["theme", "source"]) if (filters[field]) {
+            const label = pickers[field].options.find(option => option.value === filters[field])?.label || filters[field];
+            const button = element(chips, "button", `${label} ×`, "book-quotes-filter-chip");
+            button.title = `Сбросить ${field === "theme" ? "тему" : "источник"}`;
+            button.addEventListener("click", () => changeFilter(field, ""));
         }
-        const matching = Object.values(filters).some(Boolean) || Boolean(activeSection);
-        const expanded = group => !collapsedGroups.has(group.key) && (expandedGroups.has(group.key) || (expandAll === null ? matching : expandAll));
-        allExpanded = groups.every(group => group.entries.length <= 2 || expanded(group));
-        if (expandButton) {
-            expandButton.textContent = allExpanded ? "Свернуть списки" : "Показать все цитаты";
-            expandButton.disabled = !groups.some(group => group.entries.length > 2);
+        for (const entry of current.entries) renderRow(content, entry, app, theme => changeFilter("theme", theme));
+        if (!filtered.length && entries.length) element(content, "p", "Цитат по этим условиям нет.", "book-quotes-empty");
+        pagination.replaceChildren();
+        pagination.hidden = current.pages === 1;
+        if (current.pages > 1) {
+            const previous = element(pagination, "button", "Назад"); previous.disabled = page === 1;
+            previous.addEventListener("click", () => { page--; draw(); });
+            const label = element(pagination, "span", `${page} / ${current.pages}`);
+            label.setAttribute("aria-live", "polite");
+            const next = element(pagination, "button", "Далее"); next.disabled = page === current.pages;
+            next.addEventListener("click", () => { page++; draw(); });
         }
-        groups.forEach((group, index) => {
-            const panel = element(content, "section", undefined, "book-quotes-group");
-            const header = element(panel, "header", undefined, "book-quotes-group-header");
-            element(header, "span", String(index + 1).padStart(2, "0"), "book-quotes-group-number");
-            element(header, "h2", group.title.charAt(0).toLocaleUpperCase("ru") + group.title.slice(1), "book-quotes-group-title");
-            element(header, "span", `Цитат: ${group.entries.length}`, "book-quotes-group-count");
-            const body = element(panel, "div", undefined, "book-quotes-group-body");
-            for (const entry of group.entries.slice(0, expanded(group) ? group.entries.length : 2)) renderCard(body, entry, app, { compact: true });
-            if (group.entries.length > 2) {
-                const button = element(panel, "button", expanded(group) ? "Свернуть раздел" : `Ещё цитат: ${group.entries.length - 2}`, "book-quotes-section-more");
-                button.addEventListener("click", () => {
-                    if (expanded(group)) {
-                        expandedGroups.delete(group.key);
-                        // Per-section override lets matching results collapse independently.
-                        collapsedGroups.add(group.key);
-                    } else { expandedGroups.add(group.key); collapsedGroups.delete(group.key); }
-                    draw();
-                });
-            }
-        });
-        if (!filtered.length && entries.length) element(content, "p", "По этим условиям цитат пока нет.");
     }
-    const collapsedGroups = new Set();
-    // Keep explicit per-section collapse separate from automatic search expansion.
-    function refreshFilters() { activeSection = ""; expandAll = null; expandedGroups.clear(); collapsedGroups.clear(); draw(); }
     if (home) {
         element(controls, "button", "Другая цитата").addEventListener("click", () => {
             const choices = entries.filter(entry => `${entry.path}:${entry.id}` !== randomId);
@@ -453,35 +484,34 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             draw();
         });
     } else {
-        const query = element(controls, "input");
-        query.type = "search"; query.placeholder = "Найти цитату, тему, автора или вывод";
+        query = element(controls, "input", undefined, "book-quotes-search");
+        query.type = "search"; query.placeholder = "Поиск цитат";
         query.setAttribute("aria-label", "Поиск цитат");
-        query.addEventListener("input", () => { filters.query = query.value; refreshFilters(); });
-        for (const [field, label] of [["theme", "Все темы"], ["author", "Все авторы"]]) {
-            const select = selects[field] = element(controls, "select");
-            select.setAttribute("aria-label", label);
-            select.addEventListener("change", () => { filters[field] = select.value; refreshFilters(); });
-        }
-        const grouping = element(toolbar, "div", undefined, "book-quotes-grouping");
-        grouping.setAttribute("role", "group"); grouping.setAttribute("aria-label", "Группировка цитат");
-        for (const [value, label] of [["section", "По разделам"], ["source", "По источникам"]]) {
-            const button = element(grouping, "button", label);
-            button.setAttribute("aria-pressed", String(groupBy === value));
-            button.addEventListener("click", () => {
-                groupBy = value;
-                for (const row of groupingButtons) row.button.setAttribute("aria-pressed", String(row.value === value));
-                refreshFilters();
+        query.addEventListener("input", () => changeFilter("query", query.value));
+        const toolbar = element(controls, "div", undefined, "book-quotes-toolbar");
+        const details = element(toolbar, "details", undefined, "book-quotes-filters");
+        filterSummary = element(details, "summary", "Фильтры");
+        const panel = element(details, "div", undefined, "book-quotes-filter-panel");
+        for (const [field, label, all, searchLabel] of [["theme", "Тема", "Все темы", "Найти тему"], ["source", "Источник", "Все источники", "Найти источник"]]) {
+            const group = element(panel, "label", undefined, "book-quotes-filter-field");
+            element(group, "span", label);
+            const search = element(group, "input"); search.type = "search"; search.placeholder = searchLabel;
+            search.setAttribute("aria-label", searchLabel);
+            const select = element(group, "select"); select.setAttribute("aria-label", label);
+            pickers[field] = { search, select, all, options: [] };
+            search.addEventListener("input", () => {
+                refreshPicker(field);
+                reset.hidden = !Object.values(filters).some(Boolean) && !Object.values(pickers).some(picker => picker.search.value);
             });
-            groupingButtons.push({ button, value });
+            select.addEventListener("change", () => changeFilter(field, select.value));
         }
-        const actions = element(toolbar, "div", undefined, "book-quotes-actions");
-        expandButton = element(actions, "button", "Показать все цитаты");
-        expandButton.addEventListener("click", () => { expandAll = !allExpanded; expandedGroups.clear(); collapsedGroups.clear(); draw(); });
-        element(actions, "button", "Сбросить").addEventListener("click", () => {
-            query.value = "";
-            for (const key of Object.keys(filters)) filters[key] = "";
-            for (const select of Object.values(selects)) select.value = "";
-            refreshFilters();
+        chips = element(toolbar, "div", undefined, "book-quotes-filter-chips");
+        reset = element(toolbar, "button", "Сбросить", "book-quotes-reset"); reset.hidden = true;
+        reset.addEventListener("click", () => {
+            query.value = ""; page = 1;
+            for (const field of Object.keys(filters)) filters[field] = "";
+            for (const field of Object.keys(pickers)) { pickers[field].search.value = ""; refreshPicker(field); }
+            draw();
         });
     }
     async function reload() {
@@ -489,20 +519,21 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         try {
             const records = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
-            entries = service.excerpts(records);
-            if (!home) for (const [field, values, label] of [
-                ["theme", [...new Set(entries.flatMap(entry => entry.themes))].sort((a, b) => a.localeCompare(b, "ru")), "Все темы"],
-                ["author", [...new Set(entries.flatMap(entry => entry.authors))].sort((a, b) => a.localeCompare(b, "ru")), "Все авторы"]
-            ]) {
-                const select = selects[field]; select.replaceChildren();
-                element(select, "option", label).value = "";
-                for (const value of values) element(select, "option", value).value = value;
-                select.value = values.includes(filters[field]) ? filters[field] : ""; filters[field] = select.value;
+            entries = sortExcerpts(service.excerpts(records)).map(entry => ({ ...entry, searchText: excerptSearchText(entry) }));
+            failed = records.filter(record => record.error).length;
+            if (!home) {
+                pickers.theme.options = themeOptions(entries).map(value => ({ value, label: value }));
+                const sources = [...new Map(entries.map(entry => [entry.path, entry])).values()];
+                const titles = new Map();
+                for (const entry of sources) titles.set(entry.title, (titles.get(entry.title) || 0) + 1);
+                pickers.source.options = sources.map(entry => ({ value: entry.path, label: titles.get(entry.title) > 1 ? `${entry.title} · ${entry.path.replace(/^Книги\//, "")}` : entry.title })).sort((a, b) => a.label.localeCompare(b.label, "ru"));
+                for (const field of Object.keys(pickers)) {
+                    if (!pickers[field].options.some(option => option.value === filters[field])) filters[field] = "";
+                    refreshPicker(field);
+                }
             }
             draw();
-            const failed = records.filter(record => record.error).length;
-            if (failed) status.textContent += ` · Не удалось прочитать карточек: ${failed}`;
-        } catch (error) { if (!disposed) status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; }
+        } catch (error) { if (!disposed && current === generation) status.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; }
     }
     const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
     function dispose() { disposed = true; clearTimeout(timer); unsubscribe(); }
@@ -511,4 +542,4 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     return { reload, dispose };
 }
 
-module.exports = Object.assign(render, { parseExcerpts, renderExcerpt, applyExcerpt, filterExcerpts, groupExcerpts, noteSearch, createId, getService, loadCore, themes, normalize, isExactDate, localDate });
+module.exports = Object.assign(render, { parseExcerpts, renderExcerpt, applyExcerpt, filterExcerpts, themeMatches, themeOptions, sortExcerpts, excerptPage, noteSearch, createId, getService, loadCore, themes, normalize, isExactDate, localDate });
