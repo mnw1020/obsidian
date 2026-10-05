@@ -117,28 +117,29 @@ function table(parent, headings, rows) {
 }
 
 async function render({ dv, app, obsidian, mode = "index" }) {
+    const home = mode === "home", now = new Date();
+    const currentYear = String(now.getFullYear()), currentMonth = String(now.getMonth() + 1).padStart(2, "0");
     const root = element(dv.container, "div", undefined, "book-reading-dashboard");
-    const status = element(root, "p", "Считаю историю чтений…");
-    let selectedYear = mode === "home" ? String(new Date().getFullYear()) : "", selectedMonth = "", yearSelect, monthSelect;
-    {
-        const controls = element(root, "div", undefined, "book-knowledge-controls");
-        const label = element(controls, "label", "Год ");
-        yearSelect = element(label, "select");
+    const stylesheet = app.vault.getAbstractFileByPath("Книги/_system/reading-dashboard.css");
+    if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
+    const status = element(root, "p", "Считаю историю чтений…", "book-dashboard-period");
+    let selectedYear = home ? currentYear : "", selectedMonth = "", yearSelect, monthSelect, resetMonth;
+    if (!home) {
+        const controls = element(root, "div", undefined, "book-knowledge-controls book-dashboard-controls");
+        yearSelect = element(element(controls, "label", "Год "), "select");
         yearSelect.setAttribute("aria-label", "Год чтения");
-        yearSelect.addEventListener("change", () => {
-            selectedYear = yearSelect.value;
-            if (!selectedYear) selectedMonth = "";
-            if (monthSelect) { monthSelect.value = selectedMonth; monthSelect.disabled = !selectedYear; }
-            draw();
-        });
-        if (mode === "home") {
-            const monthLabel = element(controls, "label", "Месяц ");
-            monthSelect = element(monthLabel, "select");
-            monthSelect.setAttribute("aria-label", "Месяц чтения");
-            element(monthSelect, "option", "Все месяцы").value = "";
-            MONTH_LABELS.forEach((name, index) => { element(monthSelect, "option", name).value = String(index + 1).padStart(2, "0"); });
-            monthSelect.addEventListener("change", () => { selectedMonth = monthSelect.value; draw(); });
-        }
+        monthSelect = element(element(controls, "label", "Месяц "), "select");
+        monthSelect.setAttribute("aria-label", "Месяц чтения");
+        element(monthSelect, "option", "Все месяцы").value = "";
+        MONTH_LABELS.forEach((name, index) => { element(monthSelect, "option", name).value = String(index + 1).padStart(2, "0"); });
+        yearSelect.addEventListener("change", () => setPeriod(yearSelect.value, selectedMonth));
+        monthSelect.addEventListener("change", () => setPeriod(selectedYear, monthSelect.value));
+        const thisMonth = element(controls, "button", "Этот месяц");
+        thisMonth.addEventListener("click", () => setPeriod(currentYear, currentMonth));
+        resetMonth = element(controls, "button", "Сбросить месяц");
+        resetMonth.addEventListener("click", () => setPeriod(selectedYear, ""));
+        const reset = element(controls, "button", "За всё время");
+        reset.addEventListener("click", () => setPeriod("", ""));
     }
     const content = element(root, "div");
     let disposed = false, timer, generation = 0, records = [];
@@ -150,100 +151,150 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         new Function("module", await app.vault.read(file))(mod);
         service = await mod.exports.getService({ app, obsidian });
     } catch (error) { status.textContent = `Не удалось собрать итоги: ${error.message || error}`; return; }
+    function setPeriod(year, month) {
+        selectedYear = year;
+        selectedMonth = year ? month : "";
+        if (yearSelect) {
+            yearSelect.value = selectedYear;
+            monthSelect.value = selectedMonth;
+            monthSelect.disabled = !selectedYear;
+            resetMonth.disabled = !selectedMonth;
+        }
+        draw();
+    }
+    function metrics(parent, rows) {
+        const grid = element(parent, "div", undefined, "book-dashboard-metrics");
+        for (const [label, count] of rows) {
+            const metric = element(grid, "div", undefined, "book-dashboard-metric");
+            element(metric, "strong", String(count));
+            element(metric, "span", label);
+        }
+    }
+    function section(title) {
+        const panel = element(content, "section", undefined, "book-dashboard-section");
+        element(panel, home ? "h4" : "h2", title);
+        return panel;
+    }
+    function memories(model) {
+        const panel = element(content, "section", undefined, "book-dashboard-section");
+        const heading = element(panel, home ? "h4" : "h2", selectedMonth ? "В выбранном месяце раньше · " : "В этом месяце раньше · ");
+        const name = MONTH_LABELS[Number(model.memoryMonth) - 1].toLocaleLowerCase("ru");
+        if (selectedMonth && !home) {
+            const button = element(heading, "button", `${name} ×`, "book-dashboard-month-reset");
+            button.setAttribute("aria-label", `Сбросить месяц: ${name}`);
+            button.title = "Показать весь год";
+            button.addEventListener("click", () => setPeriod(selectedYear, ""));
+        } else element(heading, "span", name);
+        if (!model.earlierThisMonth.length) {
+            element(panel, "p", `До ${model.memoryYear} года в этом месяце чтения ещё не записаны.`, "books-empty");
+            return;
+        }
+        if (home) {
+            const list = element(panel, "ul", undefined, "book-dashboard-reading-list");
+            for (const item of model.earlierThisMonth.slice(0, 5)) {
+                const row = element(list, "li");
+                link(row, item, app);
+                element(row, "span", ` · ${service.core.displayDate(item.date)}`);
+            }
+            return;
+        }
+        element(panel, "p", `Чтения за этот месяц до ${model.memoryYear} года.`, "book-excerpt-meta");
+        const grouped = new Map();
+        for (const item of model.earlierThisMonth) {
+            const year = item.date.slice(0, 4);
+            if (!grouped.has(year)) grouped.set(year, []);
+            grouped.get(year).push(item);
+        }
+        for (const [year, items] of grouped) {
+            const group = element(panel, "details", undefined, "book-dashboard-memory");
+            group.open = year === model.earlierThisMonth[0].date.slice(0, 4);
+            element(group, "summary", `${year} · чтений: ${items.length}`);
+            const list = element(group, "ul");
+            for (const item of items) {
+                const row = element(list, "li");
+                link(row, item, app);
+                element(row, "span", ` · ${service.core.displayDate(item.date)}${item.rating != null ? ` · ${item.rating}/10` : ""}${item.number > 1 ? " · перечитывание" : ""}`);
+            }
+        }
+    }
     function draw() {
-            const model = buildDashboard(records, { year: selectedYear, month: selectedMonth });
-            content.replaceChildren();
-            if (mode === "home") {
-                status.textContent = selectedYear ? `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " · " : ""}${selectedYear}` : "За всё время";
-                if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку.`, "book-dashboard-warning");
-                const metrics = element(content, "div", undefined, "book-dashboard-metrics");
-                for (const [label, count] of [["Чтений за период", model.readings], ["Сохранено идей", model.ideas], ["Сохранено цитат", model.quotes]]) {
-                    const metric = element(metrics, "div", undefined, "book-dashboard-metric");
-                    element(metric, "strong", String(count));
-                    element(metric, "span", label);
-                }
-                if (model.readings) {
-                    element(content, "p", model.types.map(row => `${row.label}: ${row.count}`).join(" · "), "book-excerpt-meta");
-                    if (selectedYear && !selectedMonth) {
-                        const timeline = element(content, "div", undefined, "book-dashboard-months");
-                        const max = Math.max(1, ...model.months.map(row => row.count));
-                        for (const row of model.months) {
-                            const button = element(timeline, "button", undefined, "book-dashboard-month");
-                            button.setAttribute("aria-label", `${row.label}: ${row.count} чтений. Показать месяц`);
-                            element(button, "span", row.label.slice(0, 3));
-                            const bar = element(button, "span", undefined, "book-dashboard-month-bar");
-                            bar.style.height = `${Math.round(row.count / max * 48)}px`;
-                            element(button, "strong", String(row.count));
-                            button.addEventListener("click", () => { selectedMonth = row.month; monthSelect.value = row.month; draw(); });
-                        }
-                        if (model.yearOnly) element(content, "p", `Ещё ${model.yearOnly} чтений записано только годом — без привязки к месяцу.`, "book-dashboard-warning");
-                    }
-                    element(content, "h4", "Прочитано за период");
-                    const list = element(content, "ul");
-                    for (const item of model.readingRows.slice(0, 8)) {
-                        const row = element(list, "li");
-                        link(row, item, app);
-                        element(row, "span", ` · ${service.core.displayDate(item.date)}${item.number > 1 ? " · перечитывание" : ""}`);
-                    }
-                    if (model.readings > 8) element(content, "p", `Показаны последние 8 из ${model.readings} чтений.`, "book-excerpt-meta");
-                } else element(content, "p", "За этот период чтения ещё не записаны.", "books-empty");
-                if (selectedMonth) element(content, "p", "Чтения с датой только до года не входят в отдельный месяц.", "book-dashboard-warning");
-                if (model.undatedExcerpts) element(content, "p", `Выписок без даты: ${model.undatedExcerpts}. ${selectedYear ? "В выбранный период они не включены." : "Они включены в общие итоги."}`, "book-dashboard-warning");
-                element(content, "h4", `${selectedMonth ? "В выбранном месяце раньше" : "В этом месяце раньше"} · ${MONTH_LABELS[Number(model.memoryMonth) - 1].toLocaleLowerCase("ru")}`);
-                if (!model.earlierThisMonth.length) element(content, "p", `До ${model.memoryYear} года в этом месяце чтения ещё не записаны.`, "books-empty");
-                else {
-                    const grouped = new Map();
-                    for (const item of model.earlierThisMonth) {
-                        const year = item.date.slice(0, 4);
-                        if (!grouped.has(year)) grouped.set(year, []);
-                        grouped.get(year).push(item);
-                    }
-                    for (const [year, items] of grouped) {
-                        const group = element(content, "details", undefined, "book-dashboard-memory");
-                        group.open = year === model.earlierThisMonth[0].date.slice(0, 4);
-                        element(group, "summary", `${year} · чтений: ${items.length}`);
-                        const list = element(group, "ul");
-                        for (const item of items) {
-                            const row = element(list, "li");
-                            link(row, item, app);
-                            element(row, "span", ` · ${service.core.displayDate(item.date)}${item.rating != null ? ` · ${item.rating}/10` : ""}${item.number > 1 ? " · перечитывание" : ""}`);
-                        }
-                    }
-                }
-                return;
+        const model = buildDashboard(records, { now, year: selectedYear, month: selectedMonth });
+        content.replaceChildren();
+        status.textContent = home ? "Текущий месяц и год" : selectedYear ? `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " · " : ""}${selectedYear}` : "За всё время";
+        if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку.`, "book-dashboard-warning");
+        if (home) {
+            const month = buildDashboard(records, { now, year: currentYear, month: currentMonth });
+            metrics(content, [["Чтений в этом месяце", month.readings], ["Чтений в этом году", model.readings], ["Выписок в этом месяце", month.ideas + month.quotes]]);
+            memories(model);
+            return;
+        }
+        metrics(content, [["Чтений за период", model.readings], ["Произведений", model.books], ["Авторов", model.authors], ["Перечитано произведений", model.reread], ["Сохранено идей", model.ideas], ["Сохранено цитат", model.quotes]]);
+        if (selectedYear) {
+            const previousYear = String(Number(selectedYear) - 1);
+            const previous = buildDashboard(records, { now, year: previousYear, month: selectedMonth });
+            const diff = model.readings - previous.readings;
+            const comparison = section("Сравнение с прошлым годом");
+            element(comparison, "p", `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " " : ""}${previousYear}: ${previous.readings} чтений · ${diff > 0 ? "+" : ""}${diff} к этому периоду.`, "book-dashboard-comparison");
+            element(comparison, "p", "Сравнение по сохранённой истории; отсутствие записей не означает отсутствие чтения. Текущий год или месяц может быть ещё не завершён.", "book-excerpt-meta");
+        }
+        const activity = section(selectedYear ? `Активность · ${selectedYear}` : "История по годам");
+        if (selectedYear) {
+            const annual = buildDashboard(records, { now, year: selectedYear });
+            const timeline = element(activity, "div", undefined, "book-dashboard-months");
+            const max = Math.max(1, ...annual.months.map(row => row.count));
+            for (const row of annual.months) {
+                const active = selectedMonth === row.month;
+                const button = element(timeline, "button", undefined, `book-dashboard-month${active ? " is-selected" : ""}`);
+                button.setAttribute("aria-label", `${row.label}: ${row.count} чтений. ${active ? "Сбросить месяц" : "Показать месяц"}`);
+                button.setAttribute("aria-pressed", String(active));
+                element(button, "span", row.label.slice(0, 3));
+                const bar = element(button, "span", undefined, "book-dashboard-month-bar");
+                bar.style.height = `${Math.round(row.count / max * 48)}px`;
+                element(button, "strong", String(row.count));
+                button.addEventListener("click", () => setPeriod(selectedYear, active ? "" : row.month));
             }
-            status.textContent = `${selectedYear ? `За ${selectedYear}: ` : ""}${model.books} произведений · ${model.readings} чтений · ${model.authors} авторов · ${model.ideas} идей · ${model.quotes} цитат`;
-            if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку; значения YAML не подставляются вместо истории.`, "book-dashboard-warning");
-            const metrics = element(content, "div", undefined, "book-dashboard-metrics");
-            for (const [label, count] of [[selectedYear ? `Чтений за ${selectedYear}` : "Чтений в этом месяце", selectedYear ? model.readings : model.currentMonth], [selectedYear ? "Перечитано в этом году" : "Перечитано произведений", model.reread], ["Любимых произведений (8–10)", model.favoriteBooks.length]]) {
-                const metric = element(metrics, "div", undefined, "book-dashboard-metric");
-                element(metric, "strong", String(count));
-                element(metric, "span", label);
+            element(activity, "p", "Нажми месяц для подробностей; повторное нажатие вернёт весь год.", "book-excerpt-meta");
+            if (annual.yearOnly) element(activity, "p", `Ещё ${annual.yearOnly} чтений записано только годом — без привязки к месяцу.`, "book-dashboard-warning");
+            const history = element(activity, "details");
+            element(history, "summary", "Все годы");
+            yearHistory(history, model);
+        } else yearHistory(activity, model);
+        const types = section("Что читалось");
+        if (model.readings) {
+            const distribution = element(types, "div", undefined, "book-dashboard-distribution");
+            for (const row of model.types) {
+                const item = element(distribution, "div");
+                element(item, "span", row.label);
+                element(item, "strong", `${row.count} · ${Math.round(row.count / model.readings * 100)}%`);
+                const meter = element(item, "div", undefined, "book-dashboard-type-track");
+                element(meter, "span").style.width = `${row.count / model.readings * 100}%`;
             }
-            if (mode !== "home") {
-                if (selectedYear) element(content, "p", "Произведения и авторы включены, если в этом году есть чтение или сохранённая выписка. Оценки и типы чтений учитываются только по истории выбранного года.");
-                if (model.undatedExcerpts) element(content, "p", `Выписок без даты сохранения: ${model.undatedExcerpts}. Они входят в общие итоги, но не относятся к отдельному году автоматически.`);
-                element(content, "h2", "История по годам");
-                table(content, ["Год", "Чтений", "Художественных", "Non-fiction"], model.years.map(row => [row.year, row.readings, row.fiction, row.nonfiction]));
-                if (model.imprecise) element(content, "p", `Чтений с датой до месяца или года: ${model.imprecise}. Отсутствующие дни не восстанавливаются.`);
-                element(content, "h2", "Что читалось");
-                table(content, ["Тип", "Чтений"], model.types.map(row => [row.label, row.count]));
-                element(content, "h2", "Авторы");
-                table(content, ["Автор", "Произведений", "Чтений", "Средняя оценка fiction"], model.authorRows.map(row => [row.name, row.books, row.readings, row.average === null ? "—" : row.average.toFixed(1)]));
-                element(content, "h2", "Любимые произведения");
-                if (model.favoriteBooks.length) table(content, ["Произведение", "Автор", "Оценка"], model.favoriteBooks.map(item => [cell => link(cell, item, app), item.authors.join(", "), item.rating]));
-                else element(content, "p", "Пока нет оценок 8–10 в истории художественных произведений.");
-            }
-            element(content, mode === "home" ? "h4" : "h2", "В этом месяце раньше");
-            if (!model.earlierThisMonth.length) element(content, "p", "В прошлые годы в этом месяце чтения ещё не записаны.");
-            else {
-                const list = element(content, "ul");
-                for (const item of model.earlierThisMonth.slice(0, mode === "home" ? 5 : model.earlierThisMonth.length)) {
-                    const row = element(list, "li");
-                    link(row, item, app);
-                    element(row, "span", ` · ${service.core.displayDate(item.date)}`);
-                }
-            }
+            const fiction = model.readingRows.filter(item => item.file.path.startsWith("Книги/Художественные/")).length;
+            element(types, "p", `Художественных чтений: ${fiction} · Non-fiction: ${model.readings - fiction}`, "book-excerpt-meta");
+        } else element(types, "p", "За этот период чтения ещё не записаны.", "books-empty");
+        const readings = section("Прочитано за период");
+        if (model.readings) table(readings, ["Дата", "Произведение", "Автор", "Тип", "Оценка", "Чтение"], model.readingRows.map(item => [service.core.displayDate(item.date), cell => link(cell, item, app), item.authors.join(", "), TYPE_LABELS[item.type], item.rating == null ? "—" : `${item.rating}/10`, item.number > 1 ? `№${item.number} · повторное` : "Первое"]));
+        else element(readings, "p", "Пока нет записей за выбранный период.", "books-empty");
+        const authors = section("Авторы за период");
+        if (model.authorRows.length) table(authors, ["Автор", "Произведений", "Чтений", "Средняя оценка художественных"], model.authorRows.map(row => [row.name, row.books, row.readings, row.average === null ? "—" : row.average.toFixed(1)]));
+        else element(authors, "p", "В этом периоде авторов пока нет.", "books-empty");
+        const favorites = section("Любимые произведения · 8–10");
+        if (model.favoriteBooks.length) table(favorites, ["Произведение", "Автор", "Оценка"], model.favoriteBooks.map(item => [cell => link(cell, item, app), item.authors.join(", "), item.rating]));
+        else element(favorites, "p", "Пока нет оценок 8–10 у художественных произведений за период.", "books-empty");
+        memories(model);
+        const methodology = element(content, "details", undefined, "book-dashboard-methodology");
+        element(methodology, "summary", "Как считаются итоги и точность дат");
+        element(methodology, "p", "Каждое чтение считается по истории карточки. В произведения и авторов входят также карточки с сохранённой выпиской за период. Идеи и цитаты учитываются по дате сохранения. Средние оценки авторов и любимые произведения используют последнюю доступную оценку художественного произведения за период.");
+        if (model.imprecise) element(methodology, "p", `Чтений с датой до месяца или года: ${model.imprecise}. Отсутствующие дни не восстанавливаются.`);
+        if (selectedMonth) element(methodology, "p", "Чтения с датой только до года не входят в отдельный месяц.");
+        if (model.undatedExcerpts) element(methodology, "p", `Выписок без даты сохранения: ${model.undatedExcerpts}. ${selectedYear ? "В выбранный период они не включены." : "Они включены в общие итоги."}`);
+    }
+    function yearHistory(parent, model) {
+        if (!model.years.length) { element(parent, "p", "История чтений пока пуста.", "books-empty"); return; }
+        table(parent, ["Год", "Чтений", "Художественных", "Non-fiction"], model.years.map(row => [cell => {
+            const button = element(cell, "button", row.year, "book-dashboard-year-link");
+            button.addEventListener("click", () => setPeriod(row.year, ""));
+        }, row.readings, row.fiction, row.nonfiction]));
     }
     async function reload() {
         const current = ++generation;
@@ -252,13 +303,15 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             if (disposed || current !== generation) return;
             records = next;
             if (yearSelect) {
-                const years = [...new Set([...availableYears(records), ...(mode === "home" ? [String(new Date().getFullYear())] : [])])].sort((a, b) => b.localeCompare(a));
+                const years = [...new Set([...availableYears(records), currentYear])].sort((a, b) => b.localeCompare(a));
                 yearSelect.replaceChildren();
                 element(yearSelect, "option", "За всё время").value = "";
                 for (const year of years) element(yearSelect, "option", year).value = year;
-                if (!years.includes(selectedYear)) selectedYear = "";
+                if (!years.includes(selectedYear)) { selectedYear = ""; selectedMonth = ""; }
                 yearSelect.value = selectedYear;
-                if (monthSelect) { monthSelect.disabled = !selectedYear; monthSelect.value = selectedMonth; }
+                monthSelect.disabled = !selectedYear;
+                monthSelect.value = selectedMonth;
+                resetMonth.disabled = !selectedMonth;
             }
             draw();
         } catch (error) { if (!disposed) status.textContent = `Не удалось собрать итоги: ${error.message || error}`; }

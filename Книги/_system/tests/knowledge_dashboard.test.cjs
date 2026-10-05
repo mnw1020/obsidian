@@ -345,34 +345,44 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 3);
             } else {
                 const selects = all(container).filter(node => node.tagName === 'select');
-                assert.equal(selects.length, mode === 'home' ? 2 : 1);
+                assert.equal(selects.length, mode === 'home' ? 0 : 2);
                 if (mode === 'home') {
-                    assert.doesNotMatch(container.textContent, /произведений · .*чтений/);
+                    assert.match(container.textContent, /Чтений в этом месяце/);
                     assert.match(container.textContent, /В этом месяце раньше/);
+                    assert.doesNotMatch(container.textContent, /Прочитано за период|Сбросить месяц/);
+                } else {
+                    assert.match(container.textContent, /1Чтений за период/);
+                    assert.deepEqual(selects[0].children.map(option => option.value), ['', String(new Date().getFullYear()), '2024']);
                     selects[0].value = '2024';
                     selects[0].events.change();
                     assert.match(container.textContent, /1Чтений за период/);
-                    assert.equal(all(container).filter(node => node.className === 'book-dashboard-month').length, 12);
-                    selects[1].value = '09';
+                    assert.equal(all(container).filter(node => node.className?.startsWith('book-dashboard-month ') || node.className === 'book-dashboard-month').length, 12);
+                    selects[1].value = '04';
                     selects[1].events.change();
                     assert.match(container.textContent, /За этот период чтения ещё не записаны/);
-                    selects[1].value = '10';
-                    selects[1].events.change();
-                    assert.match(container.textContent, /1Чтений за период/);
-                    assert.match(container.textContent, /В выбранном месяце раньше · октябрь/);
-                    selects[0].value = '';
-                    selects[0].events.change();
-                    assert.equal(selects[1].disabled, true);
+                    const monthReset = all(container).find(node => node.className === 'book-dashboard-month-reset');
+                    assert.equal(monthReset.textContent, 'апрель ×');
+                    monthReset.events.click();
                     assert.equal(selects[1].value, '');
-                }
-                if (mode === 'index') {
-                    assert.match(container.textContent, /1 произведений · 1 чтений/);
-                    assert.deepEqual(selects[0].children.map(option => option.value), ['', '2024']);
-                    selects[0].value = '2024';
-                    selects[0].events.change();
-                    assert.match(container.textContent, /За 2024: 1 произведений · 1 чтений/);
+                    assert.match(container.textContent, /1Чтений за период/);
+                    const october = all(container).find(node => node.attributes['aria-label'] === 'Октябрь: 1 чтений. Показать месяц');
+                    october.events.click();
+                    assert.equal(selects[1].value, '10');
+                    const active = all(container).find(node => node.attributes['aria-pressed'] === 'true');
+                    active.events.click();
+                    assert.equal(selects[1].value, '');
+                    selects[1].value = '10'; selects[1].events.change();
+                    all(container).find(node => node.textContent === 'Сбросить месяц').events.click();
+                    assert.equal(selects[1].value, '');
+                    all(container).find(node => node.textContent === 'Этот месяц').events.click();
+                    assert.equal(selects[0].value, String(new Date().getFullYear()));
+                    assert.equal(selects[1].value, String(new Date().getMonth()+1).padStart(2, '0'));
+                    const reset = all(container).find(node => node.tagName === 'button' && node.textContent === 'За всё время');
+                    reset.events.click();
+                    assert.equal(selects[0].value, ''); assert.equal(selects[1].value, '');
+                    assert.equal(selects[1].disabled, true);
                     assert.match(container.textContent, /Выписок без даты сохранения: 1/);
-                    assert.match(container.textContent, /0 идей · 0 цитат/);
+                    assert.match(container.textContent, /Прочитано за период/);
                 }
             }
             handle.dispose();
