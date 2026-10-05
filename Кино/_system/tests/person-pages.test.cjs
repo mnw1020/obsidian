@@ -37,7 +37,7 @@ function fixture(){
     ];
     return {a,b,movies:[a,b,unrelated,notMedia,systemPage],roles};
 }
-async function execute(kind,{raw=noteSource(kind),selection=selected[kind],missing=false,fail=false,data=fixture(),app:providedApp}={}){
+async function execute(kind,{raw=noteSource(kind),selection=selected[kind],missing=false,fail=false,data=fixture(),app:providedApp,obsidian={}}={}){
     const captured=[],output=[],warnings=[],queries=[],writes=[];
     const moduleFile={path:'Кино/_system/person_ui.js',extension:'js'};
     const app=providedApp||{vault:{
@@ -46,13 +46,14 @@ async function execute(kind,{raw=noteSource(kind),selection=selected[kind],missi
         modify:async(...args)=>writes.push(args),create:async(...args)=>writes.push(args)
     }};
     const dv={
+        container:{},component:{},
         current:()=>({'Выбрано':selection,file:{path:'Кино/_system/'+noteNames[kind]+'.md'}}),
         pages:query=>{queries.push(query);return {array:()=>query.includes('_system/Роли')?data.roles:data.movies};},
         page:requested=>data.movies.find(page=>page.file.path===requested||page.file.path.replace(/\.md$/,'')===requested)||null,
         header:(level,text)=>output.push({level,text}),paragraph:text=>output.push(text),table:(columns,rows)=>output.push({columns,rows}),
         capture:options=>captured.push(options)
     };
-    await new AsyncFunction('dv','app','require','console',queryBlock(raw))(dv,app,()=>({}),{warn:(...args)=>warnings.push(args)});
+    await new AsyncFunction('dv','app','require','console',queryBlock(raw))(dv,app,()=>obsidian,{warn:(...args)=>warnings.push(args)});
     return {captured,output,warnings,queries,writes,data};
 }
 
@@ -106,6 +107,15 @@ test('missing or failing presentation helper preserves readable statistics and a
             assert.equal(table.rows[1][2],'Сериал');
         }
     }
+});
+
+test('director fallback renders the original native table in the person note context',async()=>{
+    const calls=[];
+    await execute('director',{missing:true,obsidian:{MarkdownRenderer:{render:async(...args)=>calls.push(args)}}});
+    assert.equal(calls.length,1);
+    assert.equal(calls[0][3],'Кино/_system/Режиссер.md','this.Выбрано remains bound to the director note');
+    const hash=crypto.createHash('sha256').update(calls[0][1].replace(/\r\n/g,'\n')).digest('hex');
+    assert.equal(hash,'1c93e5d312b312b4e6642fb9363df95c816db387bd514a607bede263b69d7147');
 });
 
 async function openFixture(kind,{existing=false}={}){

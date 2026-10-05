@@ -134,7 +134,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         const years = items.map(item => item.release.year).filter(value => value != null);
         const minYear = years.length ? Math.min(...years) : null, maxYear = years.length ? Math.max(...years) : null;
         const yearsLabel = minYear == null ? "—" : minYear === maxYear ? String(minYear) : `${minYear}–${maxYear}`;
-        const average = ratings.length ? (ratings.reduce((sum, value) => sum + value, 0) / ratings.length).toFixed(1).replace(".", ",") : "—";
+        const average = ratings.length ? (ratings.reduce((sum, value) => sum + value, 0) / ratings.length).toFixed(2).replace(".", ",") : "—";
         for (const [label, value] of [["В коллекции", items.length], ["Фильмы", items.filter(item => item.type === "films").length],
             ["Сериалы", items.filter(item => item.type === "series").length], ["Средняя моя оценка", average], ["Годы релизов", yearsLabel]]) {
             const stat = element(stats, "div", "kino-person-stat");
@@ -282,16 +282,47 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         cleanups.push(release);
     }
 
+    const legacyHeadings = [];
+    if (view.classList.contains("markdown-preview-view")) {
+        const scope = container.closest(".markdown-preview-section") ?? view;
+        const expected = isActor ? /^(?:Актер|Актёр)$/ : /^(?:Режиссер|Режиссёр)$/;
+        for (const title of scope.querySelectorAll("h1")) {
+            if (root.contains(title) || !expected.test(title.textContent.trim())) continue;
+            const titleLease = title.kinoPersonHeadingLease ?? (title.kinoPersonHeadingLease = { count: 0, original: title.classList.contains("kino-person-legacy-heading") });
+            titleLease.count++; title.classList.add("kino-person-legacy-heading");
+            legacyHeadings.push(title);
+        }
+    }
+    const sourceFile = app?.vault?.getAbstractFileByPath?.(sourcePath);
+    const frontmatter = (sourceFile ? app?.metadataCache?.getFileCache?.(sourceFile)?.frontmatter : null) ?? current;
+    const simpleProperties = !Object.keys(frontmatter).some(key => !["position", "file", "cssclasses", "Выбрано"].includes(key));
+    let propertiesLease;
+    if (simpleProperties) {
+        propertiesLease = leases.get("kino-person-simple-properties") ?? { count: 0, original: view.classList.contains("kino-person-simple-properties") };
+        propertiesLease.count++; leases.set("kino-person-simple-properties", propertiesLease);
+        view.classList.add("kino-person-simple-properties");
+    }
     lease.count++; leases.set("kino-person-page", lease); view.classList.add("kino-person-page");
     dv.component?.register?.(() => {
         if (disposed) return;
         disposed = true;
         for (const cleanup of cleanups) cleanup();
         root.remove();
+        for (const title of legacyHeadings) {
+            const titleLease = title.kinoPersonHeadingLease;
+            if (titleLease && --titleLease.count === 0) {
+                if (!titleLease.original) title.classList.remove("kino-person-legacy-heading");
+                delete title.kinoPersonHeadingLease;
+            }
+        }
         const currentLease = leases.get("kino-person-page");
         if (currentLease && --currentLease.count === 0) {
             if (!currentLease.original) view.classList.remove("kino-person-page");
             leases.delete("kino-person-page");
+        }
+        if (propertiesLease && --propertiesLease.count === 0) {
+            if (!propertiesLease.original) view.classList.remove("kino-person-simple-properties");
+            leases.delete("kino-person-simple-properties");
         }
     });
     return { root };
