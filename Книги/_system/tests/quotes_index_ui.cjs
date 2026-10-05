@@ -50,13 +50,14 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light' } = {
         map.set('Книги/_system/book_core.js', { path: 'Книги/_system/book_core.js', text: core });
         map.set('Книги/_system/quotes-index.css', { path: 'Книги/_system/quotes-index.css', text: css });
         map.set('Книги/_system/quote_edit.js', { path: 'Книги/_system/quote_edit.js', text: 'module.exports = async ({entry, onSaved}) => { window.fixture.editCalls.push({entry, onSaved}); };' });
-        const events = new Map(), opened = [], disposers = [], editCalls = [];
+        map.set('Книги/_system/QuickAdd/open_author.js', { path: 'Книги/_system/QuickAdd/open_author.js', text: 'module.exports = async ({app, variables}) => { window.fixture.authorCalls.push(variables.author); app.workspace.getLeaf(false); };' });
+        const events = new Map(), opened = [], disposers = [], editCalls = [], authorCalls = [], authorLeafCalls = [];
         const on = (name, callback) => { if (!events.has(name)) events.set(name, []); events.get(name).push(callback); return { name, callback }; };
         const emit = (name, ...args) => { for (const callback of events.get(name) || []) callback(...args); };
         const app = { vault: { getAbstractFileByPath: filePath => map.get(filePath), read: async file => file.text, getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), on },
-            metadataCache: { getFileCache: file => ({ frontmatter: file.fm }), on }, workspace: { openLinkText: (...args) => { opened.push(args); } } };
+            metadataCache: { getFileCache: file => ({ frontmatter: file.fm }), on }, workspace: { openLinkText: (...args) => { opened.push(args); }, getLeaf: newLeaf => { authorLeafCalls.push(newLeaf); return { openFile: async () => {} }; } } };
         const module = { exports: {} }; new Function('module', source)(module);
-        window.fixture = { map, app, opened, emit, disposers, editCalls,
+        window.fixture = { map, app, opened, emit, disposers, editCalls, authorCalls, authorLeafCalls,
             remove(paths) { for (const filePath of paths) { const file = map.get(filePath); map.delete(filePath); if (file) emit('delete', file); } },
             add(file) { map.set(file.path, file); emit('create', file); },
             modify(filePath, text) { const file = map.get(filePath); file.text = text; file.stat.mtime++; emit('modify', file); } };
@@ -77,7 +78,7 @@ async function expectStatus(page, value) {
     await page.waitForFunction(expected => document.querySelector('.book-quotes-status')?.textContent === expected, value);
     assert.equal(await page.locator('.book-quotes-status').textContent(), value);
 }
-async function rowTargets(page) { return page.locator('.book-quotes-row a.internal-link').evaluateAll(links => links.map(link => link.getAttribute('data-href'))); }
+async function rowTargets(page) { return page.locator('.book-quotes-row a.book-quote-work-link').evaluateAll(links => links.map(link => link.getAttribute('data-href'))); }
 function treeNode(page, key) { return page.locator(`.book-quotes-tree-row[data-node-key=${JSON.stringify(key)}]`); }
 async function showNavigation(page) {
     const button = page.getByRole('button', { name: 'Навигация', exact: true });
@@ -93,7 +94,7 @@ async function search(page, query) {
 async function assertBounded(page, expectedRows, maxDom = 1200) {
     assert.equal(await page.locator('.book-quotes-row').count(), expectedRows);
     assert.equal(await page.locator('.book-quotes-row .book-quote-text').count(), expectedRows);
-    assert.equal(await page.locator('.book-quotes-row a.internal-link').count(), expectedRows);
+    assert.equal(await page.locator('.book-quotes-row a.book-quote-work-link').count(), expectedRows);
     assert.equal(await page.getByRole('button', { name: 'Редактировать цитату', exact: true }).count(), expectedRows);
     assert((await page.locator('.book-quotes-index *').count()) < maxDom, 'The catalogue DOM stays bounded');
     assert.equal(await page.locator('.book-quotes-section-tile, .book-quotes-group, .book-quote-details').count(), 0);
@@ -200,7 +201,7 @@ async function largeCollectionChecks(browser) {
         await search(page, 'Отредактированный 000 Автор'); await expectStatus(page, '1–1 из 1 цитат');
         assert.equal(await page.locator('.book-quote-conclusion p').textContent(), 'Отредактированный вывод');
         const target = 'Книги/Non-fiction/synthetic-000#^book-excerpt-synthetic-000-0';
-        await page.locator('.book-quotes-row a.internal-link').click({ modifiers: ['Control'] });
+        await page.locator('.book-quotes-row a.book-quote-work-link').click({ modifiers: ['Control'] });
         assert.deepEqual(await page.evaluate(() => window.fixture.opened.at(-1)), [target, files[0].path, true]);
         await page.getByRole('button', { name: 'Сбросить поиск', exact: true }).click();
         await choose(page, 'all'); await expectStatus(page, '1–20 из 1170 цитат');
@@ -245,7 +246,7 @@ async function attributionChecks(browser) {
         await choose(page, 'external:один источник:настоящий автор'); await expectStatus(page, '1–2 из 2 цитат');
         assert.equal(await page.locator('.book-quotes-row .book-quote-authors').first().textContent(), 'Настоящий Автор');
         await choose(page, 'source:unknown'); await expectStatus(page, '1–1 из 1 цитат');
-        assert.equal(await page.locator('.book-quote-source a.internal-link').textContent(), 'Источник не указан');
+        assert.equal(await page.locator('.book-quote-source a.book-quote-work-link').textContent(), 'Источник не указан');
         assert.equal(await page.locator('.book-quote-source').textContent(), 'Источник не указан', 'An unknown source has one concise linked label');
         await choose(page, 'author:автор без произведения'); await expectStatus(page, '1–1 из 1 цитат');
         assert.equal(await page.locator('.book-quote-authors').textContent(), 'Автор без произведения');
@@ -272,11 +273,67 @@ async function sectionCaseChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function authorLinkChecks(browser) {
+    const files = [
+        makeFile('Книги/Non-fiction/author-single.md', { title: 'Одиночная книга', authors: ['Один Автор'] }, [{ id: 'book-excerpt-author-single', text: 'Один автор книги.', section: 'Ссылки', sourceAuthors: ['Ложный Автор'], sourceTitle: 'Ложный источник' }]),
+        makeFile('Книги/Non-fiction/author-multiple.md', { title: 'Совместная книга', authors: ['Первый Автор', 'Второй Автор'] }, [{ id: 'book-excerpt-author-multiple', text: 'Два автора книги.', section: 'Ссылки' }]),
+        makeFile('Книги/Цитаты/author-inheritance.md', { note_type: 'excerpt_collection', title: 'Коллекция с автором', authors: ['Наследованный Автор'], quote_section: 'Ссылки' }, [
+            { id: 'book-excerpt-author-inherited', text: 'Автор из свойств коллекции.', sourceTitle: 'Первый источник' },
+            { id: 'book-excerpt-author-overridden', text: 'Собственные авторы цитаты.', sourceTitle: 'Второй источник', sourceAuthors: ['Переопределённый Автор', 'Второй Автор'] }
+        ]),
+        makeFile('Книги/Цитаты/author-empty.md', { note_type: 'excerpt_collection', title: 'Коллекция без автора', authors: [], quote_section: 'Ссылки' }, [{ id: 'book-excerpt-author-empty', text: 'Автор неизвестен.' }])
+    ];
+    const canonical = {
+        'Один Автор': 'Книги/_system/Авторы/Один Автор-9b700c4a',
+        'Первый Автор': 'Книги/_system/Авторы/Первый Автор-8c8391ad',
+        'Второй Автор': 'Книги/_system/Авторы/Второй Автор-0e9be0b0',
+        'Наследованный Автор': 'Книги/_system/Авторы/Наследованный Автор-d1a375d3',
+        'Переопределённый Автор': 'Книги/_system/Авторы/Переопределённый Автор-e470e885'
+    };
+    const cases = [
+        ['book-excerpt-author-single', ['Один Автор']],
+        ['book-excerpt-author-multiple', ['Первый Автор', 'Второй Автор']],
+        ['book-excerpt-author-inherited', ['Наследованный Автор']],
+        ['book-excerpt-author-overridden', ['Переопределённый Автор', 'Второй Автор']],
+        ['book-excerpt-author-empty', []]
+    ];
+    const { page, errors } = await mount(browser, files);
+    const snapshot = () => page.evaluate(() => [...window.fixture.map].map(([filePath, file]) => ({ path: filePath, text: file.text, fm: file.fm ?? null, mtime: file.stat?.mtime ?? null })));
+    try {
+        await expectStatus(page, '1–5 из 5 цитат'); await assertBounded(page, 5);
+        const before = await snapshot(), clicked = [];
+        for (const [id, expectedAuthors] of cases) {
+            const row = page.locator('.book-quotes-row').filter({ has: page.locator(`a.book-quote-work-link[data-href$=${JSON.stringify('#^' + id)}]`) });
+            const links = row.locator('a.book-quote-author-link.internal-link');
+            assert.deepEqual(await links.allTextContents(), expectedAuthors, `Each author has its own link: ${id}`);
+            for (let index = 0; index < expectedAuthors.length; index++) {
+                const author = expectedAuthors[index], link = links.nth(index);
+                assert.equal(await link.getAttribute('href'), canonical[author]);
+                assert.equal(await link.getAttribute('data-href'), canonical[author]);
+                await link.click(); clicked.push(author);
+                await page.waitForFunction(expected => window.fixture.authorCalls.length === expected, clicked.length);
+                assert.deepEqual(await page.evaluate(() => window.fixture.authorCalls), clicked, 'The existing command receives the exact clicked author');
+            }
+        }
+        const single = page.locator('.book-quotes-row').filter({ has: page.locator('a.book-quote-work-link[data-href$="#^book-excerpt-author-single"]') });
+        assert.equal(await single.locator('a.book-quote-work-link').textContent(), 'Одиночная книга', 'Books retain their canonical source and authors');
+        assert.deepEqual(await page.evaluate(() => window.fixture.authorLeafCalls), Array(clicked.length).fill(false));
+        await single.locator('a.book-quote-author-link').click({ modifiers: ['Control'] });
+        await page.waitForFunction(expected => window.fixture.authorCalls.length === expected, clicked.length + 1);
+        assert.equal(await page.evaluate(() => window.fixture.authorLeafCalls.at(-1)), true, 'Ctrl opens the author in a new leaf');
+        await single.locator('a.book-quote-author-link').click();
+        await page.waitForFunction(expected => window.fixture.authorCalls.length === expected, clicked.length + 2);
+        assert.equal(await page.evaluate(() => window.fixture.authorLeafCalls.at(-1)), false, 'A modifier click does not change the shared workspace behavior');
+        assert.deepEqual(await snapshot(), before, 'Rendering and author-command stubs do not rewrite source notes');
+        await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser);
-        console.log(`${checks} real quote layouts, a 1170-quote tree scenario, attribution and section-case regressions passed: hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
+        const checks = await realCollectionChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser); await authorLinkChecks(browser);
+        console.log(`${checks} real quote layouts, a 1170-quote tree scenario, attribution, author links and section-case regressions passed: hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
