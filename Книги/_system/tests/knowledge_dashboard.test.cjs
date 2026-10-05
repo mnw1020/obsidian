@@ -344,10 +344,29 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 assert.equal(source.attributes['data-href'], 'Книги/Художественные/Книга#^book-excerpt-render');
                 if (mode === 'index') assert.equal(all(container).filter(node => node.tagName === 'select').length, 3);
             } else {
-                assert.match(container.textContent, /1 произведений · 1 чтений/);
                 const selects = all(container).filter(node => node.tagName === 'select');
-                assert.equal(selects.length, mode === 'home' ? 0 : 1);
+                assert.equal(selects.length, mode === 'home' ? 2 : 1);
+                if (mode === 'home') {
+                    assert.doesNotMatch(container.textContent, /произведений · .*чтений/);
+                    assert.match(container.textContent, /В этом месяце раньше/);
+                    selects[0].value = '2024';
+                    selects[0].events.change();
+                    assert.match(container.textContent, /1Чтений за период/);
+                    assert.equal(all(container).filter(node => node.className === 'book-dashboard-month').length, 12);
+                    selects[1].value = '09';
+                    selects[1].events.change();
+                    assert.match(container.textContent, /За этот период чтения ещё не записаны/);
+                    selects[1].value = '10';
+                    selects[1].events.change();
+                    assert.match(container.textContent, /1Чтений за период/);
+                    assert.match(container.textContent, /В выбранном месяце раньше · октябрь/);
+                    selects[0].value = '';
+                    selects[0].events.change();
+                    assert.equal(selects[1].disabled, true);
+                    assert.equal(selects[1].value, '');
+                }
                 if (mode === 'index') {
+                    assert.match(container.textContent, /1 произведений · 1 чтений/);
                     assert.deepEqual(selects[0].children.map(option => option.value), ['', '2024']);
                     selects[0].value = '2024';
                     selects[0].events.change();

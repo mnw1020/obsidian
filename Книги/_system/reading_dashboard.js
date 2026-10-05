@@ -1,5 +1,6 @@
 // Reading totals use history entries; month-only dates remain month-only.
 const TYPE_LABELS = { book: "Книги", story: "Рассказы", lecture: "Лекции", article: "Статьи", other: "Другие" };
+const MONTH_LABELS = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
 function availableYears(records) {
     const years = new Set();
@@ -10,8 +11,10 @@ function availableYears(records) {
     return [...years].sort((a, b) => b.localeCompare(a));
 }
 
-function buildDashboard(records, { now = new Date(), year = "" } = {}) {
+function buildDashboard(records, { now = new Date(), year = "", month = "" } = {}) {
     year = String(year ?? "");
+    month = year ? String(month ?? "").padStart(2, "0").replace(/^00$/, "") : "";
+    const period = month ? `${year}-${month}` : year;
     const readings = [], authors = new Map(), favorites = [], types = new Map(), years = new Map();
     const allReadings = [];
     let books = 0, ideas = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0;
@@ -19,9 +22,9 @@ function buildDashboard(records, { now = new Date(), year = "" } = {}) {
         const fm = record.fm;
         const names = [...new Set((Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(v => String(v ?? "").trim()).filter(Boolean))];
         const fullHistory = record.history || [];
-        const history = year ? fullHistory.filter(entry => entry.date.slice(0, 4) === year) : fullHistory;
+        const history = period ? fullHistory.filter(entry => entry.date.startsWith(period)) : fullHistory;
         const fullExcerpts = record.excerpts || [];
-        const excerpts = year ? fullExcerpts.filter(entry => entry.savedDate?.slice(0, 4) === year) : fullExcerpts;
+        const excerpts = period ? fullExcerpts.filter(entry => entry.savedDate?.startsWith(period)) : fullExcerpts;
         const type = fm.work_type || "book";
         const kind = Object.hasOwn(TYPE_LABELS, type) ? type : "other";
         const title = String(fm.title || record.file.basename);
@@ -59,10 +62,15 @@ function buildDashboard(records, { now = new Date(), year = "" } = {}) {
     }
     const currentYear = now.getFullYear(), currentMonth = String(now.getMonth() + 1).padStart(2, "0");
     const monthKey = `${currentYear}-${currentMonth}`;
+    const memoryMonth = month || currentMonth, memoryYear = year ? Number(year) : currentYear;
     return {
-        books, authors: authors.size, readings: readings.length, reread, ideas, quotes, imprecise, invalidHistory, year, undatedExcerpts,
+        books, authors: authors.size, readings: readings.length, reread, ideas, quotes, imprecise, invalidHistory, year, month, undatedExcerpts,
+        readingRows: [...readings].sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "ru")),
+        months: MONTH_LABELS.map((label, index) => ({ label, month: String(index + 1).padStart(2, "0"), count: readings.filter(entry => entry.date.slice(5, 7) === String(index + 1).padStart(2, "0")).length })),
+        yearOnly: readings.filter(entry => entry.date.length === 4).length,
         currentMonth: allReadings.filter(entry => entry.date.startsWith(monthKey)).length,
-        earlierThisMonth: allReadings.filter(entry => entry.date.length >= 7 && Number(entry.date.slice(0, 4)) < currentYear && entry.date.slice(5, 7) === currentMonth)
+        memoryMonth, memoryYear,
+        earlierThisMonth: allReadings.filter(entry => entry.date.length >= 7 && Number(entry.date.slice(0, 4)) < memoryYear && entry.date.slice(5, 7) === memoryMonth)
             .sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "ru")),
         types: [...types].map(([type, count]) => ({ type, label: TYPE_LABELS[type], count })),
         years: [...years.values()].sort((a, b) => b.year.localeCompare(a.year)),
@@ -111,13 +119,26 @@ function table(parent, headings, rows) {
 async function render({ dv, app, obsidian, mode = "index" }) {
     const root = element(dv.container, "div", undefined, "book-reading-dashboard");
     const status = element(root, "p", "Считаю историю чтений…");
-    let selectedYear = "", yearSelect;
-    if (mode !== "home") {
+    let selectedYear = mode === "home" ? String(new Date().getFullYear()) : "", selectedMonth = "", yearSelect, monthSelect;
+    {
         const controls = element(root, "div", undefined, "book-knowledge-controls");
-        const label = element(controls, "label", "Период ");
+        const label = element(controls, "label", "Год ");
         yearSelect = element(label, "select");
         yearSelect.setAttribute("aria-label", "Год чтения");
-        yearSelect.addEventListener("change", () => { selectedYear = yearSelect.value; draw(); });
+        yearSelect.addEventListener("change", () => {
+            selectedYear = yearSelect.value;
+            if (!selectedYear) selectedMonth = "";
+            if (monthSelect) { monthSelect.value = selectedMonth; monthSelect.disabled = !selectedYear; }
+            draw();
+        });
+        if (mode === "home") {
+            const monthLabel = element(controls, "label", "Месяц ");
+            monthSelect = element(monthLabel, "select");
+            monthSelect.setAttribute("aria-label", "Месяц чтения");
+            element(monthSelect, "option", "Все месяцы").value = "";
+            MONTH_LABELS.forEach((name, index) => { element(monthSelect, "option", name).value = String(index + 1).padStart(2, "0"); });
+            monthSelect.addEventListener("change", () => { selectedMonth = monthSelect.value; draw(); });
+        }
     }
     const content = element(root, "div");
     let disposed = false, timer, generation = 0, records = [];
@@ -130,8 +151,67 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         service = await mod.exports.getService({ app, obsidian });
     } catch (error) { status.textContent = `Не удалось собрать итоги: ${error.message || error}`; return; }
     function draw() {
-            const model = buildDashboard(records, { year: mode === "home" ? "" : selectedYear });
+            const model = buildDashboard(records, { year: selectedYear, month: selectedMonth });
             content.replaceChildren();
+            if (mode === "home") {
+                status.textContent = selectedYear ? `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " · " : ""}${selectedYear}` : "За всё время";
+                if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку.`, "book-dashboard-warning");
+                const metrics = element(content, "div", undefined, "book-dashboard-metrics");
+                for (const [label, count] of [["Чтений за период", model.readings], ["Сохранено идей", model.ideas], ["Сохранено цитат", model.quotes]]) {
+                    const metric = element(metrics, "div", undefined, "book-dashboard-metric");
+                    element(metric, "strong", String(count));
+                    element(metric, "span", label);
+                }
+                if (model.readings) {
+                    element(content, "p", model.types.map(row => `${row.label}: ${row.count}`).join(" · "), "book-excerpt-meta");
+                    if (selectedYear && !selectedMonth) {
+                        const timeline = element(content, "div", undefined, "book-dashboard-months");
+                        const max = Math.max(1, ...model.months.map(row => row.count));
+                        for (const row of model.months) {
+                            const button = element(timeline, "button", undefined, "book-dashboard-month");
+                            button.setAttribute("aria-label", `${row.label}: ${row.count} чтений. Показать месяц`);
+                            element(button, "span", row.label.slice(0, 3));
+                            const bar = element(button, "span", undefined, "book-dashboard-month-bar");
+                            bar.style.height = `${Math.round(row.count / max * 48)}px`;
+                            element(button, "strong", String(row.count));
+                            button.addEventListener("click", () => { selectedMonth = row.month; monthSelect.value = row.month; draw(); });
+                        }
+                        if (model.yearOnly) element(content, "p", `Ещё ${model.yearOnly} чтений записано только годом — без привязки к месяцу.`, "book-dashboard-warning");
+                    }
+                    element(content, "h4", "Прочитано за период");
+                    const list = element(content, "ul");
+                    for (const item of model.readingRows.slice(0, 8)) {
+                        const row = element(list, "li");
+                        link(row, item, app);
+                        element(row, "span", ` · ${service.core.displayDate(item.date)}${item.number > 1 ? " · перечитывание" : ""}`);
+                    }
+                    if (model.readings > 8) element(content, "p", `Показаны последние 8 из ${model.readings} чтений.`, "book-excerpt-meta");
+                } else element(content, "p", "За этот период чтения ещё не записаны.", "books-empty");
+                if (selectedMonth) element(content, "p", "Чтения с датой только до года не входят в отдельный месяц.", "book-dashboard-warning");
+                if (model.undatedExcerpts) element(content, "p", `Выписок без даты: ${model.undatedExcerpts}. ${selectedYear ? "В выбранный период они не включены." : "Они включены в общие итоги."}`, "book-dashboard-warning");
+                element(content, "h4", `${selectedMonth ? "В выбранном месяце раньше" : "В этом месяце раньше"} · ${MONTH_LABELS[Number(model.memoryMonth) - 1].toLocaleLowerCase("ru")}`);
+                if (!model.earlierThisMonth.length) element(content, "p", `До ${model.memoryYear} года в этом месяце чтения ещё не записаны.`, "books-empty");
+                else {
+                    const grouped = new Map();
+                    for (const item of model.earlierThisMonth) {
+                        const year = item.date.slice(0, 4);
+                        if (!grouped.has(year)) grouped.set(year, []);
+                        grouped.get(year).push(item);
+                    }
+                    for (const [year, items] of grouped) {
+                        const group = element(content, "details", undefined, "book-dashboard-memory");
+                        group.open = year === model.earlierThisMonth[0].date.slice(0, 4);
+                        element(group, "summary", `${year} · чтений: ${items.length}`);
+                        const list = element(group, "ul");
+                        for (const item of items) {
+                            const row = element(list, "li");
+                            link(row, item, app);
+                            element(row, "span", ` · ${service.core.displayDate(item.date)}${item.rating != null ? ` · ${item.rating}/10` : ""}${item.number > 1 ? " · перечитывание" : ""}`);
+                        }
+                    }
+                }
+                return;
+            }
             status.textContent = `${selectedYear ? `За ${selectedYear}: ` : ""}${model.books} произведений · ${model.readings} чтений · ${model.authors} авторов · ${model.ideas} идей · ${model.quotes} цитат`;
             if (model.invalidHistory) element(content, "p", `Не учтены повреждённые истории: ${model.invalidHistory}. Проверь библиотеку; значения YAML не подставляются вместо истории.`, "book-dashboard-warning");
             const metrics = element(content, "div", undefined, "book-dashboard-metrics");
@@ -172,12 +252,13 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             if (disposed || current !== generation) return;
             records = next;
             if (yearSelect) {
-                const years = availableYears(records);
+                const years = [...new Set([...availableYears(records), ...(mode === "home" ? [String(new Date().getFullYear())] : [])])].sort((a, b) => b.localeCompare(a));
                 yearSelect.replaceChildren();
                 element(yearSelect, "option", "За всё время").value = "";
                 for (const year of years) element(yearSelect, "option", year).value = year;
                 if (!years.includes(selectedYear)) selectedYear = "";
                 yearSelect.value = selectedYear;
+                if (monthSelect) { monthSelect.disabled = !selectedYear; monthSelect.value = selectedMonth; }
             }
             draw();
         } catch (error) { if (!disposed) status.textContent = `Не удалось собрать итоги: ${error.message || error}`; }
