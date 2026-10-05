@@ -336,25 +336,27 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .markdown-preview-view.kino-person-page .inline-title,
 .markdown-preview-view.kino-person-page .kino-person-legacy-heading { display: none; }
 .markdown-preview-view.kino-person-simple-properties .metadata-container { display: none; }
-.kino-page .kino-person { margin: 4px 0 28px; min-width: 0; }
+.kino-page .kino-person { margin: 4px 0 28px; min-width: 0; container: kino-entity / inline-size; }
+.kino-page .kino-person :is(h1, h2, h3) { color: var(--kino-text) !important; font-family: var(--kino-font) !important; }
 .kino-page .kino-person-header {
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 24px;
     padding: 26px 0 30px; border-bottom: 1px solid var(--kino-line);
 }
-.kino-page .kino-person-identity { display: flex; align-items: center; gap: 24px; min-width: 0; }
+.kino-page .kino-person-identity { display: grid; grid-template-columns: 86px minmax(0, 1fr); align-items: center; gap: 24px; min-width: 0; width: 100%; }
 .kino-page .kino-person-monogram {
     flex: 0 0 86px; height: 98px; display: grid; place-items: center;
     border: 1px solid #705538; border-radius: 17px;
     background: linear-gradient(145deg, #463525, #25262a 80%);
     color: var(--kino-accent); font-size: 31px; font-weight: 500; letter-spacing: .03em;
 }
-.kino-page .kino-person-heading { min-width: 0; }
+.kino-page .kino-person-heading { min-width: 0; width: 100%; }
 .kino-page .kino-person-eyebrow {
     color: var(--kino-accent); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
 }
-.kino-page h1.kino-person-name {
+.kino-page .kino-person h1.kino-person-name {
     font-size: clamp(29px, 4vw, 43px) !important; font-weight: 650 !important;
-    margin: 9px 0 0; line-height: 1.12; overflow-wrap: anywhere;
+    color: var(--kino-text) !important; font-family: var(--kino-font) !important;
+    margin: 9px 0 0; line-height: 1.12; overflow-wrap: break-word; word-break: normal; hyphens: none;
 }
 .kino-page .kino-person-subtitle { color: var(--kino-muted); margin: 9px 0 0; font-size: 16px; line-height: 1.4; }
 .kino-page a.kino-person-change {
@@ -373,14 +375,14 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-page .kino-person-stat:first-child .kino-person-stat-value { color: var(--kino-accent); }
 .kino-page .kino-person-stat:last-child .kino-person-stat-value { font-size: 23px; letter-spacing: -.02em; padding-top: 4px; }
 .kino-page .kino-person-stat-label { color: var(--kino-muted); font-size: 11px; line-height: 1.4; }
-.kino-page .kino-person-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+.kino-page .kino-person-section-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 5px 12px; margin-bottom: 17px; }
 .kino-page h2.kino-person-section-title { font-size: 21px !important; margin: 0; }
 .kino-page .kino-person-result-count { font-size: 12px; color: var(--kino-muted); }
-.kino-page .kino-person-controls { display: grid; grid-template-columns: minmax(0, 1fr) 205px; gap: 14px; margin-bottom: 21px; align-items: end; }
+.kino-page .kino-person-controls { display: grid; grid-template-columns: minmax(0, 1fr) 140px 185px; gap: 14px; margin-bottom: 21px; align-items: end; }
 .kino-page .kino-person-controls[hidden] { display: none; }
-.kino-page :is(.kino-person-search, .kino-person-sort) { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.kino-page :is(.kino-person-search, .kino-person-year, .kino-person-sort) { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .kino-page .kino-person-control-label { color: var(--kino-muted); font-size: 11px; }
-.kino-page :is(.kino-person-search-input, .kino-person-sort-select) {
+.kino-page :is(.kino-person-search-input, .kino-person-year-select, .kino-person-sort-select) {
     box-sizing: border-box; width: 100%; min-width: 0; height: 45px; padding: 10px 13px;
     border: 1px solid var(--kino-line); border-radius: 10px; background: var(--kino-surface);
     color: var(--kino-text); font-family: var(--kino-font); font-size: 13px; box-shadow: none;
@@ -438,7 +440,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-page .kino-person-table-error { color: var(--kino-muted); font-size: 13px; }
 @media (max-width: 768px) {
     .kino-page .kino-person-header { gap: 16px; }
-    .kino-page .kino-person-identity { gap: 16px; }
+    .kino-page .kino-person-identity { gap: 16px; grid-template-columns: 66px minmax(0, 1fr); }
     .kino-page .kino-person-monogram { flex-basis: 66px; height: 80px; font-size: 25px; }
     .kino-page .kino-person-stat { padding-inline: 12px; }
     .kino-page .kino-person-stat-value { font-size: 24px; }
@@ -446,9 +448,10 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     .kino-page .kino-person-card { grid-template-columns: 18px minmax(0, 1fr) 200px; gap: 10px; padding-inline: 12px; }
 }
 @media (max-width: 620px) {
-    .kino-page .kino-person-header { align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 22px; gap: 18px; }
+    .kino-page .kino-person-header { display: flex; align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 22px; gap: 18px; }
+    .kino-page .kino-person-identity { grid-template-columns: 55px minmax(0, 1fr); }
     .kino-page .kino-person-monogram { flex-basis: 55px; height: 66px; font-size: 22px; border-radius: 12px; }
-    .kino-page h1.kino-person-name { font-size: 29px !important; }
+    .kino-page .kino-person h1.kino-person-name { font-size: 29px !important; }
     .kino-page .kino-person-subtitle { font-size: 13px; }
     .kino-page a.kino-person-change { min-height: 44px; }
     .kino-page .kino-person-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 21px 0; margin: 22px 0 30px; }
@@ -456,14 +459,55 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     .kino-page .kino-person-stat:last-child { grid-column: 2 / 4; }
     .kino-page .kino-person-stat-value { font-size: 25px; }
     .kino-page .kino-person-stat:last-child .kino-person-stat-value { font-size: 23px; padding-top: 0; }
-    .kino-page .kino-person-controls { grid-template-columns: minmax(0, 1fr); gap: 13px; }
-    .kino-page .kino-person-filters { grid-row: 2; }
-    .kino-page .kino-person-sort { grid-row: 3; }
+    .kino-page .kino-person-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .kino-page .kino-person-search { grid-column: 1 / -1; }
+    .kino-page .kino-person-filters { grid-row: 3; }
+    .kino-page .kino-person-year, .kino-page .kino-person-sort { grid-row: 2; }
     .kino-page .kino-person-filter { min-height: 44px; padding: 9px 14px; }
     .kino-page .kino-person-card { grid-template-columns: 17px minmax(0, 1fr); gap: 7px 8px; padding: 10px 11px; }
     .kino-page .kino-person-card-number { grid-row: 1 / 3; }
     .kino-page .kino-person-card-scores { grid-column: 2; width: min(230px, 100%); }
     .kino-page h3.kino-person-card-title { font-size: 14px !important; }
+}
+/* Obsidian panes can be narrow while the desktop window is wide. */
+@container kino-entity (max-width: 768px) {
+    .kino-page .kino-person-header { gap: 16px; }
+    .kino-page .kino-person-identity { gap: 16px; grid-template-columns: 66px minmax(0, 1fr); }
+    .kino-page .kino-person-monogram { height: 80px; font-size: 25px; }
+    .kino-page .kino-person-stat { padding-inline: 12px; }
+    .kino-page .kino-person-stat-value { font-size: 24px; }
+    .kino-page .kino-person-stat:last-child .kino-person-stat-value { font-size: 20px; }
+    .kino-page .kino-person-card { grid-template-columns: 18px minmax(0, 1fr) 200px; gap: 10px; padding-inline: 12px; }
+}
+@container kino-entity (max-width: 620px) {
+    .kino-page .kino-person-header { display: flex; align-items: flex-start; flex-direction: column; padding-top: 16px; padding-bottom: 22px; gap: 18px; }
+    .kino-page .kino-person-identity { grid-template-columns: 55px minmax(0, 1fr); }
+    .kino-page .kino-person-monogram { height: 66px; font-size: 22px; border-radius: 12px; }
+    .kino-page .kino-person h1.kino-person-name { font-size: 29px !important; }
+    .kino-page .kino-person-subtitle { font-size: 13px; }
+    .kino-page a.kino-person-change { min-height: 44px; }
+    .kino-page .kino-person-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 21px 0; margin: 22px 0 30px; }
+    .kino-page .kino-person-stat:nth-child(4) { border-left: none; padding-left: 0; }
+    .kino-page .kino-person-stat:last-child { grid-column: 2 / 4; }
+    .kino-page .kino-person-stat-value { font-size: 25px; }
+    .kino-page .kino-person-stat:last-child .kino-person-stat-value { font-size: 23px; padding-top: 0; }
+    .kino-page .kino-person-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .kino-page .kino-person-search { grid-column: 1 / -1; }
+    .kino-page .kino-person-filters { grid-row: 3; }
+    .kino-page .kino-person-year, .kino-page .kino-person-sort { grid-row: 2; }
+    .kino-page .kino-person-filter { min-height: 44px; padding: 9px 14px; }
+    .kino-page .kino-person-card { grid-template-columns: 17px minmax(0, 1fr); gap: 7px 8px; padding: 10px 11px; }
+    .kino-page .kino-person-card-number { grid-row: 1 / 3; }
+    .kino-page .kino-person-card-scores { grid-column: 2; width: min(230px, 100%); }
+    .kino-page h3.kino-person-card-title { font-size: 14px !important; }
+}
+@container kino-entity (max-width: 280px) {
+    .kino-page .kino-person-controls { grid-template-columns: minmax(0, 1fr); }
+    .kino-page .kino-person-search, .kino-page .kino-person-year, .kino-page .kino-person-sort,
+    .kino-page .kino-person-filters { grid-column: 1; grid-row: auto; }
+    .kino-page .kino-person-filters { order: 4; }
+    .kino-page .kino-person-card-score { flex-direction: column; align-items: flex-start; gap: 2px; padding: 4px 6px; min-width: 0; }
+    .kino-page .kino-person-card-score-label { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .kino-page .kino-person-card { transition: none; }

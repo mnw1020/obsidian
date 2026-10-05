@@ -1,0 +1,21 @@
+{
+  "created": "2026-10-05T08:46:55.970Z",
+  "files": {
+    "_system/person_ui.js": {
+      "sha256": "cc7315e803e5340440ad53728923fbf14af13fa86e1479631f31f8a0b0e87beb",
+      "bytes": 22119
+    },
+    "_system/kino-design.css": {
+      "sha256": "f4e1a6c4c090fb595f239e7adf8d8a91ac57662e23a6d04c4397d2dea03e96d0",
+      "bytes": 35444
+    },
+    "_system/tests/person-ui.test.cjs": {
+      "sha256": "2823f2f4d560c030db3e9284fc551d773c26c1a2cbfe98f86dfb15a299e9f9b5",
+      "bytes": 21384
+    },
+    "_system/Редизайн — прогресс.md": {
+      "sha256": "aee6c3cea132e1091e75845a0f3e89c51f1381cf62c6ece7a1879f912d94f592",
+      "bytes": 19824
+    }
+  }
+}

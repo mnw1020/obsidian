@@ -172,6 +172,21 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
             renderCards();
         });
     }
+    const yearLabel = element(controls, "label", "kino-person-year");
+    element(yearLabel, "span", "kino-person-control-label", "Год релиза");
+    const yearSelect = element(yearLabel, "select", "kino-person-year-select");
+    element(yearSelect, "option", "", "Все годы").value = "all";
+    const availableYears = [...new Set(items.map(item => item.release.year).filter(year => year != null))].sort((a, b) => b - a);
+    let decadeGroup = null, currentDecade = null;
+    for (const year of availableYears) {
+        const decade = Math.floor(year / 10) * 10;
+        if (decade !== currentDecade) {
+            decadeGroup = element(yearSelect, "optgroup", "");
+            decadeGroup.label = `${decade}-е`; currentDecade = decade;
+        }
+        element(decadeGroup, "option", "", year).value = String(year);
+    }
+    if (items.some(item => item.release.year == null)) element(yearSelect, "option", "", "Без года").value = "unknown";
     const sortLabel = element(controls, "label", "kino-person-sort");
     element(sortLabel, "span", "kino-person-control-label", "Сортировка");
     const sort = element(sortLabel, "select", "kino-person-sort-select");
@@ -193,6 +208,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         grid.replaceChildren();
         const query = searchable(search.value);
         const shown = items.filter(item => (activeFilter === "all" || activeFilter === "best" ? activeFilter !== "best" || item.rating != null && item.rating >= 8 : item.type === activeFilter)
+            && (yearSelect.value === "all" || (yearSelect.value === "unknown" ? item.release.year == null : String(item.release.year) === yearSelect.value))
             && (!query || item.search.includes(query)));
         const collate = (a, b) => a.title.localeCompare(b.title, "ru", { sensitivity: "base", numeric: true }) || a.index - b.index;
         shown.sort(sort.value === "name" ? collate : sort.value === "myrating"
@@ -241,6 +257,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
         });
     }
     listen(search, "input", renderCards);
+    listen(yearSelect, "change", renderCards);
     listen(sort, "change", renderCards);
     cleanups.push(() => { for (const cleanup of cardListeners) cleanup(); cardListeners = []; });
     if (!hasSelection || !items.length) controls.hidden = true;
