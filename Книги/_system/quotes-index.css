@@ -14,8 +14,8 @@
 .book-quotes-index .book-quotes-tree-row:hover { background: var(--background-secondary); }
 .book-quotes-index .book-quotes-tree-row[aria-current="page"] { background: var(--background-secondary); color: var(--text-normal); }
 .book-quotes-index .book-quotes-tree-label { min-width: 0; overflow-wrap: anywhere; }
-.book-quotes-index .book-quotes-tree-count { color: var(--quotes-muted); font-variant-numeric: tabular-nums; }
-.book-quotes-index .book-quotes-tree-caption { grid-column: 1 / -1; color: var(--quotes-muted); overflow-wrap: anywhere; }
+.book-quotes-index .book-quotes-tree-count { color: var(--quotes-muted); font-size: .9em; font-variant-numeric: tabular-nums; }
+.book-quotes-index .book-quotes-tree-caption { grid-column: 1 / -1; color: var(--quotes-muted); font-size: .9em; overflow-wrap: anywhere; }
 .book-quotes-index .book-quotes-tree-branch > summary { display: flex; align-items: start; list-style: none; cursor: pointer; }
 .book-quotes-index .book-quotes-tree-branch > summary::-webkit-details-marker { display: none; }
 .book-quotes-index .book-quotes-tree-branch > summary::before { content: '›'; width: 14px; flex-shrink: 0; padding-top: 8px; text-align: center; color: var(--quotes-muted); }

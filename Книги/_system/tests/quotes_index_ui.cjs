@@ -66,6 +66,14 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light' } = {
 }
 
 async function expectStatus(page, value) {
+    const range = value.match(/^(\d+)–(\d+) из (\d+) цитат$/u);
+    if (range && Number(range[3]) <= 20) {
+        const total = Number(range[3]);
+        assert.equal(Number(range[1]), total ? 1 : 0, 'A single-page expectation starts at its first quote');
+        assert.equal(Number(range[2]), total, 'A single-page expectation includes exactly the expected number of quotes');
+        const noun = total % 10 === 1 && total % 100 !== 11 ? 'цитата' : [2, 3, 4].includes(total % 10) && ![12, 13, 14].includes(total % 100) ? 'цитаты' : 'цитат';
+        value = `${total} ${noun}`;
+    }
     await page.waitForFunction(expected => document.querySelector('.book-quotes-status')?.textContent === expected, value);
     assert.equal(await page.locator('.book-quotes-status').textContent(), value);
 }
@@ -119,6 +127,14 @@ async function realCollectionChecks(browser) {
                 assert.equal(await treeNode(page, `section:${key}`).locator('.book-quotes-tree-count').textContent(), String(count));
             }
             await choose(page, 'section:воспитание'); await expectStatus(page, '1–1 из 1 цитат');
+            if (width < 600) {
+                assert.equal(await navigation.getAttribute('aria-expanded'), 'false', 'Selecting a mobile node closes navigation');
+                assert.equal(await page.locator('.book-quotes-tree').isVisible(), false);
+                await showNavigation(page);
+                assert.equal(await navigation.getAttribute('aria-expanded'), 'true', 'Navigation reopens after a selection');
+                assert.equal(await page.locator('.book-quotes-tree').isVisible(), true);
+                await navigation.click();
+            }
             assert.match(await page.locator('.book-quote-text').textContent(), /мелкой моторики/u);
             await search(page, 'мелкой моторики'); await expectStatus(page, '1–1 из 1 цитат');
             assert.equal(await page.locator('.book-quotes-reading-title').textContent(), 'Результаты поиска');
@@ -229,7 +245,8 @@ async function attributionChecks(browser) {
         await choose(page, 'external:один источник:настоящий автор'); await expectStatus(page, '1–2 из 2 цитат');
         assert.equal(await page.locator('.book-quotes-row .book-quote-authors').first().textContent(), 'Настоящий Автор');
         await choose(page, 'source:unknown'); await expectStatus(page, '1–1 из 1 цитат');
-        assert.equal(await page.locator('.book-quote-source-unknown').textContent(), 'Источник не указан');
+        assert.equal(await page.locator('.book-quote-source a.internal-link').textContent(), 'Источник не указан');
+        assert.equal(await page.locator('.book-quote-source').textContent(), 'Источник не указан', 'An unknown source has one concise linked label');
         await choose(page, 'author:автор без произведения'); await expectStatus(page, '1–1 из 1 цитат');
         assert.equal(await page.locator('.book-quote-authors').textContent(), 'Автор без произведения');
         await search(page, 'Строка2 Настоящий Один'); await expectStatus(page, '1–1 из 1 цитат');
