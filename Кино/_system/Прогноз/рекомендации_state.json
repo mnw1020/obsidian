@@ -7,7 +7,7 @@
   },
   "sourceSettings": {
     "imdb": false,
-    "kp": true,
+    "kp": false,
     "movieTon": false,
     "likeFilm": false,
     "tmdb": false,

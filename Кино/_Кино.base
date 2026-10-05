@@ -87,7 +87,7 @@ views:
     imageProperty: note.poster
     imageFormat: poster
     propertyNames: hide
-    id: kino-cinematheque-cards
+    id: mgxarp-Карточки
     displayFirstAsTitle: true
     showFileImages: never
     minimumColumns: one
