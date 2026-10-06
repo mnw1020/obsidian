@@ -102,14 +102,18 @@ class Node {
 }
 
 function harness(raw = quote(), entryChanges = {}) {
-    const document = { createElement: tag => new Node(tag, document) }, writes = [], notices = [], callbacks = [];
+    const document = { createElement: tag => new Node(tag, document) }, writes = [], folders = [], notices = [], callbacks = [];
     const file = { path: 'Книги/Цитаты/Подборка.md', basename: 'Подборка', text: raw };
     const moduleFile = { path: 'Книги/_system/knowledge.js', text: knowledgeSource };
     const files = new Map([[file.path, file], [moduleFile.path, moduleFile]]);
+    files.set('Книги/_system/quote_storage.js', { path: 'Книги/_system/quote_storage.js', text: fs.readFileSync(path.join(__dirname, '../quote_storage.js'), 'utf8') });
+    files.set('Книги', { path: 'Книги', children: [] });
+    files.set('Книги/Цитаты', { path: 'Книги/Цитаты', children: [] });
     const entry = { path: file.path, id, collection: true, title: 'Подборка', authors: [], ...entryChanges };
     const app = { vault: {
         getAbstractFileByPath: path => files.get(path),
         read: async file => file.text,
+        createFolder: async path => { const folder = { path, children: [] }; files.set(path, folder); folders.push(path); return folder; },
         process: async (file, transform) => { const next = transform(file.text); writes.push(next); file.text = next; },
         modify: async () => { throw new Error('Non-atomic write forbidden'); }
     } };
@@ -119,7 +123,7 @@ function harness(raw = quote(), entryChanges = {}) {
         close() { this.opened = false; }
     }
     const obsidian = { Modal, Notice: class { constructor(message) { notices.push(message); } } };
-    return { file, files, entry, app, obsidian, writes, notices, callbacks, open: () => editQuote({ app, obsidian, entry, onSaved: value => callbacks.push(value) }) };
+    return { file, files, entry, app, obsidian, writes, folders, notices, callbacks, open: () => editQuote({ app, obsidian, entry, onSaved: value => callbacks.push(value) }) };
 }
 
 test('modal opens fresh data and offers collection provenance; cancel and inherited-section no-op do not write', async () => {
@@ -134,7 +138,37 @@ test('modal opens fresh data and offers collection provenance; cancel and inheri
     await unchanged.save();
     assert.equal(h.writes.length, 0);
     assert.equal(h.callbacks.length, 0);
+    assert.deepEqual(h.folders, []);
     assert.equal(knowledge.parseExcerpts(h.file.text)[0].section, undefined);
+});
+
+test('editing a section creates its full folder hierarchy and retains the quote in its original note', async () => {
+    const h = harness('Заметка до\n\n' + quote() + '\nЗаметка после', { section: 'Мотивация' });
+    const modal = await h.open();
+    modal.fields.section.value = 'Мотивация/в/Дальше';
+    await modal.save();
+    assert.equal(modal.opened, false);
+    assert.deepEqual(h.folders, ['Книги/Цитаты/Мотивация', 'Книги/Цитаты/Мотивация/в', 'Книги/Цитаты/Мотивация/в/Дальше']);
+    assert.equal(h.file.path, 'Книги/Цитаты/Подборка.md');
+    assert.equal(h.writes.length, 1);
+    const saved = knowledge.parseExcerpts(h.file.text)[0];
+    assert.equal(saved.section, 'Мотивация/в/Дальше');
+    assert.equal(saved.id, id); assert.equal(saved.savedDate, '2026-10-04');
+    assert.ok(h.file.text.startsWith('Заметка до\n\n'));
+    assert.ok(h.file.text.endsWith('\nЗаметка после'));
+});
+
+test('invalid paths and quotes changed before save create no folders and keep the form input', async () => {
+    for (const invalid of [true, false]) {
+        const h = harness(); const modal = await h.open();
+        modal.fields.section.value = invalid ? '../Вне цитат' : 'Мотивация/в';
+        if (!invalid) h.file.text = h.file.text.replace('Исходная цитата', 'Параллельная правка');
+        await modal.save();
+        assert.equal(modal.opened, true);
+        assert.equal(h.writes.length, 0); assert.deepEqual(h.folders, []);
+        assert.equal(modal.fields.section.value, invalid ? '../Вне цитат' : 'Мотивация/в');
+        assert.ok(modal.errorEl.textContent);
+    }
 });
 
 test('modal saves one atomic update, keeps external edits, and can clear an inherited section', async () => {

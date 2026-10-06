@@ -21,12 +21,22 @@ function harness(cards = []) {
     }
     file('Книги/_system/book_core.js', coreSource);
     file('Книги/_system/knowledge.js', knowledgeSource);
+    for (const name of ['quote_add', 'quote_storage']) file(`Книги/_system/${name}.js`, fs.readFileSync(path.join(__dirname, `../${name}.js`), 'utf8'));
+    file('Книги/_system/quote_create.js', 'module.exports = async ({initial, books, onSave}) => ({initial, books, save: onSave});');
+    files.set('Книги', { path: 'Книги', children: [] });
+    files.set('Книги/Цитаты', { path: 'Книги/Цитаты', children: [] });
     const books = cards.map(card => file(card.path, card.text ?? managedHistory, { title: 'Книга', authors: ['Автор'], read_count: 1, date: '2024-10', rating: 8, ...card.fm }));
     const app = {
         metadataCache: { getFileCache: entry => ({ frontmatter: entry.fm }) },
         vault: {
             getMarkdownFiles: () => [...files.values()].filter(entry => entry.extension === 'md'),
             getAbstractFileByPath: filePath => files.get(filePath),
+            createFolder: async filePath => { if (files.has(filePath)) throw Error('Path exists'); const folder = { path: filePath, children: [] }; files.set(filePath, folder); return folder; },
+            create: async (filePath, text) => {
+                if (files.has(filePath)) throw Error('Path exists');
+                const entry = file(filePath, text, require('./yaml_fixture.cjs').fromText(text));
+                changes.push({ path: filePath, next: text }); emit('create', entry); return entry;
+            },
             read: async entry => { reads.set(entry.path, (reads.get(entry.path) || 0) + 1); return entry.text; },
             process: async (entry, callback) => {
                 const old = entry.text, next = callback(old);
@@ -43,7 +53,8 @@ function harness(cards = []) {
             getLeaf: () => ({ openFile: async (...args) => opened.push(args) })
         }
     };
-    const obsidian = { Notice: class { constructor(message) { notices.push(message); } } };
+    const obsidian = { Notice: class { constructor(message) { notices.push(message); } },
+        parseYaml: yaml => require('./yaml_fixture.cjs').fromText('---\n' + yaml + '\n---\n') };
     function emit(name, ...args) { for (const callback of events.get(name) || []) callback(...args); }
     return { app, obsidian, books, files, reads, changes, opened, notices, file, emit };
 }
@@ -301,72 +312,69 @@ test('year summaries use selected history ratings and dated excerpts without YAM
     assert.equal(JSON.stringify(records), original);
 });
 
-test('QuickAdd saves atomically with fresh field ids and can cancel without any write', async () => {
+test('QuickAdd opens the shared creation form without writing and saves only on submit', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
-    const ids = [];
-    const api = {
-        date: { now: () => '2026-10-04' },
-        suggester: async (labels, values) => values[0],
-        requestInputs: async fields => {
-            ids.push(fields.map(field => field.id));
-            return Object.fromEntries(fields.map(field => [field.id, field.id.endsWith('-text') ? 'Новая цитата' : '']));
-        }
-    };
-    await addExcerpt({ ...h, quickAddApi: api });
-    await addExcerpt({ ...h, quickAddApi: api });
+    const api = { date: { now: () => '2026-10-04' },
+        suggester: async () => { throw Error('Unexpected source menu'); },
+        requestInputs: async () => { throw Error('The native creation form owns the inputs'); } };
+    const first = await addExcerpt({ ...h, quickAddApi: api });
+    assert.equal(first.initial.sourceKind, 'book');
+    assert.equal(first.initial.bookPath, h.books[0].path);
+    assert.equal(h.changes.length, 0);
+    await first.save({ ...first.initial, text: 'Новая цитата' });
+    const second = await addExcerpt({ ...h, quickAddApi: api });
+    await second.save({ ...second.initial, text: 'Ещё цитата' });
     assert.equal(h.changes.length, 2);
     assert.ok(h.changes[0].next.startsWith(managedHistory));
-    assert.equal(knowledge.parseExcerpts(h.books[0].text).length, 2);
-    assert.ok(knowledge.parseExcerpts(h.books[0].text).every(entry => entry.savedDate === '2026-10-04'));
-    assert.equal(new Set(ids.flat()).size, ids.flat().length);
+    const quotes = knowledge.parseExcerpts(h.books[0].text);
+    assert.equal(quotes.length, 2);
+    assert.equal(new Set(quotes.map(quote => quote.id)).size, 2);
+    assert.ok(quotes.every(quote => quote.savedDate === '2026-10-04'));
     assert.match(h.opened[0][0], /#\^book-excerpt-/);
-    await addExcerpt({ ...h, quickAddApi: { ...api, requestInputs: async () => undefined } });
+    await addExcerpt({ ...h, quickAddApi: api }); // Closing without submit performs no write.
     assert.equal(h.changes.length, 2);
 });
 
-test('book action opens the quote form directly and accepts partial selections without replacing the source', async () => {
+test('book action preselects its source and partial selection; concurrent notes stay intact', async () => {
     const raw = 'До\n\nСтарый абзац\n\nПосле\n\n' + managedHistory;
     const h = harness([{ path: 'Книги/Художественные/Книга.md', text: raw }]);
-    h.app.workspace.getActiveFile = () => h.books[0];
     h.app.workspace.activeEditor = { file: h.books[0], editor: { getSelection: () => 'тарый абза' } };
-    let concurrent = false, forms = 0;
-    const api = {
-        suggester: async () => { throw Error('No intermediate menu is allowed inside a book'); },
-        requestInputs: async fields => {
-            forms++;
-            assert.equal(fields[0].label, 'Текст цитаты');
-            assert.equal(fields[0].defaultValue, 'тарый абза');
-            if (concurrent) h.books[0].text += '\nКонкурирующая правка';
-            return Object.fromEntries(fields.map(field => [field.id, field.defaultValue ?? '']));
-        }
-    };
-    await addExcerpt({ ...h, quickAddApi: api });
-    assert.equal(forms, 1); assert.equal(h.changes.length, 1);
-    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'тарый абза');
-    assert.ok(h.books[0].text.startsWith(raw));
-    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].type, 'quote');
-    h.books[0].text = raw; concurrent = true;
-    await addExcerpt({ ...h, quickAddApi: api });
-    assert.equal(forms, 2); assert.equal(h.changes.length, 2);
+    const form = await addExcerpt(h);
+    assert.equal(form.initial.text, 'тарый абза');
+    assert.equal(form.initial.sourceKind, 'book');
+    assert.equal(h.changes.length, 0);
+    h.books[0].text += '\nКонкурирующая правка';
+    await form.save({ ...form.initial, section: 'Мотивация/в' });
     assert.ok(h.books[0].text.startsWith(raw + '\nКонкурирующая правка'));
-    const saved = h.books[0].text;
-    await addExcerpt({ ...h, quickAddApi: { ...api, requestInputs: async () => undefined } });
-    assert.equal(h.books[0].text, saved); assert.equal(h.changes.length, 2);
+    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'тарый абза');
+    assert.ok(h.files.get('Книги/Цитаты/Мотивация/в').children);
 });
 
-test('book action without selection opens a blank quote form and never asks for a type', async () => {
+test('book action without selection opens a fresh blank quote form', async () => {
     const h = harness([{ path: 'Книги/Художественные/Книга.md' }]);
-    h.app.workspace.getActiveFile = () => h.books[0];
-    let forms = 0;
-    await addExcerpt({ ...h, quickAddApi: {
-        suggester: async () => { throw Error('Unexpected menu'); },
-        requestInputs: async fields => {
-            forms++; assert.equal(fields[0].defaultValue, '');
-            return Object.fromEntries(fields.map(field => [field.id, field.id.endsWith('-text') ? 'Цитата без выделения' : '']));
-        }
-    } });
-    assert.equal(forms, 1); assert.equal(h.changes.length, 1);
-    assert.equal(knowledge.parseExcerpts(h.books[0].text)[0].text, 'Цитата без выделения');
+    const first = await addExcerpt(h);
+    assert.equal(first.initial.text, '');
+    await first.save({ ...first.initial, text: 'Цитата без выделения' });
+    const second = await addExcerpt(h);
+    assert.equal(second.initial.text, '');
+    assert.equal(knowledge.parseExcerpts(h.books[0].text).length, 1);
+});
+
+test('creation works without books and indexes an arbitrary source in its physical section folder', async () => {
+    const h = harness([]);
+    const form = await addExcerpt(h);
+    assert.equal(form.initial.sourceKind, 'free');
+    assert.equal(form.books.length, 0);
+    assert.equal(h.changes.length, 0);
+    await form.save({ ...form.initial, text: 'Произвольная цитата', section: 'Мотивация/в', sourceAuthors: ['Автор'], sourceTitle: 'Беседа', conclusion: 'Мой вывод' });
+    const service = await knowledge.getService(h);
+    const entries = service.excerpts(await service.snapshot({ includeCollections: true }));
+    assert.equal(entries.length, 1);
+    assert.equal(entries[0].section, 'Мотивация/в');
+    assert.equal(entries[0].conclusion, 'Мой вывод');
+    assert.deepEqual(knowledge.quoteSource(entries[0]).authors, ['Автор']);
+    assert.equal(knowledge.quoteSource(entries[0]).title, 'Беседа');
+    assert.equal(entries[0].path, 'Книги/Цитаты/Мотивация/в/_Выписки.md');
 });
 
 test('search command opens the selected book at the matching note line and cancellation is read-only', async () => {

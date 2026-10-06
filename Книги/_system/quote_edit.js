@@ -201,6 +201,15 @@ async function editQuote({ app, obsidian, entry, onSaved } = {}) {
                     if (replaceExcerpt(initialRaw, id, changes, baseline) === initialRaw) { this.close(); return; }
                     const currentFile = app.vault.getAbstractFileByPath(path);
                     if (currentFile !== file || file.path !== path) throw new Error("Источник цитаты изменился или больше не доступен.");
+                    if (Object.prototype.hasOwnProperty.call(changes, "section") && changes.section) {
+                        const storageFile = app.vault.getAbstractFileByPath("Книги/_system/quote_storage.js");
+                        if (!storageFile) throw new Error("Не найден модуль папок цитат.");
+                        const storage = { exports: {} }; new Function("module", await app.vault.read(storageFile))(storage);
+                        changes.section = storage.exports.normalizeSectionPath(changes.section);
+                        // Check the fresh quote before creating folders; the atomic write checks again.
+                        replaceExcerpt(await app.vault.read(file), id, changes, baseline);
+                        await storage.exports.ensureSectionFolders(app, changes.section);
+                    }
                     await app.vault.process(file, raw => {
                         if (app.vault.getAbstractFileByPath(path) !== file || file.path !== path) throw new Error("Источник цитаты больше не доступен.");
                         const found = knowledge.parseExcerpts(raw).filter(quote => quote.id === id);

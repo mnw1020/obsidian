@@ -467,18 +467,49 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         element(heading, "p", "Из книг и собственных записей", "book-quotes-subtitle");
         const add = element(identity, "a", "+ Добавить цитату", "book-quotes-add");
         add.href = "obsidian://quickadd?choice=" + encodeURIComponent("Книги - Добавить выписку");
+        add.addEventListener("click", event => { event.preventDefault(); create(); });
     }
     let disposed = false, generation = 0, timer, service;
     const loading = element(root, "p", "Загружаю цитаты…", "book-quotes-loading");
     try { service = await getService({ app, obsidian }); }
     catch (error) { loading.textContent = `Не удалось загрузить цитаты: ${error.message || error}`; return; }
     const remembered = !home ? app.__bookQuotesNavigationV1 : null;
-    let entries = [], selected = remembered?.selected || "", view = remembered?.view || "sections", page = 1, randomId = null, treeData = [], editorPromise, authorCommandPromise;
+    let entries = [], selected = remembered?.selected || "", view = remembered?.view || "sections", page = 1, randomId = null, treeData = [], editorPromise, authorCommandPromise, createPromise, pendingCreation;
     let queryValue = remembered?.query || "", navigationQuery = "", searchVisible = Boolean(queryValue);
     const opened = new Set(remembered?.opened || []), limits = new Map(), modeButtons = [];
     let status, content, tree, treeBody, treeSearch, heading, pagination, searchPanel, search, resetQuery, breadcrumb, navigationButton;
     function remember() {
         if (!home) app.__bookQuotesNavigationV1 = { selected, view, query: queryValue, opened: [...opened] };
+    }
+    function selectedSection(nodes = treeData, parents = []) {
+        for (const node of nodes) {
+            const parts = [...parents, node.label];
+            if (node.key === selected) return node.key === "section:неразобранное" ? "" : parts.join("/");
+            const found = selectedSection(node.children, parts);
+            if (found !== null) return found;
+        }
+        return null;
+    }
+    async function create() {
+        try {
+            if (!createPromise) createPromise = (async () => {
+                const file = app.vault.getAbstractFileByPath("Книги/_system/quote_add.js");
+                if (!file) throw new Error("Не найден модуль создания цитат.");
+                const module = { exports: {} }; new Function("module", await app.vault.read(file))(module);
+                return module.exports;
+            })().catch(error => { createPromise = null; throw error; });
+            const openCreate = await createPromise;
+            await openCreate({ app, obsidian, openAfterSave: false,
+                initial: { sourceKind: "free", text: "", section: view === "sections" ? selectedSection() || "" : "" },
+                onSaved: async ({ path, id }) => {
+                    pendingCreation = { path, id };
+                    service.invalidate(path); await reload();
+                }
+            });
+        } catch (error) {
+            const message = "Не удалось открыть форму цитаты: " + (error.message || error);
+            if (obsidian?.Notice) new obsidian.Notice(message); else status.textContent = message;
+        }
     }
     async function openAuthor(author, { newLeaf = false } = {}) {
         try {
@@ -683,7 +714,18 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             if (disposed || current !== generation) return;
             entries = sortExcerpts(service.excerpts(records)).map(entry => ({ ...entry, searchText: excerptSearchText(entry) }));
             loading.hidden = true; loading.textContent = "";
-            if (!home) { treeData = buildQuoteTree(entries, view); ensureSelection(); revealSelection(); drawTree(); }
+            if (!home) {
+                treeData = buildQuoteTree(entries, view);
+                const created = pendingCreation && entries.find(entry => entry.path === pendingCreation.path && entry.id === pendingCreation.id);
+                if (created) {
+                    selected = view === "sources" ? quoteSource(created).key : `section:${normalize(quoteSectionPath(created))}`;
+                    queryValue = ""; search.value = "";
+                    const matches = entries.filter(entry => quoteInNode(entry, selected, view));
+                    page = Math.floor(matches.indexOf(created) / 20) + 1;
+                    pendingCreation = null; remember();
+                }
+                ensureSelection(); revealSelection(); drawTree();
+            }
             draw();
             const failed = records.filter(record => record.error).length;
             if (failed) status.textContent += ` · Не удалось прочитать карточек: ${failed}`;

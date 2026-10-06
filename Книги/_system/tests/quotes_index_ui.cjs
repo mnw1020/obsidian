@@ -54,14 +54,15 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light', embe
         map.set('Книги/_system/book_core.js', { path: 'Книги/_system/book_core.js', text: core });
         map.set('Книги/_system/quotes-index.css', { path: 'Книги/_system/quotes-index.css', text: css });
         map.set('Книги/_system/quote_edit.js', { path: 'Книги/_system/quote_edit.js', text: 'module.exports = async ({entry, onSaved}) => { window.fixture.editCalls.push({entry, onSaved}); };' });
+        map.set('Книги/_system/quote_add.js', { path: 'Книги/_system/quote_add.js', text: 'module.exports = async args => { window.fixture.createCalls.push(args); };' });
         map.set('Книги/_system/QuickAdd/open_author.js', { path: 'Книги/_system/QuickAdd/open_author.js', text: 'module.exports = async ({app, variables}) => { window.fixture.authorCalls.push(variables.author); app.workspace.getLeaf(false); };' });
-        const events = new Map(), opened = [], disposers = [], editCalls = [], authorCalls = [], authorLeafCalls = [];
+        const events = new Map(), opened = [], disposers = [], editCalls = [], createCalls = [], authorCalls = [], authorLeafCalls = [];
         const on = (name, callback) => { if (!events.has(name)) events.set(name, []); events.get(name).push(callback); return { name, callback }; };
         const emit = (name, ...args) => { for (const callback of events.get(name) || []) callback(...args); };
         const app = { vault: { getAbstractFileByPath: filePath => map.get(filePath), read: async file => file.text, getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), on },
             metadataCache: { getFileCache: file => ({ frontmatter: file.fm }), on }, workspace: { openLinkText: (...args) => { opened.push(args); }, getLeaf: newLeaf => { authorLeafCalls.push(newLeaf); return { openFile: async () => {} }; } } };
         const module = { exports: {} }; new Function('module', source)(module);
-        window.fixture = { map, app, opened, emit, disposers, editCalls, authorCalls, authorLeafCalls,
+        window.fixture = { map, app, opened, emit, disposers, editCalls, createCalls, authorCalls, authorLeafCalls,
             remove(paths) { for (const filePath of paths) { const file = map.get(filePath); map.delete(filePath); if (file) emit('delete', file); } },
             add(file) { map.set(file.path, file); emit('create', file); },
             modify(filePath, text) { const file = map.get(filePath); file.text = text; file.stat.mtime++; emit('modify', file); } };
@@ -388,10 +389,37 @@ async function authorLinkChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function creationNavigationChecks(browser) {
+    const original = makeFile('Книги/Non-fiction/create-existing.md', { title: 'Книга', authors: ['Автор'] }, [{ id: 'book-excerpt-create-existing', text: 'Уже сохранённая цитата', section: 'Мотивация/в' }]);
+    const { page, errors } = await mount(browser, [original]);
+    try {
+        await page.locator('.book-quotes-tree-branch').first().evaluate(branch => { branch.open = true; });
+        await treeNode(page, 'section:мотивация/в').waitFor({ state: 'visible' });
+        await choose(page, 'section:мотивация/в');
+        await page.getByRole('link', { name: '+ Добавить цитату', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.createCalls.length === 1);
+        assert.deepEqual(await page.evaluate(() => window.fixture.createCalls[0].initial), { sourceKind: 'free', text: '', section: 'Мотивация/в' });
+        assert.equal(await page.evaluate(() => window.fixture.createCalls[0].openAfterSave), false, 'The catalogue stays open after creation');
+        assert.equal(await page.locator('.book-quotes-row').count(), 1, 'Opening or cancelling the form does not create a quote');
+        const created = makeFile('Книги/Цитаты/Другой/Раздел/_Выписки.md', { note_type: 'excerpt_collection', title: 'Раздел', authors: [] }, [{ id: 'book-excerpt-created-from-index', text: 'Новая произвольная цитата', section: 'Другой/Раздел', sourceTitle: 'Беседа', sourceAuthors: ['Собеседник'] }]);
+        // Obsidian can index frontmatter after Vault.create resolves. The pending selection survives that delay.
+        await page.evaluate(async file => {
+            await window.fixture.createCalls[0].onSaved({ path: file.path, id: 'book-excerpt-created-from-index' });
+            window.fixture.add(file);
+        }, created);
+        await page.waitForFunction(() => document.querySelector('.book-quotes-reading-title')?.textContent === 'Раздел');
+        await expectStatus(page, '1 цитата'); await assertBounded(page, 1);
+        assert.equal(await page.locator('.book-quote-text').textContent(), 'Новая произвольная цитата');
+        assert.equal(await page.locator('.book-quote-author-link').textContent(), 'Собеседник');
+        assert.equal(await page.evaluate(() => window.fixture.opened.length), 0);
+        await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const checks = await realCollectionChecks(browser), embeddedChecks = await embeddedPaneChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser); await authorLinkChecks(browser);
+        const checks = await realCollectionChecks(browser), embeddedChecks = await embeddedPaneChecks(browser); await largeCollectionChecks(browser); await attributionChecks(browser); await sectionCaseChecks(browser); await authorLinkChecks(browser); await creationNavigationChecks(browser);
         console.log(`${checks} real quote layouts, ${embeddedChecks} embedded Obsidian panes, a 1170-quote tree scenario, attribution, author links and section-case regressions passed: masthead, hidden properties, nested overflow, hierarchy, bounded DOM, full text and conclusions, exact sources, AND search, edit callback, pagination and live updates.`);
     } finally { await browser.close(); }
 }
