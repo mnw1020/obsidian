@@ -35,7 +35,7 @@ if (file) {
 
 Последние 20 по дате чтения. [[Книги/Книги.base#Список|Весь каталог]] · [[Книги/Книги.base#Все|Подробная таблица]] · [🔎 Поиск по библиотеке](obsidian://quickadd?choice=Книги%20-%20Поиск%20по%20библиотеке)
 
-```dataviewjs
+``==🔴==`dataviewjs
 const file = app.vault.getAbstractFileByPath("Книги/_system/lazy_base.js");
 if (file) {
     const m = {exports:{}};
