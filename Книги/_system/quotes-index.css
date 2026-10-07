@@ -1,6 +1,7 @@
 .markdown-preview-view.book-quotes-page { --file-line-width: 1040px; }
 .markdown-preview-view.book-quotes-page .markdown-preview-sizer { box-sizing: border-box; width: 100%; min-width: 0; max-width: min(1040px,100%); margin-inline: auto; }
-.book-quotes-page :is(.metadata-container,.inline-title) { display: none; }
+.book-quotes-page :is(.metadata-container,.inline-title) { display: none !important; }
+.markdown-preview-view.book-quotes-page :is(.frontmatter-container,pre.frontmatter) { display: none !important; }
 .book-quotes-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .book-quotes-index {
     --quotes-line: var(--background-modifier-border, #d8d3c9);
