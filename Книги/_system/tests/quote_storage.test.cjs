@@ -159,7 +159,7 @@ test('a free quote creates one complete collection note with manual provenance a
 
 test('blank section stores anonymous quotes under Unsorted, preserving the central index and explicit empty provenance', async () => {
     const h = harness();
-    const index = h.file('Книги/Цитаты/_Цитаты.md', 'Существующий Dataview-индекс');
+    const index = h.file('Книги/Цитаты.md', 'Существующий Dataview-индекс');
     const result = await h.save(free({ section: '', sourceTitle: '', sourceAuthors: undefined }));
     assert.equal(result.path, 'Книги/Цитаты/Неразобранное/_Выписки.md');
     assert.equal(index.text, 'Существующий Dataview-индекс');

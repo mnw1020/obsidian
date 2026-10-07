@@ -150,13 +150,13 @@ async function main(){
  assert.equal(statsView.dv.container.children[0].children[0].children[0].textContent,String(stats.books));
  statsView.dispose();
  assert.equal(metadataCache.handlers.length,0,'stats listeners disposed');
- const reread=view();await lazy({dv:reread.dv,app,obsidian,mode:'reread',label:'перечитанные',target:'Книги/Книги.base#Перечитанные'});
+ const reread=view();await lazy({dv:reread.dv,app,obsidian,mode:'reread',label:'перечитанные',target:'Книги/_system/_Книги.base#Перечитанные'});
  const children=reread.dv.container.children[0].children;
  assert.equal(children[0].style.display,'');
  assert.equal(children[1].style.display,'none');
  const oldCount=book.fm.read_count;book.fm.read_count=2;metadataCache.emit('changed',book);await sleep(160);
  assert.equal(children[1].style.display,'');book.fm.read_count=oldCount;reread.dispose();
- const base=view();await lazy({dv:base.dv,app,obsidian:{...obsidian,Component:class{},MarkdownRenderer:{render:async(app,source,content)=>{content.textContent=source;}}},mode:'base',target:'Книги/Книги.base#Главная',label:'недавние20',expanded:true});
+ const base=view();await lazy({dv:base.dv,app,obsidian:{...obsidian,Component:class{},MarkdownRenderer:{render:async(app,source,content)=>{content.textContent=source;}}},mode:'base',target:'Книги/_system/_Книги.base#Главная',label:'недавние20',expanded:true});
  assert.equal(base.children.length,1);
  await base.dv.container.children[0].children[1].listeners.get('click')();
  assert.equal(base.children.length,0,'collapse unloads native component');

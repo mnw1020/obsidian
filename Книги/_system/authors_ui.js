@@ -46,7 +46,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     internal(nav, '← Библиотека', 'Книги/_index');
     if (!index) internal(nav, 'Все авторы', 'Книги/_system/Авторы');
     internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
-    internal(nav, 'Цитаты', 'Книги/Цитаты/_Цитаты');
+    internal(nav, 'Цитаты', 'Книги/Цитаты');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     const monogram = el(identity, 'div', 'book-authors-monogram', index ? 'Аа' : initials(author) || 'А');
@@ -109,12 +109,12 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         listen(table, 'toggle', async () => {
             if (!table.open || tableChild || disposed) return;
             if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !dv.component?.addChild) {
-                if (!body.children.length) internal(body, 'Открыть подробный каталог', 'Книги/Книги.base');
+                if (!body.children.length) internal(body, 'Открыть подробный каталог', 'Книги/_system/_Книги.base');
                 return;
             }
             tableChild = new obsidian.Component();
             dv.component.addChild(tableChild);
-            try { await obsidian.MarkdownRenderer.render(app, '![[Книги/Книги.base#Автор]]', body, source, tableChild); }
+            try { await obsidian.MarkdownRenderer.render(app, '![[Книги/_system/_Книги.base#Автор]]', body, source, tableChild); }
             catch (problem) {
                 dv.component.removeChild?.(tableChild); tableChild = null;
                 body.textContent = `Не удалось показать таблицу: ${problem.message || problem}`;

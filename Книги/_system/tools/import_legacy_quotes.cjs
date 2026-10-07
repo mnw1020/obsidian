@@ -34,7 +34,7 @@ for(let i=0;i<headings.length;i++){
  total+=parsed.length;outputs.push({filename:path.join(root,'Цитаты',title+'.md'),contents});
 }
 assert.equal(total,18);
-const redirect=['# 💬 Цитаты','', '[[Книги/Цитаты/_Цитаты|Открыть идеи и цитаты]]','',...headings.flatMap(heading=>[`## ${heading[1]}`,'',`[[Книги/Цитаты/${heading[1]}|Открыть раздел]]`,''])].join('\n');
+const redirect=['# 💬 Цитаты','', '[[Книги/Цитаты|Открыть идеи и цитаты]]','',...headings.flatMap(heading=>[`## ${heading[1]}`,'',`[[Книги/Цитаты/${heading[1]}|Открыть раздел]]`,''])].join('\n');
 // Validate every target before the first write. Never replace manual changes in imported collections.
 for(const {filename,contents} of outputs)if(fs.existsSync(filename)&&fs.readFileSync(filename,'utf8')!==contents)throw new Error('Imported collection was edited; preserved: '+filename);
 if(fs.readFileSync(originalPath,'utf8')!==current)throw new Error('The source changed during import');

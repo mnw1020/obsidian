@@ -462,7 +462,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             link.href = target; link.setAttribute("data-href", target);
             link.addEventListener("click", event => {
                 event.preventDefault();
-                app.workspace.openLinkText(target, "Книги/Цитаты/_Цитаты.md", Boolean(event.ctrlKey || event.metaKey));
+                app.workspace.openLinkText(target, "Книги/Цитаты.md", Boolean(event.ctrlKey || event.metaKey));
             });
         }
         const identity = element(masthead, "div", undefined, "book-quotes-identity");

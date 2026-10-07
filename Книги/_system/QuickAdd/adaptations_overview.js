@@ -16,7 +16,7 @@ module.exports = async ({ app, obsidian }) => {
         command("👥 Авторы", "Книги - Авторы"),
         command("🧩 Серии", "Книги - Серии"),
         command("🎬 Экранизации", "Книги - Экранизации"),
-        "[[Книги/Цитаты/_Цитаты|✒️ Выписки]]",
+        "[[Книги/Цитаты|✒️ Выписки]]",
         "[[Книги/_system/Проверка библиотеки|🔎 Проверка]]"
     ].join(" · ");
     const header = "---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n";

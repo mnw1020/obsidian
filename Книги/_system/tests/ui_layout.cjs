@@ -21,7 +21,7 @@ scan(root,'Книги');
 for(const name of ['book_core','lazy_base','knowledge','reading_dashboard'])sources['Книги/_system/'+name+'.js']=fs.readFileSync(path.join(root,'_system',name+'.js'),'utf8');
 const app={metadataCache:{getFileCache:f=>({frontmatter:f.fm})},vault:{getMarkdownFiles:()=>files,getAbstractFileByPath:p=>files.find(f=>f.path===p)||(sources[p]?{path:p,text:sources[p]}:null),read:async f=>f.text},workspace:{getActiveFile:()=>null}};
 const core=require('../book_core.js')({app,obsidian:{parseYaml}}),stats=core.stats(),config=[];
-const base=fs.readFileSync(path.join(root,'Книги.base'),'utf8');
+const base=fs.readFileSync(path.join(root,'_system','_Книги.base'),'utf8');
 assert.match(base,/- type: list\r?\n\s+name: Главная[\s\S]*?limit: 20/);
 assert.match(base,/- type: table\r?\n\s+name: Все/);
 const plugin=path.resolve(root,'../.obsidian/plugins/quickadd');
