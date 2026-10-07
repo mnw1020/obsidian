@@ -3,6 +3,8 @@ const { chromium } = require('C:/Users/Mindwork/.cache/codex-runtimes/codex-prim
 const { parseYaml, stringifyYaml } = require('./yaml_fixture.cjs');
 const root = path.resolve(__dirname, '../..');
 const note = fs.readFileSync(path.join(root, '_index.md'), 'utf8');
+const fallbackActions = note.match(/<p class="books-actions-fallback">[\s\S]*?<\/p>/u)?.[0];
+assert(fallbackActions, 'The native home page retains its action links');
 const sources = Object.fromEntries(['library_home.js', 'library-home.css', 'book_core.js', 'lazy_base.js', 'knowledge.js', 'reading_dashboard.js', 'reading-dashboard.css', 'books-library.css'].map(name => ['Книги/_system/' + name, fs.readFileSync(path.join(root, '_system', name), 'utf8')]));
 const yamlSource = fs.readFileSync(path.join(__dirname, 'yaml_fixture.cjs'), 'utf8');
 const thingsCss = fs.readFileSync(path.resolve(root, '../.obsidian/themes/Things/theme.css'), 'utf8');
@@ -25,7 +27,7 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
     const page = await browser.newPage({ viewport: { width, height: 1200 } }), errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const paneStyle = pane ? ` style="width:${pane}px;margin-inline:0"` : '';
-    await page.setContent(`<style>${baseline}</style><style>${thingsCss}</style><style>${gruvboxCss}</style><style>${dataviewCss}</style><style>${sources['Книги/_system/books-library.css']}</style><style>body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered books-library books-home-page"${paneStyle}><div class="markdown-preview-sizer markdown-preview-section"><div class="metadata-container">Свойства</div><div class="inline-title">_index</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><div class="el-h1" id="native-title"><h1>Библиотека</h1></div><div class="el-p" id="native-actions"><p class="books-actions-fallback"><a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20книгу">Записать произведение</a></p></div><div class="el-div" id="native-stats"><div class="callout" data-callout="quote"><div class="callout-title-inner">Библиотека</div><p>2 произведения · 2 автора · 1 серия</p></div></div><div class="el-p" id="native-body"><p>Исходная библиотека</p><a class="internal-link" data-href="Книги/_system/_Книги.base#Список" href="#">Весь каталог</a></div></div></main></body>`);
+    await page.setContent(`<style>${baseline}</style><style>${thingsCss}</style><style>${gruvboxCss}</style><style>${dataviewCss}</style><style>${sources['Книги/_system/books-library.css']}</style><style>body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered books-library books-home-page"${paneStyle}><div class="markdown-preview-sizer markdown-preview-section"><div class="metadata-container">Свойства</div><div class="inline-title">_index</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><div class="el-h1" id="native-title"><h1>Библиотека</h1></div><div class="el-p" id="native-actions">${fallbackActions}</div><div class="el-div" id="native-stats"><div class="callout" data-callout="quote"><div class="callout-title-inner">Библиотека</div><p>2 произведения · 2 автора · 1 серия</p></div></div><div class="el-p" id="native-body"><p>Исходная библиотека</p><a class="internal-link" data-href="Книги/_system/_Книги.base#Список" href="#">Весь каталог</a></div></div></main></body>`);
     await page.evaluate(async ({ sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead }) => {
         const map = new Map(files.map(file => [file.path, file]));
         for (const [filePath, text] of Object.entries(sources)) map.set(filePath, { path: filePath, text });
@@ -140,16 +142,25 @@ async function layoutChecks(browser) {
             assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: 'Стихи', exact: true }).getAttribute('data-href'), 'Книги/Стихи');
             for (const label of ['Авторы', 'Серии', 'Экранизации']) assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: label, exact: true }).getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - ' + label));
             assert.deepEqual(await page.locator('.book-home-footer a').evaluateAll(links => links.map(link => link.dataset.href)), ['Книги/_system/Проверка библиотеки', 'Книги/_system/Журнал изменений']);
-            for (const [label, choice] of [['Записать произведение', 'Книги - Добавить книгу'], ['Записать чтение', 'Книги - Добавить чтение'], ['Сохранить выписку', 'Книги - Добавить выписку']]) {
+            const actions = [['Записать произведение', 'Книги - Добавить книгу'], ['Записать чтение', 'Книги - Добавить чтение'], ['Редактировать чтение', 'Книги - Редактировать чтение'], ['Добавить цитату', 'Книги - Добавить выписку'], ['Поиск по библиотеке', 'Книги - Поиск по библиотеке']];
+            assert.deepEqual(await page.locator('.book-home-actions > a').evaluateAll(links => links.map(link => link.getAttribute('aria-label') || link.textContent.trim())), actions.map(([label]) => label), 'All actions remain visible in the requested order');
+            assert.equal(await page.locator('.book-home-more').count(), 0, 'Home actions have no extra disclosure menu');
+            const search = page.locator('.book-home-action.is-icon');
+            assert.equal(await search.count(), 1);
+            assert.equal(await search.getAttribute('aria-label'), 'Поиск по библиотеке');
+            assert.equal(await search.getAttribute('title'), 'Поиск по библиотеке');
+            assert.equal(await search.locator('svg').count(), 1, 'Search uses a visible vector icon');
+            if (layout.pane || layout.width < 480) {
+                const quoteBox = await page.getByRole('link', { name: 'Добавить цитату', exact: true }).boundingBox(), searchBox = await search.boundingBox();
+                assert(Math.abs(quoteBox.y - searchBox.y) <= 1 && quoteBox.x + quoteBox.width <= searchBox.x + 1, 'Narrow layouts place the quote action and search icon on one row');
+            }
+            for (const [label, choice] of actions) {
                 const link = page.getByRole('link', { name: label, exact: true });
+                assert.equal(await link.isVisible(), true);
                 assert.equal(await link.getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent(choice)); await link.click();
             }
-            assert.deepEqual(await page.evaluate(() => window.fixture.choices), ['Книги - Добавить книгу', 'Книги - Добавить чтение', 'Книги - Добавить выписку']);
-            await page.locator('.book-home-more > summary').click();
-            assert.equal(await page.getByRole('link', { name: 'Редактировать чтение', exact: true }).isVisible(), true);
-            assert.equal(await page.getByRole('link', { name: 'Поиск по библиотеке', exact: true }).isVisible(), true);
+            assert.deepEqual(await page.evaluate(() => window.fixture.choices), actions.map(([, choice]) => choice));
             await assertBounded(page);
-            await page.locator('.book-home-more > summary').click();
             if (!layout.pane && (layout.width === 390 && theme === 'theme-light' || layout.width === 1024)) await screenshot(page, `library-${layout.width}-${theme}.png`);
             assert.equal(await page.evaluate(() => window.fixture.writes), 0);
             await dispose(page); assert.deepEqual(errors, []); count++;
@@ -191,6 +202,9 @@ async function fallbackChecks(browser) {
                 assert.equal(await page.locator('.book-home-ui').count(), 0, 'Missing modules preserve the native page');
                 assert.equal(await page.locator('#native-title').isVisible(), true);
                 assert.equal(await page.locator('#native-stats').isVisible(), true);
+                assert.deepEqual(await page.locator('.books-actions-fallback a').evaluateAll(links => links.map(link => new URL(link.href).searchParams.get('choice'))), ['Книги - Добавить книгу', 'Книги - Добавить чтение', 'Книги - Редактировать чтение', 'Книги - Добавить выписку', 'Книги - Поиск по библиотеке'], 'Native fallback retains the same action order');
+                assert.equal(await page.locator('#native-actions').getByRole('link', { name: 'Поиск по библиотеке', exact: true }).isVisible(), true);
+                assert.match(await page.locator('#native-actions').textContent(), /Добавить цитату/u);
                 assert(await page.evaluate(() => Boolean(window.fixture.initialError)));
             } else if (options.quickadd === false) {
                 const link = page.getByRole('link', { name: 'Записать произведение', exact: true });
@@ -241,8 +255,12 @@ async function main() {
     new (Object.getPrototypeOf(async () => {}).constructor)('dv', 'app', 'require', blocks[0][1]);
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const layouts = await layoutChecks(browser); await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser); await initialCleanupChecks(browser);
-        console.log(`${layouts} library Chromium layouts passed: real core/quotes/reading widgets, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
+        const layouts = await layoutChecks(browser);
+        if (process.argv.includes('--layouts-only')) console.log(`${layouts} library Chromium layouts passed: Things/gruvbox/Dataview, narrow panes, hidden properties, action order, accessible search icon, responsive final action row and real widgets.`);
+        else {
+            await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser); await initialCleanupChecks(browser);
+            console.log(`${layouts} library Chromium layouts passed: real core/quotes/reading widgets, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
+        }
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

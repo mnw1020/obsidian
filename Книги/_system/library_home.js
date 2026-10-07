@@ -55,12 +55,17 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const actions = el(identity, 'div', 'book-home-actions');
     command(actions, 'Записать произведение', 'Книги - Добавить книгу', 'book-home-action is-primary');
     command(actions, 'Записать чтение', 'Книги - Добавить чтение', 'book-home-action');
-    command(actions, 'Сохранить выписку', 'Книги - Добавить выписку', 'book-home-action');
-    const more = el(actions, 'details', 'book-home-more');
-    el(more, 'summary', '', 'Ещё');
-    const moreBody = el(more, 'div', 'book-home-more-body');
-    command(moreBody, 'Редактировать чтение', 'Книги - Редактировать чтение');
-    command(moreBody, 'Поиск по библиотеке', 'Книги - Поиск по библиотеке');
+    command(actions, 'Редактировать чтение', 'Книги - Редактировать чтение', 'book-home-action');
+    command(actions, 'Добавить цитату', 'Книги - Добавить выписку', 'book-home-action');
+    const search = command(actions, 'Поиск по библиотеке', 'Книги - Поиск по библиотеке', 'book-home-action is-icon');
+    search.setAttribute('aria-label', 'Поиск по библиотеке'); search.title = 'Поиск по библиотеке';
+    const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    for (const [name, value] of Object.entries({ viewBox: '0 0 24 24', width: '20', height: '20', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'aria-hidden': 'true', focusable: 'false' })) icon.setAttribute(name, value);
+    for (const [tag, attributes] of [['circle', { cx: '10.5', cy: '10.5', r: '6.5' }], ['path', { d: 'm16 16 5 5' }]]) {
+        const shape = doc.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const [name, value] of Object.entries(attributes)) shape.setAttribute(name, value); icon.appendChild(shape);
+    }
+    search.replaceChildren(icon);
     const stats = el(masthead, 'div', 'book-home-stats');
     const statValues = [];
     for (const [key, label] of [['books', 'Произведений'], ['authors', 'Авторов'], ['series', 'Серий'], ['rated', 'Оценено'], ['reread', 'Перечитано']]) {

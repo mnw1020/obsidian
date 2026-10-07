@@ -26,15 +26,11 @@
 .book-home-ui h1.book-home-title { margin: 6px 0 10px; color: var(--text-normal) !important; font: 500 clamp(34px,5cqi,52px)/1.1 var(--home-serif) !important; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .book-home-ui .book-home-subtitle { margin: 0; color: var(--text-muted); font-size: .78em; }
 .book-home-ui .book-home-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px; max-width: 100%; }
-.book-home-ui :is(.book-home-action,.book-home-more>summary) { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; max-width: 100%; padding: 9px 13px; border: 1px solid var(--home-line); border-radius: 7px; background: var(--background-primary); color: var(--text-normal); font-size: .76em; line-height: 1.5; white-space: normal; text-align: center; }
+.book-home-ui .book-home-action { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; max-width: 100%; padding: 9px 13px; border: 1px solid var(--home-line); border-radius: 7px; background: var(--background-primary); color: var(--text-normal); font-size: .76em; line-height: 1.5; white-space: normal; text-align: center; }
 .book-home-ui .book-home-action.is-primary { background: var(--home-tint); color: var(--home-accent); border-color: color-mix(in srgb,var(--home-accent) 35%,var(--home-line)); }
 .book-home-ui .book-home-action[aria-disabled="true"] { opacity: .5; cursor: wait; }
-.book-home-ui .book-home-more { min-width: 0; border: none; padding: 0; margin: 0; }
-.book-home-ui .book-home-more>summary { list-style: none; }
-.book-home-ui .book-home-more>summary::-webkit-details-marker { display: none; }
-.book-home-ui .book-home-more>summary::after { content: '⌄'; margin-left: 8px; }
-.book-home-ui .book-home-more[open] { flex-basis: 100%; }
-.book-home-ui .book-home-more-body { display: flex; flex-wrap: wrap; gap: 10px 20px; padding-top: 12px; font-size: .76em; }
+.book-home-ui .book-home-action.is-icon { flex: 0 0 40px; width: 40px; height: 40px; padding: 0; }
+.book-home-ui .book-home-action.is-icon svg { display: block; width: 20px; height: 20px; }
 .book-home-ui .book-home-stats { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); border-top: 1px solid var(--home-line); gap: 16px; padding: 22px 0; }
 .book-home-ui .book-home-stat { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .book-home-ui .book-home-stat strong { font: 500 28px/1.2 var(--home-serif); color: var(--text-normal); font-variant-numeric: tabular-nums; }
@@ -103,9 +99,11 @@
     .book-home-ui .book-home-panel { padding: 18px; }
     .book-home-ui .book-home-actions { width: 100%; }
     .book-home-ui .book-home-action { flex: 1 1 100%; }
+    .book-home-ui .book-home-action:has(+ .book-home-action.is-icon) { flex: 1 1 0; }
     .book-home-ui .book-home-overview { padding: 14px; }
     .book-home-ui .book-home-panel-head h2 { font-size: 25px !important; }
     .book-home-ui .book-dashboard-metric strong { font-size: 24px; }
     .book-home-ui .book-home-overview p { font-size: .75em; }
 }
 @media(pointer:coarse) { .book-home-ui :is(button,summary,.book-home-action,.book-home-overview>a) { min-height: 44px; } }
+@media(pointer:coarse) { .book-home-ui .book-home-action.is-icon { flex-basis: 44px; width: 44px; height: 44px; } }
