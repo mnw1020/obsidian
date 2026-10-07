@@ -15,9 +15,9 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
     year = String(year ?? "");
     month = year ? String(month ?? "").padStart(2, "0").replace(/^00$/, "") : "";
     const period = month ? `${year}-${month}` : year;
-    const readings = [], authors = new Map(), favorites = [], types = new Map(), years = new Map();
+    const readings = [], authors = new Map(), favorites = [], types = new Map(), years = new Map(), fictionTypes = new Map(), nonfictionTypes = new Map();
     const allReadings = [];
-    let books = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0;
+    let books = 0, quotes = 0, reread = 0, imprecise = 0, invalidHistory = 0, undatedExcerpts = 0, fictionReadings = 0, nonfictionReadings = 0;
     for (const record of records) {
         const fm = record.fm;
         const names = [...new Set((Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(v => String(v ?? "").trim()).filter(Boolean))];
@@ -61,6 +61,8 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
             const reading = { ...entry, file: record.file, title, authors: names, type: kind };
             readings.push(reading);
             types.set(kind, (types.get(kind) || 0) + 1);
+            if (fiction) { fictionReadings++; fictionTypes.set(kind, (fictionTypes.get(kind) || 0) + 1); }
+            else { nonfictionReadings++; nonfictionTypes.set(kind, (nonfictionTypes.get(kind) || 0) + 1); }
             if (entry.date.length < 10) imprecise++;
         }
     }
@@ -69,6 +71,9 @@ function buildDashboard(records, { now = new Date(), year = "", month = "" } = {
     const memoryMonth = month || currentMonth, memoryYear = year ? Number(year) : currentYear;
     return {
         books, authors: authors.size, readings: readings.length, reread, ideas: 0, quotes, imprecise, invalidHistory, year, month, undatedExcerpts,
+        fictionReadings, nonfictionReadings,
+        fictionTypes: Object.entries(TYPE_LABELS).filter(([type]) => fictionTypes.has(type)).map(([type, label]) => ({ type, label, count: fictionTypes.get(type) })),
+        nonfictionTypes: Object.entries(TYPE_LABELS).filter(([type]) => nonfictionTypes.has(type)).map(([type, label]) => ({ type, label, count: nonfictionTypes.get(type) })),
         readingRows: [...readings].sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title, "ru")),
         months: MONTH_LABELS.map((label, index) => ({ label, month: String(index + 1).padStart(2, "0"), count: readings.filter(entry => entry.date.slice(5, 7) === String(index + 1).padStart(2, "0")).length })),
         yearOnly: readings.filter(entry => entry.date.length === 4).length,

@@ -256,6 +256,10 @@ test('damaged history remains visible as an error without hiding valid excerpts 
     const result = dashboard.buildDashboard(records);
     assert.equal(result.invalidHistory, 1);
     assert.equal(result.readings, 0);
+    assert.equal(result.fictionReadings, 0);
+    assert.equal(result.nonfictionReadings, 0);
+    assert.deepEqual(result.fictionTypes, []);
+    assert.deepEqual(result.nonfictionTypes, []);
     assert.equal(result.quotes, 1);
 });
 
@@ -274,7 +278,76 @@ test('reading totals count rereadings and preserve month/year precision without 
     assert.equal(result.favoriteBooks[0].rating, 8);
     assert.equal(result.authorRows.find(row => row.name === 'Другой автор').average, null);
     assert.deepEqual(result.types.map(row => [row.type, row.count]), [['book', 2], ['lecture', 1]]);
+    assert.equal(result.fictionReadings, 2);
+    assert.equal(result.nonfictionReadings, 1);
+    assert.deepEqual(result.fictionTypes, [{ type: 'book', label: 'Книги', count: 2 }]);
+    assert.deepEqual(result.nonfictionTypes, [{ type: 'lecture', label: 'Лекции', count: 1 }]);
     assert.equal(records[0].history[0].date, '2024-10');
+});
+
+test('genre and type breakdowns use selected history entries, preserve precision and omit every empty type', () => {
+    let serial = 0;
+    function record(folder, type, dates, extra = {}) {
+        const title = `Источник ${++serial}`;
+        return { file: { path: `Книги/${folder}/${title}.md`, basename: title },
+            fm: { title, authors: ['Автор'], read_count: 999, ...(type === undefined ? {} : { work_type: type }) },
+            history: dates.map((date, index) => ({ number: index + 1, date, rating: null })), excerpts: [], ...extra };
+    }
+    // Deliberately unordered types expose sorting by collection order instead of TYPE_LABELS.
+    const records = [
+        record('Художественные', 'unknown', ['2026-10']),
+        record('Художественные', 'article', ['2026-04-02']),
+        record('Художественные', 'story', ['2026-10-03', '2026-10-04']),
+        record('Художественные', 'lecture', ['2026']),
+        record('Художественные', undefined, ['2025-10', '2026-10-02']),
+        record('Non-fiction', 'unknown', ['2026-10-06']),
+        record('Non-fiction', 'article', ['2026-09']),
+        record('Non-fiction', undefined, ['2026']),
+        record('Non-fiction', 'lecture', ['2025', '2026-10-05']),
+        // Keep the existing years classification: every non-fiction-folder reading is nonfiction.
+        record('Другая папка', 'article', ['2026-10-07']),
+        record('Художественные', 'book', [], { excerpts: [{ savedDate: '2026-10-08' }] }),
+        record('Цитаты', 'article', ['2026-10-09'], { collection: true, excerpts: [{ savedDate: '2026-10-09' }] }),
+        record('Художественные', 'book', [], { historyError: 'Повреждена история', excerpts: [{ savedDate: '2026-10-10' }] })
+    ];
+    const before = JSON.stringify(records), now = new Date(2026, 9, 12);
+    const tuples = rows => rows.map(({ type, label, count }) => [type, label, count]);
+    const periods = [
+        [{}, 7, 6, 6,
+            [['book', 'Книги', 2], ['story', 'Рассказы', 2], ['lecture', 'Лекции', 1], ['article', 'Статьи', 1], ['other', 'Другие', 1]],
+            [['book', 'Книги', 1], ['lecture', 'Лекции', 2], ['article', 'Статьи', 2], ['other', 'Другие', 1]]],
+        [{ year: '2026' }, 6, 5, 4,
+            [['book', 'Книги', 1], ['story', 'Рассказы', 2], ['lecture', 'Лекции', 1], ['article', 'Статьи', 1], ['other', 'Другие', 1]],
+            [['book', 'Книги', 1], ['lecture', 'Лекции', 1], ['article', 'Статьи', 2], ['other', 'Другие', 1]]],
+        [{ year: '2026', month: '10' }, 4, 3, 1,
+            [['book', 'Книги', 1], ['story', 'Рассказы', 2], ['other', 'Другие', 1]],
+            [['lecture', 'Лекции', 1], ['article', 'Статьи', 1], ['other', 'Другие', 1]]]
+    ];
+    for (const [period, fiction, nonfiction, imprecise, fictionTypes, nonfictionTypes] of periods) {
+        const model = dashboard.buildDashboard(records, { now, ...period });
+        assert.equal(model.fictionReadings, fiction);
+        assert.equal(model.nonfictionReadings, nonfiction);
+        assert.equal(model.readings, fiction + nonfiction);
+        assert.equal(model.imprecise, imprecise);
+        assert.equal(model.reread, 3);
+        assert.equal(model.quotes, 3);
+        assert.equal(model.invalidHistory, 1);
+        assert.deepEqual(tuples(model.fictionTypes), fictionTypes);
+        assert.deepEqual(tuples(model.nonfictionTypes), nonfictionTypes);
+        assert.equal(model.fictionTypes.reduce((sum, row) => sum + row.count, 0), fiction);
+        assert.equal(model.nonfictionTypes.reduce((sum, row) => sum + row.count, 0), nonfiction);
+    }
+    const empty = dashboard.buildDashboard(records, { now, year: '2030', month: '01' });
+    assert.equal(empty.readings, 0);
+    assert.equal(empty.fictionReadings, 0);
+    assert.equal(empty.nonfictionReadings, 0);
+    assert.deepEqual(empty.fictionTypes, []);
+    assert.deepEqual(empty.nonfictionTypes, []);
+    const onlyFiction = dashboard.buildDashboard(records.filter(row => row.file.path.startsWith('Книги/Художественные/')), { now, year: '2026' });
+    assert.equal(onlyFiction.nonfictionReadings, 0); assert.deepEqual(onlyFiction.nonfictionTypes, []);
+    const onlyNonfiction = dashboard.buildDashboard(records.filter(row => row.file.path.startsWith('Книги/Non-fiction/')), { now, year: '2026' });
+    assert.equal(onlyNonfiction.fictionReadings, 0); assert.deepEqual(onlyNonfiction.fictionTypes, []);
+    assert.equal(JSON.stringify(records), before);
 });
 
 test('year summaries use selected history ratings and dated excerpts without YAML counts or fabricated legacy years', () => {
@@ -404,9 +477,10 @@ test('all current library histories aggregate in memory without changing their o
     collect(path.join(root, 'Художественные'));
     collect(path.join(root, 'Non-fiction'));
     const core = createCore({ app: {}, obsidian: {} });
+    const { fromText } = require('./yaml_fixture.cjs');
     const records = files.map(full => {
         const raw = fs.readFileSync(full, 'utf8');
-        return { file: { path: 'Книги/' + path.relative(root, full).split(path.sep).join('/'), basename: path.basename(full) }, fm: { title: path.basename(full), authors: ['Автор'] }, history: core.parseHistory(raw).entries, excerpts: knowledge.parseExcerpts(raw) };
+        return { file: { path: 'Книги/' + path.relative(root, full).split(path.sep).join('/'), basename: path.basename(full) }, fm: fromText(raw), history: core.parseHistory(raw).entries, excerpts: knowledge.parseExcerpts(raw) };
     });
     const originalDates = records.flatMap(record => record.history.map(entry => entry.date));
     const result = dashboard.buildDashboard(records, { now: new Date(2026, 9, 4) });
@@ -414,6 +488,9 @@ test('all current library histories aggregate in memory without changing their o
     assert.deepEqual(records.flatMap(record => record.history.map(entry => entry.date)), originalDates);
     assert.ok(originalDates.some(date => date.length === 7));
     assert.equal(result.invalidHistory, 0);
+    assert.equal(result.fictionReadings + result.nonfictionReadings, result.readings);
+    assert.equal(result.fictionTypes.reduce((sum, row) => sum + row.count, 0), result.fictionReadings);
+    assert.equal(result.nonfictionTypes.reduce((sum, row) => sum + row.count, 0), result.nonfictionReadings);
 });
 
 test('standalone quote collections join the excerpt index without inflating library totals', async () => {
@@ -431,6 +508,9 @@ test('standalone quote collections join the excerpt index without inflating libr
     const total = dashboard.buildDashboard(records);
     assert.equal(total.books, 1); assert.equal(total.authors, 1);
     assert.equal(total.readings, 1); assert.equal(total.quotes, 1); assert.equal(total.invalidHistory, 0);
+    assert.equal(total.fictionReadings, 1); assert.equal(total.nonfictionReadings, 0);
+    assert.deepEqual(total.fictionTypes, [{ type: 'book', label: 'Книги', count: 1 }]);
+    assert.deepEqual(total.nonfictionTypes, []);
     assert.equal(dashboard.buildDashboard(records, { year: '2026' }).quotes, 0);
     assert.equal((await service.snapshot()).length, 1);
     const changed = h.files.get('Книги/Цитаты/Без источника.md');
