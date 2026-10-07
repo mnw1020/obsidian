@@ -38,6 +38,7 @@ async function mount(browser, { width = 1024, theme = 'theme-light', pane, text 
     await page.evaluate(async ({ source, css, text, failSourceRead }) => {
         const file = { path: 'Книги/Стихи.md', basename: 'Стихи', extension: 'md', text, stat: { mtime: 1 } };
         const files = new Map([[file.path, file], ['Книги/_system/poetry.css', { path: 'Книги/_system/poetry.css', text: css }]]);
+        files.set('Книги/_system/poetry_edit.js', { path: 'Книги/_system/poetry_edit.js', text: 'module.exports = { openCreate: async args => { window.fixture.createCalls.push(args); }, editPoem: async args => { window.fixture.editCalls.push(args); }, deletePoem: async args => { window.fixture.deleteCalls.push(args); } };' });
         const events = new Map(), disposers = [], openCalls = [], cursors = [], copies = [], notices = [];
         const on = (name, callback) => { const ref = { name, callback }; if (!events.has(name)) events.set(name, new Set()); events.get(name).add(ref); return ref; };
         const offref = ref => events.get(ref.name)?.delete(ref);
@@ -53,7 +54,7 @@ async function mount(browser, { width = 1024, theme = 'theme-light', pane, text 
         };
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async value => copies.push(value) } });
         const obsidian = { Notice: class { constructor(message) { notices.push(String(message)); } }, MarkdownView: class {}, setIcon: (element, icon) => { element.dataset.icon = icon; } };
-        window.fixture = { file, files, events, disposers, openCalls, cursors, copies, notices, app, leaf, leafCalls: [], editorFocus: 0, reads: 0, emit,
+        window.fixture = { file, files, events, disposers, openCalls, cursors, copies, notices, app, leaf, createCalls: [], editCalls: [], deleteCalls: [], leafCalls: [], editorFocus: 0, reads: 0, emit,
             modify(value) { file.text = value; file.stat.mtime++; emit('modify', file); },
             subscriptionCount() { return [...events.values()].reduce((sum, refs) => sum + refs.size, 0); }
         };
@@ -183,12 +184,11 @@ async function interactionChecks(browser) {
         await page.getByRole('button', { name: 'Копировать стихотворение', exact: true }).click();
         assert.deepEqual(await page.evaluate(() => window.fixture.copies), [poems[0].text], 'Copy preserves the full poem and its line breaks');
         await page.getByRole('button', { name: 'Редактировать стихотворение', exact: true }).click();
-        const edit = await page.evaluate(() => ({ open: window.fixture.openCalls[0], cursor: window.fixture.cursors[0], leaves: window.fixture.leafCalls, focus: window.fixture.editorFocus }));
-        assert.equal(edit.open[0].path, 'Книги/Стихи.md');
-        assert.equal(edit.open[1].state.mode, 'source');
-        assert.equal(edit.open[1].eState.line, poems[0].line);
-        assert.deepEqual(edit.cursor, { line: poems[0].line, ch: 0 });
-        assert.deepEqual(edit.leaves, [false]); assert.equal(edit.focus, 1);
+        await page.waitForFunction(() => window.fixture.editCalls.length === 1);
+        const edit = await page.evaluate(() => ({ entry: window.fixture.editCalls[0].entry, sourcePath: window.fixture.editCalls[0].sourcePath }));
+        assert.equal(edit.sourcePath, 'Книги/Стихи.md');
+        assert.equal(edit.entry.key, poems[0].key, 'Editing opens the native form for the exact selected poem');
+        assert.equal(edit.entry.text, poems[0].text);
         await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
         await showNavigation(page);
         const otherAuthor = page.locator('.book-poetry-author').filter({ has: page.locator('summary').filter({ hasText: 'Другой автор' }) });
@@ -222,6 +222,11 @@ async function interactionChecks(browser) {
         await page.evaluate(() => { window.fixture.app.workspace.activeLeaf = window.fixture.leaf; window.fixture.emit('file-open', window.fixture.file); });
         await page.waitForFunction(() => document.querySelector('.book-poetry-ui')?.dataset.sourceOpen === 'true');
         assert.equal(await page.locator('#native-source').isVisible(), true, 'Opening a native heading makes the source visible');
+        await page.getByRole('button', { name: 'Наугад', exact: true }).click();
+        assert.equal(await page.locator('#native-source').isVisible(), false, 'Random selection returns from full-page mode to reading');
+        assert.equal(await page.getByLabel('Поиск стихов', { exact: true }).inputValue(), '', 'Random selection in full-page mode clears hidden filters');
+        assert.equal(await page.getByLabel('Автор', { exact: true }).inputValue(), '');
+        assert.equal(await page.locator('.book-poetry-poem-button').count(), poems.length);
         await dispose(page);
         const reads = await page.evaluate(() => window.fixture.reads);
         await page.evaluate(() => window.fixture.modify('# Changed after unload'));

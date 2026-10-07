@@ -84,6 +84,7 @@ async function render({ dv, app, obsidian = {} }) {
     el(heading, 'h1', '', 'Стихи');
     const total = el(heading, 'p', 'book-poetry-total');
     const mastActions = el(identity, 'div', 'book-poetry-mast-actions');
+    const add = button(mastActions, 'Добавить', 'book-poetry-add'); add.setAttribute('aria-label', 'Добавить стихотворение');
     const random = button(mastActions, 'Наугад', 'book-poetry-random');
     const sourceToggle = button(mastActions, 'Все тексты', 'book-poetry-source-toggle');
     sourceToggle.setAttribute('aria-pressed', 'false');
@@ -123,6 +124,37 @@ async function render({ dv, app, obsidian = {} }) {
     }
     function notify(text) { warning.textContent = text; warning.hidden = !text; }
     function results() { return filterPoems(poems, { query: search.value, author }); }
+    let actionsPromise;
+    async function actions() {
+        if (!actionsPromise) actionsPromise = (async () => {
+            const file = app.vault.getAbstractFileByPath('Книги/_system/poetry_edit.js');
+            if (!file) throw new Error('Не найден модуль редактирования стихов.');
+            const editor = { exports: {} }; new Function('module', await app.vault.read(file))(editor); return editor.exports;
+        })().catch(problem => { actionsPromise = null; throw problem; });
+        return actionsPromise;
+    }
+    async function saved(entry) {
+        Object.assign(memory, { selected: entry.key || '', author: '', query: '', sourceOpen: false });
+        if (disposed) return;
+        selected = entry.key || ''; author = ''; search.value = ''; authorSelect.value = ''; setSource(false);
+        await reload();
+        if (!disposed) reader.scrollIntoView?.({ block: 'start' });
+    }
+    async function runAction(node, method, entry) {
+        if (node.disabled) return;
+        node.disabled = true; notify('');
+        try {
+            const editor = await actions();
+            await editor[method]({ app, obsidian, sourcePath: sourceFile.path, poems, parsePoems, entry,
+                initial: { author }, onSaved: saved,
+                onDeleted: async removed => {
+                    const rows = results(), index = rows.findIndex(poem => poem.key === removed.key);
+                    const next = rows[index + 1] || rows[index - 1]; memory.selected = next?.key || '';
+                    if (!disposed) { selected = memory.selected; await reload(); }
+                } });
+        } catch (problem) { if (!disposed) notify(problem.message || String(problem)); }
+        finally { node.disabled = false; }
+    }
     function setSource(open) {
         root.dataset.sourceOpen = String(open); sourceToggle.setAttribute('aria-pressed', String(open));
         sourceToggle.textContent = open ? 'Режим чтения' : 'Все тексты';
@@ -204,19 +236,9 @@ async function render({ dv, app, obsidian = {} }) {
             } catch (problem) { if (!disposed) notify(problem.message || 'Не удалось скопировать стихотворение.'); }
         });
         const edit = button(actions, 'Редактировать'); edit.setAttribute('aria-label', 'Редактировать стихотворение');
-        edit.addEventListener('click', async event => {
-            edit.disabled = true;
-            try {
-                const file = app.vault.getAbstractFileByPath(sourceFile.path);
-                if (!file) throw new Error('Заметка была удалена.');
-                const fresh = parsePoems(await app.vault.read(file)).find(row => row.key === poem.key);
-                if (!fresh) throw new Error('Стихотворение изменилось. Обновите сборник.');
-                const leaf = app.workspace.getLeaf(Boolean(event.ctrlKey || event.metaKey));
-                await leaf.openFile(file, { state: { mode: 'source' }, eState: { line: fresh.line } });
-                leaf.view?.editor?.setCursor({ line: fresh.line, ch: 0 }); leaf.view?.editor?.focus();
-            } catch (problem) { if (!disposed) notify(`Не удалось открыть редактор: ${problem.message || problem}`); }
-            finally { edit.disabled = false; }
-        });
+        edit.addEventListener('click', () => runAction(edit, 'editPoem', poem));
+        const remove = button(actions, 'Удалить', 'book-poetry-delete'); remove.setAttribute('aria-label', 'Удалить стихотворение');
+        remove.addEventListener('click', () => runAction(remove, 'deletePoem', poem));
         const pager = el(reader, 'div', 'book-poetry-pager');
         const previous = button(pager, '← Предыдущий'); previous.setAttribute('aria-label', 'Предыдущее стихотворение'); previous.disabled = index === 0;
         const next = button(pager, 'Следующий →'); next.setAttribute('aria-label', 'Следующее стихотворение'); next.disabled = index === rows.length - 1;
@@ -230,6 +252,7 @@ async function render({ dv, app, obsidian = {} }) {
         }, { signal: readerController.signal });
     }
     listen(search, 'input', draw);
+    listen(add, 'click', () => runAction(add, 'openCreate'));
     listen(authorSelect, 'change', () => { author = authorSelect.value; draw(); });
     listen(reset, 'click', () => { author = ''; search.value = ''; authorSelect.value = ''; draw(); });
     listen(navigationToggle, 'click', () => setNavigation(root.dataset.navigationOpen !== 'true'));
