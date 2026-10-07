@@ -21,12 +21,12 @@ const bookFiles = [
 ];
 const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 "JetBrains Mono",monospace;background:var(--background-primary);color:var(--text-normal);--editor-font:"JetBrains Mono",monospace;--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-error:#a83232}main{width:100%;max-width:1100px;margin:auto;padding:24px;min-width:0}.markdown-preview-sizer{width:100%;max-width:820px;margin-inline:auto;min-width:0}button,select{font:inherit;cursor:pointer}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-error:#ff8585}body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}.bases-table-container{max-width:100%;overflow:auto}.bases-table{width:100%;table-layout:fixed;border-collapse:collapse}.bases-table :is(td,th){padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere;border-bottom:1px solid var(--background-modifier-border)}`;
 
-async function mount(browser, { width = 1024, pane, theme = 'theme-light', quickadd = true, missingModule = false, failWidget = false, delayNative = false } = {}) {
+async function mount(browser, { width = 1024, pane, theme = 'theme-light', quickadd = true, missingModule = false, failWidget = false, delayNative = false, delayRead = false } = {}) {
     const page = await browser.newPage({ viewport: { width, height: 1200 } }), errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const paneStyle = pane ? ` style="width:${pane}px;margin-inline:0"` : '';
     await page.setContent(`<style>${baseline}</style><style>${thingsCss}</style><style>${gruvboxCss}</style><style>${dataviewCss}</style><style>${sources['Книги/_system/books-library.css']}</style><style>body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered books-library books-home-page"${paneStyle}><div class="markdown-preview-sizer markdown-preview-section"><div class="metadata-container">Свойства</div><div class="inline-title">_index</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><div class="el-h1" id="native-title"><h1>Библиотека</h1></div><div class="el-p" id="native-actions"><p class="books-actions-fallback"><a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20книгу">Записать произведение</a></p></div><div class="el-div" id="native-stats"><div class="callout" data-callout="quote"><div class="callout-title-inner">Библиотека</div><p>2 произведения · 2 автора · 1 серия</p></div></div><div class="el-p" id="native-body"><p>Исходная библиотека</p><a class="internal-link" data-href="Книги/_system/_Книги.base#Список" href="#">Весь каталог</a></div></div></main></body>`);
-    await page.evaluate(async ({ sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative }) => {
+    await page.evaluate(async ({ sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead }) => {
         const map = new Map(files.map(file => [file.path, file]));
         for (const [filePath, text] of Object.entries(sources)) map.set(filePath, { path: filePath, text });
         map.set('Книги/_index.md', { path: 'Книги/_index.md', name: '_index.md', basename: '_index', extension: 'md', text: note, fm: {} });
@@ -54,7 +54,10 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
             load() {}
             unload() { if (this.unloaded) return; this.unloaded = true; for (const child of this.children) child.unload?.(); this.children.clear(); for (const callback of this.cleanups.splice(0)) callback(); for (const ref of this.refs.splice(0)) ref.emitter.offref(ref); }
         }
-        const vault = Object.assign(new Events(), { getAbstractFileByPath: filePath => map.get(filePath), getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), read: async file => file.text, cachedRead: async file => file.text,
+        const vault = Object.assign(new Events(), { getAbstractFileByPath: filePath => map.get(filePath), getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), read: async file => {
+                if (delayRead && file.path === 'Книги/_system/library-home.css') await new Promise(resolve => { window.fixture.resolveInitialRead = resolve; });
+                return file.text;
+            }, cachedRead: async file => file.text,
             process: async () => { window.fixture.writes++; throw new Error('Home must not write notes'); }, create: async () => { window.fixture.writes++; throw new Error('Home must not create notes'); } });
         const metadataCache = Object.assign(new Events(), { getFileCache: file => ({ frontmatter: file.fm }), getFirstLinkpathDest: target => map.get(target) || map.get(target + '.md') });
         const opened = [], choices = [], notices = [], nativeCalls = [];
@@ -78,8 +81,8 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
         const dv = { container: document.querySelector('#content'), component, current: () => ({ file: { path: 'Книги/_index.md' } }), paragraph: text => document.querySelector('#content').createEl('p', { text }) };
         const module = { exports: {} }; new Function('module', sources['Книги/_system/library_home.js'])(module);
         window.renderPromise = module.exports({ app, dv, obsidian }).then(handle => { window.handle = handle; }, error => { if (!missingModule) throw error; window.fixture.initialError = error.message; });
-        if (!delayNative) await window.renderPromise;
-    }, { sources, files: bookFiles, yamlSource, note, quickadd, missingModule, failWidget, delayNative });
+        if (!delayNative && !delayRead) await window.renderPromise;
+    }, { sources, files: bookFiles, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead });
     return { page, errors };
 }
 
@@ -133,6 +136,10 @@ async function layoutChecks(browser) {
             assert.notEqual(await page.locator('.book-home-quotes .book-quote-text').textContent(), quote);
             const nav = page.locator('.book-home-masthead');
             for (const [label, target] of [['Цитаты', 'Книги/Цитаты'], ['Стихи', 'Книги/Стихи'], ['Итоги чтения', 'Книги/_system/Итоги чтения']]) assert.equal(await nav.getByRole('link', { name: label, exact: true }).getAttribute('data-href'), target);
+            assert.deepEqual(await page.locator('.book-home-view-links a').evaluateAll(links => links.map(link => link.dataset.href)), ['Все', 'Любимые', 'Без оценки', 'По году', 'По типу'].map(view => 'Книги/_system/_Книги.base#' + view), 'Catalogue shortcuts retain the canonical Base anchors');
+            assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: 'Стихи', exact: true }).getAttribute('data-href'), 'Книги/Стихи');
+            for (const label of ['Авторы', 'Серии', 'Экранизации']) assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: label, exact: true }).getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - ' + label));
+            assert.deepEqual(await page.locator('.book-home-footer a').evaluateAll(links => links.map(link => link.dataset.href)), ['Книги/_system/Проверка библиотеки', 'Книги/_system/Журнал изменений']);
             for (const [label, choice] of [['Записать произведение', 'Книги - Добавить книгу'], ['Записать чтение', 'Книги - Добавить чтение'], ['Сохранить выписку', 'Книги - Добавить выписку']]) {
                 const link = page.getByRole('link', { name: label, exact: true });
                 assert.equal(await link.getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent(choice)); await link.click();
@@ -214,6 +221,19 @@ async function lateCleanupChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function initialCleanupChecks(browser) {
+    const { page, errors } = await mount(browser, { delayRead: true });
+    try {
+        await page.waitForFunction(() => typeof window.fixture.resolveInitialRead === 'function');
+        assert.equal(await page.locator('.book-home-ui').count(), 0, 'Module reads finish before the enhanced page is created');
+        await page.evaluate(() => window.fixture.component.unload());
+        await page.evaluate(async () => { window.fixture.resolveInitialRead(); await window.renderPromise; });
+        await dispose(page);
+        assert.equal(await page.evaluate(() => window.fixture.writes), 0);
+        assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function main() {
     assert.match(note, /<!-- BOOK-HOME-STATS:START -->[\s\S]*<!-- BOOK-HOME-STATS:END -->/u, 'Native stats markers remain available for the snapshot updater');
     const blocks = [...note.matchAll(/\x60{3}dataviewjs\r?\n([\s\S]*?)\x60{3}/g)];
@@ -221,7 +241,7 @@ async function main() {
     new (Object.getPrototypeOf(async () => {}).constructor)('dv', 'app', 'require', blocks[0][1]);
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        const layouts = await layoutChecks(browser); await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser);
+        const layouts = await layoutChecks(browser); await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser); await initialCleanupChecks(browser);
         console.log(`${layouts} library Chromium layouts passed: real core/quotes/reading widgets, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
     } finally { await browser.close(); }
 }
