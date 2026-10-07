@@ -13,6 +13,8 @@
 }
 .book-poetry-ui * { box-sizing: border-box; }
 .book-poetry-ui [hidden] { display: none !important; }
+.book-poetry-ui[data-source-open="true"] :is(.book-poetry-heading,.book-poetry-controls,.book-poetry-mobile-bar,.book-poetry-shell) { display: none; }
+.book-poetry-ui[data-source-open="true"] .book-poetry-identity { margin-top: 16px; }
 .book-poetry-ui button { height: auto; min-width: 0; max-width: 100%; font: inherit; box-shadow: none; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
 .book-poetry-ui :is(button,input,select,a,summary):focus-visible { outline: 2px solid var(--poetry-accent); outline-offset: 3px; }
 .book-poetry-ui .book-poetry-masthead { position: relative; padding: 22px 28px 28px; border: 1px solid var(--poetry-line); border-top: 3px solid var(--poetry-accent); border-radius: 4px 4px 12px 12px; background: linear-gradient(120deg,var(--poetry-tint),var(--background-primary) 75%); }

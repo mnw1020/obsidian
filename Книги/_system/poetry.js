@@ -60,8 +60,13 @@ async function render({ dv, app, obsidian = {} }) {
     const cssFile = app.vault.getAbstractFileByPath('Книги/_system/poetry.css');
     if (!sourceFile || !cssFile) throw new Error('Не найден текст сборника или его оформление.');
     const [raw, css] = await Promise.all([app.vault.read(sourceFile), app.vault.read(cssFile)]);
-    let poems = parsePoems(raw), selected = '', author = '', disposed = false, generation = 0, timer;
     const doc = dv.container.ownerDocument, win = doc.defaultView;
+    const host = dv.container.closest('.markdown-preview-view') || dv.container;
+    const memory = host.__bookPoetryViewV1?.path === source ? host.__bookPoetryViewV1 : { path: source };
+    host.__bookPoetryViewV1 = memory;
+    const openGroups = new Map(memory.groups || []);
+    let poems = parsePoems(raw), selected = memory.selected || '', author = memory.author || '', disposed = false, generation = 0, timer;
+    let lastRenderedSelection = '';
     const listeners = [], events = [];
     let readerController = null;
     const root = el(dv.container, 'section', 'book-poetry-ui');
@@ -88,6 +93,7 @@ async function render({ dv, app, obsidian = {} }) {
     const search = el(searchLabel, 'input');
     search.type = 'search'; search.autocomplete = 'off'; search.placeholder = 'Автор, название или строка';
     search.setAttribute('aria-label', 'Поиск стихов');
+    search.value = memory.query || '';
     const authorLabel = el(controls, 'label', 'book-poetry-author-field');
     el(authorLabel, 'span', 'book-poetry-label', 'Автор');
     const authorSelect = el(authorLabel, 'select'); authorSelect.setAttribute('aria-label', 'Автор');
@@ -119,15 +125,19 @@ async function render({ dv, app, obsidian = {} }) {
     function results() { return filterPoems(poems, { query: search.value, author }); }
     function setSource(open) {
         root.dataset.sourceOpen = String(open); sourceToggle.setAttribute('aria-pressed', String(open));
+        sourceToggle.textContent = open ? 'Режим чтения' : 'Все тексты';
+        memory.sourceOpen = open;
+        random.disabled = (open ? poems : results()).length < 2;
     }
     function setNavigation(open) {
         root.dataset.navigationOpen = String(open); navigationToggle.setAttribute('aria-expanded', String(open));
     }
     function mobile() { return root.getBoundingClientRect().width <= 680; }
     function select(key, focus = false) {
+        setSource(false);
         selected = key; draw();
         if (mobile()) setNavigation(false);
-        if (focus) { reader.scrollIntoView?.({ block: 'nearest' }); reader.querySelector('h2')?.focus({ preventScroll: true }); }
+        if (focus) { reader.scrollIntoView?.({ block: 'start' }); reader.querySelector('h2')?.focus({ preventScroll: true }); }
     }
     function authorOptions() {
         const authors = [...new Set(poems.map(poem => poem.author))];
@@ -139,8 +149,10 @@ async function render({ dv, app, obsidian = {} }) {
         total.textContent = `${noun(authors.length, ['автор', 'автора', 'авторов'])} · ${noun(poems.length, ['текст', 'текста', 'текстов'])}`;
     }
     function draw() {
+        for (const group of navigation.querySelectorAll('details')) openGroups.set(group.dataset.author, group.open);
         const rows = results();
         if (!rows.some(poem => poem.key === selected)) selected = rows[0]?.key || '';
+        Object.assign(memory, { selected, author, query: search.value, groups: [...openGroups] });
         resultCount.textContent = search.value.trim() || author ? `Найдено: ${rows.length} из ${poems.length}` : `${noun(poems.length, ['текст', 'текста', 'текстов'])}`;
         reset.disabled = !search.value && !author; random.disabled = rows.length < 2;
         navigation.replaceChildren();
@@ -149,7 +161,13 @@ async function render({ dv, app, obsidian = {} }) {
         for (const poem of rows) { if (!groups.has(poem.author)) groups.set(poem.author, []); groups.get(poem.author).push(poem); }
         for (const [name, texts] of groups) {
             const group = el(navigation, 'details', 'book-poetry-author');
-            group.open = groups.size <= 12 || texts.some(poem => poem.key === selected);
+            group.dataset.author = name;
+            group.open = selected !== lastRenderedSelection && texts.some(poem => poem.key === selected)
+                || (openGroups.has(name) ? openGroups.get(name) : groups.size <= 12);
+            group.addEventListener('toggle', () => {
+                if (disposed || !group.isConnected) return;
+                openGroups.set(name, group.open); memory.groups = [...openGroups];
+            });
             const summary = el(group, 'summary'); el(summary, 'span', '', name); el(summary, 'small', '', texts.length);
             for (const poem of texts) {
                 const choice = button(group, poem.title, 'book-poetry-poem-button'); choice.dataset.key = poem.key;
@@ -157,6 +175,7 @@ async function render({ dv, app, obsidian = {} }) {
                 choice.addEventListener('click', () => select(poem.key, true));
             }
         }
+        lastRenderedSelection = selected;
         if (!rows.length) el(navigation, 'p', 'book-poetry-empty', 'Ничего не найдено');
         readerController?.abort(); readerController = new win.AbortController();
         reader.replaceChildren();
@@ -216,23 +235,41 @@ async function render({ dv, app, obsidian = {} }) {
     listen(navigationToggle, 'click', () => setNavigation(root.dataset.navigationOpen !== 'true'));
     listen(sourceToggle, 'click', () => setSource(root.dataset.sourceOpen !== 'true'));
     listen(random, 'click', () => {
+        if (root.dataset.sourceOpen === 'true') { author = ''; search.value = ''; authorSelect.value = ''; }
         const choices = results().filter(poem => poem.key !== selected);
         if (choices.length) select(choices[Math.floor(Math.random() * choices.length)].key, true);
     });
+    function containingView(node) {
+        const views = app.workspace.getLeavesOfType?.('markdown') || [];
+        const found = views.find(leaf => leaf.view?.containerEl?.contains(node));
+        if (found) return found.view;
+        const active = obsidian.MarkdownView && app.workspace.getActiveViewOfType?.(obsidian.MarkdownView);
+        return active?.containerEl?.contains(node) ? active : null;
+    }
+    function hasSubpath(view) { return Boolean(view?.getState?.()?.subpath || view?.getEphemeralState?.()?.subpath); }
     // Reveal original headings before Obsidian follows a legacy link into this note.
     listen(doc, 'click', event => {
         const anchor = event.target.closest?.('a.internal-link');
         const target = anchor?.getAttribute('data-href') || anchor?.getAttribute('href') || '';
         const [filePath, fragment] = target.split('#');
-        if (fragment && (!filePath || [sourceFile.path, sourceFile.path.replace(/\.md$/u, ''), sourceFile.basename || 'Стихи'].includes(filePath))) setSource(true);
+        if (!fragment) return;
+        if (!filePath) { if (anchor.closest('.markdown-preview-view') === host) setSource(true); return; }
+        const origin = containingView(anchor)?.file?.path || sourceFile.path;
+        const destination = app.metadataCache?.getFirstLinkpathDest?.(filePath, origin);
+        const basename = sourceFile.basename || sourceFile.path.split('/').at(-1).replace(/\.md$/u, '');
+        if (destination ? destination.path === sourceFile.path
+            : [sourceFile.path, sourceFile.path.replace(/\.md$/u, ''), basename, basename + '.md'].includes(filePath)) setSource(true);
     }, true);
     function subscribe(owner, name, callback) {
         if (!owner?.on) return;
         const ref = owner.on(name, callback); events.push(() => owner.offref?.(ref));
     }
-    subscribe(app.workspace, 'file-open', file => { if (file?.path === sourceFile.path) setSource(true); });
-    const currentView = obsidian.MarkdownView && app.workspace.getActiveViewOfType?.(obsidian.MarkdownView);
-    if (currentView?.file?.path === sourceFile.path && (currentView.getState?.()?.subpath || currentView.getEphemeralState?.()?.subpath)) setSource(true);
+    subscribe(app.workspace, 'file-open', file => {
+        const view = containingView(dv.container);
+        if (file?.path === sourceFile.path && view && app.workspace.activeLeaf?.view === view && hasSubpath(view)) setSource(true);
+    });
+    const currentView = containingView(dv.container);
+    setSource(Boolean(memory.sourceOpen || currentView?.file?.path === sourceFile.path && hasSubpath(currentView)));
     async function reload() {
         const token = ++generation;
         try {
@@ -249,7 +286,12 @@ async function render({ dv, app, obsidian = {} }) {
     subscribe(app.vault, 'modify', file => { if (file.path === sourceFile.path) schedule(); });
     subscribe(app.vault, 'delete', file => { if (file.path === sourceFile.path) schedule(); });
     subscribe(app.vault, 'rename', (file, oldPath) => { if (oldPath === sourceFile.path) { sourceFile = file; schedule(); } });
-    function dispose() { disposed = true; clearTimeout(timer); readerController?.abort(); for (const cleanup of [...events, ...listeners]) cleanup(); }
+    function dispose() {
+        if (disposed) return;
+        disposed = true; clearTimeout(timer); readerController?.abort();
+        for (const cleanup of [...events, ...listeners]) cleanup();
+        root.dataset.ready = 'false'; root.remove();
+    }
     dv.component?.register?.(dispose);
     authorOptions(); draw(); root.dataset.ready = 'true';
     return { reload, dispose };
