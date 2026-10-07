@@ -118,17 +118,18 @@ async function assertNumbers(page) {
         const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
         const context = canvas.getContext('2d');
         const rgb = color => { context.clearRect(0, 0, 1, 1); context.fillStyle = color; context.fillRect(0, 0, 1, 1); return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3); };
-        return nodes.map(node => { const style = getComputedStyle(node); return { font: style.fontFamily, numeric: style.fontVariantNumeric, color: rgb(style.color), normal: rgb(style.getPropertyValue('--text-normal').trim()), accent: rgb(style.getPropertyValue('--text-accent').trim()) }; });
+        return nodes.map(node => { const style = getComputedStyle(node); return { font: style.fontFamily, weight: style.fontWeight, numeric: style.fontVariantNumeric, color: rgb(style.color), normal: rgb(style.getPropertyValue('--text-normal').trim()), accent: rgb(style.getPropertyValue('--text-accent').trim()) }; });
     });
     assert.equal(numbers.length, 8, 'All five header and three reading figures share the numeric style');
     const distance = (left, right) => Math.hypot(...left.map((channel, index) => channel - right[index]));
     for (const number of numbers) {
         assert.match(number.font, /mono|Consolas|Courier|Menlo/iu, 'Numbers use a monospace font');
+        assert.equal(number.weight, '700', 'Numbers have the requested bold weight');
         assert.match(number.numeric, /tabular-nums/u, 'Digits align in columns');
         assert.match(number.numeric, /lining-nums/u, 'Digits share their baseline');
         const normalDistance = distance(number.color, number.normal), accentDistance = distance(number.accent, number.normal);
         assert(normalDistance > 1, 'Numbers have a subtle accent rather than the plain text color');
-        assert(normalDistance / accentDistance > .12 && normalDistance / accentDistance < .28, 'Number color remains a soft blend close to the normal text');
+        assert(normalDistance / accentDistance > .47 && normalDistance / accentDistance < .63, 'Number color uses approximately 55% accent');
     }
     assert.equal(new Set(numbers.map(number => number.color.join(','))).size, 1, 'Header and reading figures have the same color');
 }
