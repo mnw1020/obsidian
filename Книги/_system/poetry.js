@@ -135,7 +135,7 @@ async function render({ dv, app, obsidian = {} }) {
     }
     async function saved(entry) {
         Object.assign(memory, { selected: entry.key || '', author: '', query: '', sourceOpen: false });
-        if (disposed) return;
+        if (disposed) { host.dispatchEvent(new win.CustomEvent('book-poetry-change', { detail: { path: sourceFile.path } })); return; }
         selected = entry.key || ''; author = ''; search.value = ''; authorSelect.value = ''; setSource(false);
         await reload();
         if (!disposed) reader.scrollIntoView?.({ block: 'start' });
@@ -151,6 +151,7 @@ async function render({ dv, app, obsidian = {} }) {
                     const rows = results(), index = rows.findIndex(poem => poem.key === removed.key);
                     const next = rows[index + 1] || rows[index - 1]; memory.selected = next?.key || '';
                     if (!disposed) { selected = memory.selected; await reload(); }
+                    else host.dispatchEvent(new win.CustomEvent('book-poetry-change', { detail: { path: sourceFile.path } }));
                 } });
         } catch (problem) { if (!disposed) notify(problem.message || String(problem)); }
         finally { node.disabled = false; }
@@ -223,10 +224,11 @@ async function render({ dv, app, obsidian = {} }) {
         attribution.addEventListener('click', () => { author = poem.author; authorSelect.value = author; draw(); });
         el(top, 'span', 'book-poetry-position', `${index + 1} / ${rows.length}`);
         const title = el(reader, 'h2', 'book-poetry-title', poem.title); title.tabIndex = -1;
+        const poemActions = el(reader, 'div', 'book-poetry-reader-actions');
         el(reader, 'p', 'book-poetry-text', poem.text);
         const footer = el(reader, 'div', 'book-poetry-reader-footer');
         el(footer, 'span', 'book-poetry-length', `${noun(poem.lines, ['строка', 'строки', 'строк'])} · ${noun(poem.stanzas, ['строфа', 'строфы', 'строф'])}`);
-        const actions = el(footer, 'div', 'book-poetry-reader-actions');
+        const actions = poemActions;
         const copy = button(actions, 'Копировать'); copy.setAttribute('aria-label', 'Копировать стихотворение');
         copy.addEventListener('click', async () => {
             try {
@@ -252,6 +254,11 @@ async function render({ dv, app, obsidian = {} }) {
         }, { signal: readerController.signal });
     }
     listen(search, 'input', draw);
+    listen(host, 'book-poetry-change', event => {
+        if (event.detail?.path !== sourceFile.path) return;
+        selected = memory.selected || ''; author = memory.author || ''; search.value = memory.query || '';
+        authorSelect.value = author; setSource(Boolean(memory.sourceOpen)); reload();
+    });
     listen(add, 'click', () => runAction(add, 'openCreate'));
     listen(authorSelect, 'change', () => { author = authorSelect.value; draw(); });
     listen(reset, 'click', () => { author = ''; search.value = ''; authorSelect.value = ''; draw(); });

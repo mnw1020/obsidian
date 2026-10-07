@@ -246,12 +246,49 @@ async function fallbackChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function crudDispatchChecks(browser) {
+    const { page, errors } = await mount(browser, { text: fixtureNote });
+    try {
+        await page.getByLabel('Автор', { exact: true }).selectOption({ label: 'Пётр Ёлкин' });
+        await page.getByLabel('Поиск стихов', { exact: true }).fill('память');
+        await page.getByRole('button', { name: 'Добавить стихотворение', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.createCalls.length === 1);
+        assert.equal(await page.evaluate(() => window.fixture.createCalls[0].sourcePath), 'Книги/Стихи.md');
+        assert.equal(await page.evaluate(() => window.fixture.createCalls[0].initial.author), 'Пётр Ёлкин');
+        const createdSource = fixtureNote + '\n## Новый автор\n\n### Новый текст\nНовые строки.\n';
+        const created = poetry.parsePoems(createdSource).at(-1);
+        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.createCalls[0].onSaved(entry); }, { text: createdSource, entry: created });
+        assert.equal(await page.locator('.book-poetry-title').textContent(), created.title, 'Creation selects the newly saved poem');
+        assert.equal(await page.getByLabel('Автор', { exact: true }).inputValue(), '');
+        assert.equal(await page.getByLabel('Поиск стихов', { exact: true }).inputValue(), '', 'Creation clears filters that would hide the new poem');
+        assert.equal(await page.locator('.book-poetry-poem-button').count(), 5);
+        assert.equal(await page.locator('.book-poetry-total').textContent(), '3 автора · 5 текстов');
+        await page.getByRole('button', { name: 'Редактировать стихотворение', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.editCalls.length === 1);
+        assert.equal(await page.evaluate(() => window.fixture.editCalls[0].entry.key), created.key);
+        const editedSource = createdSource.replace('Новый автор', 'Переименованный автор').replace('Новый текст', 'Изменённое название').replace('Новые строки.', 'Изменённые строки.');
+        const edited = poetry.parsePoems(editedSource).at(-1);
+        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.editCalls[0].onSaved(entry); }, { text: editedSource, entry: edited });
+        assert.equal(await page.locator('.book-poetry-title').textContent(), edited.title, 'Editing updates the title and selected poem key');
+        assert.equal(await page.locator('.book-poetry-attribution').textContent(), edited.author);
+        assert.equal(await page.locator('.book-poetry-text').textContent(), edited.text);
+        await page.getByRole('button', { name: 'Удалить стихотворение', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.deleteCalls.length === 1);
+        assert.equal(await page.evaluate(() => window.fixture.deleteCalls[0].entry.key), edited.key);
+        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.deleteCalls[0].onDeleted(entry); }, { text: fixtureNote, entry: edited });
+        assert.equal(await page.locator('.book-poetry-poem-button').count(), 4);
+        assert.equal(await page.locator('.book-poetry-total').textContent(), '2 автора · 4 текста');
+        assert.equal(await page.locator('.book-poetry-title').textContent(), 'Последний текст', 'Deletion selects a neighbouring poem');
+        await assertBounded(page); await dispose(page); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
         const layouts = await layoutChecks(browser);
-        await interactionChecks(browser); await fallbackChecks(browser);
-        console.log(`${layouts} poetry Chromium layouts passed: Things, gruvbox and Dataview, narrow panes, overflow, author/text search, ё/е, selection, previous/next, native source, copy/edit, live updates and unload.`);
+        await interactionChecks(browser); await fallbackChecks(browser); await crudDispatchChecks(browser);
+        console.log(`${layouts} poetry Chromium layouts passed: Things, gruvbox and Dataview, narrow panes, overflow, author/text search, ё/е, selection, previous/next, native source, copy, CRUD forms/callbacks, live updates and unload.`);
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
