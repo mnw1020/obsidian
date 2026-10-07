@@ -1,6 +1,6 @@
 {
-  "reference": "Кино/Media/3 дня на убийство.md",
-  "updatedAt": "2026-10-03T20:09:19.089Z",
+  "reference": "Кино/Media/Рыцарь дня.md",
+  "updatedAt": "2026-10-07T18:19:42.202Z",
   "yearSettings": {
     "start": "1888",
     "end": "current"
@@ -11,7 +11,7 @@
     "movieTon": false,
     "likeFilm": false,
     "tmdb": false,
-    "openai": false,
-    "watched": true
+    "openai": true,
+    "watched": false
   }
 }

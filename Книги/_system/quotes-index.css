@@ -78,7 +78,9 @@
 .book-quotes-index .book-quote-source .internal-link:hover { color: var(--quotes-accent); text-decoration: underline; text-underline-offset: 3px; }
 .book-quotes-index .book-quote-source small { font-size: 1em; }
 .book-quotes-index .book-quote-authors + .book-quote-work-link::before { content: '· '; color: var(--quotes-muted); }
-.book-quotes-index .book-quote-edit { min-width: 0; max-width: 100%; border: 1px solid transparent; border-radius: 5px; background: transparent; padding: 5px 8px; margin: 0; color: var(--quotes-muted); font-size: .75em; min-height: 30px; overflow-wrap: anywhere; }
+.book-quotes-index .book-quote-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; min-width: 0; max-width: 100%; }
+.book-quotes-index :is(.book-quote-edit,.book-quote-delete) { min-width: 0; max-width: 100%; border: 1px solid transparent; border-radius: 5px; background: transparent; padding: 5px 8px; margin: 0; color: var(--quotes-muted); font-size: .75em; min-height: 30px; overflow-wrap: anywhere; }
+.book-quotes-index .book-quote-delete:hover { color: var(--text-error); background: var(--background-secondary); border-color: var(--quotes-soft-line); }
 .book-quotes-index .book-quote-edit:hover { color: var(--text-normal); border-color: var(--quotes-soft-line); background: var(--background-secondary); }
 .book-quotes-index .book-quote-conclusion { border-left: 2px solid var(--quotes-accent); border-radius: 0 6px 6px 0; padding: 10px 14px 12px; margin-top: 16px; background: color-mix(in srgb, var(--background-secondary) 60%, var(--background-primary)); }
 .book-quotes-index .book-quote-conclusion small { color: var(--quotes-muted); font-size: .72em; font-weight: 600; }
@@ -113,6 +115,6 @@
     .book-quotes-index .book-quotes-row { padding: 16px; }
     .book-quotes-index .book-quote-footer { gap: 6px; }
     .book-quotes-index .book-quote-source { flex-basis: 100%; }
-    .book-quotes-index .book-quote-edit { margin-left: auto; }
+    .book-quotes-index .book-quote-actions { margin-left: auto; }
 }
 @media(pointer:coarse) { .book-quotes-index button { min-height: 44px; } }

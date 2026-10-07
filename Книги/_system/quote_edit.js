@@ -233,4 +233,62 @@ async function editQuote({ app, obsidian, entry, onSaved } = {}) {
     }
 }
 
-module.exports = Object.assign(editQuote, { replaceExcerpt });
+function removeExcerpt(raw, id, baseline) {
+    const block = findExcerptBlock(raw, id);
+    if (typeof baseline !== "string" || block.raw !== baseline) throw new Error("Эта цитата изменилась, пока окно было открыто. Закройте его и откройте цитату заново.");
+    const newline = raw.slice(block.end).startsWith("\r\n") ? 2 : raw[block.end] === "\n" ? 1 : 0;
+    return raw.slice(0, block.start) + raw.slice(block.end + newline);
+}
+
+async function deleteQuote({ app, obsidian, entry, onDeleted } = {}) {
+    try {
+        if (!obsidian?.Modal || !app?.vault?.process) throw new Error("Окно удаления цитаты недоступно.");
+        const path = entry?.path, id = entry?.id;
+        const file = app.vault.getAbstractFileByPath(path);
+        if (!file || file.path !== path) throw new Error("Источник цитаты больше не найден.");
+        const knowledge = await loadKnowledge(app);
+        const raw = await app.vault.read(file);
+        const block = findExcerptBlock(raw, id), baseline = block.raw;
+        const quote = knowledge.parseExcerpts(raw).find(value => value.id === id);
+        if (!quote) throw new Error("Цитата больше не найдена.");
+        class QuoteDeleteModal extends obsidian.Modal {
+            onOpen() {
+                const content = this.contentEl; content.replaceChildren();
+                content.classList?.add("book-quote-delete-dialog");
+                child(content, "style", ".book-quote-delete-dialog{min-width:0}.book-quote-delete-dialog .book-quote-delete-preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow-y:auto;padding:12px;border:1px solid var(--background-modifier-border);border-radius:8px}.book-quote-delete-dialog .book-quote-delete-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:20px}.book-quote-delete-dialog .book-quote-delete-error{color:var(--text-error);white-space:pre-wrap}");
+                child(content, "h2", "Удалить цитату?");
+                child(content, "p", quote.text, "book-quote-delete-preview");
+                child(content, "p", "Будет удалена эта цитата вместе с её выводом и метками. Остальной текст заметки сохранится.");
+                this.errorEl = child(content, "p", "", "book-quote-delete-error"); this.errorEl.setAttribute("role", "alert");
+                const actions = child(content, "div", undefined, "book-quote-delete-actions");
+                this.cancelButton = child(actions, "button", "Отмена"); this.cancelButton.type = "button";
+                this.cancelButton.addEventListener("click", () => { if (!this.saving) this.close(); });
+                this.deleteButton = child(actions, "button", "Удалить", "mod-warning"); this.deleteButton.type = "button";
+                this.deleteButton.addEventListener("click", () => this.confirmDelete());
+                this.cancelButton.focus?.();
+            }
+            async confirmDelete() {
+                if (this.saving) return;
+                this.saving = true; this.deleteButton.disabled = true; this.cancelButton.disabled = true; this.errorEl.textContent = "";
+                try {
+                    await app.vault.process(file, current => {
+                        if (app.vault.getAbstractFileByPath(path) !== file || file.path !== path) throw new Error("Источник цитаты изменился или больше не доступен.");
+                        return removeExcerpt(current, id, baseline);
+                    });
+                    this.close();
+                    if (onDeleted) {
+                        try { await onDeleted({ path, id }); }
+                        catch (error) { if (obsidian.Notice) new obsidian.Notice("Цитата удалена. Не удалось обновить страницу: " + (error.message || error)); }
+                    }
+                } catch (error) { this.errorEl.textContent = error.message || String(error); }
+                finally { this.saving = false; this.deleteButton.disabled = false; this.cancelButton.disabled = false; }
+            }
+        }
+        const modal = new QuoteDeleteModal(app); modal.open(); return modal;
+    } catch (error) {
+        if (obsidian?.Notice) new obsidian.Notice(error.message || String(error));
+        return null;
+    }
+}
+
+module.exports = Object.assign(editQuote, { replaceExcerpt, removeExcerpt, deleteQuote });

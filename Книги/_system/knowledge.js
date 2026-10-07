@@ -406,7 +406,7 @@ function canonicalAuthorPath(value) {
     return `Книги/_system/Авторы/${safe}-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
-function renderQuote(parent, entry, app, onEdit, home = false, openAuthor) {
+function renderQuote(parent, entry, app, onEdit, home = false, openAuthor, onDelete) {
     const row = element(parent, "article", undefined, home ? "book-excerpt-card" : "book-quotes-row");
     const text = element(row, "p", entry.text, "book-quote-text"); text.style.whiteSpace = "pre-wrap";
     const footer = element(row, "footer", undefined, "book-quote-footer");
@@ -435,9 +435,13 @@ function renderQuote(parent, entry, app, onEdit, home = false, openAuthor) {
         if (app.vault.getAbstractFileByPath(entry.path)) app.workspace.openLinkText(target, entry.path, event.ctrlKey || event.metaKey);
     });
     if (entry.location) element(info, "small", entry.location, "book-quote-location");
-    const edit = element(footer, "button", "Редактировать", "book-quote-edit");
+    const actions = element(footer, "div", undefined, "book-quote-actions");
+    const edit = element(actions, "button", "Редактировать", "book-quote-edit");
     edit.setAttribute("aria-label", "Редактировать цитату");
     edit.addEventListener("click", () => onEdit(entry));
+    const remove = element(actions, "button", "Удалить", "book-quote-delete");
+    remove.setAttribute("aria-label", "Удалить цитату");
+    remove.addEventListener("click", () => onDelete(entry));
     if (entry.conclusion) {
         const conclusion = element(row, "div", undefined, "book-quote-conclusion");
         element(conclusion, "small", "Мой вывод"); const text = element(conclusion, "p", entry.conclusion); text.style.whiteSpace = "pre-wrap";
@@ -538,14 +542,25 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             else status.textContent = message;
         }
     }
+    async function loadEditor() {
+        if (!editorPromise) editorPromise = (async () => {
+            const file = app.vault.getAbstractFileByPath("Книги/_system/quote_edit.js");
+            if (!file) throw new Error("Не найден редактор цитат.");
+            const module = { exports: {} }; new Function("module", await app.vault.read(file))(module); return module.exports;
+        })().catch(error => { editorPromise = null; throw error; });
+        return editorPromise;
+    }
+    async function remove(entry) {
+        try {
+            const editor = await loadEditor();
+            await editor.deleteQuote({ app, obsidian, entry, onDeleted: async () => {
+                service.invalidate(entry.path); await reload(); remember();
+            } });
+        } catch (error) { status.textContent = "Не удалось открыть удаление: " + (error.message || error); }
+    }
     async function edit(entry) {
         try {
-            if (!editorPromise) editorPromise = (async () => {
-                const file = app.vault.getAbstractFileByPath("Книги/_system/quote_edit.js");
-                if (!file) throw new Error("Не найден редактор цитат.");
-                const module = { exports: {} }; new Function("module", await app.vault.read(file))(module); return module.exports;
-            })().catch(error => { editorPromise = null; throw error; });
-            const editor = await editorPromise;
+            const editor = await loadEditor();
             await editor({ app, obsidian, entry, onSaved: async () => {
                 service.invalidate(entry.path); await reload();
                 const updated = entries.find(value => value.path === entry.path && value.id === entry.id);
@@ -675,7 +690,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             status.textContent = entries.length ? quoteCountLabel(entries.length) : "Добавь первую цитату из карточки книги.";
             if (entries.length) {
                 const entry = entries.find(entry => `${entry.path}:${entry.id}` === randomId) || entries[Math.floor(Math.random() * entries.length)];
-                randomId = `${entry.path}:${entry.id}`; renderQuote(content, entry, app, edit, true, openAuthor);
+                randomId = `${entry.path}:${entry.id}`; renderQuote(content, entry, app, edit, true, openAuthor, remove);
             }
             return;
         }
@@ -695,7 +710,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const current = excerptPage(filtered, page); page = current.page;
         status.textContent = current.pages === 1 ? quoteCountLabel(filtered.length) : `${current.start}–${current.end} из ${filtered.length} цитат`;
         resetQuery.hidden = !queryValue;
-        for (const entry of current.entries) renderQuote(content, entry, app, edit, false, openAuthor);
+        for (const entry of current.entries) renderQuote(content, entry, app, edit, false, openAuthor, remove);
         if (!filtered.length) element(content, "p", entries.length ? "В этой подборке цитат пока нет." : "Добавь первую цитату из карточки книги.", "book-quotes-empty");
         pagination.replaceChildren(); pagination.hidden = current.pages === 1;
         if (current.pages > 1) {
