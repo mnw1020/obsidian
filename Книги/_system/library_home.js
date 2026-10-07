@@ -68,7 +68,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     search.replaceChildren(icon);
     const stats = el(masthead, 'div', 'book-home-stats');
     const statValues = [];
-    for (const [key, label] of [['books', 'Произведений'], ['authors', 'Авторов'], ['series', 'Серий'], ['rated', 'Оценено'], ['reread', 'Перечитано']]) {
+    for (const [key, label] of [['books', 'Произведений'], ['authors', 'Авторов'], ['fictionRead', 'Художественных прочитано'], ['nonfictionRead', 'Нон-фикшн прочитано'], ['reread', 'Перечитано']]) {
         const cell = el(stats, 'div', 'book-home-stat');
         const value = el(cell, 'strong'); value.dataset.stat = key; el(cell, 'span', '', label); statValues.push([key, value]);
     }
