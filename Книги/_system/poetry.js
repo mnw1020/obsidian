@@ -62,6 +62,8 @@ async function render({ dv, app, obsidian = {} }) {
     const [raw, css] = await Promise.all([app.vault.read(sourceFile), app.vault.read(cssFile)]);
     let poems = parsePoems(raw), selected = '', author = '', disposed = false, generation = 0, timer;
     const doc = dv.container.ownerDocument, win = doc.defaultView;
+    const listeners = [], events = [];
+    let readerController = null;
     const root = el(dv.container, 'section', 'book-poetry-ui');
     root.dataset.navigationOpen = 'false'; root.dataset.sourceOpen = 'false';
     el(root, 'style', '', css);
@@ -98,8 +100,6 @@ async function render({ dv, app, obsidian = {} }) {
     const navigation = el(shell, 'nav', 'book-poetry-navigation'); navigation.setAttribute('aria-label', 'Оглавление стихов');
     const reader = el(shell, 'article', 'book-poetry-reader');
     const warning = el(root, 'p', 'book-poetry-warning'); warning.setAttribute('role', 'status'); warning.hidden = true;
-    const listeners = [], events = [];
-    let readerController = null;
 
     function el(parent, tag, cls, text) {
         const node = doc.createElement(tag);
@@ -232,7 +232,7 @@ async function render({ dv, app, obsidian = {} }) {
     }
     subscribe(app.workspace, 'file-open', file => { if (file?.path === sourceFile.path) setSource(true); });
     const currentView = obsidian.MarkdownView && app.workspace.getActiveViewOfType?.(obsidian.MarkdownView);
-    if (currentView?.file?.path === sourceFile.path && (currentView.getState?.().subpath || currentView.getEphemeralState?.().subpath)) setSource(true);
+    if (currentView?.file?.path === sourceFile.path && (currentView.getState?.()?.subpath || currentView.getEphemeralState?.()?.subpath)) setSource(true);
     async function reload() {
         const token = ++generation;
         try {

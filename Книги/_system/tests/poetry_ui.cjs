@@ -57,7 +57,12 @@ async function mount(browser, { width = 1024, theme = 'theme-light', pane, text 
             subscriptionCount() { return [...events.values()].reduce((sum, refs) => sum + refs.size, 0); }
         };
         const module = { exports: {} }; new Function('module', source)(module);
-        window.handle = await module.exports({ app, obsidian, dv: { container: document.querySelector('#content'), current: () => ({ file: { path: file.path } }), component: { register: callback => disposers.push(callback), registerEvent: () => {} } } });
+        try {
+            window.handle = await module.exports({ app, obsidian, dv: { container: document.querySelector('#content'), current: () => ({ file: { path: file.path } }), component: { register: callback => disposers.push(callback), registerEvent: () => {} } } });
+        } catch (error) {
+            if (!failSourceRead) throw error;
+            window.fixture.initialError = error.message;
+        }
     }, { source, css, text, failSourceRead });
     return { page, errors };
 }
@@ -200,6 +205,7 @@ async function fallbackChecks(browser) {
     try {
         assert.equal(await page.locator('#native-source').isVisible(), true, 'A read failure leaves native Markdown readable');
         assert.equal(await page.locator('.book-poetry-ui[data-ready="true"]').count(), 0);
+        assert.equal(await page.evaluate(() => window.fixture.initialError), 'Source fixture is unavailable');
         assert.deepEqual(errors, []);
     } finally { await page.close(); }
 }
