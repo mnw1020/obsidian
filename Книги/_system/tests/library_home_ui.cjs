@@ -90,7 +90,7 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
 
 async function assertBounded(page) {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'The library fits the viewport');
-    const overflowing = await page.evaluate(() => ['.markdown-preview-view', '.markdown-preview-sizer', '#content', '.book-home-ui', '.book-home-masthead', '.book-home-stats', '.book-home-recent', '.book-home-columns', '.book-home-quotes', '.book-home-reading', '.book-home-overviews'].flatMap(selector => {
+    const overflowing = await page.evaluate(() => ['.markdown-preview-view', '.markdown-preview-sizer', '#content', '.book-home-ui', '.book-home-masthead', '.book-home-stats', '.book-home-recent', '.book-home-reading', '.book-home-overviews'].flatMap(selector => {
         const node = document.querySelector(selector);
         if (!node?.getClientRects().length || node.scrollWidth <= node.clientWidth + 1) return [];
         return [{ selector, client: node.clientWidth, scroll: node.scrollWidth }];
@@ -137,8 +137,8 @@ async function assertNumbers(page) {
 async function layoutChecks(browser) {
     let count = 0;
     const smoke = process.argv.includes('--smoke');
-    const layouts = smoke ? [{ width: 390 }] : [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1280, pane: 390 }];
-    for (const layout of layouts) for (const theme of smoke ? ['theme-light'] : ['theme-light', 'theme-dark']) {
+    const layouts = smoke ? [{ width: 390, theme: 'theme-light' }, { width: 1024, theme: 'theme-dark' }] : [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1280, pane: 390 }];
+    for (const layout of layouts) for (const theme of smoke ? [layout.theme] : ['theme-light', 'theme-dark']) {
         const { page, errors } = await mount(browser, { ...layout, theme });
         try {
             assert.equal(await page.locator('.book-home-ui[data-ready="true"]').count(), 1);
@@ -154,15 +154,16 @@ async function layoutChecks(browser) {
             assert.equal(targets, 'true', 'Recent works start expanded');
             assert.match(await page.evaluate(() => window.fixture.nativeCalls[0].markdown), /Книги\/_system\/_Книги\.base#Главная/u);
             assert.equal(await page.locator('.book-home-recent .bases-table tbody tr').count(), 2);
-            assert.equal(await page.locator('.book-home-quotes .book-quote-text').count(), 1);
-            assert.match(await page.locator('.book-home-quotes .book-quotes-status').textContent(), /2 цитаты/u);
+            assert.equal(await page.locator('.book-home-quotes, .book-home-columns').count(), 0, 'The quote panel and its columns wrapper are removed');
+            assert.equal(await page.getByRole('heading', { name: 'Из заметок', exact: true }).count(), 0);
+            assert.equal(await page.getByRole('button', { name: 'Другая цитата', exact: true }).count(), 0);
             assert.deepEqual(await page.locator('.book-home-reading .book-dashboard-metric strong').allTextContents(), ['1', '1', '2']);
+            const recentBox = await page.locator('.book-home-recent').boundingBox(), readingBox = await page.locator('.book-home-reading').boundingBox();
+            assert(Math.abs(recentBox.x - readingBox.x) <= 1 && Math.abs(recentBox.width - readingBox.width) <= 1, 'Reading metrics use the full panel width');
+            assert(readingBox.y >= recentBox.y + recentBox.height, 'Reading metrics sit below recent works');
             await assertNumbers(page);
             assert.match(await page.locator('.book-home-reading .book-dashboard-reading-list').textContent(), /Вторая книга/u);
             assert.equal(await page.locator('.book-home-reading select').count(), 0, 'Detailed period controls stay on the results page');
-            const quote = await page.locator('.book-home-quotes .book-quote-text').textContent();
-            await page.getByRole('button', { name: 'Другая цитата', exact: true }).click();
-            assert.notEqual(await page.locator('.book-home-quotes .book-quote-text').textContent(), quote);
             const nav = page.locator('.book-home-masthead');
             for (const [label, target] of [['Цитаты', 'Книги/Цитаты'], ['Стихи', 'Книги/Стихи'], ['Итоги чтения', 'Книги/_system/Итоги чтения']]) assert.equal(await nav.getByRole('link', { name: label, exact: true }).getAttribute('data-href'), target);
             assert.deepEqual(await page.locator('.book-home-view-links a').evaluateAll(links => links.map(link => link.dataset.href)), ['Все', 'Любимые', 'Без оценки', 'По году', 'По типу'].map(view => 'Книги/_system/_Книги.base#' + view), 'Catalogue shortcuts retain the canonical Base anchors');
@@ -215,12 +216,14 @@ async function liveChecks(browser) {
         await page.waitForFunction(() => document.querySelector('[data-stat="books"]')?.textContent === '1');
         assert.equal(await page.locator('[data-stat="fictionRead"]').textContent(), '1');
         assert.equal(await page.locator('[data-stat="nonfictionRead"]').textContent(), '0', 'Deleting a nonfiction work updates its read count');
-        await page.waitForFunction(() => document.querySelector('.book-home-quotes .book-quotes-status')?.textContent === '1 цитата');
+        await page.waitForFunction(() => document.querySelectorAll('.book-home-reading .book-dashboard-metric strong')[2]?.textContent === '1');
+        assert.deepEqual(await page.locator('.book-home-reading .book-dashboard-metric strong').allTextContents(), ['1', '1', '1'], 'Quote counts still update inside the reading metrics');
         await page.evaluate(file => window.fixture.add(file), bookFiles[1]);
         await page.waitForFunction(() => document.querySelector('[data-stat="books"]')?.textContent === '2');
         assert.equal(await page.locator('[data-stat="fictionRead"]').textContent(), '1');
         assert.equal(await page.locator('[data-stat="nonfictionRead"]').textContent(), '1', 'Adding a nonfiction work restores its read count');
-        await page.waitForFunction(() => document.querySelector('.book-home-quotes .book-quotes-status')?.textContent === '2 цитаты');
+        await page.waitForFunction(() => document.querySelectorAll('.book-home-reading .book-dashboard-metric strong')[2]?.textContent === '2');
+        assert.deepEqual(await page.locator('.book-home-reading .book-dashboard-metric strong').allTextContents(), ['1', '1', '2']);
         await assertBounded(page); await dispose(page); assert.deepEqual(errors, []);
     } finally { await page.close(); }
 }
@@ -287,10 +290,13 @@ async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
         const layouts = await layoutChecks(browser);
-        if (process.argv.includes('--layouts-only')) console.log(`${layouts} library Chromium layouts passed: Things/gruvbox/Dataview, narrow panes, hidden properties, action order, accessible search icon, responsive final action row and real widgets.`);
+        if (process.argv.includes('--layouts-only')) {
+            if (process.argv.includes('--live')) await liveChecks(browser);
+            console.log(`${layouts} library Chromium layouts passed: full-width reading metrics, removed quote panel, Things/gruvbox/Dataview, hidden properties, action order, accessible search icon${process.argv.includes('--live') ? ', live work/quote counts and widget cleanup' : ''}.`);
+        }
         else {
             await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser); await initialCleanupChecks(browser);
-            console.log(`${layouts} library Chromium layouts passed: real core/quotes/reading widgets, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
+            console.log(`${layouts} library Chromium layouts passed: real core/reading widgets, retained quote metrics, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
         }
     } finally { await browser.close(); }
 }

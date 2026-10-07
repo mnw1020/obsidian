@@ -4,13 +4,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     let disposed = false, timer, actionBusy = false, root = null;
     const cleanups = [], children = [], commandLinks = [];
     dv.component?.register?.(dispose);
-    const paths = ['library-home.css', 'book_core.js', 'lazy_base.js', 'knowledge.js', 'reading_dashboard.js'];
+    const paths = ['library-home.css', 'book_core.js', 'lazy_base.js', 'reading_dashboard.js'];
     const files = paths.map(name => app.vault.getAbstractFileByPath('Книги/_system/' + name));
     if (files.some(file => !file)) throw new Error('Не найдены модули главной страницы.');
     const texts = await Promise.all(files.map(file => app.vault.read(file)));
     if (disposed) return { dispose };
     const modules = texts.slice(1).map(text => { const module = { exports: {} }; new Function('module', text)(module); return module.exports; });
-    const [loadCore, lazy, knowledge, dashboard] = modules;
+    const [loadCore, lazy, dashboard] = modules;
     const core = loadCore({ app, obsidian });
     const doc = dv.container.ownerDocument;
     root = el(dv.container, 'section', 'book-home-ui');
@@ -49,7 +49,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     internal(nav, 'Цитаты', 'Книги/Цитаты'); internal(nav, 'Стихи', 'Книги/Стихи'); internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
     const identity = el(masthead, 'div', 'book-home-identity');
     const heading = el(identity, 'div', 'book-home-heading');
-    el(heading, 'span', 'book-home-eyebrow', 'Личная библиотека');
     el(heading, 'h1', 'book-home-title', 'Библиотека');
     el(heading, 'p', 'book-home-subtitle', 'Произведения, чтения и заметки');
     const actions = el(identity, 'div', 'book-home-actions');
@@ -115,9 +114,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     }
     const recent = panel(root, 'Недавние произведения', 'book-home-recent', 'Весь каталог ↗', 'Книги/_system/_Книги.base#Список');
     el(recent.head, 'p', 'book-home-caption', 'Последние 20 по дате чтения');
-    const columns = el(root, 'div', 'book-home-columns');
-    const quote = panel(columns, 'Из заметок', 'book-home-quotes', 'Все цитаты ↗', 'Книги/Цитаты');
-    const reading = panel(columns, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
+    const reading = panel(root, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
     const overviews = el(root, 'section', 'book-home-overviews'); el(overviews, 'h2', '', 'Обзор библиотеки');
     const overviewLinks = el(overviews, 'div', 'book-home-overview-links');
     for (const [label, description, choice] of [['Авторы', 'Произведения и впечатления', 'Книги - Авторы'], ['Серии', 'Порядок книг', 'Книги - Серии'], ['Экранизации', 'Книги и кино', 'Книги - Экранизации']]) {
@@ -154,7 +151,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     }
     await Promise.all([
         mount(recent.body, lazy, { target: 'Книги/_system/_Книги.base#Главная', label: 'недавние 20', expanded: true }),
-        mount(quote.body, knowledge, { mode: 'home' }), mount(reading.body, dashboard, { mode: 'home' })
+        mount(reading.body, dashboard, { mode: 'home' })
     ]);
     if (!disposed) root.dataset.ready = 'true';
     return { dispose };
