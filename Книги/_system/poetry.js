@@ -215,7 +215,7 @@ async function render({ dv, app, obsidian = {} }) {
         const poem = rows.find(poem => poem.key === selected);
         if (!poem) {
             el(reader, 'h2', 'book-poetry-title', poems.length ? 'Не нашлось таких строк' : 'Здесь будут стихи');
-            el(reader, 'p', 'book-poetry-empty', poems.length ? 'Попробуйте другой запрос или сбросьте фильтры.' : 'Добавьте автора заголовком второго уровня, а название стихотворения — третьего.');
+            el(reader, 'p', 'book-poetry-empty', poems.length ? 'Попробуйте другой запрос или сбросьте фильтры.' : 'Нажмите «Добавить», чтобы сохранить первое стихотворение.');
             return;
         }
         const index = rows.indexOf(poem);

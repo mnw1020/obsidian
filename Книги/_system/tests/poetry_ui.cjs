@@ -257,7 +257,8 @@ async function crudDispatchChecks(browser) {
         assert.equal(await page.evaluate(() => window.fixture.createCalls[0].initial.author), 'Пётр Ёлкин');
         const createdSource = fixtureNote + '\n## Новый автор\n\n### Новый текст\nНовые строки.\n';
         const created = poetry.parsePoems(createdSource).at(-1);
-        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.createCalls[0].onSaved(entry); }, { text: createdSource, entry: created });
+        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.remount(); await window.fixture.createCalls[0].onSaved(entry); }, { text: createdSource, entry: created });
+        await page.waitForFunction(expected => document.querySelector('.book-poetry-title')?.textContent === expected, created.title);
         assert.equal(await page.locator('.book-poetry-title').textContent(), created.title, 'Creation selects the newly saved poem');
         assert.equal(await page.getByLabel('Автор', { exact: true }).inputValue(), '');
         assert.equal(await page.getByLabel('Поиск стихов', { exact: true }).inputValue(), '', 'Creation clears filters that would hide the new poem');
@@ -275,7 +276,8 @@ async function crudDispatchChecks(browser) {
         await page.getByRole('button', { name: 'Удалить стихотворение', exact: true }).click();
         await page.waitForFunction(() => window.fixture.deleteCalls.length === 1);
         assert.equal(await page.evaluate(() => window.fixture.deleteCalls[0].entry.key), edited.key);
-        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.deleteCalls[0].onDeleted(entry); }, { text: fixtureNote, entry: edited });
+        await page.evaluate(async ({ text, entry }) => { window.fixture.modify(text); await window.fixture.remount(); await window.fixture.deleteCalls[0].onDeleted(entry); }, { text: fixtureNote, entry: edited });
+        await page.waitForFunction(() => document.querySelector('.book-poetry-title')?.textContent === 'Последний текст');
         assert.equal(await page.locator('.book-poetry-poem-button').count(), 4);
         assert.equal(await page.locator('.book-poetry-total').textContent(), '2 автора · 4 текста');
         assert.equal(await page.locator('.book-poetry-title').textContent(), 'Последний текст', 'Deletion selects a neighbouring poem');
