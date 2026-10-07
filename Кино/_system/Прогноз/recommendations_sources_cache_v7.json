@@ -575,6 +575,77 @@
       ],
       "source": "kp-api"
     },
+    "2219": {
+      "at": 1791397577768,
+      "items": [
+        {
+          "kpId": "4859941",
+          "ruTitle": "Без ответа",
+          "enTitle": "Ghosted"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "9544",
+          "ruTitle": "Крепкий орешек 4.0",
+          "enTitle": "Live Free or Die Hard"
+        },
+        {
+          "kpId": "3961",
+          "ruTitle": "Миссия: невыполнима",
+          "enTitle": "Mission: Impossible"
+        },
+        {
+          "kpId": "428715",
+          "ruTitle": "Турист",
+          "enTitle": "The Tourist"
+        },
+        {
+          "kpId": "3513",
+          "ruTitle": "Последний киногерой",
+          "enTitle": "Last Action Hero"
+        },
+        {
+          "kpId": "6018",
+          "ruTitle": "Стиратель",
+          "enTitle": "Eraser"
+        },
+        {
+          "kpId": "9552",
+          "ruTitle": "Миссия: невыполнима 3",
+          "enTitle": "Mission: Impossible III"
+        },
+        {
+          "kpId": "55057",
+          "ruTitle": "Тотальная слежка",
+          "enTitle": "La totale !"
+        },
+        {
+          "kpId": "779060",
+          "ruTitle": "Шпион: Операция под прикрытием",
+          "enTitle": "Seupai"
+        }
+      ],
+      "source": "kp-api"
+    },
     "2941": {
       "at": 1790965154933,
       "items": [
@@ -696,6 +767,77 @@
       ],
       "source": "kp-api"
     },
+    "3447": {
+      "at": 1791397579148,
+      "items": [
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "408871",
+          "ruTitle": "007: Координаты «Скайфолл»",
+          "enTitle": "Skyfall"
+        },
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale"
+        },
+        {
+          "kpId": "258475",
+          "ruTitle": "Квант милосердия",
+          "enTitle": "Quantum of Solace"
+        },
+        {
+          "kpId": "4606",
+          "ruTitle": "Без лица",
+          "enTitle": "Face/Off"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy"
+        },
+        {
+          "kpId": "6585",
+          "ruTitle": "И целого мира мало",
+          "enTitle": "The World Is Not Enough"
+        },
+        {
+          "kpId": "8141",
+          "ruTitle": "Завтра не умрет никогда",
+          "enTitle": "Tomorrow Never Dies"
+        },
+        {
+          "kpId": "651",
+          "ruTitle": "Умри, но не сейчас",
+          "enTitle": "Die Another Day"
+        },
+        {
+          "kpId": "77588",
+          "ruTitle": "Перевозчик 2",
+          "enTitle": "Le Transporteur II"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy"
+        },
+        {
+          "kpId": "3556",
+          "ruTitle": "Золотой глаз",
+          "enTitle": "GoldenEye"
+        }
+      ],
+      "source": "kp-api"
+    },
     "3730": {
       "at": 1790971240814,
       "items": [
@@ -783,6 +925,97 @@
           "kpId": "77257",
           "ruTitle": "Визит дамы",
           "enTitle": ""
+        }
+      ],
+      "source": "kp-api"
+    },
+    "3961": {
+      "at": 1791397578690,
+      "items": [
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale"
+        },
+        {
+          "kpId": "408871",
+          "ruTitle": "007: Координаты «Скайфолл»",
+          "enTitle": "Skyfall"
+        },
+        {
+          "kpId": "447284",
+          "ruTitle": "Солт",
+          "enTitle": "Salt"
+        },
+        {
+          "kpId": "96452",
+          "ruTitle": "Команда «А»",
+          "enTitle": "The A-Team"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy"
+        },
+        {
+          "kpId": "258475",
+          "ruTitle": "Квант милосердия",
+          "enTitle": "Quantum of Solace"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "196748",
+          "ruTitle": "Лузеры",
+          "enTitle": "The Losers"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum"
+        },
+        {
+          "kpId": "5221",
+          "ruTitle": "Ронин",
+          "enTitle": "Ronin"
+        },
+        {
+          "kpId": "8141",
+          "ruTitle": "Завтра не умрет никогда",
+          "enTitle": "Tomorrow Never Dies"
+        },
+        {
+          "kpId": "3556",
+          "ruTitle": "Золотой глаз",
+          "enTitle": "GoldenEye"
+        },
+        {
+          "kpId": "6585",
+          "ruTitle": "И целого мира мало",
+          "enTitle": "The World Is Not Enough"
+        },
+        {
+          "kpId": "12829",
+          "ruTitle": "Три дня Кондора",
+          "enTitle": "Three Days of the Condor"
         }
       ],
       "source": "kp-api"
@@ -1197,6 +1430,224 @@
           "kpId": "248358",
           "ruTitle": "Чудеса ещё случаются",
           "enTitle": "I miracoli accadono ancora"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "9552": {
+      "at": 1791397578469,
+      "items": [
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "408871",
+          "ruTitle": "007: Координаты «Скайфолл»",
+          "enTitle": "Skyfall"
+        },
+        {
+          "kpId": "9544",
+          "ruTitle": "Крепкий орешек 4.0",
+          "enTitle": "Live Free or Die Hard"
+        },
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale"
+        },
+        {
+          "kpId": "258475",
+          "ruTitle": "Квант милосердия",
+          "enTitle": "Quantum of Solace"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "96452",
+          "ruTitle": "Команда «А»",
+          "enTitle": "The A-Team"
+        },
+        {
+          "kpId": "8141",
+          "ruTitle": "Завтра не умрет никогда",
+          "enTitle": "Tomorrow Never Dies"
+        },
+        {
+          "kpId": "6585",
+          "ruTitle": "И целого мира мало",
+          "enTitle": "The World Is Not Enough"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "12090": {
+      "at": 1791397577319,
+      "items": [
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War"
+        },
+        {
+          "kpId": "428715",
+          "ruTitle": "Турист",
+          "enTitle": "The Tourist"
+        },
+        {
+          "kpId": "462662",
+          "ruTitle": "Охотник за головами",
+          "enTitle": "The Bounty Hunter"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "464290",
+          "ruTitle": "Два ствола",
+          "enTitle": "2 Guns"
+        },
+        {
+          "kpId": "2886",
+          "ruTitle": "Невыносимая жестокость",
+          "enTitle": "Intolerable Cruelty"
+        },
+        {
+          "kpId": "397556",
+          "ruTitle": "Ничего личного",
+          "enTitle": "Duplicity"
+        },
+        {
+          "kpId": "652760",
+          "ruTitle": "Джунгли",
+          "enTitle": ""
+        },
+        {
+          "kpId": "5548",
+          "ruTitle": "Война супругов Роуз",
+          "enTitle": "The War of the Roses"
+        },
+        {
+          "kpId": "915140",
+          "ruTitle": "Союзники",
+          "enTitle": "Allied"
+        },
+        {
+          "kpId": "681503",
+          "ruTitle": "Шпионы по соседству",
+          "enTitle": "Keeping Up with the Joneses"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "12285": {
+      "at": 1791397579818,
+      "items": [
+        {
+          "kpId": "462059",
+          "ruTitle": "Круиз по джунглям",
+          "enTitle": "Jungle Cruise"
+        },
+        {
+          "kpId": "339",
+          "ruTitle": "Индиана Джонс: В поисках утраченного ковчега",
+          "enTitle": "Raiders of the Lost Ark"
+        },
+        {
+          "kpId": "4484",
+          "ruTitle": "Мумия",
+          "enTitle": "The Mummy"
+        },
+        {
+          "kpId": "4120",
+          "ruTitle": "Шесть дней, семь ночей",
+          "enTitle": "Six Days Seven Nights"
+        },
+        {
+          "kpId": "8126",
+          "ruTitle": "Крокодил Данди",
+          "enTitle": "Crocodile Dundee"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "7122",
+          "ruTitle": "Индиана Джонс и Храм судьбы",
+          "enTitle": "Indiana Jones and the Temple of Doom"
+        },
+        {
+          "kpId": "472",
+          "ruTitle": "Индиана Джонс и последний крестовый поход",
+          "enTitle": "Indiana Jones and the Last Crusade"
+        },
+        {
+          "kpId": "652760",
+          "ruTitle": "Джунгли",
+          "enTitle": ""
+        },
+        {
+          "kpId": "5612",
+          "ruTitle": "Копи царя Соломона",
+          "enTitle": "King Solomon's Mines"
+        },
+        {
+          "kpId": "4283",
+          "ruTitle": "Крокодил Данди 2",
+          "enTitle": "Crocodile Dundee II"
+        },
+        {
+          "kpId": "281236",
+          "ruTitle": "Остров Ним",
+          "enTitle": "Nim's Island"
+        },
+        {
+          "kpId": "5412",
+          "ruTitle": "Сокровище Амазонки",
+          "enTitle": "The Rundown"
+        },
+        {
+          "kpId": "28267",
+          "ruTitle": "Год кометы",
+          "enTitle": "Year of the Comet"
+        },
+        {
+          "kpId": "21309",
+          "ruTitle": "Африканец",
+          "enTitle": "L'africain"
+        },
+        {
+          "kpId": "261668",
+          "ruTitle": "Золото дураков",
+          "enTitle": "Fool's Gold"
+        },
+        {
+          "kpId": "4308624",
+          "ruTitle": "Затерянный город",
+          "enTitle": "The Lost City"
         }
       ],
       "source": "kp-api"
@@ -2401,6 +2852,67 @@
       ],
       "source": "kp-api"
     },
+    "417583": {
+      "at": 1791397579371,
+      "items": [
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "171922",
+          "ruTitle": "Точка обстрела",
+          "enTitle": "Vantage Point"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "566232",
+          "ruTitle": "Я, Алекс Кросс",
+          "enTitle": "Alex Cross"
+        },
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two"
+        },
+        {
+          "kpId": "4572",
+          "ruTitle": "База «Клейтон»",
+          "enTitle": "Basic"
+        }
+      ],
+      "source": "kp-api"
+    },
     "419209": {
       "at": 1790793254737,
       "items": [
@@ -2709,6 +3221,229 @@
       ],
       "source": "kp-api"
     },
+    "427202": {
+      "at": 1791397580054,
+      "items": [
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "863",
+          "ruTitle": "Тренировочный день",
+          "enTitle": "Training Day"
+        },
+        {
+          "kpId": "507818",
+          "ruTitle": "Код доступа «Кейптаун»",
+          "enTitle": "Safe House"
+        },
+        {
+          "kpId": "3908",
+          "ruTitle": "Плохие парни",
+          "enTitle": "Bad Boys"
+        },
+        {
+          "kpId": "463135",
+          "ruTitle": "Неизвестный",
+          "enTitle": "Unknown"
+        },
+        {
+          "kpId": "6345",
+          "ruTitle": "Час пик",
+          "enTitle": "Rush Hour"
+        },
+        {
+          "kpId": "104964",
+          "ruTitle": "Пристрели их",
+          "enTitle": "Shoot 'Em Up"
+        },
+        {
+          "kpId": "6206",
+          "ruTitle": "Перевозчик",
+          "enTitle": "The Transporter"
+        },
+        {
+          "kpId": "683516",
+          "ruTitle": "3 дня на убийство",
+          "enTitle": "3 Days to Kill"
+        },
+        {
+          "kpId": "400582",
+          "ruTitle": "Опасные пассажиры поезда 123",
+          "enTitle": "The Taking of Pelham 123"
+        },
+        {
+          "kpId": "81522",
+          "ruTitle": "13-й район",
+          "enTitle": "Banlieue 13"
+        },
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "835877",
+          "ruTitle": "Телохранитель киллера",
+          "enTitle": "The Hitman's Bodyguard"
+        },
+        {
+          "kpId": "678233",
+          "ruTitle": "Крутые меры",
+          "enTitle": "Bastille Day"
+        },
+        {
+          "kpId": "4002",
+          "ruTitle": "Смертельное оружие 4",
+          "enTitle": "Lethal Weapon 4"
+        },
+        {
+          "kpId": "849",
+          "ruTitle": "Пароль «Рыба-меч»",
+          "enTitle": "Swordfish"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "428715": {
+      "at": 1791397578236,
+      "items": [
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "84027",
+          "ruTitle": "Неуловимый",
+          "enTitle": "Anthony Zimmer"
+        },
+        {
+          "kpId": "447284",
+          "ruTitle": "Солт",
+          "enTitle": "Salt"
+        },
+        {
+          "kpId": "12819",
+          "ruTitle": "Афера Томаса Крауна",
+          "enTitle": "The Thomas Crown Affair"
+        },
+        {
+          "kpId": "463135",
+          "ruTitle": "Неизвестный",
+          "enTitle": "Unknown"
+        },
+        {
+          "kpId": "343",
+          "ruTitle": "На север через северо-запад",
+          "enTitle": "North by Northwest"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "22324",
+          "ruTitle": "Кодер",
+          "enTitle": "Cypher"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "17663",
+          "ruTitle": "Соблазн",
+          "enTitle": "Original Sin"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "429257": {
+      "at": 1791397577100,
+      "items": [
+        {
+          "kpId": "681503",
+          "ruTitle": "Шпионы по соседству",
+          "enTitle": "Keeping Up with the Joneses"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "462662",
+          "ruTitle": "Охотник за головами",
+          "enTitle": "The Bounty Hunter"
+        },
+        {
+          "kpId": "398239",
+          "ruTitle": "Голая правда",
+          "enTitle": "The Ugly Truth"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War"
+        },
+        {
+          "kpId": "445175",
+          "ruTitle": "Безумное свидание",
+          "enTitle": "Date Night"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "505774",
+          "ruTitle": "Очень опасная штучка",
+          "enTitle": "One for the Money"
+        },
+        {
+          "kpId": "750",
+          "ruTitle": "Знакомство с родителями",
+          "enTitle": "Meet the Parents"
+        },
+        {
+          "kpId": "416199",
+          "ruTitle": "Дикая штучка",
+          "enTitle": "Wild Target"
+        },
+        {
+          "kpId": "642609",
+          "ruTitle": "Мой парень – киллер",
+          "enTitle": "Mr. Right"
+        },
+        {
+          "kpId": "428715",
+          "ruTitle": "Турист",
+          "enTitle": "The Tourist"
+        }
+      ],
+      "source": "kp-api"
+    },
     "432713": {
       "at": 1791057528200,
       "items": [
@@ -2796,6 +3531,244 @@
           "kpId": "588330",
           "ruTitle": "247 градусов по Фаренгейту",
           "enTitle": "247°F"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "450237": {
+      "at": 1791397577543,
+      "items": [
+        {
+          "kpId": "96452",
+          "ruTitle": "Команда «А»",
+          "enTitle": "The A-Team"
+        },
+        {
+          "kpId": "432550",
+          "ruTitle": "Неудержимые",
+          "enTitle": "The Expendables"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "309423",
+          "ruTitle": "После прочтения сжечь",
+          "enTitle": "Burn After Reading"
+        },
+        {
+          "kpId": "571288",
+          "ruTitle": "Неудержимые 2",
+          "enTitle": "The Expendables 2"
+        },
+        {
+          "kpId": "196748",
+          "ruTitle": "Лузеры",
+          "enTitle": "The Losers"
+        },
+        {
+          "kpId": "883",
+          "ruTitle": "Девять ярдов",
+          "enTitle": "The Whole Nine Yards"
+        },
+        {
+          "kpId": "467729",
+          "ruTitle": "Реальные парни",
+          "enTitle": "Stand Up Guys"
+        },
+        {
+          "kpId": "278208",
+          "ruTitle": "Солдаты неудачи",
+          "enTitle": "Tropic Thunder"
+        },
+        {
+          "kpId": "447284",
+          "ruTitle": "Солт",
+          "enTitle": "Salt"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "455188": {
+      "at": 1791397576802,
+      "items": [
+        {
+          "kpId": "4859941",
+          "ruTitle": "Без ответа",
+          "enTitle": "Ghosted",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "450237",
+          "ruTitle": "РЭД",
+          "enTitle": "RED",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "428715",
+          "ruTitle": "Турист",
+          "enTitle": "The Tourist",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "9552",
+          "ruTitle": "Миссия: невыполнима 3",
+          "enTitle": "Mission: Impossible III",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "3961",
+          "ruTitle": "Миссия: невыполнима",
+          "enTitle": "Mission: Impossible",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "462662",
+          "ruTitle": "Охотник за головами",
+          "enTitle": "The Bounty Hunter",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "3447",
+          "ruTitle": "Миссия: невыполнима 2",
+          "enTitle": "Mission: Impossible II",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "472362",
+          "ruTitle": "Миссия невыполнима: Протокол Фантом",
+          "enTitle": "Mission: Impossible - Ghost Protocol",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "12285",
+          "ruTitle": "Роман с камнем",
+          "enTitle": "Romancing the Stone",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "427202",
+          "ruTitle": "Из Парижа с любовью",
+          "enTitle": "From Paris with Love",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        }
+      ],
+      "diag": "КП: прямых похожих 15"
+    },
+    "462662": {
+      "at": 1791397578920,
+      "items": [
+        {
+          "kpId": "398239",
+          "ruTitle": "Голая правда",
+          "enTitle": "The Ugly Truth"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "505774",
+          "ruTitle": "Очень опасная штучка",
+          "enTitle": "One for the Money"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "2899",
+          "ruTitle": "Мошенники",
+          "enTitle": "Serving Sara"
+        },
+        {
+          "kpId": "445175",
+          "ruTitle": "Безумное свидание",
+          "enTitle": "Date Night"
+        },
+        {
+          "kpId": "452857",
+          "ruTitle": "Супруги Морган в бегах",
+          "enTitle": "Did You Hear About the Morgans?"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War"
+        },
+        {
+          "kpId": "77454",
+          "ruTitle": "Правила съема: Метод Хитча",
+          "enTitle": "Hitch"
+        },
+        {
+          "kpId": "606698",
+          "ruTitle": "Поймай толстуху, если сможешь",
+          "enTitle": "Identity Thief"
+        },
+        {
+          "kpId": "3921",
+          "ruTitle": "Успеть до полуночи",
+          "enTitle": "Midnight Run"
+        },
+        {
+          "kpId": "8949",
+          "ruTitle": "Птичка на проводе",
+          "enTitle": "Bird on a Wire"
         }
       ],
       "source": "kp-api"
@@ -3295,6 +4268,92 @@
       ],
       "source": "kp-api"
     },
+    "472362": {
+      "at": 1791397579594,
+      "items": [
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity"
+        },
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy"
+        },
+        {
+          "kpId": "258475",
+          "ruTitle": "Квант милосердия",
+          "enTitle": "Quantum of Solace"
+        },
+        {
+          "kpId": "408871",
+          "ruTitle": "007: Координаты «Скайфолл»",
+          "enTitle": "Skyfall"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "651",
+          "ruTitle": "Умри, но не сейчас",
+          "enTitle": "Die Another Day"
+        },
+        {
+          "kpId": "500617",
+          "ruTitle": "Крепкий орешек: Хороший день, чтобы умереть",
+          "enTitle": "A Good Day to Die Hard"
+        },
+        {
+          "kpId": "754481",
+          "ruTitle": "Форсаж 7",
+          "enTitle": "Fast & Furious 7"
+        },
+        {
+          "kpId": "582159",
+          "ruTitle": "РЭД 2",
+          "enTitle": "RED 2"
+        },
+        {
+          "kpId": "462371",
+          "ruTitle": "Джек Райан: Теория хаоса",
+          "enTitle": "Jack Ryan: Shadow Recruit"
+        },
+        {
+          "kpId": "496943",
+          "ruTitle": "Форсаж 5",
+          "enTitle": "Fast Five"
+        },
+        {
+          "kpId": "3556",
+          "ruTitle": "Золотой глаз",
+          "enTitle": "GoldenEye"
+        },
+        {
+          "kpId": "447284",
+          "ruTitle": "Солт",
+          "enTitle": "Salt"
+        }
+      ],
+      "source": "kp-api"
+    },
     "477647": {
       "at": 1790965842597,
       "items": [
@@ -3725,6 +4784,47 @@
           "kpId": "512415",
           "ruTitle": "Голубая волна 2",
           "enTitle": "Blue Crush 2"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "497233": {
+      "at": 1791397578003,
+      "items": [
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "462662",
+          "ruTitle": "Охотник за головами",
+          "enTitle": "The Bounty Hunter"
+        },
+        {
+          "kpId": "518042",
+          "ruTitle": "Агенты А.Н.К.Л.",
+          "enTitle": "The Man from U.N.C.L.E."
+        },
+        {
+          "kpId": "5548",
+          "ruTitle": "Война супругов Роуз",
+          "enTitle": "The War of the Roses"
         }
       ],
       "source": "kp-api"
@@ -5379,6 +6479,42 @@
         }
       ],
       "source": "kp-api"
+    },
+    "4859941": {
+      "at": 1791397576874,
+      "items": [
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith"
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War"
+        },
+        {
+          "kpId": "4784969",
+          "ruTitle": "Союз",
+          "enTitle": "The Union"
+        }
+      ],
+      "source": "kp-api"
     }
   },
   "details": {
@@ -5567,6 +6703,60 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "343": {
+      "at": 1791397584902,
+      "data": {
+        "kpId": "343",
+        "ruTitle": "На север через северо-запад",
+        "enTitle": "North by Northwest",
+        "year": "1959",
+        "description": "Однажды успешного рекламного агента Роджера Торнхилла ошибочно принимают за агента разведки Кэплана, которого никто не знает в лицо, и хотят его убрать. Обескураженный Роджер пытается бежать. В вагоне-ресторане поезда милая женщина по имени Ив помогает ему скрыться от преследователей...",
+        "genres": [
+          "thriller",
+          "детектив",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "однажды",
+          "успешного",
+          "рекламного",
+          "агента",
+          "роджера",
+          "торнхилла",
+          "ошибочно",
+          "принимают",
+          "разведки",
+          "кэплана",
+          "которого",
+          "никто",
+          "знает",
+          "лицо",
+          "хотят",
+          "убрать",
+          "обескураженный",
+          "роджер",
+          "пытается",
+          "бежать",
+          "вагоне",
+          "ресторане",
+          "поезда",
+          "милая",
+          "женщина",
+          "имени",
+          "помогает",
+          "ему",
+          "скрыться",
+          "преследователей"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -9368,6 +10558,85 @@
       },
       "source": "kp-api"
     },
+    "2886": {
+      "at": 1791397584474,
+      "data": {
+        "kpId": "2886",
+        "ruTitle": "Невыносимая жестокость",
+        "enTitle": "Intolerable Cruelty",
+        "year": "2003",
+        "description": "У знаменитого адвоката Майлза Масси есть все - слава, деньги, благодарная клиентура и брачный контракт, названный в его честь. Но Майлз чувствует, что ему не хватает поединка с достойным врагом. Судьба сводит его с соблазнительной Мэрилин Рексрот, брачной аферисткой, которая собирается развестись с его клиентом и при этом значительно пополнить свой банковский счет.\r\n \r\nИ пусть в этот раз ей не повезло - она тут же находит новую жертву, нефтяного магната Дойла, и начинает игру, в которой Майлзу придется еще не раз удивляться...",
+        "genres": [
+          "crime",
+          "мелодрама",
+          "comedy"
+        ],
+        "descTokens": [
+          "знаменитого",
+          "адвоката",
+          "майлза",
+          "масси",
+          "есть",
+          "все",
+          "слава",
+          "деньги",
+          "благодарная",
+          "клиентура",
+          "брачный",
+          "контракт",
+          "названный",
+          "честь",
+          "майлз",
+          "чувствует",
+          "ему",
+          "хватает",
+          "поединка",
+          "достойным",
+          "врагом",
+          "судьба",
+          "сводит",
+          "соблазнительной",
+          "мэрилин",
+          "рексрот",
+          "брачной",
+          "аферисткой",
+          "которая",
+          "собирается",
+          "развестись",
+          "клиентом",
+          "этом",
+          "значительно",
+          "пополнить",
+          "свой",
+          "банковский",
+          "счет",
+          "пусть",
+          "этот",
+          "раз",
+          "повезло",
+          "тут",
+          "находит",
+          "новую",
+          "жертву",
+          "нефтяного",
+          "магната",
+          "дойла",
+          "начинает",
+          "игру",
+          "которой",
+          "майлзу",
+          "придется",
+          "еще",
+          "удивляться"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "2894": {
       "at": 1790793262630,
       "data": {
@@ -9430,6 +10699,67 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "2899": {
+      "at": 1791397584670,
+      "data": {
+        "kpId": "2899",
+        "ruTitle": "Мошенники",
+        "enTitle": "Serving Sara",
+        "year": "2002",
+        "description": "Гордон и Сара Мур - не совсем обычная супружеская пара. Сара - типичная англичанка, Гордон - типичный техасец. Благодаря совместным усилиям их скотоводческое ранчо приносит огромные доходы. Прощаясь с мужем в аэропорту и садясь в самолет, направляющийся в Нью-Йорк, Сара и подумать не могла, какой сюрприз приготовил ей благоверный. В его жизни появилась другая женщина, и он хочет развестись...",
+        "genres": [
+          "мелодрама",
+          "comedy"
+        ],
+        "descTokens": [
+          "гордон",
+          "сара",
+          "мур",
+          "совсем",
+          "обычная",
+          "супружеская",
+          "пара",
+          "типичная",
+          "англичанка",
+          "типичный",
+          "техасец",
+          "благодаря",
+          "совместным",
+          "усилиям",
+          "скотоводческое",
+          "ранчо",
+          "приносит",
+          "огромные",
+          "доходы",
+          "прощаясь",
+          "мужем",
+          "аэропорту",
+          "садясь",
+          "самолет",
+          "направляющийся",
+          "нью",
+          "йорк",
+          "подумать",
+          "могла",
+          "какой",
+          "сюрприз",
+          "приготовил",
+          "благоверный",
+          "жизни",
+          "появилась",
+          "другая",
+          "женщина",
+          "хочет",
+          "развестись"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -10790,6 +12120,130 @@
       },
       "source": "kp-api"
     },
+    "4283": {
+      "at": 1791397585364,
+      "data": {
+        "kpId": "4283",
+        "ruTitle": "Крокодил Данди 2",
+        "enTitle": "Crocodile Dundee II",
+        "year": "1988",
+        "description": "Данди, охотник на крокодилов, сменил австралийский шалаш на американский пентхаус: спит в шелковой пижаме и пьет кофе из японского фарфора. Но шляпу с крокодильими зубами, кожаные штаны и огромный нож за поясом он себе оставил - на всякий случай. Хватит ли этого, чтобы спасти любимую от колумбийской мафии?..",
+        "genres": [
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "данди",
+          "охотник",
+          "крокодилов",
+          "сменил",
+          "австралийский",
+          "шалаш",
+          "американский",
+          "пентхаус",
+          "спит",
+          "шелковой",
+          "пижаме",
+          "пьет",
+          "кофе",
+          "японского",
+          "фарфора",
+          "шляпу",
+          "крокодильими",
+          "зубами",
+          "кожаные",
+          "штаны",
+          "огромный",
+          "нож",
+          "поясом",
+          "себе",
+          "оставил",
+          "всякий",
+          "случай",
+          "хватит",
+          "этого",
+          "чтобы",
+          "спасти",
+          "любимую",
+          "колумбийской",
+          "мафии"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "4484": {
+      "at": 1791397585597,
+      "data": {
+        "kpId": "4484",
+        "ruTitle": "Мумия",
+        "enTitle": "The Mummy",
+        "year": "1999",
+        "description": "На бескрайних просторах египетской пустыни компания сорвиголов разных национальностей рыщет в поисках несметных сокровищ фараона, над которыми тяготеет жуткое древнее проклятие.\n\nРядом с кладом покоится мумия коварного жреца, жестоко казненного за ужасное убийство могущественного правителя Египта. Золотоискатели потревожили многовековой покой гробницы, и мумия встает из могилы, чтобы погрузить мир в царство кошмара...",
+        "genres": [
+          "приключения",
+          "action",
+          "фэнтези"
+        ],
+        "descTokens": [
+          "бескрайних",
+          "просторах",
+          "египетской",
+          "пустыни",
+          "компания",
+          "сорвиголов",
+          "разных",
+          "национальностей",
+          "рыщет",
+          "поисках",
+          "несметных",
+          "сокровищ",
+          "фараона",
+          "над",
+          "которыми",
+          "тяготеет",
+          "жуткое",
+          "древнее",
+          "проклятие",
+          "рядом",
+          "кладом",
+          "покоится",
+          "мумия",
+          "коварного",
+          "жреца",
+          "жестоко",
+          "казненного",
+          "ужасное",
+          "убийство",
+          "могущественного",
+          "правителя",
+          "египта",
+          "золотоискатели",
+          "потревожили",
+          "многовековой",
+          "покой",
+          "гробницы",
+          "встает",
+          "могилы",
+          "чтобы",
+          "погрузить",
+          "мир",
+          "царство",
+          "кошмара"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "4515": {
       "at": 1790971245525,
       "data": {
@@ -10858,6 +12312,152 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "4572": {
+      "at": 1791397585828,
+      "data": {
+        "kpId": "4572",
+        "ruTitle": "База «Клейтон»",
+        "enTitle": "Basic",
+        "year": "2003",
+        "description": "Форт «Клейтон» - последняя американская военная база на Панамском канале. Во время секретной тренировочной миссии ураган настигает в джунглях группу спецназовцев и их легендарного инструктора Нэйтана Веста.\n\nПротиворечивые показания двух вернувшихся на базу солдат ещё больше запутывают дело. Для расследования обстоятельств мистического исчезновения отряда приглашают агента отдела по борьбе с наркотиками Харди. Те, кто уцелел, не могут объяснить – в наркотиках ли дело... Или в чем-то другом. Все лгут...",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "форт",
+          "клейтон",
+          "последняя",
+          "американская",
+          "военная",
+          "база",
+          "панамском",
+          "канале",
+          "время",
+          "секретной",
+          "тренировочной",
+          "миссии",
+          "ураган",
+          "настигает",
+          "джунглях",
+          "группу",
+          "спецназовцев",
+          "легендарного",
+          "инструктора",
+          "нэйтана",
+          "веста",
+          "противоречивые",
+          "показания",
+          "двух",
+          "вернувшихся",
+          "базу",
+          "солдат",
+          "еще",
+          "больше",
+          "запутывают",
+          "дело",
+          "расследования",
+          "обстоятельств",
+          "мистического",
+          "исчезновения",
+          "отряда",
+          "приглашают",
+          "агента",
+          "отдела",
+          "борьбе",
+          "наркотиками",
+          "харди",
+          "кто",
+          "уцелел",
+          "могут",
+          "объяснить",
+          "наркотиках",
+          "чем",
+          "другом",
+          "все",
+          "лгут"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "4606": {
+      "at": 1791397586063,
+      "data": {
+        "kpId": "4606",
+        "ruTitle": "Без лица",
+        "enTitle": "Face/Off",
+        "year": "1997",
+        "description": "Чтобы раскрыть подробности запланированного преступниками крупного теракта, агент ФБР Шон Арчер соглашается на сложную хирургическую операцию. Он берёт себе новое лицо, лицо террориста Кастора Троя, который находится в коме.\n\nОднако происходит непредвиденное: Трой приходит в себя и исчезает в обличье Арчера. Жизнь Шона превращается в настоящий кошмар - ему приходится сражаться не только за свою жизнь, но и за жизнь своей жены и дочери.",
+        "genres": [
+          "thriller",
+          "crime",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "чтобы",
+          "раскрыть",
+          "подробности",
+          "запланированного",
+          "преступниками",
+          "крупного",
+          "теракта",
+          "агент",
+          "фбр",
+          "шон",
+          "арчер",
+          "соглашается",
+          "сложную",
+          "хирургическую",
+          "операцию",
+          "берет",
+          "себе",
+          "новое",
+          "лицо",
+          "террориста",
+          "кастора",
+          "троя",
+          "который",
+          "находится",
+          "коме",
+          "однако",
+          "происходит",
+          "непредвиденное",
+          "трой",
+          "приходит",
+          "себя",
+          "исчезает",
+          "обличье",
+          "арчера",
+          "жизнь",
+          "шона",
+          "превращается",
+          "настоящий",
+          "кошмар",
+          "ему",
+          "приходится",
+          "сражаться",
+          "только",
+          "свою",
+          "своей",
+          "жены",
+          "дочери"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -12058,6 +13658,75 @@
       },
       "source": "kp-api"
     },
+    "5548": {
+      "at": 1791397581910,
+      "data": {
+        "kpId": "5548",
+        "ruTitle": "Война супругов Роуз",
+        "enTitle": "The War of the Roses",
+        "year": "1989",
+        "description": "Оливер и Барбара Роуз прожили в браке 18 лет. Дети выросли и скоро уедут учиться, а Барбара, натура деятельная и предприимчивая, устала быть домохозяйкой, и самое главное — чертовски устала от Оливера. Она решает направить бьющую ключом энергию в деловое русло, а заодно подать на развод. Барбара хочет забрать себе семейный дом, в обустройство которого вложила душу, но Оливер категорически против. Волны ненависти постепенно приводят к войне.",
+        "genres": [
+          "drama",
+          "comedy"
+        ],
+        "descTokens": [
+          "оливер",
+          "барбара",
+          "роуз",
+          "прожили",
+          "браке",
+          "лет",
+          "дети",
+          "выросли",
+          "скоро",
+          "уедут",
+          "учиться",
+          "натура",
+          "деятельная",
+          "предприимчивая",
+          "устала",
+          "быть",
+          "домохозяйкой",
+          "самое",
+          "главное",
+          "чертовски",
+          "оливера",
+          "решает",
+          "направить",
+          "бьющую",
+          "ключом",
+          "энергию",
+          "деловое",
+          "русло",
+          "заодно",
+          "подать",
+          "развод",
+          "хочет",
+          "забрать",
+          "себе",
+          "семейный",
+          "дом",
+          "обустройство",
+          "которого",
+          "вложила",
+          "душу",
+          "категорически",
+          "против",
+          "волны",
+          "ненависти",
+          "постепенно",
+          "приводят",
+          "войне"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "5608": {
       "at": 1790793623862,
       "data": {
@@ -12114,6 +13783,54 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "5612": {
+      "at": 1791397586525,
+      "data": {
+        "kpId": "5612",
+        "ruTitle": "Копи царя Соломона",
+        "enTitle": "King Solomon's Mines",
+        "year": "1985",
+        "description": "Отец Джесси Хьюстон отправляется на поиски бриллиантовых копей царя Соломона и пропадает без вести. Девушка едет в рискованное сафари, чтобы его спасти. Ее проводником становится охотник и путешественник Аллан Куотермейн.",
+        "genres": [
+          "мелодрама",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "отец",
+          "джесси",
+          "хьюстон",
+          "отправляется",
+          "поиски",
+          "бриллиантовых",
+          "копей",
+          "царя",
+          "соломона",
+          "пропадает",
+          "без",
+          "вести",
+          "девушка",
+          "едет",
+          "рискованное",
+          "сафари",
+          "чтобы",
+          "спасти",
+          "проводником",
+          "становится",
+          "охотник",
+          "путешественник",
+          "аллан",
+          "куотермейн"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.7,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -13968,6 +15685,47 @@
       },
       "source": "movie-planner"
     },
+    "8126": {
+      "at": 1791397587434,
+      "data": {
+        "kpId": "8126",
+        "ruTitle": "Крокодил Данди",
+        "enTitle": "Crocodile Dundee",
+        "year": "1986",
+        "description": "Американская журналистка приезжает в глубинку Австралии, и охотник на крокодилов знакомит ее с местными достопримечательностями. Она же приглашает его в Нью-Йорк, и там отважный охотник попадает в неведомые ему джунгли...",
+        "genres": [
+          "приключения",
+          "comedy"
+        ],
+        "descTokens": [
+          "американская",
+          "журналистка",
+          "приезжает",
+          "глубинку",
+          "австралии",
+          "охотник",
+          "крокодилов",
+          "знакомит",
+          "местными",
+          "достопримечательностями",
+          "приглашает",
+          "нью",
+          "йорк",
+          "там",
+          "отважный",
+          "попадает",
+          "неведомые",
+          "ему",
+          "джунгли"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "8136": {
       "at": 1790613594909,
       "data": {
@@ -14447,6 +16205,98 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "8949": {
+      "at": 1791397588166,
+      "data": {
+        "kpId": "8949",
+        "ruTitle": "Птичка на проводе",
+        "enTitle": "Bird on a Wire",
+        "year": "1990",
+        "description": "Дела Рика Джармина, живущего тайной жизнью по специально разработанной ФБР программе защиты свидетелей, складывается не лучшим образом. Дело в том, что пятнадцать лет назад он дал показания против полицейского, промышляющего торговлей наркотиками, что позволило усадить негодяя за решетку. Преступник, отсидевший свой срок, решает отомстить «стукачу» и начинает охоту на Джармина. Случайно Рик сталкивается с Мэриэнн Грэйвз, своей бывшей невестой. Мэриэнн, естественно, узнает его, что облегчает задачу убийцам, следующим за Джармином по пятам. Теперь бывшим возлюбленным вместе предстоит спасаться от злодеев, но именно это помогает им вернуть утраченную любовь.",
+        "genres": [
+          "thriller",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "дела",
+          "рика",
+          "джармина",
+          "живущего",
+          "тайной",
+          "жизнью",
+          "специально",
+          "разработанной",
+          "фбр",
+          "программе",
+          "защиты",
+          "свидетелей",
+          "складывается",
+          "лучшим",
+          "образом",
+          "дело",
+          "том",
+          "пятнадцать",
+          "лет",
+          "назад",
+          "дал",
+          "показания",
+          "против",
+          "полицейского",
+          "промышляющего",
+          "торговлей",
+          "наркотиками",
+          "позволило",
+          "усадить",
+          "негодяя",
+          "решетку",
+          "преступник",
+          "отсидевший",
+          "свой",
+          "срок",
+          "решает",
+          "отомстить",
+          "стукачу",
+          "начинает",
+          "охоту",
+          "случайно",
+          "рик",
+          "сталкивается",
+          "мэриэнн",
+          "грэйвз",
+          "своей",
+          "бывшей",
+          "невестой",
+          "естественно",
+          "узнает",
+          "облегчает",
+          "задачу",
+          "убийцам",
+          "следующим",
+          "джармином",
+          "пятам",
+          "теперь",
+          "бывшим",
+          "возлюбленным",
+          "вместе",
+          "предстоит",
+          "спасаться",
+          "злодеев",
+          "именно",
+          "помогает",
+          "вернуть",
+          "утраченную",
+          "любовь"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -15434,6 +17284,94 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "12829": {
+      "at": 1791397582604,
+      "data": {
+        "kpId": "12829",
+        "ruTitle": "Три дня Кондора",
+        "enTitle": "Three Days of the Condor",
+        "year": "1975",
+        "description": "Джозеф Тёрнер под кодовым именем Кондор работает в одном из замаскированных отделов ЦРУ в Нью-Йорке и занимается анализом бульварно-детективной литературы, в которой ищет интересующие ведомство «оригинальные приёмы». В один из обычных дней накануне Рождества, вернувшись после обеденного перерыва, он с ужасом обнаруживает своих коллег убитыми. Выбежав из конторы, мужчина звонит дежурному ЦРУ и просит о срочной эвакуации. Руководитель назначает Тёрнеру встречу, но она оказывается ловушкой, и его пытаются убить. Чтобы выжить, Джозефу приходится скрываться и самостоятельно выяснять причины устроенной на него охоты.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "джозеф",
+          "тернер",
+          "под",
+          "кодовым",
+          "именем",
+          "кондор",
+          "работает",
+          "одном",
+          "замаскированных",
+          "отделов",
+          "цру",
+          "нью",
+          "йорке",
+          "занимается",
+          "анализом",
+          "бульварно",
+          "детективной",
+          "литературы",
+          "которой",
+          "ищет",
+          "интересующие",
+          "ведомство",
+          "оригинальные",
+          "приемы",
+          "один",
+          "обычных",
+          "дней",
+          "накануне",
+          "рождества",
+          "вернувшись",
+          "после",
+          "обеденного",
+          "перерыва",
+          "ужасом",
+          "обнаруживает",
+          "своих",
+          "коллег",
+          "убитыми",
+          "выбежав",
+          "конторы",
+          "мужчина",
+          "звонит",
+          "дежурному",
+          "просит",
+          "срочной",
+          "эвакуации",
+          "руководитель",
+          "назначает",
+          "тернеру",
+          "встречу",
+          "оказывается",
+          "ловушкой",
+          "пытаются",
+          "убить",
+          "чтобы",
+          "выжить",
+          "джозефу",
+          "приходится",
+          "скрываться",
+          "самостоятельно",
+          "выяснять",
+          "причины",
+          "устроенной",
+          "него",
+          "охоты"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.6,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -16795,6 +18733,75 @@
       },
       "source": "kp-api"
     },
+    "17663": {
+      "at": 1791397583069,
+      "data": {
+        "kpId": "17663",
+        "ruTitle": "Соблазн",
+        "enTitle": "Original Sin",
+        "year": "2001",
+        "description": "Богатый кубинский торговец Луис Антонио Варгас собирается жениться на американке. Приближается время встречи с долгожданной невестой, и взволнованный жених уже представляет себе невинную скромную девушку, которой предстоит разделить с ним жизнь. Но ожидания Луиса не оправдались - в его судьбу вторглась роковая женщина. Сила очарования и магия соблазна способны сделать счастливым любого и погубить каждого.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "мелодрама",
+          "детектив"
+        ],
+        "descTokens": [
+          "богатый",
+          "кубинский",
+          "торговец",
+          "луис",
+          "антонио",
+          "варгас",
+          "собирается",
+          "жениться",
+          "американке",
+          "приближается",
+          "время",
+          "встречи",
+          "долгожданной",
+          "невестой",
+          "взволнованный",
+          "жених",
+          "уже",
+          "представляет",
+          "себе",
+          "невинную",
+          "скромную",
+          "девушку",
+          "которой",
+          "предстоит",
+          "разделить",
+          "ним",
+          "жизнь",
+          "ожидания",
+          "луиса",
+          "оправдались",
+          "судьбу",
+          "вторглась",
+          "роковая",
+          "женщина",
+          "сила",
+          "очарования",
+          "магия",
+          "соблазна",
+          "способны",
+          "сделать",
+          "счастливым",
+          "любого",
+          "погубить",
+          "каждого"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.5,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "17823": {
       "at": 1791057544242,
       "data": {
@@ -17345,6 +19352,80 @@
       },
       "source": "movie-planner"
     },
+    "21309": {
+      "at": 1791397583303,
+      "data": {
+        "kpId": "21309",
+        "ruTitle": "Африканец",
+        "enTitle": "L'africain",
+        "year": "1983",
+        "description": "Фильм снят в экзотических местах Африки, куда прилетает героиня фильма, чтобы изучить возможность строительства отеля для туристов. Там она встречает своего мужа, летчика, охраняющего заповедник от браконьеров.\n\nОни расстались несколько лет назад, но так и не смогли забыть друг друга. Он делает все возможное, чтобы воспрепятствовать уничтожению этого нетронутого уголка природы. Нешуточное столкновение интересов, забавные приключения и настоящая опасность возрождают старую любовь с новой силой.",
+        "genres": [
+          "мелодрама",
+          "приключения",
+          "comedy"
+        ],
+        "descTokens": [
+          "снят",
+          "экзотических",
+          "местах",
+          "африки",
+          "куда",
+          "прилетает",
+          "героиня",
+          "чтобы",
+          "изучить",
+          "возможность",
+          "строительства",
+          "отеля",
+          "туристов",
+          "там",
+          "встречает",
+          "своего",
+          "мужа",
+          "летчика",
+          "охраняющего",
+          "заповедник",
+          "браконьеров",
+          "расстались",
+          "несколько",
+          "лет",
+          "назад",
+          "так",
+          "смогли",
+          "забыть",
+          "друг",
+          "друга",
+          "делает",
+          "все",
+          "возможное",
+          "воспрепятствовать",
+          "уничтожению",
+          "этого",
+          "нетронутого",
+          "уголка",
+          "природы",
+          "нешуточное",
+          "столкновение",
+          "интересов",
+          "забавные",
+          "приключения",
+          "настоящая",
+          "опасность",
+          "возрождают",
+          "старую",
+          "любовь",
+          "новой",
+          "силой"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "22193": {
       "at": 1790965158150,
       "data": {
@@ -17410,6 +19491,98 @@
         "directors": [],
         "franchise": "",
         "kpRating": 4.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "22324": {
+      "at": 1791397583537,
+      "data": {
+        "kpId": "22324",
+        "ruTitle": "Кодер",
+        "enTitle": "Cypher",
+        "year": "2002",
+        "description": "Морган Салливан, уставший от занудной жизни и нелюбимой жены, соглашается заниматься промышленным шпионажем для могущественной корпорации «Диджикорп». Он получает новое имя и простое задание - с помощью секретного устройства передавать выступления конкурентов на конвенциях. Несмотря на начавшиеся мигрени и странную боль в затылке, Морган наслаждается новой тайной жизнью, но случайная встреча с загадочной Ритой вселяет в него страх и подозрения. По словам Риты, скучные собрания всего лишь ширма для зловещих операций «Диджикорпа», превращающего своих «шпионов» в послушных марионеток. Она делает ему укол и просит на следующей конвенции никак не реагировать на то, что он там увидит.",
+        "genres": [
+          "thriller",
+          "детектив",
+          "sci-fi"
+        ],
+        "descTokens": [
+          "морган",
+          "салливан",
+          "уставший",
+          "занудной",
+          "жизни",
+          "нелюбимой",
+          "жены",
+          "соглашается",
+          "заниматься",
+          "промышленным",
+          "шпионажем",
+          "могущественной",
+          "корпорации",
+          "диджикорп",
+          "получает",
+          "новое",
+          "имя",
+          "простое",
+          "задание",
+          "помощью",
+          "секретного",
+          "устройства",
+          "передавать",
+          "выступления",
+          "конкурентов",
+          "конвенциях",
+          "несмотря",
+          "начавшиеся",
+          "мигрени",
+          "странную",
+          "боль",
+          "затылке",
+          "наслаждается",
+          "новой",
+          "тайной",
+          "жизнью",
+          "случайная",
+          "встреча",
+          "загадочной",
+          "ритой",
+          "вселяет",
+          "него",
+          "страх",
+          "подозрения",
+          "словам",
+          "риты",
+          "скучные",
+          "собрания",
+          "всего",
+          "лишь",
+          "ширма",
+          "зловещих",
+          "операций",
+          "диджикорпа",
+          "превращающего",
+          "своих",
+          "шпионов",
+          "послушных",
+          "марионеток",
+          "делает",
+          "ему",
+          "укол",
+          "просит",
+          "следующей",
+          "конвенции",
+          "никак",
+          "реагировать",
+          "там",
+          "увидит"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -17585,6 +19758,97 @@
         "directors": [],
         "franchise": "",
         "kpRating": 4.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "28267": {
+      "at": 1791397584218,
+      "data": {
+        "kpId": "28267",
+        "ruTitle": "Год кометы",
+        "enTitle": "Year of the Comet",
+        "year": "1992",
+        "description": "Мэгги унаследовала лучшее профессиональное качество своего отца: она умела дегустировать вина., чем и заслужила поездку в Шотландию, где необходимо было оценить коллекцию старинных вин. Но в подвале шотландского замка она обнаружила не только бесценную бутылку «Лафита» розлива 1811 года, за которую один из клиентов ее отца был готов выложить один миллион долларов. В подвале лежал еще и труп, а коллекционную бутылку вина похитили злоумышленники.\n\nЭто событие стало причиной путешествия по всему миру в погоне за драгоценным «Лафитом» и невероятных приключений Мэгги и пришедшего к ней на помощь нахального и обаятельного авантюриста Оливера, влюбившегося в нее по уши.",
+        "genres": [
+          "мелодрама",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "мэгги",
+          "унаследовала",
+          "лучшее",
+          "профессиональное",
+          "качество",
+          "своего",
+          "отца",
+          "умела",
+          "дегустировать",
+          "вина",
+          "чем",
+          "заслужила",
+          "поездку",
+          "шотландию",
+          "где",
+          "необходимо",
+          "было",
+          "оценить",
+          "коллекцию",
+          "старинных",
+          "вин",
+          "подвале",
+          "шотландского",
+          "замка",
+          "обнаружила",
+          "только",
+          "бесценную",
+          "бутылку",
+          "лафита",
+          "розлива",
+          "1811",
+          "года",
+          "которую",
+          "один",
+          "клиентов",
+          "был",
+          "готов",
+          "выложить",
+          "миллион",
+          "долларов",
+          "лежал",
+          "еще",
+          "труп",
+          "коллекционную",
+          "похитили",
+          "злоумышленники",
+          "событие",
+          "стало",
+          "причиной",
+          "путешествия",
+          "всему",
+          "миру",
+          "погоне",
+          "драгоценным",
+          "лафитом",
+          "невероятных",
+          "приключений",
+          "пришедшего",
+          "ней",
+          "помощь",
+          "нахального",
+          "обаятельного",
+          "авантюриста",
+          "оливера",
+          "влюбившегося",
+          "нее",
+          "уши"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.7,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -19257,6 +21521,78 @@
         "directors": [],
         "franchise": "",
         "kpRating": null,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "55057": {
+      "at": 1791397586291,
+      "data": {
+        "kpId": "55057",
+        "ruTitle": "Тотальная слежка",
+        "enTitle": "La totale !",
+        "year": "1991",
+        "description": "Жена главного героя уверена, что ее муж работает скромным государственным служащим министерства связи, а он оказывается секретным агентом, выполняющим рискованнейшие задания правительства. Случайно узнав, что жена, чтобы развеять монотонность супружеской жизни, встречается с неким Симоном, выдающим себя за эдакого Джеймса Бонда, муж использует свои служебные возможности, чтобы проучить Симона и вернуть жену. Но он никак не ожидал, что в этот момент за ними начнут охоту настоящие террористы.",
+        "genres": [
+          "приключения",
+          "comedy"
+        ],
+        "descTokens": [
+          "жена",
+          "главного",
+          "героя",
+          "уверена",
+          "муж",
+          "работает",
+          "скромным",
+          "государственным",
+          "служащим",
+          "министерства",
+          "связи",
+          "оказывается",
+          "секретным",
+          "агентом",
+          "выполняющим",
+          "рискованнейшие",
+          "задания",
+          "правительства",
+          "случайно",
+          "узнав",
+          "чтобы",
+          "развеять",
+          "монотонность",
+          "супружеской",
+          "жизни",
+          "встречается",
+          "неким",
+          "симоном",
+          "выдающим",
+          "себя",
+          "эдакого",
+          "джеймса",
+          "бонда",
+          "использует",
+          "свои",
+          "служебные",
+          "возможности",
+          "проучить",
+          "симона",
+          "вернуть",
+          "жену",
+          "никак",
+          "ожидал",
+          "этот",
+          "момент",
+          "ними",
+          "начнут",
+          "охоту",
+          "настоящие",
+          "террористы"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -21147,6 +23483,80 @@
       },
       "source": "movie-planner"
     },
+    "84027": {
+      "at": 1791397587697,
+      "data": {
+        "kpId": "84027",
+        "ruTitle": "Неуловимый",
+        "enTitle": "Anthony Zimmer",
+        "year": "2005",
+        "description": "Интерпол преследует неуловимого мошенника Энтони Циммера, специализирующегося на отмывании денег для русской мафии. Поймать Циммера стало вдесятеро трудней после того, как он сделал пластическую операцию и полностью изменил свою внешность. Теперь единственная ниточка к мошеннику - обворожительная красотка Кьяра, любовница Циммера. \r\n\r\nНо Кьяра, понимая, что ее попытаются использовать, заводит интрижку с простоватым парнем Франсуа. Некоторое сходство Франсуа и Циммера является вполне достаточным основанием и для спецслужб, и для мафии, чтобы попытаться убить Франсуа...",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "мелодрама"
+        ],
+        "descTokens": [
+          "интерпол",
+          "преследует",
+          "неуловимого",
+          "мошенника",
+          "энтони",
+          "циммера",
+          "специализирующегося",
+          "отмывании",
+          "денег",
+          "русской",
+          "мафии",
+          "поймать",
+          "стало",
+          "вдесятеро",
+          "трудней",
+          "после",
+          "того",
+          "сделал",
+          "пластическую",
+          "операцию",
+          "полностью",
+          "изменил",
+          "свою",
+          "внешность",
+          "теперь",
+          "единственная",
+          "ниточка",
+          "мошеннику",
+          "обворожительная",
+          "красотка",
+          "кьяра",
+          "любовница",
+          "понимая",
+          "попытаются",
+          "использовать",
+          "заводит",
+          "интрижку",
+          "простоватым",
+          "парнем",
+          "франсуа",
+          "некоторое",
+          "сходство",
+          "является",
+          "вполне",
+          "достаточным",
+          "основанием",
+          "спецслужб",
+          "чтобы",
+          "попытаться",
+          "убить"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "86209": {
       "at": 1790965856573,
       "data": {
@@ -21197,6 +23607,91 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.7,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "86234": {
+      "at": 1791397315075,
+      "data": {
+        "kpId": "86234",
+        "ruTitle": "Шпионка",
+        "enTitle": "Alias",
+        "year": "2001",
+        "description": "Переезды по всему миру, борьба с «плохими ребятами», двойная жизнь и опасность, подстерегающая на каждом шагу. Для Сидни Бристоу это - обычный день на её необычной работе. Она - агент сверхсекретного подразделения - группы СД-6.\n\nОднажды от своего отца Джека Сидни узнаёт страшную правду: оказывается, она работает на международную шпионскую организацию. Чувствуя себя одураченной, Сидни клянётся уничтожить СД-6. И становится двойным агентом ЦРУ. Теперь она должна хранить в строжайшем секрете двойственность своего существования и от партнёров по СД-6, и от своих близких. А тут еще одно потрясение: Сидни узнаёт правду о своей покойной матери.",
+        "genres": [
+          "thriller",
+          "drama",
+          "детектив",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "переезды",
+          "всему",
+          "миру",
+          "борьба",
+          "плохими",
+          "ребятами",
+          "двойная",
+          "жизнь",
+          "опасность",
+          "подстерегающая",
+          "каждом",
+          "шагу",
+          "сидни",
+          "бристоу",
+          "обычный",
+          "день",
+          "необычной",
+          "работе",
+          "агент",
+          "сверхсекретного",
+          "подразделения",
+          "группы",
+          "однажды",
+          "своего",
+          "отца",
+          "джека",
+          "узнает",
+          "страшную",
+          "правду",
+          "оказывается",
+          "работает",
+          "международную",
+          "шпионскую",
+          "организацию",
+          "чувствуя",
+          "себя",
+          "одураченной",
+          "клянется",
+          "уничтожить",
+          "становится",
+          "двойным",
+          "агентом",
+          "цру",
+          "теперь",
+          "должна",
+          "хранить",
+          "строжайшем",
+          "секрете",
+          "двойственность",
+          "существования",
+          "партнеров",
+          "своих",
+          "близких",
+          "тут",
+          "еще",
+          "одно",
+          "потрясение",
+          "своей",
+          "покойной",
+          "матери"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.6,
         "type": "series",
         "source": "kp-unofficial-api"
       },
@@ -21782,6 +24277,45 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "96452": {
+      "at": 1791397581218,
+      "data": {
+        "kpId": "96452",
+        "ruTitle": "Команда «А»",
+        "enTitle": "The A-Team",
+        "year": "2010",
+        "description": "Группа ветеранов войны в Ираке, несправедливо обвиненных в преступлении, пытается найти истинных виновников и вернуть себе честное имя.",
+        "genres": [
+          "thriller",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "группа",
+          "ветеранов",
+          "войны",
+          "ираке",
+          "несправедливо",
+          "обвиненных",
+          "преступлении",
+          "пытается",
+          "найти",
+          "истинных",
+          "виновников",
+          "вернуть",
+          "себе",
+          "честное",
+          "имя"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -23381,6 +25915,82 @@
       },
       "source": "kp-api"
     },
+    "171922": {
+      "at": 1791397582838,
+      "data": {
+        "kpId": "171922",
+        "ruTitle": "Точка обстрела",
+        "enTitle": "Vantage Point",
+        "year": "2008",
+        "description": "Во время публичного выступления на антитеррористическом форуме в Саламанке, Испания от рук экстремистов погибает президент США — так, по-крайней мере, событие выглядит на первый взгляд. Вслед за этим мощный взрыв убивает сотни людей. Случившееся показано с разных точек зрения: сотрудников спецслужб, случайных прохожих, террориста-фанатика...\nТолько проследив за происходящим через призму восприятия каждого из этих людей, можно приблизиться к пониманию истинной сути событий, связанных с покушением.",
+        "genres": [
+          "thriller",
+          "drama",
+          "action"
+        ],
+        "descTokens": [
+          "время",
+          "публичного",
+          "выступления",
+          "антитеррористическом",
+          "форуме",
+          "саламанке",
+          "испания",
+          "рук",
+          "экстремистов",
+          "погибает",
+          "президент",
+          "сша",
+          "так",
+          "крайней",
+          "мере",
+          "событие",
+          "выглядит",
+          "первый",
+          "взгляд",
+          "вслед",
+          "этим",
+          "мощный",
+          "взрыв",
+          "убивает",
+          "сотни",
+          "людей",
+          "случившееся",
+          "показано",
+          "разных",
+          "точек",
+          "зрения",
+          "сотрудников",
+          "спецслужб",
+          "случайных",
+          "прохожих",
+          "террориста",
+          "фанатика",
+          "только",
+          "проследив",
+          "происходящим",
+          "через",
+          "призму",
+          "восприятия",
+          "каждого",
+          "этих",
+          "можно",
+          "приблизиться",
+          "пониманию",
+          "истинной",
+          "сути",
+          "событий",
+          "связанных",
+          "покушением"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "178702": {
       "at": 1790613919146,
       "data": {
@@ -23948,6 +26558,150 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "196748": {
+      "at": 1791397581455,
+      "data": {
+        "kpId": "196748",
+        "ruTitle": "Лузеры",
+        "enTitle": "The Losers",
+        "year": "2010",
+        "description": "«Лузеры» – сумасшедший экшн о предательстве и мести, рассказывающий о членах элитного отряда специального назначения, которых отправили в джунгли Боливии. Им поставили задачу «найти и уничтожить», но на месте выясняется, что команду – Клэя, Дженсена, Рока, Пуча и Кугара – подставили, и они попали под перекрестный огонь двух противоборствующих лагерей. Смертельное противостояние было спровоцировано изнутри могущественным врагом, о котором известно лишь одно: его имя – Макс. \nРешив сыграть на том, что они числятся погибшими, члены отряда уходят в глубокое подполье и составляют опасный план по восстановлению своей репутации и сведению счетов с Максом. К ним присоединяется загадочная Аиша – красавица-агент, работающая по заданию, но вполне способная внести коррективы в заданный сверху план. В перерывах между разборками друг с другом им необходимо всегда оставаться на шаг впереди разъезжающего по всему миру Макса – беспощадного негодяя, намеревающегося втянуть мир в новую высокотехнологичную мировую войну только ради собственной выгоды. Если они смогут победить Макса и одновременно спасти мир, это будет настоящей удачей для команды, известной теперь как ЛУЗЕРЫ.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "лузеры",
+          "сумасшедший",
+          "экшн",
+          "предательстве",
+          "мести",
+          "рассказывающий",
+          "членах",
+          "элитного",
+          "отряда",
+          "специального",
+          "назначения",
+          "которых",
+          "отправили",
+          "джунгли",
+          "боливии",
+          "поставили",
+          "задачу",
+          "найти",
+          "уничтожить",
+          "месте",
+          "выясняется",
+          "команду",
+          "клэя",
+          "дженсена",
+          "рока",
+          "пуча",
+          "кугара",
+          "подставили",
+          "попали",
+          "под",
+          "перекрестный",
+          "огонь",
+          "двух",
+          "противоборствующих",
+          "лагерей",
+          "смертельное",
+          "противостояние",
+          "было",
+          "спровоцировано",
+          "изнутри",
+          "могущественным",
+          "врагом",
+          "котором",
+          "известно",
+          "лишь",
+          "одно",
+          "имя",
+          "макс",
+          "решив",
+          "сыграть",
+          "том",
+          "числятся",
+          "погибшими",
+          "члены",
+          "уходят",
+          "глубокое",
+          "подполье",
+          "составляют",
+          "опасный",
+          "план",
+          "восстановлению",
+          "своей",
+          "репутации",
+          "сведению",
+          "счетов",
+          "максом",
+          "ним",
+          "присоединяется",
+          "загадочная",
+          "аиша",
+          "красавица",
+          "агент",
+          "работающая",
+          "заданию",
+          "вполне",
+          "способная",
+          "внести",
+          "коррективы",
+          "заданный",
+          "сверху",
+          "перерывах",
+          "между",
+          "разборками",
+          "друг",
+          "другом",
+          "необходимо",
+          "всегда",
+          "оставаться",
+          "шаг",
+          "впереди",
+          "разъезжающего",
+          "всему",
+          "миру",
+          "макса",
+          "беспощадного",
+          "негодяя",
+          "намеревающегося",
+          "втянуть",
+          "мир",
+          "новую",
+          "высокотехнологичную",
+          "мировую",
+          "войну",
+          "только",
+          "ради",
+          "собственной",
+          "выгоды",
+          "если",
+          "смогут",
+          "победить",
+          "одновременно",
+          "спасти",
+          "будет",
+          "настоящей",
+          "удачей",
+          "команды",
+          "известной",
+          "теперь"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.3,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -25196,6 +27950,52 @@
       },
       "source": "kp-api"
     },
+    "257898": {
+      "at": 1791397583772,
+      "data": {
+        "kpId": "257898",
+        "ruTitle": "Стрелок",
+        "enTitle": "Shooter",
+        "year": "2007",
+        "description": "Опытный снайпер Боб Ли оказывается втянутым в заговор с целью убийства президента. Похоже, что его хотят подставить и «сдать» властям, поэтому ему необходимо как можно быстрее найти и обезвредить настоящего убийцу…",
+        "genres": [
+          "thriller",
+          "drama",
+          "action"
+        ],
+        "descTokens": [
+          "опытный",
+          "снайпер",
+          "боб",
+          "оказывается",
+          "втянутым",
+          "заговор",
+          "целью",
+          "убийства",
+          "президента",
+          "похоже",
+          "хотят",
+          "подставить",
+          "сдать",
+          "властям",
+          "поэтому",
+          "ему",
+          "необходимо",
+          "можно",
+          "быстрее",
+          "найти",
+          "обезвредить",
+          "настоящего",
+          "убийцу"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "258775": {
       "at": 1790793303084,
       "data": {
@@ -26140,6 +28940,87 @@
       },
       "source": "kp-api"
     },
+    "277762": {
+      "at": 1791397322938,
+      "data": {
+        "kpId": "277762",
+        "ruTitle": "Частный детектив Магнум",
+        "enTitle": "Magnum, P.I.",
+        "year": "1980",
+        "description": "Телесериал про частного детектива Томаса Салливана Магнума. Том Магнум - ветеран Вьетнама, проходивший службу в морской разведке. Вернувшись с войны, он по просьбе некоего писателя-миллионера  Робина Мастерса,  поселяется в его роскошном поместье на Гавайских островах. Том получает в свое распоряжение великолепный дом, шикарную машину и другие «приятные мелочи», олицетворяющие безоблачную жизнь элиты. За это он должен обеспечивать порядок и безопасность многочисленных гостей, посещающих поместье в отсутствии хозяина, а также, в случае необходимости, исполнять обязанности частного детектива.",
+        "genres": [
+          "drama",
+          "crime",
+          "детектив",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "телесериал",
+          "про",
+          "частного",
+          "детектива",
+          "томаса",
+          "салливана",
+          "магнума",
+          "том",
+          "магнум",
+          "ветеран",
+          "вьетнама",
+          "проходивший",
+          "службу",
+          "морской",
+          "разведке",
+          "вернувшись",
+          "войны",
+          "просьбе",
+          "некоего",
+          "писателя",
+          "миллионера",
+          "робина",
+          "мастерса",
+          "поселяется",
+          "роскошном",
+          "поместье",
+          "гавайских",
+          "островах",
+          "получает",
+          "свое",
+          "распоряжение",
+          "великолепный",
+          "дом",
+          "шикарную",
+          "машину",
+          "другие",
+          "приятные",
+          "мелочи",
+          "олицетворяющие",
+          "безоблачную",
+          "жизнь",
+          "элиты",
+          "должен",
+          "обеспечивать",
+          "порядок",
+          "безопасность",
+          "многочисленных",
+          "гостей",
+          "посещающих",
+          "отсутствии",
+          "хозяина",
+          "также",
+          "случае",
+          "необходимости",
+          "исполнять",
+          "обязанности"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "278187": {
       "at": 1790793308087,
       "data": {
@@ -26434,6 +29315,66 @@
       },
       "source": "kp-api"
     },
+    "281236": {
+      "at": 1791397583991,
+      "data": {
+        "kpId": "281236",
+        "ruTitle": "Остров Ним",
+        "enTitle": "Nim's Island",
+        "year": "2008",
+        "description": "Девочка по имени Ним живет на удаленном острове со своим отцом. Ее друзья — это бородатая агама Фред, морской лев Селки, черепаха Чика и спутниковая тарелка для выхода в Интернет. И когда отец неожиданно исчезает, она должна проявить всю свою храбрость, чтобы разыскать его с помощью своих старых и новых друзей.",
+        "genres": [
+          "приключения",
+          "фэнтези",
+          "семейный"
+        ],
+        "descTokens": [
+          "девочка",
+          "имени",
+          "ним",
+          "живет",
+          "удаленном",
+          "острове",
+          "своим",
+          "отцом",
+          "друзья",
+          "бородатая",
+          "агама",
+          "фред",
+          "морской",
+          "лев",
+          "селки",
+          "черепаха",
+          "чика",
+          "спутниковая",
+          "тарелка",
+          "выхода",
+          "интернет",
+          "когда",
+          "отец",
+          "неожиданно",
+          "исчезает",
+          "должна",
+          "проявить",
+          "всю",
+          "свою",
+          "храбрость",
+          "чтобы",
+          "разыскать",
+          "помощью",
+          "своих",
+          "старых",
+          "новых",
+          "друзей"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "281874": {
       "at": 1790793269084,
       "data": {
@@ -26562,6 +29503,184 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.9,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "301080": {
+      "at": 1791397315084,
+      "data": {
+        "kpId": "301080",
+        "ruTitle": "Черная метка",
+        "enTitle": "Burn Notice",
+        "year": "2007",
+        "description": "Шпион высокого класса и огромного уровня секретности Майкл Вестен находится на сверхсекретном задании, да вот случилась незадачка - от него по непонятным никому причинам отказалось его руководство, теперь он персона нон-грата во всех возможных спецслужбах, его счета заморожены, документы недействительны и вообще он никто и звать его никак. Майклу случайно удается добраться до Майами, где его уже ждет бывшая девушка-агент Фиона, которая, конечно же, тут же сообщила про приезд Майкла его мамаше - даме, которая ставит себе диагнозы по медицинскому справочнику, прямо как у Джерома Клапки Джерома, и найдет и достанет сына из любой точки планеты, даже самой горячей. \n\nМайкл пытается как-то выжить в Майами, а так как без денег далеко не уйдешь, он начинает подрабатывать частным детективом - накрывает местного шулера, который решил сам себя ограбить. Майклу дают залог, он снимает себе квартиру у ночного клуба у странного русского типа, тут же ввязывается в скандал с наркодиллером местного районого масштаба, устраивает перестрелки, в общем, ведет себя, как и положено шпиону. За ним следит ФБР, ни на шаг не отходя, плюс еще, наверное, пасет пару секретных служб. Майкл постоянно общается с Сэмом - агентом в отставке, который только и делает, что ест, пьет и дает ценные советы всем, кто обращается. Однажды Майкл возвращается домой и находит у себя на полу свои же фотографии, сделанные таким же профессионалом, как он сам. Кто за ним следит? Почему от него отказались спецслужбы? Что вообще происходит?",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "шпион",
+          "высокого",
+          "класса",
+          "огромного",
+          "уровня",
+          "секретности",
+          "майкл",
+          "вестен",
+          "находится",
+          "сверхсекретном",
+          "задании",
+          "вот",
+          "случилась",
+          "незадачка",
+          "него",
+          "непонятным",
+          "никому",
+          "причинам",
+          "отказалось",
+          "руководство",
+          "теперь",
+          "персона",
+          "нон",
+          "грата",
+          "всех",
+          "возможных",
+          "спецслужбах",
+          "счета",
+          "заморожены",
+          "документы",
+          "недействительны",
+          "вообще",
+          "никто",
+          "звать",
+          "никак",
+          "майклу",
+          "случайно",
+          "удается",
+          "добраться",
+          "майами",
+          "где",
+          "уже",
+          "ждет",
+          "бывшая",
+          "девушка",
+          "агент",
+          "фиона",
+          "которая",
+          "конечно",
+          "тут",
+          "сообщила",
+          "про",
+          "приезд",
+          "майкла",
+          "мамаше",
+          "даме",
+          "ставит",
+          "себе",
+          "диагнозы",
+          "медицинскому",
+          "справочнику",
+          "прямо",
+          "джерома",
+          "клапки",
+          "найдет",
+          "достанет",
+          "сына",
+          "любой",
+          "точки",
+          "планеты",
+          "даже",
+          "самой",
+          "горячей",
+          "пытается",
+          "выжить",
+          "так",
+          "без",
+          "денег",
+          "далеко",
+          "уйдешь",
+          "начинает",
+          "подрабатывать",
+          "частным",
+          "детективом",
+          "накрывает",
+          "местного",
+          "шулера",
+          "который",
+          "решил",
+          "сам",
+          "себя",
+          "ограбить",
+          "дают",
+          "залог",
+          "снимает",
+          "квартиру",
+          "ночного",
+          "клуба",
+          "странного",
+          "русского",
+          "типа",
+          "ввязывается",
+          "скандал",
+          "наркодиллером",
+          "районого",
+          "масштаба",
+          "устраивает",
+          "перестрелки",
+          "общем",
+          "ведет",
+          "положено",
+          "шпиону",
+          "ним",
+          "следит",
+          "фбр",
+          "шаг",
+          "отходя",
+          "плюс",
+          "еще",
+          "наверное",
+          "пасет",
+          "пару",
+          "секретных",
+          "служб",
+          "постоянно",
+          "общается",
+          "сэмом",
+          "агентом",
+          "отставке",
+          "только",
+          "делает",
+          "ест",
+          "пьет",
+          "дает",
+          "ценные",
+          "советы",
+          "всем",
+          "кто",
+          "обращается",
+          "однажды",
+          "возвращается",
+          "домой",
+          "находит",
+          "полу",
+          "свои",
+          "фотографии",
+          "сделанные",
+          "таким",
+          "профессионалом",
+          "почему",
+          "отказались",
+          "спецслужбы",
+          "происходит"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
         "type": "series",
         "source": "kp-unofficial-api"
       },
@@ -28785,6 +31904,61 @@
       },
       "source": "kp-api"
     },
+    "416199": {
+      "at": 1791397585136,
+      "data": {
+        "kpId": "416199",
+        "ruTitle": "Дикая штучка",
+        "enTitle": "Wild Target",
+        "year": "2009",
+        "description": "Виктор — наемный убийца из династии киллеров, достигший вершин своей «профессии». Несмотря на это, Виктору так хочется семейного счастья, но личная жизнь у него никак не хочет складываться. Неожиданно он влюбляется в талантливую аферистку, которую должен был «убрать», выполняя очередное задание...",
+        "genres": [
+          "crime",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "виктор",
+          "наемный",
+          "убийца",
+          "династии",
+          "киллеров",
+          "достигший",
+          "вершин",
+          "своей",
+          "профессии",
+          "несмотря",
+          "виктору",
+          "так",
+          "хочется",
+          "семейного",
+          "счастья",
+          "личная",
+          "жизнь",
+          "него",
+          "никак",
+          "хочет",
+          "складываться",
+          "неожиданно",
+          "влюбляется",
+          "талантливую",
+          "аферистку",
+          "которую",
+          "должен",
+          "был",
+          "убрать",
+          "выполняя",
+          "очередное",
+          "задание"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "416347": {
       "at": 1790793318083,
       "data": {
@@ -29768,6 +32942,60 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "428715": {
+      "at": 1791397580763,
+      "data": {
+        "kpId": "428715",
+        "ruTitle": "Турист",
+        "enTitle": "The Tourist",
+        "year": "2010",
+        "description": "Американский турист Фрэнк приезжает в Италию, чтобы залечить душевную рану. В Венеции он знакомится с необычной женщиной по имени Элиза. Израненное сердце, похоже, готово сдаться новой возлюбленной. Однако планы Фрэнка и Элизы грубейшим образом нарушает водоворот интриг и опасностей.",
+        "genres": [
+          "thriller",
+          "action"
+        ],
+        "descTokens": [
+          "американский",
+          "турист",
+          "фрэнк",
+          "приезжает",
+          "италию",
+          "чтобы",
+          "залечить",
+          "душевную",
+          "рану",
+          "венеции",
+          "знакомится",
+          "необычной",
+          "женщиной",
+          "имени",
+          "элиза",
+          "израненное",
+          "сердце",
+          "похоже",
+          "готово",
+          "сдаться",
+          "новой",
+          "возлюбленной",
+          "однако",
+          "планы",
+          "фрэнка",
+          "элизы",
+          "грубейшим",
+          "образом",
+          "нарушает",
+          "водоворот",
+          "интриг",
+          "опасностей"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -30913,6 +34141,55 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "462662": {
+      "at": 1791397580986,
+      "data": {
+        "kpId": "462662",
+        "ruTitle": "Охотник за головами",
+        "enTitle": "The Bounty Hunter",
+        "year": "2010",
+        "description": "Майло — бывший полицейский, а теперь охотник за головами, занимающийся розыском беглых преступников. Он получает задание найти и отправить в тюрьму журналистку Николь, сбежавшую из-под залога. Ирония ситуации в том, что Николь — бывшая жена Майло.",
+        "genres": [
+          "мелодрама",
+          "детектив",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "майло",
+          "бывший",
+          "полицейский",
+          "теперь",
+          "охотник",
+          "головами",
+          "занимающийся",
+          "розыском",
+          "беглых",
+          "преступников",
+          "получает",
+          "задание",
+          "найти",
+          "отправить",
+          "тюрьму",
+          "журналистку",
+          "николь",
+          "сбежавшую",
+          "под",
+          "залога",
+          "ирония",
+          "ситуации",
+          "том",
+          "бывшая",
+          "жена"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.7,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -32757,6 +36034,201 @@
       },
       "source": "kp-api"
     },
+    "497178": {
+      "at": 1791397323341,
+      "data": {
+        "kpId": "497178",
+        "ruTitle": "Никита",
+        "enTitle": "Nikita",
+        "year": "2010",
+        "description": "Когда Никита была крайне проблемным тинейджером, от смерти её спасло секретное агентство США, известное как Подразделение, которое подстроило её казнь и убедило, что ей дали второй шанс начать новую жизнь и возможность послужить своей стране. Однако ей не сказали, что её тренировали как шпионку и убийцу. В конце концов Никиту предали и все её мечты были разрушены людьми, которым, как она думала, можно было доверять. \n\nПосле трех лет в бегах Никита ищет возмездия, ясно дав понять своим бывшим боссам, что она ни перед чем не остановится, чтобы разоблачить и уничтожить их секретное управление. Однако на данный момент Подразделение продолжает набирать рекрутов и обучать молодых людей, стирая любую информацию об их прежней жизни и делая из них хладнокровных и квалифицированных убийц. Одна из новых рекрутов, Алекс, только начинает понимать, что ждет ее в будущем и почему легендарная Никита приняла отчаянную попытку бежать.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "когда",
+          "никита",
+          "была",
+          "крайне",
+          "проблемным",
+          "тинейджером",
+          "смерти",
+          "спасло",
+          "секретное",
+          "агентство",
+          "сша",
+          "известное",
+          "подразделение",
+          "которое",
+          "подстроило",
+          "казнь",
+          "убедило",
+          "дали",
+          "второй",
+          "шанс",
+          "начать",
+          "новую",
+          "жизнь",
+          "возможность",
+          "послужить",
+          "своей",
+          "стране",
+          "однако",
+          "сказали",
+          "тренировали",
+          "шпионку",
+          "убийцу",
+          "конце",
+          "концов",
+          "никиту",
+          "предали",
+          "все",
+          "мечты",
+          "были",
+          "разрушены",
+          "людьми",
+          "которым",
+          "думала",
+          "можно",
+          "было",
+          "доверять",
+          "после",
+          "трех",
+          "лет",
+          "бегах",
+          "ищет",
+          "возмездия",
+          "ясно",
+          "дав",
+          "понять",
+          "своим",
+          "бывшим",
+          "боссам",
+          "перед",
+          "чем",
+          "остановится",
+          "чтобы",
+          "разоблачить",
+          "уничтожить",
+          "управление",
+          "данный",
+          "момент",
+          "продолжает",
+          "набирать",
+          "рекрутов",
+          "обучать",
+          "молодых",
+          "людей",
+          "стирая",
+          "любую",
+          "информацию",
+          "прежней",
+          "жизни",
+          "делая",
+          "них",
+          "хладнокровных",
+          "квалифицированных",
+          "убийц",
+          "одна",
+          "новых",
+          "алекс",
+          "только",
+          "начинает",
+          "понимать",
+          "ждет",
+          "будущем",
+          "почему",
+          "легендарная",
+          "приняла",
+          "отчаянную",
+          "попытку",
+          "бежать"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.6,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "497233": {
+      "at": 1791397580536,
+      "data": {
+        "kpId": "497233",
+        "ruTitle": "Значит, война",
+        "enTitle": "This Means War",
+        "year": "2012",
+        "description": "Агенты ЦРУ и в то же время лучшие друзья Франклин Фостер и Так Хенсон отправляются в Гонконг, чтобы поймать международного преступника Генриха, который владеет оружием массового уничтожения. В ходе миссии брат террориста погибает, а сам Генрих ускользает. Обоих агентов отстраняют от дел. Они возвращаются к мирной жизни, но вскоре между друзьями начинается война из-за сексапильной красотки Лоран. А тем временем террорист продумывает план мести.",
+        "genres": [
+          "мелодрама",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "агенты",
+          "цру",
+          "время",
+          "лучшие",
+          "друзья",
+          "франклин",
+          "фостер",
+          "так",
+          "хенсон",
+          "отправляются",
+          "гонконг",
+          "чтобы",
+          "поймать",
+          "международного",
+          "преступника",
+          "генриха",
+          "который",
+          "владеет",
+          "оружием",
+          "массового",
+          "уничтожения",
+          "ходе",
+          "миссии",
+          "брат",
+          "террориста",
+          "погибает",
+          "сам",
+          "генрих",
+          "ускользает",
+          "обоих",
+          "агентов",
+          "отстраняют",
+          "дел",
+          "возвращаются",
+          "мирной",
+          "жизни",
+          "вскоре",
+          "между",
+          "друзьями",
+          "начинается",
+          "война",
+          "сексапильной",
+          "красотки",
+          "лоран",
+          "тем",
+          "временем",
+          "террорист",
+          "продумывает",
+          "план",
+          "мести"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "500617": {
       "at": 1791057061778,
       "data": {
@@ -32817,6 +36289,46 @@
         "franchise": "",
         "kpRating": 4.9,
         "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "501861": {
+      "at": 1791397314707,
+      "data": {
+        "kpId": "501861",
+        "ruTitle": "Тайные связи",
+        "enTitle": "Covert Affairs",
+        "year": "2010",
+        "description": "Главная героиня сериала – Энни Уокер, стажер ЦРУ. Энни свободно владеет шестью языками и добивается успеха в любом деле...",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "главная",
+          "героиня",
+          "энни",
+          "уокер",
+          "стажер",
+          "цру",
+          "свободно",
+          "владеет",
+          "шестью",
+          "языками",
+          "добивается",
+          "успеха",
+          "любом",
+          "деле"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7,
+        "type": "series",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -32882,6 +36394,69 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "505774": {
+      "at": 1791397581675,
+      "data": {
+        "kpId": "505774",
+        "ruTitle": "Очень опасная штучка",
+        "enTitle": "One for the Money",
+        "year": "2012",
+        "description": "Продавщица нижнего белья в отставке Стэфани Плам нашла новую работу. Отныне она охотится на мужчин, за поимку которых назначена солидная награда. Ее главное оружие – женская интуиция и модные туфли на высоких каблуках. Но даже они бессильны перед главной целью – мужчиной ее мечты.  Он красив, остроумен и смертельно опасен, и при этом он её бывший.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "продавщица",
+          "нижнего",
+          "белья",
+          "отставке",
+          "стэфани",
+          "плам",
+          "нашла",
+          "новую",
+          "работу",
+          "отныне",
+          "охотится",
+          "мужчин",
+          "поимку",
+          "которых",
+          "назначена",
+          "солидная",
+          "награда",
+          "главное",
+          "оружие",
+          "женская",
+          "интуиция",
+          "модные",
+          "туфли",
+          "высоких",
+          "каблуках",
+          "даже",
+          "бессильны",
+          "перед",
+          "главной",
+          "целью",
+          "мужчиной",
+          "мечты",
+          "красив",
+          "остроумен",
+          "смертельно",
+          "опасен",
+          "этом",
+          "бывший"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -35069,6 +38644,63 @@
       },
       "source": "movie-planner"
     },
+    "642609": {
+      "at": 1791397586757,
+      "data": {
+        "kpId": "642609",
+        "ruTitle": "Мой парень – киллер",
+        "enTitle": "Mr. Right",
+        "year": "2015",
+        "description": "Марта застала своего парня за изменой и немного вышла из колеи. И тут она встречает, казалось бы, идеального мужчину. Но её идеал оказывается бывшим киллером, и его прошлое однажды вновь заявляет о себе, причем не самым приятным образом. И едва зародившиеся отношения начинают подвергаться серьёзным испытаниям.",
+        "genres": [
+          "crime",
+          "мелодрама",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "марта",
+          "застала",
+          "своего",
+          "парня",
+          "изменой",
+          "немного",
+          "вышла",
+          "колеи",
+          "тут",
+          "встречает",
+          "казалось",
+          "идеального",
+          "мужчину",
+          "идеал",
+          "оказывается",
+          "бывшим",
+          "киллером",
+          "прошлое",
+          "однажды",
+          "вновь",
+          "заявляет",
+          "себе",
+          "причем",
+          "самым",
+          "приятным",
+          "образом",
+          "едва",
+          "зародившиеся",
+          "отношения",
+          "начинают",
+          "подвергаться",
+          "серьезным",
+          "испытаниям"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "645261": {
       "at": 1790613860743,
       "data": {
@@ -35369,6 +39001,82 @@
       },
       "source": "kp-api"
     },
+    "652760": {
+      "at": 1791397582145,
+      "data": {
+        "kpId": "652760",
+        "ruTitle": "Джунгли",
+        "enTitle": "",
+        "year": "2012",
+        "description": "У Сергея и Марины в семейной жизни наступил кризис. Во время одной из ссор, они решают поехать в экзотическое путешествие. Всю дорогу между супругами не утихают ссоры, которые в конце концов приводят к тому, что они оказываются на необитаемом острове, затерянном в океане. Вместо того чтобы вместе бороться за выживание, наши герои продолжают выяснять отношения, постепенно переходя к настоящим боевым действиям. В довершение несчастий оказывается, что остров населен племенем воинствующих туземцев.",
+        "genres": [
+          "мелодрама",
+          "приключения",
+          "comedy"
+        ],
+        "descTokens": [
+          "сергея",
+          "марины",
+          "семейной",
+          "жизни",
+          "наступил",
+          "кризис",
+          "время",
+          "одной",
+          "ссор",
+          "решают",
+          "поехать",
+          "экзотическое",
+          "путешествие",
+          "всю",
+          "дорогу",
+          "между",
+          "супругами",
+          "утихают",
+          "ссоры",
+          "которые",
+          "конце",
+          "концов",
+          "приводят",
+          "тому",
+          "оказываются",
+          "необитаемом",
+          "острове",
+          "затерянном",
+          "океане",
+          "вместо",
+          "того",
+          "чтобы",
+          "вместе",
+          "бороться",
+          "выживание",
+          "наши",
+          "герои",
+          "продолжают",
+          "выяснять",
+          "отношения",
+          "постепенно",
+          "переходя",
+          "настоящим",
+          "боевым",
+          "действиям",
+          "довершение",
+          "несчастий",
+          "оказывается",
+          "остров",
+          "населен",
+          "племенем",
+          "воинствующих",
+          "туземцев"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "655578": {
       "at": 1790965845530,
       "data": {
@@ -35582,6 +39290,81 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "662359": {
+      "at": 1791397586990,
+      "data": {
+        "kpId": "662359",
+        "ruTitle": "Расплата",
+        "enTitle": "The Accountant",
+        "year": "2016",
+        "description": "Кристиан Вольф — аутист и математический гений, который подрабатывает аудитором для самых опасных преступных организаций. Когда им заинтересовывается отдел по борьбе с преступностью Министерства финансов во главе с Рэем Кингом, Кристиан решает найти себе законопослушного клиента и проводит аудит в компании по производству новейшей робототехники, где сотрудница финансового отдела обнаружила «нестыковочку» в миллионы долларов. Но стоит Кристиану взяться за счета и выйти на след, как в деле начинают появляться жертвы.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "кристиан",
+          "вольф",
+          "аутист",
+          "математический",
+          "гений",
+          "который",
+          "подрабатывает",
+          "аудитором",
+          "самых",
+          "опасных",
+          "преступных",
+          "организаций",
+          "когда",
+          "заинтересовывается",
+          "отдел",
+          "борьбе",
+          "преступностью",
+          "министерства",
+          "финансов",
+          "главе",
+          "рэем",
+          "кингом",
+          "решает",
+          "найти",
+          "себе",
+          "законопослушного",
+          "клиента",
+          "проводит",
+          "аудит",
+          "компании",
+          "производству",
+          "новейшей",
+          "робототехники",
+          "где",
+          "сотрудница",
+          "финансового",
+          "отдела",
+          "обнаружила",
+          "нестыковочку",
+          "миллионы",
+          "долларов",
+          "стоит",
+          "кристиану",
+          "взяться",
+          "счета",
+          "выйти",
+          "след",
+          "деле",
+          "начинают",
+          "появляться",
+          "жертвы"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -35930,6 +39713,45 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "681503": {
+      "at": 1791397582375,
+      "data": {
+        "kpId": "681503",
+        "ruTitle": "Шпионы по соседству",
+        "enTitle": "Keeping Up with the Joneses",
+        "year": "2016",
+        "description": "Супружеская пара из пригорода оказывается втянутой в международный шпионский заговор, когда обнаруживает, что их, казалось бы, идеальные новые соседи являются правительственными агентами.",
+        "genres": [
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "супружеская",
+          "пара",
+          "пригорода",
+          "оказывается",
+          "втянутой",
+          "международный",
+          "шпионский",
+          "заговор",
+          "когда",
+          "обнаруживает",
+          "казалось",
+          "идеальные",
+          "новые",
+          "соседи",
+          "являются",
+          "правительственными",
+          "агентами"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -37853,6 +41675,44 @@
       },
       "source": "kp-api"
     },
+    "779060": {
+      "at": 1791397587211,
+      "data": {
+        "kpId": "779060",
+        "ruTitle": "Шпион: Операция под прикрытием",
+        "enTitle": "Seupai",
+        "year": "2013",
+        "description": "Секретный агент, скрывающий свою истинную личность от жены, работает над делом, которое затрагивает всю Южную Корею.",
+        "genres": [
+          "мелодрама",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "секретный",
+          "агент",
+          "скрывающий",
+          "свою",
+          "истинную",
+          "личность",
+          "жены",
+          "работает",
+          "над",
+          "делом",
+          "которое",
+          "затрагивает",
+          "всю",
+          "южную",
+          "корею"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "797790": {
       "at": 1790613626124,
       "data": {
@@ -38603,6 +42463,37 @@
       },
       "source": "kp-api"
     },
+    "839902": {
+      "at": 1791397324143,
+      "data": {
+        "kpId": "839902",
+        "ruTitle": "Библиотекари",
+        "enTitle": "The Librarians",
+        "year": "2014",
+        "description": "Группа библиотекарей отправляется в путешествие, чтобы спасти загадочные древние артефакты.",
+        "genres": [
+          "sci-fi",
+          "приключения"
+        ],
+        "descTokens": [
+          "группа",
+          "библиотекарей",
+          "отправляется",
+          "путешествие",
+          "чтобы",
+          "спасти",
+          "загадочные",
+          "древние",
+          "артефакты"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "841147": {
       "at": 1791057539895,
       "data": {
@@ -39021,6 +42912,60 @@
       },
       "source": "movie-planner"
     },
+    "885658": {
+      "at": 1791397587895,
+      "data": {
+        "kpId": "885658",
+        "ruTitle": "Джон Уик 2",
+        "enTitle": "John Wick: Chapter Two",
+        "year": "2017",
+        "description": "Когда бывший коллега Джона решает взять под свой контроль таинственную гильдию убийц, Уик вынужден выйти из отставки. Ведомый кровавой клятвой Джон отправляется в Рим, где ему придется сразиться с одними из самых опасных киллеров в мире.",
+        "genres": [
+          "thriller",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "когда",
+          "бывший",
+          "коллега",
+          "джона",
+          "решает",
+          "взять",
+          "под",
+          "свой",
+          "контроль",
+          "таинственную",
+          "гильдию",
+          "убийц",
+          "уик",
+          "вынужден",
+          "выйти",
+          "отставки",
+          "ведомый",
+          "кровавой",
+          "клятвой",
+          "джон",
+          "отправляется",
+          "рим",
+          "где",
+          "ему",
+          "придется",
+          "сразиться",
+          "одними",
+          "самых",
+          "опасных",
+          "киллеров",
+          "мире"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "885731": {
       "at": 1790965856796,
       "data": {
@@ -39231,6 +43176,54 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "915140": {
+      "at": 1791397588343,
+      "data": {
+        "kpId": "915140",
+        "ruTitle": "Союзники",
+        "enTitle": "Allied",
+        "year": "2016",
+        "description": "1942 год. Во время опасной миссии в Северной Африке разведчик Макс встречает участницу сопротивления Марианну. Их чувствам суждено подвергнуться тысяче испытаний, главным из которых станет испытание правдой.",
+        "genres": [
+          "thriller",
+          "drama",
+          "мелодрама",
+          "action",
+          "военный"
+        ],
+        "descTokens": [
+          "1942",
+          "год",
+          "время",
+          "опасной",
+          "миссии",
+          "северной",
+          "африке",
+          "разведчик",
+          "макс",
+          "встречает",
+          "участницу",
+          "сопротивления",
+          "марианну",
+          "чувствам",
+          "суждено",
+          "подвергнуться",
+          "тысяче",
+          "испытаний",
+          "главным",
+          "которых",
+          "станет",
+          "испытание",
+          "правдой"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "918020": {
       "at": 1790793815085,
@@ -44012,6 +48005,48 @@
       },
       "source": "movie-planner"
     },
+    "4859941": {
+      "at": 1791397580295,
+      "data": {
+        "kpId": "4859941",
+        "ruTitle": "Без ответа",
+        "enTitle": "Ghosted",
+        "year": "2023",
+        "description": "Коул влюбляется в загадочную Сэди, но выясняется, что она секретный агент. Прежде чем они успевают пойти на второе свидание, Коул и Сэди отправляются в приключение, чтобы спасти мир.",
+        "genres": [
+          "мелодрама",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "коул",
+          "влюбляется",
+          "загадочную",
+          "сэди",
+          "выясняется",
+          "секретный",
+          "агент",
+          "прежде",
+          "чем",
+          "успевают",
+          "пойти",
+          "второе",
+          "свидание",
+          "отправляются",
+          "приключение",
+          "чтобы",
+          "спасти",
+          "мир"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "4860287": {
       "at": 1790793914815,
       "data": {
@@ -45189,6 +49224,1342 @@
     }
   },
   "secondDegree": {
+    "455188": {
+      "at": 1791397580055,
+      "sourceVersion": 2,
+      "parentFingerprint": "4859941,429257,12090,450237,2219,497233,428715,9552,3961,462662,3447,417583,472362,12285,427202",
+      "items": [
+        {
+          "kpId": "49844",
+          "ruTitle": "Казино Рояль",
+          "enTitle": "Casino Royale",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом",
+            "Из Парижа с любовью"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "258475",
+          "ruTitle": "Квант милосердия",
+          "enTitle": "Quantum of Solace",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "408871",
+          "ruTitle": "007: Координаты «Скайфолл»",
+          "enTitle": "Skyfall",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "447284",
+          "ruTitle": "Солт",
+          "enTitle": "Salt",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД",
+            "Турист",
+            "Миссия: невыполнима",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "3556",
+          "ruTitle": "Золотой глаз",
+          "enTitle": "GoldenEye",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "6585",
+          "ruTitle": "И целого мира мало",
+          "enTitle": "The World Is Not Enough",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "8141",
+          "ruTitle": "Завтра не умрет никогда",
+          "enTitle": "Tomorrow Never Dies",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия: невыполнима 2"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 3",
+          "viaTitles": [
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 3» (2-й уровень)"
+        },
+        {
+          "kpId": "96452",
+          "ruTitle": "Команда «А»",
+          "enTitle": "The A-Team",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД",
+            "Миссия: невыполнима 3",
+            "Миссия: невыполнима"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "196748",
+          "ruTitle": "Лузеры",
+          "enTitle": "The Losers",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД",
+            "Миссия: невыполнима"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер",
+            "Из Парижа с любовью"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "398239",
+          "ruTitle": "Голая правда",
+          "enTitle": "The Ugly Truth",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры",
+            "Охотник за головами"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "445175",
+          "ruTitle": "Безумное свидание",
+          "enTitle": "Date Night",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры",
+            "Охотник за головами"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "463135",
+          "ruTitle": "Неизвестный",
+          "enTitle": "Unknown",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист",
+            "Из Парижа с любовью"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "505774",
+          "ruTitle": "Очень опасная штучка",
+          "enTitle": "One for the Money",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры",
+            "Охотник за головами"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "5548",
+          "ruTitle": "Война супругов Роуз",
+          "enTitle": "The War of the Roses",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит",
+            "Значит, война"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        },
+        {
+          "kpId": "651",
+          "ruTitle": "Умри, но не сейчас",
+          "enTitle": "Die Another Day",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 2",
+          "viaTitles": [
+            "Миссия: невыполнима 2",
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 2» (2-й уровень)"
+        },
+        {
+          "kpId": "652760",
+          "ruTitle": "Джунгли",
+          "enTitle": "",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит",
+            "Роман с камнем"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        },
+        {
+          "kpId": "681503",
+          "ruTitle": "Шпионы по соседству",
+          "enTitle": "Keeping Up with the Joneses",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры",
+            "Мистер и миссис Смит"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "9544",
+          "ruTitle": "Крепкий орешек 4.0",
+          "enTitle": "Live Free or Die Hard",
+          "hop": 2,
+          "viaTitle": "Правдивая ложь",
+          "viaTitles": [
+            "Правдивая ложь",
+            "Миссия: невыполнима 3"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Правдивая ложь» (2-й уровень)"
+        },
+        {
+          "kpId": "104964",
+          "ruTitle": "Пристрели их",
+          "enTitle": "Shoot 'Em Up",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "12819",
+          "ruTitle": "Афера Томаса Крауна",
+          "enTitle": "The Thomas Crown Affair",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "12829",
+          "ruTitle": "Три дня Кондора",
+          "enTitle": "Three Days of the Condor",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "171922",
+          "ruTitle": "Точка обстрела",
+          "enTitle": "Vantage Point",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "17663",
+          "ruTitle": "Соблазн",
+          "enTitle": "Original Sin",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "21309",
+          "ruTitle": "Африканец",
+          "enTitle": "L'africain",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "22324",
+          "ruTitle": "Кодер",
+          "enTitle": "Cypher",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "261668",
+          "ruTitle": "Золото дураков",
+          "enTitle": "Fool's Gold",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "278208",
+          "ruTitle": "Солдаты неудачи",
+          "enTitle": "Tropic Thunder",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "281236",
+          "ruTitle": "Остров Ним",
+          "enTitle": "Nim's Island",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "28267",
+          "ruTitle": "Год кометы",
+          "enTitle": "Year of the Comet",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "2886",
+          "ruTitle": "Невыносимая жестокость",
+          "enTitle": "Intolerable Cruelty",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        },
+        {
+          "kpId": "2899",
+          "ruTitle": "Мошенники",
+          "enTitle": "Serving Sara",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "309423",
+          "ruTitle": "После прочтения сжечь",
+          "enTitle": "Burn After Reading",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "339",
+          "ruTitle": "Индиана Джонс: В поисках утраченного ковчега",
+          "enTitle": "Raiders of the Lost Ark",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "343",
+          "ruTitle": "На север через северо-запад",
+          "enTitle": "North by Northwest",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "3513",
+          "ruTitle": "Последний киногерой",
+          "enTitle": "Last Action Hero",
+          "hop": 2,
+          "viaTitle": "Правдивая ложь",
+          "viaTitles": [
+            "Правдивая ложь"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Правдивая ложь» (2-й уровень)"
+        },
+        {
+          "kpId": "3908",
+          "ruTitle": "Плохие парни",
+          "enTitle": "Bad Boys",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "3921",
+          "ruTitle": "Успеть до полуночи",
+          "enTitle": "Midnight Run",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "397556",
+          "ruTitle": "Ничего личного",
+          "enTitle": "Duplicity",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        },
+        {
+          "kpId": "4002",
+          "ruTitle": "Смертельное оружие 4",
+          "enTitle": "Lethal Weapon 4",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "400582",
+          "ruTitle": "Опасные пассажиры поезда 123",
+          "enTitle": "The Taking of Pelham 123",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "4120",
+          "ruTitle": "Шесть дней, семь ночей",
+          "enTitle": "Six Days Seven Nights",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "416199",
+          "ruTitle": "Дикая штучка",
+          "enTitle": "Wild Target",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "4283",
+          "ruTitle": "Крокодил Данди 2",
+          "enTitle": "Crocodile Dundee II",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "4308624",
+          "ruTitle": "Затерянный город",
+          "enTitle": "The Lost City",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "432550",
+          "ruTitle": "Неудержимые",
+          "enTitle": "The Expendables",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "4484",
+          "ruTitle": "Мумия",
+          "enTitle": "The Mummy",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "452857",
+          "ruTitle": "Супруги Морган в бегах",
+          "enTitle": "Did You Hear About the Morgans?",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "4572",
+          "ruTitle": "База «Клейтон»",
+          "enTitle": "Basic",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "4606",
+          "ruTitle": "Без лица",
+          "enTitle": "Face/Off",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 2",
+          "viaTitles": [
+            "Миссия: невыполнима 2"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 2» (2-й уровень)"
+        },
+        {
+          "kpId": "462059",
+          "ruTitle": "Круиз по джунглям",
+          "enTitle": "Jungle Cruise",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "462371",
+          "ruTitle": "Джек Райан: Теория хаоса",
+          "enTitle": "Jack Ryan: Shadow Recruit",
+          "hop": 2,
+          "viaTitle": "Миссия невыполнима: Протокол Фантом",
+          "viaTitles": [
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия невыполнима: Протокол Фантом» (2-й уровень)"
+        },
+        {
+          "kpId": "464290",
+          "ruTitle": "Два ствола",
+          "enTitle": "2 Guns",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        },
+        {
+          "kpId": "467729",
+          "ruTitle": "Реальные парни",
+          "enTitle": "Stand Up Guys",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "472",
+          "ruTitle": "Индиана Джонс и последний крестовый поход",
+          "enTitle": "Indiana Jones and the Last Crusade",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "4784969",
+          "ruTitle": "Союз",
+          "enTitle": "The Union",
+          "hop": 2,
+          "viaTitle": "Без ответа",
+          "viaTitles": [
+            "Без ответа"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Без ответа» (2-й уровень)"
+        },
+        {
+          "kpId": "496943",
+          "ruTitle": "Форсаж 5",
+          "enTitle": "Fast Five",
+          "hop": 2,
+          "viaTitle": "Миссия невыполнима: Протокол Фантом",
+          "viaTitles": [
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия невыполнима: Протокол Фантом» (2-й уровень)"
+        },
+        {
+          "kpId": "500617",
+          "ruTitle": "Крепкий орешек: Хороший день, чтобы умереть",
+          "enTitle": "A Good Day to Die Hard",
+          "hop": 2,
+          "viaTitle": "Миссия невыполнима: Протокол Фантом",
+          "viaTitles": [
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия невыполнима: Протокол Фантом» (2-й уровень)"
+        },
+        {
+          "kpId": "507818",
+          "ruTitle": "Код доступа «Кейптаун»",
+          "enTitle": "Safe House",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "518042",
+          "ruTitle": "Агенты А.Н.К.Л.",
+          "enTitle": "The Man from U.N.C.L.E.",
+          "hop": 2,
+          "viaTitle": "Значит, война",
+          "viaTitles": [
+            "Значит, война"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Значит, война» (2-й уровень)"
+        },
+        {
+          "kpId": "5221",
+          "ruTitle": "Ронин",
+          "enTitle": "Ronin",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима",
+          "viaTitles": [
+            "Миссия: невыполнима"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима» (2-й уровень)"
+        },
+        {
+          "kpId": "5412",
+          "ruTitle": "Сокровище Амазонки",
+          "enTitle": "The Rundown",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "55057",
+          "ruTitle": "Тотальная слежка",
+          "enTitle": "La totale !",
+          "hop": 2,
+          "viaTitle": "Правдивая ложь",
+          "viaTitles": [
+            "Правдивая ложь"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Правдивая ложь» (2-й уровень)"
+        },
+        {
+          "kpId": "5612",
+          "ruTitle": "Копи царя Соломона",
+          "enTitle": "King Solomon's Mines",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "566232",
+          "ruTitle": "Я, Алекс Кросс",
+          "enTitle": "Alex Cross",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "571288",
+          "ruTitle": "Неудержимые 2",
+          "enTitle": "The Expendables 2",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "582159",
+          "ruTitle": "РЭД 2",
+          "enTitle": "RED 2",
+          "hop": 2,
+          "viaTitle": "Миссия невыполнима: Протокол Фантом",
+          "viaTitles": [
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия невыполнима: Протокол Фантом» (2-й уровень)"
+        },
+        {
+          "kpId": "6018",
+          "ruTitle": "Стиратель",
+          "enTitle": "Eraser",
+          "hop": 2,
+          "viaTitle": "Правдивая ложь",
+          "viaTitles": [
+            "Правдивая ложь"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Правдивая ложь» (2-й уровень)"
+        },
+        {
+          "kpId": "606698",
+          "ruTitle": "Поймай толстуху, если сможешь",
+          "enTitle": "Identity Thief",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "6206",
+          "ruTitle": "Перевозчик",
+          "enTitle": "The Transporter",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "6345",
+          "ruTitle": "Час пик",
+          "enTitle": "Rush Hour",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "642609",
+          "ruTitle": "Мой парень – киллер",
+          "enTitle": "Mr. Right",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "678233",
+          "ruTitle": "Крутые меры",
+          "enTitle": "Bastille Day",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "683516",
+          "ruTitle": "3 дня на убийство",
+          "enTitle": "3 Days to Kill",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "7122",
+          "ruTitle": "Индиана Джонс и Храм судьбы",
+          "enTitle": "Indiana Jones and the Temple of Doom",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "750",
+          "ruTitle": "Знакомство с родителями",
+          "enTitle": "Meet the Parents",
+          "hop": 2,
+          "viaTitle": "Киллеры",
+          "viaTitles": [
+            "Киллеры"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Киллеры» (2-й уровень)"
+        },
+        {
+          "kpId": "754481",
+          "ruTitle": "Форсаж 7",
+          "enTitle": "Fast & Furious 7",
+          "hop": 2,
+          "viaTitle": "Миссия невыполнима: Протокол Фантом",
+          "viaTitles": [
+            "Миссия невыполнима: Протокол Фантом"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия невыполнима: Протокол Фантом» (2-й уровень)"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "77454",
+          "ruTitle": "Правила съема: Метод Хитча",
+          "enTitle": "Hitch",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "77588",
+          "ruTitle": "Перевозчик 2",
+          "enTitle": "Le Transporteur II",
+          "hop": 2,
+          "viaTitle": "Миссия: невыполнима 2",
+          "viaTitles": [
+            "Миссия: невыполнима 2"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Миссия: невыполнима 2» (2-й уровень)"
+        },
+        {
+          "kpId": "779060",
+          "ruTitle": "Шпион: Операция под прикрытием",
+          "enTitle": "Seupai",
+          "hop": 2,
+          "viaTitle": "Правдивая ложь",
+          "viaTitles": [
+            "Правдивая ложь"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Правдивая ложь» (2-й уровень)"
+        },
+        {
+          "kpId": "8126",
+          "ruTitle": "Крокодил Данди",
+          "enTitle": "Crocodile Dundee",
+          "hop": 2,
+          "viaTitle": "Роман с камнем",
+          "viaTitles": [
+            "Роман с камнем"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Роман с камнем» (2-й уровень)"
+        },
+        {
+          "kpId": "81522",
+          "ruTitle": "13-й район",
+          "enTitle": "Banlieue 13",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "835877",
+          "ruTitle": "Телохранитель киллера",
+          "enTitle": "The Hitman's Bodyguard",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "84027",
+          "ruTitle": "Неуловимый",
+          "enTitle": "Anthony Zimmer",
+          "hop": 2,
+          "viaTitle": "Турист",
+          "viaTitles": [
+            "Турист"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Турист» (2-й уровень)"
+        },
+        {
+          "kpId": "849",
+          "ruTitle": "Пароль «Рыба-меч»",
+          "enTitle": "Swordfish",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "863",
+          "ruTitle": "Тренировочный день",
+          "enTitle": "Training Day",
+          "hop": 2,
+          "viaTitle": "Из Парижа с любовью",
+          "viaTitles": [
+            "Из Парижа с любовью"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Из Парижа с любовью» (2-й уровень)"
+        },
+        {
+          "kpId": "883",
+          "ruTitle": "Девять ярдов",
+          "enTitle": "The Whole Nine Yards",
+          "hop": 2,
+          "viaTitle": "РЭД",
+          "viaTitles": [
+            "РЭД"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «РЭД» (2-й уровень)"
+        },
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "8949",
+          "ruTitle": "Птичка на проводе",
+          "enTitle": "Bird on a Wire",
+          "hop": 2,
+          "viaTitle": "Охотник за головами",
+          "viaTitles": [
+            "Охотник за головами"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Охотник за головами» (2-й уровень)"
+        },
+        {
+          "kpId": "915140",
+          "ruTitle": "Союзники",
+          "enTitle": "Allied",
+          "hop": 2,
+          "viaTitle": "Мистер и миссис Смит",
+          "viaTitles": [
+            "Мистер и миссис Смит"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мистер и миссис Смит» (2-й уровень)"
+        }
+      ],
+      "parentCount": 15,
+      "diag": "2-й уровень: 99 кандидатов от 15/15 прямых фильмов"
+    },
     "484878": {
       "at": 1791057532343,
       "sourceVersion": 2,
@@ -94439,6 +99810,90 @@
       "ruTitle": "Скафандр и бабочка",
       "enTitle": "The Diving Bell and the Butterfly",
       "year": "2007",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:covert affairs:2010": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397314313,
+      "kpId": "501861",
+      "ruTitle": "Тайные операции",
+      "enTitle": "Covert Affairs",
+      "year": "2010",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:burn notice:2007": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397314331,
+      "kpId": "301080",
+      "ruTitle": "Чёрная метка",
+      "enTitle": "Burn Notice",
+      "year": "2007",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:alias:2001": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397314502,
+      "kpId": "86234",
+      "ruTitle": "Шпионка",
+      "enTitle": "Alias",
+      "year": "2001",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:white collar:2009": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397315557,
+      "kpId": "445186",
+      "ruTitle": "Белый воротничок",
+      "enTitle": "White Collar",
+      "year": "2009",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:magnum p i:2018": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397322861,
+      "kpId": "277762",
+      "ruTitle": "Частный детектив Магнум",
+      "enTitle": "Magnum, P.I.",
+      "year": "2018",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:nikita:2010": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397323263,
+      "kpId": "497178",
+      "ruTitle": "Никита",
+      "enTitle": "Nikita",
+      "year": "2010",
+      "kpRating": null,
+      "description": "",
+      "source": "wikidata"
+    },
+    "t:librarians:2014": {
+      "v": 7,
+      "found": true,
+      "checkedAt": 1791397324067,
+      "kpId": "839902",
+      "ruTitle": "Библиотекари",
+      "enTitle": "The Librarians",
+      "year": "2014",
       "kpRating": null,
       "description": "",
       "source": "wikidata"

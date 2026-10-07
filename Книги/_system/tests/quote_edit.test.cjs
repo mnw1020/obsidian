@@ -5,6 +5,7 @@ const path = require('node:path');
 const knowledge = require('../knowledge.js');
 const editQuote = require('../quote_edit.js');
 const { replaceExcerpt } = editQuote;
+const { removeExcerpt, deleteQuote } = editQuote;
 const knowledgeSource = fs.readFileSync(path.join(__dirname, '../knowledge.js'), 'utf8');
 const id = 'book-excerpt-edit-test';
 
@@ -251,4 +252,40 @@ test('modal reports missing or renamed files and duplicate IDs, without opening 
     await modal.save();
     assert.equal(renamed.writes.length, 0);
     assert.match(modal.errorEl.textContent, /больше не доступен/);
+});
+
+test('deletion removes only the selected block and ID, preserving other quotes and surrounding bytes', () => {
+    const prefix = '---\r\ntitle: Книга\r\n---\r\nКонспект\n';
+    const target = quote({}, '\r\n');
+    const suffix = '\nИстория чтения и заметки\r\n' + quote({ id: 'book-excerpt-keep', text: 'Другая цитата' });
+    const raw = prefix + target + suffix;
+    assert.equal(removeExcerpt(raw, id, baseline(raw)), prefix + suffix);
+    assert.deepEqual(knowledge.parseExcerpts(removeExcerpt(raw, id, baseline(raw))).map(value => value.id), ['book-excerpt-keep']);
+    assert.throws(() => removeExcerpt(raw + target, id, baseline(raw)), /нескольких/);
+    assert.throws(() => removeExcerpt(raw.replace('Исходная цитата', 'Изменённая'), id, baseline(raw)), /цитата изменилась/);
+});
+
+test('delete confirmation can cancel, then atomically remove the quote while preserving later outside edits', async () => {
+    const h = harness('До\n' + quote() + 'После');
+    const open = () => deleteQuote({ app: h.app, obsidian: h.obsidian, entry: h.entry, onDeleted: value => h.callbacks.push(value) });
+    const cancelled = await open(); cancelled.close();
+    assert.equal(h.writes.length, 0);
+    const modal = await open(); h.file.text += '\nНовая заметка';
+    await modal.confirmDelete();
+    assert.equal(modal.opened, false); assert.equal(h.writes.length, 1);
+    assert.equal(h.file.text, 'До\nПосле\nНовая заметка');
+    assert.deepEqual(h.callbacks, [{ path: h.file.path, id }]);
+    assert.ok(h.files.has(h.file.path)); assert.deepEqual(h.folders, []);
+});
+
+test('delete rejects changed, missing or renamed quotes without touching their note', async () => {
+    for (const change of ['changed', 'missing', 'renamed']) {
+        const h = harness(); const modal = await deleteQuote({ app: h.app, obsidian: h.obsidian, entry: h.entry });
+        if (change === 'changed') h.file.text = h.file.text.replace('Исходная цитата', 'Обновлённая цитата');
+        if (change === 'missing') h.files.delete(h.file.path);
+        if (change === 'renamed') h.file.path += '-renamed';
+        await modal.confirmDelete();
+        assert.equal(h.writes.length, 0); assert.equal(modal.opened, true);
+        assert.ok(modal.errorEl.textContent); assert.equal(modal.deleteButton.disabled, false);
+    }
 });

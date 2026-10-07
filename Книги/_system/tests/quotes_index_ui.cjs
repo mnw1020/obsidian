@@ -54,15 +54,16 @@ async function mount(browser, files, { width = 1024, theme = 'theme-light', embe
         map.set('Книги/_system/book_core.js', { path: 'Книги/_system/book_core.js', text: core });
         map.set('Книги/_system/quotes-index.css', { path: 'Книги/_system/quotes-index.css', text: css });
         map.set('Книги/_system/quote_edit.js', { path: 'Книги/_system/quote_edit.js', text: 'module.exports = async ({entry, onSaved}) => { window.fixture.editCalls.push({entry, onSaved}); };' });
+        map.get('Книги/_system/quote_edit.js').text += ' module.exports.deleteQuote = async args => { window.fixture.deleteCalls.push(args); };';
         map.set('Книги/_system/quote_add.js', { path: 'Книги/_system/quote_add.js', text: 'module.exports = async args => { window.fixture.createCalls.push(args); };' });
         map.set('Книги/_system/QuickAdd/open_author.js', { path: 'Книги/_system/QuickAdd/open_author.js', text: 'module.exports = async ({app, variables}) => { window.fixture.authorCalls.push(variables.author); app.workspace.getLeaf(false); };' });
-        const events = new Map(), opened = [], disposers = [], editCalls = [], createCalls = [], authorCalls = [], authorLeafCalls = [];
+        const events = new Map(), opened = [], disposers = [], editCalls = [], deleteCalls = [], createCalls = [], authorCalls = [], authorLeafCalls = [];
         const on = (name, callback) => { if (!events.has(name)) events.set(name, []); events.get(name).push(callback); return { name, callback }; };
         const emit = (name, ...args) => { for (const callback of events.get(name) || []) callback(...args); };
         const app = { vault: { getAbstractFileByPath: filePath => map.get(filePath), read: async file => file.text, getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), on },
             metadataCache: { getFileCache: file => ({ frontmatter: file.fm }), on }, workspace: { openLinkText: (...args) => { opened.push(args); }, getLeaf: newLeaf => { authorLeafCalls.push(newLeaf); return { openFile: async () => {} }; } } };
         const module = { exports: {} }; new Function('module', source)(module);
-        window.fixture = { map, app, opened, emit, disposers, editCalls, createCalls, authorCalls, authorLeafCalls,
+        window.fixture = { map, app, opened, emit, disposers, editCalls, deleteCalls, createCalls, authorCalls, authorLeafCalls,
             remove(paths) { for (const filePath of paths) { const file = map.get(filePath); map.delete(filePath); if (file) emit('delete', file); } },
             add(file) { map.set(file.path, file); emit('create', file); },
             modify(filePath, text) { const file = map.get(filePath); file.text = text; file.stat.mtime++; emit('modify', file); } };
@@ -101,6 +102,7 @@ async function assertBounded(page, expectedRows, maxDom = 1200) {
     assert.equal(await page.locator('.book-quotes-row .book-quote-text').count(), expectedRows);
     assert.equal(await page.locator('.book-quotes-row a.book-quote-work-link').count(), expectedRows);
     assert.equal(await page.getByRole('button', { name: 'Редактировать цитату', exact: true }).count(), expectedRows);
+    assert.equal(await page.getByRole('button', { name: 'Удалить цитату', exact: true }).count(), expectedRows);
     assert((await page.locator('.book-quotes-index *').count()) < maxDom, 'The catalogue DOM stays bounded');
     assert.equal(await page.locator('.book-quotes-section-tile, .book-quotes-group, .book-quote-details').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'The page fits its viewport');
@@ -412,6 +414,16 @@ async function creationNavigationChecks(browser) {
         assert.equal(await page.locator('.book-quote-text').textContent(), 'Новая произвольная цитата');
         assert.equal(await page.locator('.book-quote-author-link').textContent(), 'Собеседник');
         assert.equal(await page.evaluate(() => window.fixture.opened.length), 0);
+        await page.getByRole('button', { name: 'Удалить цитату', exact: true }).click();
+        await page.waitForFunction(() => window.fixture.deleteCalls.length === 1);
+        assert.equal(await page.evaluate(() => window.fixture.deleteCalls[0].entry.id), 'book-excerpt-created-from-index');
+        await page.evaluate(async path => {
+            window.fixture.modify(path, '');
+            await window.fixture.deleteCalls[0].onDeleted({ path, id: 'book-excerpt-created-from-index' });
+        }, created.path);
+        await assertBounded(page, 1);
+        assert.equal(await page.locator('.book-quote-text').textContent(), 'Уже сохранённая цитата');
+        assert.equal(await page.evaluate(path => window.fixture.map.has(path), created.path), true, 'Deleting a quote keeps its source note');
         await page.evaluate(() => window.handle.dispose()); assert.deepEqual(errors, []);
     } finally { await page.close(); }
 }
