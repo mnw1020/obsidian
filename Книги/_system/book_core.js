@@ -28,7 +28,7 @@ module.exports = ({ app, obsidian }) => {
     const snapshot = () => books().map(file => ({ file, fm: getFrontmatter(file) }));
     function stats(items = snapshot()) {
         const authors = new Set(), series = new Set();
-        let rated = 0, reread = 0, readings = 0;
+        let rated = 0, reread = 0, readings = 0, fictionRead = 0, nonfictionRead = 0;
         for (const { file, fm } of items) {
             for (const author of listValues(fm.authors)) authors.add(author);
             if (String(fm.series ?? "").trim()) series.add(String(fm.series).trim());
@@ -36,8 +36,12 @@ module.exports = ({ app, obsidian }) => {
             if (isFiction(file) && Number.isFinite(rating) && rating >= 1 && rating <= 10) rated++;
             if (Number.isInteger(count) && count >= 0) readings += count;
             if (Number.isInteger(count) && count > 1) reread++;
+            if (Number.isInteger(count) && count > 0) {
+                if (isFiction(file)) fictionRead++;
+                else if (file.path.startsWith("Книги/Non-fiction/")) nonfictionRead++;
+            }
         }
-        return { books: items.length, authors: authors.size, series: series.size, rated, reread, readings };
+        return { books: items.length, authors: authors.size, series: series.size, rated, reread, readings, fictionRead, nonfictionRead };
     }
     function displayDate(value) {
         const text = String(value ?? "").trim();
@@ -283,7 +287,7 @@ module.exports = ({ app, obsidian }) => {
             if (!fresh.has(file.path) && !app.metadataCache.getFileCache(file)?.frontmatter) await refreshFrontmatter(file);
         }
         const values = stats();
-        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${values.books} произведений** · **${values.authors} авторов** · **${values.series} серий** · **${values.rated} оценено** · **${values.reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
+        const block = `<!-- BOOK-HOME-STATS:START -->\n> [!quote] Библиотека\n> **${values.books} произведений** · **${values.authors} авторов** · **${values.fictionRead} художественных** · **${values.nonfictionRead} нон-фикшн** · **${values.reread} перечитано**\n<!-- BOOK-HOME-STATS:END -->`;
         const current = await app.vault.read(home);
         const updated = current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block);
         if (updated !== current) await app.vault.process(home, data => data.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block));

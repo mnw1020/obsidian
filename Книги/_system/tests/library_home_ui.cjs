@@ -19,7 +19,7 @@ function fixture(filePath, fm, entry, excerpt) {
 }
 const bookFiles = [
     fixture('Книги/Художественные/Первая.md', { title: 'Первая книга с длинным названием для проверки переноса в узком окне', authors: ['Автор Первый с достаточно длинным именем'], date: `${year}-${month}-01`, rating: 8, read_count: 1, series: 'Одна серия', work_type: 'book' }, { number: 1, date: `${year}-${month}-01`, rating: 8, comment: 'Личные впечатления.' }, { id: 'book-excerpt-home-first', text: 'Первая цитата для проверки домашней страницы.\nС переносом строки.', section: 'Мышление', conclusion: 'Первый личный вывод.', savedDate: `${year}-${month}-01` }),
-    fixture('Книги/Художественные/Вторая.md', { title: 'Вторая книга', authors: ['Другой автор'], date: `${year - 1}-${month}-02`, rating: 9, read_count: 1, work_type: 'book' }, { number: 1, date: `${year - 1}-${month}-02`, rating: 9, comment: '' }, { id: 'book-excerpt-home-second', text: 'Вторая цитата из другого произведения.', section: 'Мышление', savedDate: `${year}-${month}-02` })
+    fixture('Книги/Non-fiction/Вторая.md', { title: 'Вторая книга', authors: ['Другой автор'], date: `${year - 1}-${month}-02`, read_count: 1, work_type: 'book' }, { number: 1, date: `${year - 1}-${month}-02`, rating: null, comment: '' }, { id: 'book-excerpt-home-second', text: 'Вторая цитата из другого произведения.', section: 'Мышление', savedDate: `${year}-${month}-02` })
 ];
 const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 "JetBrains Mono",monospace;background:var(--background-primary);color:var(--text-normal);--editor-font:"JetBrains Mono",monospace;--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-error:#a83232}main{width:100%;max-width:1100px;margin:auto;padding:24px;min-width:0}.markdown-preview-sizer{width:100%;max-width:820px;margin-inline:auto;min-width:0}button,select{font:inherit;cursor:pointer}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-error:#ff8585}body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}.bases-table-container{max-width:100%;overflow:auto}.bases-table{width:100%;table-layout:fixed;border-collapse:collapse}.bases-table :is(td,th){padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere;border-bottom:1px solid var(--background-modifier-border)}`;
 
@@ -113,9 +113,31 @@ async function screenshot(page, name) {
     await page.screenshot({ path: path.join(process.env.LIBRARY_SCREENSHOT_DIR, name), fullPage: true });
 }
 
+async function assertNumbers(page) {
+    const numbers = await page.locator('.book-home-stat strong, .book-home-reading .book-dashboard-metric strong').evaluateAll(nodes => {
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = 1;
+        const context = canvas.getContext('2d');
+        const rgb = color => { context.clearRect(0, 0, 1, 1); context.fillStyle = color; context.fillRect(0, 0, 1, 1); return [...context.getImageData(0, 0, 1, 1).data].slice(0, 3); };
+        return nodes.map(node => { const style = getComputedStyle(node); return { font: style.fontFamily, numeric: style.fontVariantNumeric, color: rgb(style.color), normal: rgb(style.getPropertyValue('--text-normal').trim()), accent: rgb(style.getPropertyValue('--text-accent').trim()) }; });
+    });
+    assert.equal(numbers.length, 8, 'All five header and three reading figures share the numeric style');
+    const distance = (left, right) => Math.hypot(...left.map((channel, index) => channel - right[index]));
+    for (const number of numbers) {
+        assert.match(number.font, /mono|Consolas|Courier|Menlo/iu, 'Numbers use a monospace font');
+        assert.match(number.numeric, /tabular-nums/u, 'Digits align in columns');
+        assert.match(number.numeric, /lining-nums/u, 'Digits share their baseline');
+        const normalDistance = distance(number.color, number.normal), accentDistance = distance(number.accent, number.normal);
+        assert(normalDistance > 1, 'Numbers have a subtle accent rather than the plain text color');
+        assert(normalDistance / accentDistance > .12 && normalDistance / accentDistance < .28, 'Number color remains a soft blend close to the normal text');
+    }
+    assert.equal(new Set(numbers.map(number => number.color.join(','))).size, 1, 'Header and reading figures have the same color');
+}
+
 async function layoutChecks(browser) {
     let count = 0;
-    for (const layout of [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1280, pane: 390 }]) for (const theme of ['theme-light', 'theme-dark']) {
+    const smoke = process.argv.includes('--smoke');
+    const layouts = smoke ? [{ width: 390 }] : [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1280, pane: 390 }];
+    for (const layout of layouts) for (const theme of smoke ? ['theme-light'] : ['theme-light', 'theme-dark']) {
         const { page, errors } = await mount(browser, { ...layout, theme });
         try {
             assert.equal(await page.locator('.book-home-ui[data-ready="true"]').count(), 1);
@@ -123,7 +145,10 @@ async function layoutChecks(browser) {
             assert.equal(await page.locator('.metadata-container').isVisible(), false);
             assert.equal(await page.locator('.inline-title').isVisible(), false);
             for (const selector of ['#native-title', '#native-actions', '#native-stats', '#native-body']) assert.equal(await page.locator(selector).isVisible(), false);
-            for (const [key, value] of [['books', 2], ['authors', 2], ['series', 1], ['rated', 2], ['reread', 0]]) assert.equal(await page.locator(`[data-stat="${key}"]`).textContent(), String(value));
+            for (const [key, value] of [['books', 2], ['authors', 2], ['fictionRead', 1], ['nonfictionRead', 1], ['reread', 0]]) assert.equal(await page.locator(`[data-stat="${key}"]`).textContent(), String(value));
+            assert.deepEqual(await page.locator('.book-home-stats [data-stat]').evaluateAll(values => values.map(value => value.dataset.stat)), ['books', 'authors', 'fictionRead', 'nonfictionRead', 'reread']);
+            assert.equal(await page.locator('[data-stat="series"], [data-stat="rated"]').count(), 0, 'Series and rated cells are removed from the home header');
+            assert.deepEqual(await page.locator('.book-home-stat > span').allTextContents(), ['Произведений', 'Авторов', 'Художественных', 'Нон-фикшн', 'Перечитано']);
             const targets = await page.locator('.book-home-recent .books-base-toggle').getAttribute('aria-expanded');
             assert.equal(targets, 'true', 'Recent works start expanded');
             assert.match(await page.evaluate(() => window.fixture.nativeCalls[0].markdown), /Книги\/_system\/_Книги\.base#Главная/u);
@@ -131,6 +156,7 @@ async function layoutChecks(browser) {
             assert.equal(await page.locator('.book-home-quotes .book-quote-text').count(), 1);
             assert.match(await page.locator('.book-home-quotes .book-quotes-status').textContent(), /2 цитаты/u);
             assert.deepEqual(await page.locator('.book-home-reading .book-dashboard-metric strong').allTextContents(), ['1', '1', '2']);
+            await assertNumbers(page);
             assert.match(await page.locator('.book-home-reading .book-dashboard-reading-list').textContent(), /Вторая книга/u);
             assert.equal(await page.locator('.book-home-reading select').count(), 0, 'Detailed period controls stay on the results page');
             const quote = await page.locator('.book-home-quotes .book-quote-text').textContent();
@@ -186,9 +212,13 @@ async function liveChecks(browser) {
         assert.equal(await page.locator('.book-home-recent .bases-table').count(), 1);
         await page.evaluate(filePath => window.fixture.remove(filePath), bookFiles[1].path);
         await page.waitForFunction(() => document.querySelector('[data-stat="books"]')?.textContent === '1');
+        assert.equal(await page.locator('[data-stat="fictionRead"]').textContent(), '1');
+        assert.equal(await page.locator('[data-stat="nonfictionRead"]').textContent(), '0', 'Deleting a nonfiction work updates its read count');
         await page.waitForFunction(() => document.querySelector('.book-home-quotes .book-quotes-status')?.textContent === '1 цитата');
         await page.evaluate(file => window.fixture.add(file), bookFiles[1]);
         await page.waitForFunction(() => document.querySelector('[data-stat="books"]')?.textContent === '2');
+        assert.equal(await page.locator('[data-stat="fictionRead"]').textContent(), '1');
+        assert.equal(await page.locator('[data-stat="nonfictionRead"]').textContent(), '1', 'Adding a nonfiction work restores its read count');
         await page.waitForFunction(() => document.querySelector('.book-home-quotes .book-quotes-status')?.textContent === '2 цитаты');
         await assertBounded(page); await dispose(page); assert.deepEqual(errors, []);
     } finally { await page.close(); }

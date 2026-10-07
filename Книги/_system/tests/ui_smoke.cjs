@@ -84,7 +84,54 @@ function view(){
   const dv={container:new Element(),component,current:()=>({file:{path:'Книги/_index.md'}}),paragraph:text=>dv.container.createEl('p',{text})};
   return {dv,children,dispose:()=>{for(const cb of cleanups)cb();for(const ref of refs)ref.emitter.offref(ref);},refs};
 }
+async function readCategoryStatsRegression(){
+ const samples=[];
+ function sample(vpath,values={}){
+  const fm={title:'Произведение',authors:['Автор'],...values};
+  const name=vpath.split('/').at(-1);
+  const file={path:vpath,name,basename:name.replace(/\.md$/i,''),extension:'md',fm,
+   text:'---\n'+Object.entries(fm).map(([key,value])=>key+': '+JSON.stringify(value)).join('\n')+'\n---\n'};
+  samples.push(file);return file;
+ }
+ sample('Книги/Художественные/Once.md',{read_count:1,rating:8,series:'Серия'});
+ sample('Книги/Художественные/Repeated.md',{read_count:3,rating:9,series:'Серия'});
+ sample('Книги/Художественные/Unread.md',{read_count:0});
+ sample('Книги/Художественные/Missing.md');
+ sample('Книги/Художественные/Negative.md',{read_count:-1});
+ sample('Книги/Художественные/Fraction.md',{read_count:1.5});
+ sample('Книги/Художественные/Invalid.md',{read_count:'broken'});
+ sample('Книги/Non-fiction/Once.md',{read_count:1,rating:10});
+ sample('Книги/Non-fiction/Repeated.md',{read_count:4});
+ sample('Книги/Non-fiction/Unread.md',{read_count:0});
+ sample('Книги/Другие/Uncategorised.md',{read_count:1});
+ for(const folder of ['_system','Цитаты','Конспекты','Идеи'])sample('Книги/'+folder+'/Service.md',{read_count:10});
+ for(const note_type of ['quote','summary','idea'])sample('Книги/Художественные/'+note_type+'.md',{note_type,read_count:10});
+ sample('Кино/Outside.md',{read_count:10});
+ const prefix='---\ncssclasses: ["books-home-page"]\n---\n\nЛичный текст $& [[Ссылка]].\n';
+ const suffix='\n```dataviewjs\n// Existing loader must survive.\n```\n\nЛичный подвал.\n';
+ const home=sample('Книги/_index.md',{read_count:999});
+ home.text=prefix+'<!-- BOOK-HOME-STATS:START -->\nСтарые серии и оценки.\n<!-- BOOK-HOME-STATS:END -->'+suffix;
+ const concurrent='\nОдновременная правка пользователя.\n';
+ let updateWrites=0;
+ const regressionApp={vault:{getMarkdownFiles:()=>samples,getAbstractFileByPath:vpath=>samples.find(file=>file.path===vpath),read:async file=>file.text,
+  process:async(file,transform)=>{updateWrites++;file.text+=concurrent;file.text=transform(file.text);}},metadataCache:{getFileCache:file=>({frontmatter:file.fm})}};
+ const regressionCore=loadCore({app:regressionApp,obsidian});
+ assert.deepEqual(regressionCore.stats(),{books:11,authors:1,series:1,rated:2,reread:2,readings:10,fictionRead:2,nonfictionRead:2},'read categories count each valid book once, keep legacy stats, exclude service notes');
+ await regressionCore.updateHomeStats();
+ assert.equal(updateWrites,1);
+ assert.ok(home.text.startsWith(prefix),'updater preserves frontmatter and preceding notes');
+ assert.ok(home.text.endsWith(suffix+concurrent),'updater preserves loader, footer and concurrent user edit');
+ const managed=home.text.match(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/)[0];
+ assert.match(managed,/\*\*2 художественных\*\*/);
+ assert.match(managed,/\*\*2 нон-фикшн\*\*/);
+ assert.doesNotMatch(managed,/серий|оценено/);
+ assert.equal(home.text.split('<!-- BOOK-HOME-STATS:START -->').length-1,1);
+ assert.equal(home.text.split('<!-- BOOK-HOME-STATS:END -->').length-1,1);
+ await regressionCore.updateHomeStats();
+ assert.equal(updateWrites,1,'unchanged fallback statistics do not write');
+}
 async function main(){
+ await readCategoryStatsRegression();
  assert.equal(skippedYaml.length,0,JSON.stringify(skippedYaml.slice(0,5)));
  const AsyncFunction=Object.getPrototypeOf(async()=>{}).constructor;
  for(const [,body]of fs.readFileSync(path.join(root,'_index.md'),'utf8').matchAll(/\x60{3}dataviewjs\r?\n([\s\S]*?)\x60{3}/g))new AsyncFunction('dv','app','require',body);
@@ -162,7 +209,7 @@ async function main(){
  assert.equal(base.children.length,0,'collapse unloads native component');
  base.dispose();
  assert.equal(vault.handlers.length,0,'all events disposed');
- console.log('UI smoke passed: summaries no-op, permanent entities, note preservation, actions, live stats/delete/create, empty rereads, lazy unload.');
+ console.log('UI smoke passed: read-category statistics and atomic snapshot preservation, summaries no-op, permanent entities, note preservation, actions, live stats/delete/create, empty rereads, lazy unload.');
 
 }
 main().catch(error=>{console.error(error);process.exitCode=1;});
