@@ -42,7 +42,7 @@ async function mount(browser, { width = 1024, pane, mode = 'index', theme = 'the
     const app = { vault: { getAbstractFileByPath: filePath => ({ path: filePath, text: note }), read: async file => { if (delayStyleRead && file.path.endsWith('.css')) await new Promise(resolve => { fixture.resolveStyleRead = resolve; }); return file.path.endsWith('.css') ? css : 'module.exports.getService=async()=>globalThis.dashboardService;'; } }, workspace: { openLinkText: (...args) => opened.push(args) } };
     const sourcePath = mode === 'index' ? 'Книги/_system/Итоги чтения.md' : 'Книги/_index.md';
     const dv = { container: document.querySelector('#content'), component, current: () => ({ file: { path: sourcePath } }) };
-    globalThis.fixture = { app, component, service, subscribers, opened };
+    globalThis.fixture = { app, component, service, subscribers, opened, records };
     component.render = async () => { dv.container.innerHTML = ''; fixture.renderCalls = (fixture.renderCalls || 0) + 1; fixture.handle = await module.exports({ dv, app, obsidian: {}, mode }); return fixture.handle; };
     fixture.originalRender = component.render;
     fixture.renderPromise = component.render();
@@ -116,6 +116,88 @@ async function refreshChecks(browser) {
     assert.equal(await delayed.page.evaluate(() => fixture.subscribers.size), 0, 'Closing during the initial CSS read creates no late subscription'); assert.equal(await delayed.page.locator('.book-reading-dashboard').count(), 0, 'Closing during initial load leaves no late page root'); assert.deepEqual(delayed.errors, []);
   } finally { await delayed.page.close(); }
 }
+const blockKeys = ['activity', 'types', 'readings', 'authors', 'favorites', 'memories'];
+async function blockState(page, key, expanded) {
+  const panel = page.locator(`section.book-dashboard-section.is-${key}[data-block="${key}"]`);
+  assert.equal(await panel.count(), 1, `${key}: one keyed card`);
+  const heading = panel.locator(':scope > h2'), toggle = heading.locator(':scope > button.book-dashboard-section-toggle');
+  const body = panel.locator(':scope > div.book-dashboard-section-body');
+  assert.equal(await toggle.count(), 1, `${key}: the heading has a native toggle button`);
+  assert.equal(await toggle.getAttribute('aria-expanded'), String(expanded), `${key}: accessible expanded state`);
+  assert.equal(await toggle.getAttribute('aria-controls'), await body.getAttribute('id'), `${key}: the toggle controls its own body`);
+  assert.ok(await body.getAttribute('id'), `${key}: the controlled body has an id`);
+  assert.equal(await body.evaluate(node => node.hidden), !expanded, `${key}: the body uses native hidden state`);
+  assert.equal(await body.isVisible(), expanded, `${key}: collapsed content is not visible`);
+  assert.equal(await heading.isVisible(), true, `${key}: its heading stays available`);
+  assert.equal(await toggle.isVisible(), true, `${key}: its toggle stays available`);
+  return toggle;
+}
+async function collapsedState(page, keys) {
+  for (const key of blockKeys) await blockState(page, key, !keys.includes(key));
+}
+async function collapseChecks(browser) {
+  for (const width of [390, 1024]) {
+    const theme = width === 390 ? 'theme-light' : 'theme-dark';
+    const { page, errors } = await mount(browser, { width, theme });
+    try {
+      await collapsedState(page, []);
+      const ids = await page.locator('.book-dashboard-section-body').evaluateAll(nodes => nodes.map(node => node.id));
+      assert.equal(new Set(ids).size, blockKeys.length, 'Each toggle controls a distinct card body');
+      for (const key of blockKeys) {
+        const toggle = await blockState(page, key, true);
+        await toggle.click(); await blockState(page, key, false);
+        await toggle.click(); await blockState(page, key, true);
+      }
+      const activity = await blockState(page, 'activity', true);
+      await activity.focus(); await activity.press('Enter'); await blockState(page, 'activity', false);
+      await activity.press('Space'); await blockState(page, 'activity', true);
+      for (const key of ['readings', 'authors']) await (await blockState(page, key, true)).click();
+      const collapsed = ['readings', 'authors'];
+      const year = page.getByLabel('Год чтения', { exact: true }), month = page.getByLabel('Месяц чтения', { exact: true });
+      await year.selectOption('2024'); await collapsedState(page, collapsed);
+      await month.selectOption('04'); await collapsedState(page, collapsed);
+      await (await blockState(page, 'memories', true)).click(); collapsed.push('memories');
+      const memoryReset = page.getByRole('button', { name: 'Сбросить месяц: апрель', exact: true });
+      assert.equal(await memoryReset.isVisible(), true, 'A collapsed memory card keeps its month reset available');
+      assert.equal(await memoryReset.evaluate(node => node.parentElement.tagName), 'H2', 'The reset is a separate heading control');
+      assert.equal(await memoryReset.evaluate(node => node.parentElement.closest('button') !== null), false, 'Reset buttons are not nested inside the collapse button');
+      await memoryReset.click(); assert.equal(await month.inputValue(), ''); await collapsedState(page, collapsed);
+      await month.selectOption('10'); await page.getByRole('button', { name: 'Сбросить месяц', exact: true }).click();
+      await collapsedState(page, collapsed);
+      await page.getByRole('button', { name: 'За всё время', exact: true }).click(); await collapsedState(page, collapsed);
+
+      await page.evaluate(() => {
+        fixture.savedCard = document.querySelector('.book-dashboard-section.is-readings');
+        const reading = fixture.records.find(record => record.history.length).history[0];
+        reading.date = reading.date === '2024-04-17' ? '2024-04-18' : '2024-04-17';
+        reading.rating = reading.rating === 9 ? 8 : 9;
+        fixture.service.emit();
+      });
+      await page.waitForFunction(() => fixture.savedCard !== document.querySelector('.book-dashboard-section.is-readings'));
+      await collapsedState(page, collapsed);
+      const before = await page.evaluate(() => {
+        fixture.savedCard = document.querySelector('.book-dashboard-section.is-readings');
+        fixture.savedBodies = [...document.querySelectorAll('.book-dashboard-section-body')];
+        return { snapshots: fixture.service.snapshotCalls, renderCalls: fixture.renderCalls };
+      });
+      await page.evaluate(() => fixture.service.emit());
+      await page.waitForFunction(count => fixture.service.snapshotCalls > count, before.snapshots);
+      assert.equal(await page.evaluate(() => fixture.savedCard === document.querySelector('.book-dashboard-section.is-readings')), true, 'An unchanged snapshot keeps collapsed card DOM');
+      await collapsedState(page, collapsed);
+      await page.evaluate(async () => { for (let attempt = 0; attempt < 3; attempt++) await fixture.component.render(); });
+      assert.equal(await page.evaluate(() => fixture.renderCalls), before.renderCalls, 'Global refresh bypasses the destructive renderer');
+      assert.equal(await page.evaluate(() => fixture.savedBodies.every((node, index) => node === document.querySelectorAll('.book-dashboard-section-body')[index])), true, 'Global refresh keeps the existing card bodies');
+      await collapsedState(page, collapsed);
+      await indexAppearance(page); await assertBounded(page, `collapsed index, ${theme}, viewport ${width}`);
+      if (process.env.DASHBOARD_SCREENSHOT_DIR) {
+        fs.mkdirSync(process.env.DASHBOARD_SCREENSHOT_DIR, { recursive: true });
+        await page.locator('main').evaluate(node => { node.scrollTop = 0; });
+        await page.screenshot({ path: path.join(process.env.DASHBOARD_SCREENSHOT_DIR, `reading-index-collapsed-${width}-${theme}.png`) });
+      }
+      assert.deepEqual(errors, []); await dispose(page);
+    } finally { await page.close(); }
+  }
+}
 async function main() {
   const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
   let checks = 0; const layouts = [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1280, pane: 390 }], narrowColumns = new Map();
@@ -137,8 +219,8 @@ async function main() {
         await dispose(page); checks++;
       } finally { await page.close(); }
     }
-    await refreshChecks(browser);
+    await refreshChecks(browser); await collapseChecks(browser);
   } finally { await browser.close(); }
-  console.log(`${checks} Chromium scenarios passed with ${records.length} real cards: reading page masthead, period controls, pane container queries, numeric style, hidden properties, measurable fallback and refresh/unload scroll regression.`);
+  console.log(`${checks} layout and 2 collapse Chromium scenarios passed with ${records.length} real cards: reading page masthead, period controls, pane container queries, numeric style, hidden properties, measurable fallback, keyboard collapse, preserved card state and refresh/unload scroll regression.`);
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

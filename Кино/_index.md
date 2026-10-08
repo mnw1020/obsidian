@@ -4,7 +4,9 @@ cssclasses:
   - kino-page
   - kino-dashboard
   - kino-home-page
+obsidianUIMode: preview
 ---
+
 ```dataviewjs
 const file = app.vault.getAbstractFileByPath("Кино/_system/kino_home.js");
 if (file) {
