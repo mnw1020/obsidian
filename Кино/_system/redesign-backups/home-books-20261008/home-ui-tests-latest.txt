@@ -1,0 +1,17 @@
+✔ actual Books and cinema home renderers share masthead, typography and bounded responsive panels (4207.2824ms)
+✔ home retains all command choices, original navigation and source-aware internal links (524.3558ms)
+✔ stats update from local data events, exclude other folders and render untrusted text safely (671.614ms)
+✔ deferred native views retain their targets and release native children on collapse and unload (536.3386ms)
+✔ missing modules and CSS preserve native fallbacks; delayed reads cannot resurrect an unloaded home (861.8876ms)
+✔ QuickAdd URI fallback, busy actions and command failures leave the home usable (1089.13ms)
+✔ native failure retries and late completion do not leak or restore hidden home widgets (687.8567ms)
+✔ Dataview refresh guards a ready home and repeated mounting replaces prior event subscriptions (251.3882ms)
+✔ missing data, zero and comma ratings preserve old totals while period metrics count unique media (509.8019ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9851.9269

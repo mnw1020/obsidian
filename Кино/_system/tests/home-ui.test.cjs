@@ -140,6 +140,12 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.deepEqual(await kino.page.locator('.kino-home-recent .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.slice(0,20).map(file=>file.path));
             assert.deepEqual(await kino.page.locator('.kino-home-serials .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.filter(file=>file.fm.tags.includes('serial')).slice(0,5).map(file=>file.path));
             assert.equal(await kino.page.locator('.kino-home-overview').count(),4);
+            if(layout.pane){
+                const lines=await kino.page.locator('.kino-home-overview>a[data-choice="Кино - Открыть режиссера"]').evaluate(link=>{const range=document.createRange();range.selectNodeContents(link);return new Set([...range.getClientRects()].map(rect=>Math.round(rect.top))).size;});
+                assert.equal(lines,1,'The director label stays on one line in a narrow actual pane');
+                const wordLines=await kino.page.locator('[data-period="reread"]+span').evaluate(label=>{const range=document.createRange();range.setStart(label.firstChild,0);range.setEnd(label.firstChild,'Пересмотрено'.length);return new Set([...range.getClientRects()].map(rect=>Math.round(rect.top))).size;});
+                assert.equal(wordLines,1,'The reread label wraps at spaces in a narrow actual pane');
+            }
             assert.equal(await kino.page.locator('.kino-home-native-content:not(:empty)').count(),0);
             assert.equal(await kino.page.locator('.inline-title').isVisible(),false);
             for(const selector of ['#native-title','#native-actions','#native-body'])assert.equal(await kino.page.locator(selector).isVisible(),false);

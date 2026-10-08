@@ -369,7 +369,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     }
     function yearHistory(parent, model) {
         if (!model.years.length) { element(parent, "p", "История чтений пока пуста.", "books-empty"); return; }
-        table(parent, ["Год", "Чтений", "Художественных", "Non-fiction"], model.years.map(row => [cell => {
+        table(parent, ["Год", "Чтений", "Художественных", "Нон-фикшн"], model.years.map(row => [cell => {
             const button = element(cell, "button", row.year, "book-dashboard-year-link");
             button.addEventListener("click", () => setPeriod(row.year, ""));
         }, row.readings, row.fiction, row.nonfiction]));

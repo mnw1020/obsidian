@@ -1,0 +1,37 @@
+{
+  "completed": "2026-10-08T18:52:20.218Z",
+  "status": "complete",
+  "request": "Главная кинотеки по образцу главной Книг",
+  "tests": {
+    "home-ui.test.cjs": {
+      "passed": 9,
+      "failed": 0
+    },
+    "design-ui.test.cjs": {
+      "passed": 8,
+      "failed": 0
+    }
+  },
+  "viewports": [
+    390,
+    768,
+    1440
+  ],
+  "narrowPane": {
+    "viewport": 1440,
+    "pane": 330,
+    "overviewLabelsUnbroken": true
+  },
+  "reference": "Книги/_index.md and library_home.js/library-home.css",
+  "previewType": "Browser harness; not live Obsidian",
+  "noDataWrites": true,
+  "noCommandChanges": true,
+  "sharedCssOrSettingsChanges": false,
+  "files": {
+    "_index.md": "e8c2f916f2dc61881f059d9bf045f697be268767dd7d7f09e0ca90c07964a77c",
+    "_system/kino_home.js": "0327fc142989bb440abbe753d93c4bd26fab45ed1bd669d407bd44ebc30cd9b9",
+    "_system/kino-home.css": "6cc779e7b96d68f18aef71bc6bf0e3807f89168f2bd5982200ae19c7cdbda714",
+    "_system/tests/home-ui.test.cjs": "011e263e387594b3011718f8e9b31ed2790d9d110bcb36721eaa744ba3ee4c6d",
+    "_system/tests/design-ui.test.cjs": "e6717b868f111196cba63b148f7364041866b53ebb9d12cc9eb344d53263a81b"
+  }
+}
