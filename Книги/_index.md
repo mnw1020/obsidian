@@ -2,9 +2,11 @@
 cssclasses:
   - books-library
   - books-home-page
+obsidianUIMode: preview
 ---
 
 ```dataviewjs
+// Fallback sections keep their layout anchors for Obsidian's preview scrolling.
 const file = app.vault.getAbstractFileByPath("Книги/_system/library_home.js");
 if (file) {
     try {

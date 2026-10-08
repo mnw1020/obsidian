@@ -3,151 +3,45 @@ cssclasses:
   - movies-dashboard
   - kino-page
   - kino-dashboard
+  - kino-home-page
 ---
 ```dataviewjs
-const uiFile = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
-if (uiFile) {
+const file = app.vault.getAbstractFileByPath("Кино/_system/kino_home.js");
+if (file) {
     try {
-        const ui = {exports:{}};
-        new Function("module", await app.vault.read(uiFile))(ui);
-        await ui.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, kind: "dashboard"});
+        const home = {exports:{}};
+        new Function("module", await app.vault.read(file))(home);
+        await home.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}});
     } catch (error) {
-        console.warn("Кино: оформление главной временно недоступно", error);
+        console.warn("Кино: главная временно недоступна", error);
+        dv.paragraph("Не удалось загрузить главную. Каталог и команды доступны ниже.");
     }
 }
-
-const header = dv.container.createDiv({cls: "kino-dashboard-header"});
-header.createDiv({cls: "kino-eyebrow", text: "ЛИЧНАЯ КОЛЛЕКЦИЯ"});
-header.createEl("h1", {text: "Кинотека"});
-header.createEl("p", {cls: "kino-subtitle", text: "Фильмы, к которым хочется вернуться. Истории, которые ещё впереди."});
-const nav = header.createEl("nav", {cls: "kino-nav"});
-nav.setAttribute("aria-label", "Разделы кинотеки");
-function internalLink(parent, text, target) {
-    const link = parent.createEl("a", {cls: "internal-link", text, href: target});
-    link.setAttribute("data-href", target);
-    link.addEventListener("click", event => {
-        event.preventDefault();
-        app.workspace.openLinkText(target, dv.current().file.path, event.ctrlKey || event.metaKey);
-    });
-    return link;
-}
-for (const [label, target] of [
-    ["Вся коллекция", "Кино/_Кино.base#Карточки"],
-    ["Рекомендации", "Кино/_system/Рекомендации"],
-    ["Аналитика", "Кино/_system/Аналитика прогнозов"],
-    ["Проверка", "Кино/_system/Проверка кинотеки"],
-    ["Инструкция", "Кино/_system/README"],
-    ["Журнал", "Кино/_system/Журнал изменений"]
-]) internalLink(nav, label, target);
-
-const all = app.vault.getMarkdownFiles()
-    .filter(f => f.path.startsWith("Кино/Media/") && !f.path.slice(11).includes("/"))
-    .map(f => ({...app.metadataCache.getFileCache(f)?.frontmatter, file: {tags: app.metadataCache.getFileCache(f)?.frontmatter?.tags || []}}));
-
-function hasTag(page, tag) {
-    const raw = page?.file?.tags ?? [];
-    const tags = (Array.isArray(raw) ? raw : [raw]).map(t => String(t).replace(/^#/, ""));
-    return tags.includes(tag);
-}
-
-const media = all.filter(p => hasTag(p, "movies") || hasTag(p, "serial"));
-const movies = media.filter(p => hasTag(p, "movies"));
-const serials = media.filter(p => hasTag(p, "serial"));
-const watched = media.filter(p => p["Просмотрено"] != null);
-
-const ratings = media
-    .filter(p => p["Оценка"] != null && p["Оценка"] !== "")
-    .map(p => Number(String(p["Оценка"]).replace(",", ".")))
-    .filter(v => Number.isFinite(v));
-
-const average = ratings.length
-    ? (ratings.reduce((sum, v) => sum + v, 0) / ratings.length).toFixed(2)
-    : "–";
-
-const stats = [
-    ["🎞️", "Просмотрено", watched.length],
-    ["🎬", "Фильмы", movies.length],
-    ["📺", "Сериалы", serials.length],
-    ["⭐", "Средняя оценка", average]
-];
-
-const grid = document.createElement("div");
-grid.className = "movie-stats-grid";
-dv.container.appendChild(grid);
-
-for (const [icon, label, value] of stats) {
-    const card = document.createElement("div");
-    card.className = "movie-stat-card";
-
-    const iconEl = document.createElement("div");
-    iconEl.className = "movie-stat-icon";
-    iconEl.textContent = icon;
-
-    const valueEl = document.createElement("div");
-    valueEl.className = "movie-stat-value";
-    valueEl.textContent = value;
-
-    const labelEl = document.createElement("div");
-    labelEl.className = "movie-stat-label";
-    labelEl.textContent = label;
-
-    card.append(iconEl, valueEl, labelEl);
-    grid.appendChild(card);
-}
-
-function commandLink(parent, label, choice, primary = false) {
-    const link = parent.createEl("a", {text: label, href: `obsidian://quickadd?choice=${encodeURIComponent(choice)}`, cls: primary ? "kino-action kino-action-primary" : "kino-action"});
-    return link;
-}
-const actions = dv.container.createDiv({cls: "kino-actions"});
-commandLink(actions, "Добавить фильм или сериал", "movie_imdb", true);
-commandLink(actions, "Добавить просмотр", "Добавить просмотр");
-commandLink(actions, "Добавить сезон", "Добавить сезон");
-const editing = dv.container.createEl("details", {cls: "kino-edit-actions"});
-editing.createEl("summary", {text: "Управление коллекцией"});
-const editActions = editing.createDiv({cls: "kino-actions"});
-for (const [label, choice] of [["Редактировать сезон", "Редактировать сезон"], ["Редактировать просмотр", "Редактировать просмотр"], ["Пересобрать карточку", "Пересобрать карточку"], ["Изменить франшизу", "Франшиза"]]) commandLink(editActions, label, choice);
 ```
+
+# Кинотека
+
+Фильмы, к которым хочется вернуться. Истории, которые ещё впереди.
+
+[Добавить фильм или сериал](obsidian://quickadd?choice=movie_imdb) · [Добавить просмотр](obsidian://quickadd?choice=%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%D1%81%D0%BC%D0%BE%D1%82%D1%80) · [Добавить сезон](obsidian://quickadd?choice=%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD)
+
+[[Кино/_Кино.base#Карточки|Вся коллекция]] · [[Кино/_system/Рекомендации|Рекомендации]] · [[Кино/_system/Аналитика прогнозов|Аналитика]] · [[Кино/_system/README|Инструкция]]
 
 ## Последние просмотры
 
-Недавно просмотренное — впечатления и оценки рядом с постерами.
+[[Кино/_Кино.base#Последние|Последние просмотры]] · [[Кино/_Кино.base#Перепросмотры|Перепросмотры]] · [[Кино/_Кино.base#Последние сериалы|Последние сериалы]]
 
-```dataviewjs
-const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
-if (file) {
-    const m = {exports:{}};
-    new Function("module", await app.vault.read(file))(m);
-    m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Последние", label: "последние просмотры"});
-}
-```
-## Перепросмотры
+## Обзор
 
-Истории, к которым ты уже возвращался.
+[Актёры](obsidian://quickadd?choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B0%D0%BA%D1%82%D0%B5%D1%80%D0%B0) · [Режиссёры](obsidian://quickadd?choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D1%80%D0%B5%D0%B6%D0%B8%D1%81%D1%81%D0%B5%D1%80%D0%B0) · [Жанры](obsidian://quickadd?choice=%D0%9A%D0%B8%D0%BD%D0%BE%20-%20%D0%9E%D1%82%D0%BA%D1%80%D1%8B%D1%82%D1%8C%20%D0%B6%D0%B0%D0%BD%D1%80) · [[Кино/_Кино.base#Карточки|Каталог]]
 
-```dataviewjs
-const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
-if (file) {
-    const m = {exports:{}};
-    new Function("module", await app.vault.read(file))(m);
-    m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Перепросмотры", label: "перепросмотры"});
-}
-```
-## Последние сериалы
+[[Кино/_Кино.base#Все|Все произведения]] · [[Кино/_Кино.base#Фильмы|Фильмы]] · [[Кино/_Кино.base#Сериалы|Сериалы]] · [[Кино/_Кино.base#По году релиза|По году релиза]] · [[Кино/_Кино.base#Сравнение оценок|Сравнение оценок]]
 
-Сериалы из последних просмотров.
+## Управление коллекцией
 
-```dataviewjs
-const file = app.vault.getAbstractFileByPath("Кино/_system/lazy_base.js");
-if (file) {
-    const m = {exports:{}};
-    new Function("module", await app.vault.read(file))(m);
-    m.exports({dv, app, obsidian: typeof require === "function" ? require("obsidian") : {}, target: "Кино/_Кино.base#Последние сериалы", label: "последние сериалы"});
-}
-```
-## [[_Кино.base#Сравнение оценок|Сравнение оценок]]
+[Редактировать просмотр](obsidian://quickadd?choice=%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D0%BF%D1%80%D0%BE%D1%81%D0%BC%D0%BE%D1%82%D1%80) · [Редактировать сезон](obsidian://quickadd?choice=%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD) · [Пересобрать карточку](obsidian://quickadd?choice=%D0%9F%D0%B5%D1%80%D0%B5%D1%81%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D1%8C%20%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D1%83) · [Изменить франшизу](obsidian://quickadd?choice=%D0%A4%D1%80%D0%B0%D0%BD%D1%88%D0%B8%D0%B7%D0%B0)
 
-Личные впечатления, прогноз, IMDb и Кинопоиск в одной таблице.
+[[Кино/_system/Проверка кинотеки|Проверка кинотеки]] · [[Кино/_system/Журнал изменений|Журнал изменений]]
 
 ---
 

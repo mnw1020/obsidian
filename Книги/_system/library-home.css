@@ -4,7 +4,7 @@
 .books-home-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .markdown-preview-view.books-home-page:has(.book-home-ui[data-ready="true"]) .inline-title { display: none; }
 /* Obsidian measures a section by the next sibling's offsetTop. display:none
-   makes that offset zero and gives the large home section a negative height.
+   makes that offset zero and loses the large home section's measured height.
    Keep fallback wrappers in the flow, with no visible content or height. */
 .markdown-preview-view.books-home-page .el-pre:has(.book-home-ui[data-ready="true"]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight) {
     display: block !important;

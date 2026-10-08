@@ -387,8 +387,8 @@ async function main() {
 
 async function virtualScrollChecks(browser) {
     const algorithms = previewAlgorithms();
-    for (const legacy of [true, false]) {
-        const { page, errors } = await mount(browser, { width: 390 });
+    for (const width of [390, 1024]) for (const legacy of [true, false]) {
+        const { page, errors } = await mount(browser, { width });
         try {
             const result = await page.evaluate(({ algorithms, legacy }) => {
                 HTMLElement.prototype.detach = function () { this.remove(); };
