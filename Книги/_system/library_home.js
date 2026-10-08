@@ -1,9 +1,44 @@
 // A single home renderer; each existing widget owns its own lifecycle.
 module.exports = async ({ dv, app, obsidian = {} }) => {
     const source = dv.current?.()?.file?.path || 'Книги/_index.md';
+    // Dataview empties the container before awaiting this script. Preserve its
+    // height while it rebuilds, otherwise the browser clamps scrolling to zero.
+    const component = dv.component;
+    const stateKey = '__bookHomeRefresh';
+    let refresh = component?.[stateKey];
+    if (!refresh && typeof component?.render === 'function') {
+        const container = dv.container;
+        const original = component.render;
+        refresh = { dispose: null };
+        const wrapped = async function (...args) {
+            const preview = container.closest('.markdown-preview-view');
+            const scroll = preview && preview.scrollHeight > preview.clientHeight
+                ? preview : container.ownerDocument.scrollingElement;
+            const height = container.style.minHeight;
+            const anchor = scroll?.style.overflowAnchor;
+            container.style.minHeight = `${container.getBoundingClientRect().height}px`;
+            if (scroll) scroll.style.overflowAnchor = 'none';
+            try { return await original.apply(this, args); }
+            finally {
+                const position = scroll?.scrollTop;
+                container.style.minHeight = height;
+                if (scroll) { scroll.scrollTop = position; scroll.style.overflowAnchor = anchor; }
+            }
+        };
+        component[stateKey] = refresh;
+        component.render = wrapped;
+        component.register(() => {
+            refresh.dispose?.();
+            if (component.render === wrapped) component.render = original;
+            delete component[stateKey];
+        });
+    }
+    // Dataview reuses its component on refresh; release preceding subscriptions.
+    refresh?.dispose?.();
     let disposed = false, timer, actionBusy = false, root = null;
     const cleanups = [], children = [], commandLinks = [];
-    dv.component?.register?.(dispose);
+    if (refresh) refresh.dispose = dispose;
+    else dv.component?.register?.(dispose);
     const paths = ['library-home.css', 'book_core.js', 'lazy_base.js', 'reading_dashboard.js'];
     const files = paths.map(name => app.vault.getAbstractFileByPath('Книги/_system/' + name));
     if (files.some(file => !file)) throw new Error('Не найдены модули главной страницы.');
