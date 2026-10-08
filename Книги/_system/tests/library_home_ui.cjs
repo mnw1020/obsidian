@@ -82,7 +82,12 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
         } } };
         const dv = { container: document.querySelector('#content'), component, current: () => ({ file: { path: 'Книги/_index.md' } }), paragraph: text => document.querySelector('#content').createEl('p', { text }) };
         const module = { exports: {} }; new Function('module', sources['Книги/_system/' + (mode === 'home' ? 'library_home.js' : 'reading_dashboard.js')])(module);
-        window.renderPromise = module.exports({ app, dv, obsidian, mode }).then(handle => { window.handle = handle; }, error => { if (!missingModule) throw error; window.fixture.initialError = error.message; });
+        component.render = async () => {
+            dv.container.innerHTML = '';
+            if (window.fixture.pauseRefresh) await new Promise(resolve => { window.fixture.resumeRefresh = resolve; });
+            return module.exports({ app, dv, obsidian, mode }).then(handle => { window.handle = handle; }, error => { if (!missingModule) throw error; window.fixture.initialError = error.message; });
+        };
+        window.renderPromise = component.render();
         if (!delayNative && !delayRead) await window.renderPromise;
     }, { sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead, mode });
     return { page, errors };
@@ -353,6 +358,7 @@ async function main() {
     new (Object.getPrototypeOf(async () => {}).constructor)('dv', 'app', 'require', blocks[0][1]);
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
+        if (process.argv.includes('--scroll')) await scrollChecks(browser);
         const layouts = await layoutChecks(browser);
         if (process.argv.includes('--layouts-only')) {
             if (process.argv.includes('--live')) await liveChecks(browser);
@@ -364,5 +370,40 @@ async function main() {
             console.log(`${layouts} library Chromium layouts passed: real core/reading widgets, retained quote metrics, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
         }
     } finally { await browser.close(); }
+}
+
+async function scrollChecks(browser) {
+    for (const nested of [false, true]) {
+        const { page, errors } = await mount(browser, { width: 390 });
+        try {
+            await page.evaluate(nested => {
+                if (nested) {
+                    const preview = document.querySelector('main');
+                    preview.style.height = '600px'; preview.style.overflowY = 'auto';
+                }
+            }, nested);
+            const position = await page.evaluate(nested => {
+                const scroll = nested ? document.querySelector('main') : document.scrollingElement;
+                window.retainedRoot = document.querySelector('.book-home-ui');
+                scroll.scrollTop = scroll.scrollHeight; return scroll.scrollTop;
+            }, nested);
+            assert(position > 400, 'Fixture has a long, scrolled page');
+            for (let round = 0; round < 3; round++) {
+                await page.evaluate(async () => { window.fixture.pauseRefresh = true; await window.fixture.component.render(); });
+                await page.waitForTimeout(80);
+                assert.equal(await page.evaluate(nested => (nested ? document.querySelector('main') : document.scrollingElement).scrollTop, nested), position, 'Refresh at the very bottom retains scroll position');
+                assert.equal(await page.evaluate(() => window.retainedRoot === document.querySelector('.book-home-ui')), true, 'Refresh retains the actual visible page rather than an empty height placeholder');
+                assert.equal(await page.locator('.book-home-footer').isVisible(), true, 'The bottom of the page stays visible');
+                assert.equal(await page.evaluate(() => typeof window.fixture.resumeRefresh), 'undefined', 'A global refresh does not start destructive rendering');
+                assert.equal(await page.locator('.book-home-ui').count(), 1);
+                assert.equal(await page.evaluate(() => window.fixture.knowledgeState().listeners.size), 1, 'Refresh does not accumulate subscriptions');
+            }
+            await page.evaluate(() => window.fixture.modify('Книги/Художественные/Первая.md', { read_count: 2 }));
+            await page.waitForFunction(() => document.querySelector('[data-stat="reread"]').textContent === '1');
+            assert.equal(await page.evaluate(() => window.retainedRoot === document.querySelector('.book-home-ui')), true, 'Live statistics still update without rebuilding the page');
+            await dispose(page); assert.deepEqual(errors, []);
+        } finally { await page.close(); }
+    }
+    console.log('Repeated Dataview refresh preserves document and Obsidian pane scrolling.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

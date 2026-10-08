@@ -1,29 +1,18 @@
 // A single home renderer; each existing widget owns its own lifecycle.
 module.exports = async ({ dv, app, obsidian = {} }) => {
     const source = dv.current?.()?.file?.path || 'Книги/_index.md';
-    // Dataview empties the container before awaiting this script. Preserve its
-    // height while it rebuilds, otherwise the browser clamps scrolling to zero.
+    // These widgets already subscribe to vault changes. Dataview's global
+    // refresh must not clear and rebuild the whole page on every index update.
     const component = dv.component;
     const stateKey = '__bookHomeRefresh';
     let refresh = component?.[stateKey];
     if (!refresh && typeof component?.render === 'function') {
         const container = dv.container;
         const original = component.render;
-        refresh = { dispose: null };
-        const wrapped = async function (...args) {
-            const preview = container.closest('.markdown-preview-view');
-            const scroll = preview && preview.scrollHeight > preview.clientHeight
-                ? preview : container.ownerDocument.scrollingElement;
-            const height = container.style.minHeight;
-            const anchor = scroll?.style.overflowAnchor;
-            container.style.minHeight = `${container.getBoundingClientRect().height}px`;
-            if (scroll) scroll.style.overflowAnchor = 'none';
-            try { return await original.apply(this, args); }
-            finally {
-                const position = scroll?.scrollTop;
-                container.style.minHeight = height;
-                if (scroll) { scroll.scrollTop = position; scroll.style.overflowAnchor = anchor; }
-            }
+        refresh = { dispose: null, root: null };
+        const wrapped = function (...args) {
+            if (refresh.root?.parentNode === container) return Promise.resolve();
+            return original.apply(this, args);
         };
         component[stateKey] = refresh;
         component.render = wrapped;
@@ -49,6 +38,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const core = loadCore({ app, obsidian });
     const doc = dv.container.ownerDocument;
     root = el(dv.container, 'section', 'book-home-ui');
+    if (refresh) refresh.root = root;
     root.dataset.ready = 'false';
     el(root, 'style', '', texts[0]);
     function el(parent, tag, cls = '', text) {
@@ -106,7 +96,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const cell = el(stats, 'div', 'book-home-stat');
         const value = el(cell, 'strong'); value.dataset.stat = key; el(cell, 'span', '', label); statValues.push([key, value]);
     }
-    function drawStats() { if (disposed) return; const values = core.stats(); for (const [key, node] of statValues) node.textContent = String(values[key]); }
+    function drawStats() { if (disposed) return; const values = core.stats(); for (const [key, node] of statValues) { const value = String(values[key]); if (node.textContent !== value) node.textContent = value; } }
     drawStats();
     function scheduleStats() { clearTimeout(timer); timer = setTimeout(drawStats, 120); }
     for (const [owner, events] of [[app.metadataCache, ['changed']], [app.vault, ['create', 'delete', 'rename', 'modify']]]) {
@@ -183,6 +173,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         if (disposed) return; disposed = true; clearTimeout(timer);
         for (const cleanup of cleanups) cleanup(); for (const child of [...children]) release(child);
         if (root) { root.dataset.ready = 'false'; root.remove(); }
+        if (refresh?.root === root) refresh.root = null;
     }
     await Promise.all([
         mount(recent.body, lazy, { target: 'Книги/_system/_Книги.base#Главная', label: 'недавние 20', expanded: true }),

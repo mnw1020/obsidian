@@ -1,0 +1,31 @@
+{
+  "clientDate": "2026-10-08",
+  "created": "2026-10-08T18:33:34.361Z",
+  "files": {
+    "_index.md": {
+      "sha256": "7c7d3ad74ce9105259253143108555567b583289e8e714477fed6c0a2ea38aad",
+      "bytes": 8170
+    },
+    "_Кино.base": {
+      "sha256": "31966d9507044dead702e85ef4dc1d778596caee2f866c77dab2befe904d0b1d",
+      "bytes": 12096
+    },
+    "_system/kino-design.css": {
+      "sha256": "33ab9cb2a7f096b646dfa233ccb7d2e3efdf59a35598067d86d5113ae85b5041",
+      "bytes": 39073
+    },
+    "_system/tests/design-ui.test.cjs": {
+      "sha256": "9570802929ff6b8f465dea200872acf5d82a23142231356900ede6d774e18db9",
+      "bytes": 36756
+    },
+    "_system/Редизайн — прогресс.md": {
+      "sha256": "513f00384e790ba2f28b533feac470094372cead42157f88c902c96ea9456687",
+      "bytes": 25300
+    }
+  },
+  "reference": {
+    "../Книги/_index.md": "0cf0cb82bd2443735f63465232fa1b0173f0eecb7c9e249054066b81bec1af13",
+    "../Книги/_system/library_home.js": "e2c71682baf880f5ebd9517b0c197007ce395a9b08a0c7bf9cbafd4e4db2622e",
+    "../Книги/_system/library-home.css": "80783e47018baa3c1669c4a2475cad328bfb0c6df277febe5b551551b1065396"
+  }
+}

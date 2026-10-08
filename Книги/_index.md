@@ -2,7 +2,6 @@
 cssclasses:
   - books-library
   - books-home-page
-obsidianUIMode: preview
 ---
 
 ```dataviewjs
