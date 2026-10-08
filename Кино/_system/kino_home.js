@@ -28,16 +28,16 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         if (text !== undefined) node.textContent = String(text);
         parent.appendChild(node); return node;
     }
-    function listen(node, event, callback) {
-        node.addEventListener(event, callback); cleanups.push(() => node.removeEventListener(event, callback));
+    function listen(node, event, callback, listeners = cleanups) {
+        node.addEventListener(event, callback); listeners.push(() => node.removeEventListener(event, callback));
     }
-    function internal(parent, text, target, cls = '') {
+    function internal(parent, text, target, cls = '', listeners = cleanups) {
         const link = el(parent, 'a', `internal-link ${cls}`.trim(), text);
         link.href = target; link.dataset.href = target;
         listen(link, 'click', event => {
             event.preventDefault();
             if (!disposed) app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey));
-        }); return link;
+        }, listeners); return link;
     }
     function rating(value) {
         if (value == null || value === '') return null;
@@ -112,6 +112,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         if (!styleFile) throw new Error('Не найден стиль главной страницы кинотеки.');
         const css = await app.vault.read(styleFile);
         if (disposed) return { dispose };
+        if (!css.trim()) throw new Error('Стиль главной страницы кинотеки пуст.');
         root = el(dv.container, 'section', 'kino-home-ui'); root.dataset.ready = 'false';
         if (refresh) refresh.root = root;
         el(root, 'style', '', css);
@@ -240,12 +241,19 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const details = el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
             el(details, 'summary', '', label); const content = el(details, 'div', 'kino-home-native-content');
             let child = null, generation = 0;
-            function clear() { generation++; if (child) release(child); child = null; content.replaceChildren(); }
+            const linkCleanups = [];
+            function clear() {
+                generation++; if (child) release(child); child = null;
+                for (const cleanup of linkCleanups.splice(0)) cleanup();
+                content.replaceChildren();
+            }
+            cleanups.push(clear);
             async function open() {
                 if (disposed || !views.open || !details.open || child) return;
                 const current = ++generation;
                 if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !component?.addChild) {
-                    content.replaceChildren(); internal(content, `Открыть ${label.toLocaleLowerCase('ru')}`, target); return;
+                    for (const cleanup of linkCleanups.splice(0)) cleanup();
+                    content.replaceChildren(); internal(content, `Открыть ${label.toLocaleLowerCase('ru')}`, target, '', linkCleanups); return;
                 }
                 child = childComponent(); const renderingChild = child;
                 const holder = el(content, 'div', 'kino-home-native-render');
@@ -253,7 +261,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 catch (problem) {
                     if (!disposed && current === generation && details.open && views.open) {
                         holder.replaceChildren(); el(holder, 'p', 'kino-home-widget-error', `Не удалось загрузить представление: ${problem?.message || problem}`);
-                        internal(holder, 'Открыть представление', target);
+                        internal(holder, 'Открыть представление', target, '', linkCleanups);
                     }
                     release(renderingChild); if (child === renderingChild) child = null;
                 } finally {

@@ -128,13 +128,47 @@ function table(parent, headings, rows) {
 async function render({ dv, app, obsidian, mode = "index" }) {
     const home = mode === "home", now = new Date();
     const currentYear = String(now.getFullYear()), currentMonth = String(now.getMonth() + 1).padStart(2, "0");
-    const root = element(dv.container, "div", undefined, "book-reading-dashboard");
+    let disposed = false, timer, generation = 0, records = [], signature = null, unsubscribe = () => {};
+    const component = dv.component, stateKey = "__bookReadingDashboard";
+    let view = !home && component?.[stateKey];
+    if (!home && !view && typeof component?.render === "function") {
+        const original = component.render, container = dv.container;
+        view = { root: null, dispose: null, year: "", month: "" };
+        const state = view;
+        const wrapped = function (...args) {
+            // The service updates this view in place; avoid Dataview clearing it.
+            if (state.root?.parentNode === container) return Promise.resolve();
+            return original.apply(this, args);
+        };
+        component[stateKey] = state;
+        component.render = wrapped;
+        component.register(() => {
+            state.dispose?.();
+            if (component.render === wrapped) component.render = original;
+            delete component[stateKey];
+        });
+    }
+    view?.dispose?.();
+    const root = element(dv.container, "div", undefined, `book-reading-dashboard${home ? "" : " is-index"}`);
+    if (view) { view.root = root; view.dispose = dispose; }
+    else component?.register?.(dispose);
     const stylesheet = app.vault.getAbstractFileByPath("Книги/_system/reading-dashboard.css");
     if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
-    const status = element(root, "p", "Считаю историю чтений…", "book-dashboard-period");
-    let selectedYear = home ? currentYear : "", selectedMonth = "", yearSelect, monthSelect, resetMonth;
+    if (disposed) return { dispose };
+    let masthead = root, summary;
     if (!home) {
-        const controls = element(root, "div", undefined, "book-knowledge-controls book-dashboard-controls");
+        masthead = element(root, "header", undefined, "book-dashboard-masthead");
+        const nav = element(masthead, "nav", undefined, "book-dashboard-nav");
+        nav.setAttribute("aria-label", "Навигация библиотеки");
+        for (const [title, path] of [["← Библиотека", "Книги/_index.md"], ["Цитаты", "Книги/Цитаты.md"], ["Стихи", "Книги/Стихи.md"]]) {
+            link(nav, { file: { path } }, app, title);
+        }
+        element(masthead, "h1", "Итоги чтения", "book-dashboard-title");
+        element(masthead, "p", "История чтений, произведения и впечатления", "book-dashboard-subtitle");
+    }
+    let selectedYear = home ? currentYear : view?.year || "", selectedMonth = home ? "" : view?.month || "", yearSelect, monthSelect, resetMonth;
+    if (!home) {
+        const controls = element(masthead, "div", undefined, "book-knowledge-controls book-dashboard-controls");
         yearSelect = element(element(controls, "label", "Год "), "select");
         yearSelect.setAttribute("aria-label", "Год чтения");
         monthSelect = element(element(controls, "label", "Месяц "), "select");
@@ -150,19 +184,24 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const reset = element(controls, "button", "За всё время");
         reset.addEventListener("click", () => setPeriod("", ""));
     }
-    const content = element(root, "div");
-    let disposed = false, timer, generation = 0, records = [];
+    const status = element(masthead, "p", "Считаю историю чтений…", "book-dashboard-period");
+    status.setAttribute("role", "status");
+    if (!home) summary = element(masthead, "div", undefined, "book-dashboard-summary");
+    const content = element(root, "div", undefined, "book-dashboard-content");
     const file = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
     if (!file) { status.textContent = "Не найден модуль библиотеки."; return; }
     const mod = { exports: {} };
     let service;
     try {
         new Function("module", await app.vault.read(file))(mod);
+        if (disposed) return { dispose };
         service = await mod.exports.getService({ app, obsidian });
+        if (disposed) return { dispose };
     } catch (error) { status.textContent = `Не удалось собрать итоги: ${error.message || error}`; return; }
     function setPeriod(year, month) {
         selectedYear = year;
         selectedMonth = year ? month : "";
+        if (view) { view.year = selectedYear; view.month = selectedMonth; }
         if (yearSelect) {
             yearSelect.value = selectedYear;
             monthSelect.value = selectedMonth;
@@ -179,8 +218,8 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             element(metric, "span", label);
         }
     }
-    function section(title) {
-        const panel = element(content, "section", undefined, "book-dashboard-section");
+    function section(title, parent = content, kind = "") {
+        const panel = element(parent, "section", undefined, `book-dashboard-section${kind ? " is-" + kind : ""}`);
         element(panel, home ? "h4" : "h2", title);
         return panel;
     }
@@ -208,7 +247,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         }
     }
     function memories(model) {
-        const panel = element(content, "section", undefined, "book-dashboard-section");
+        const panel = element(content, "section", undefined, `book-dashboard-section${home ? "" : " is-memories"}`);
         const heading = element(panel, home ? "h4" : "h2", selectedMonth ? "В выбранном месяце раньше · " : "В этом месяце раньше · ");
         const name = MONTH_LABELS[Number(model.memoryMonth) - 1].toLocaleLowerCase("ru");
         if (selectedMonth && !home) {
@@ -265,16 +304,16 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             memories(model);
             return;
         }
-        metrics(content, [["Чтений за период", model.readings], ["Произведений", model.books], ["Авторов", model.authors], ["Перечитано произведений", model.reread], ["Сохранено цитат", model.quotes]]);
+        summary.replaceChildren();
+        metrics(summary, [["Чтений за период", model.readings], ["Произведений", model.books], ["Авторов", model.authors], ["Перечитано произведений", model.reread], ["Сохранено цитат", model.quotes]]);
+        const overview = element(content, "div", undefined, "book-dashboard-overview");
+        const activity = section(selectedYear ? `Активность · ${selectedYear}` : "История по годам", overview, "activity");
         if (selectedYear) {
             const previousYear = String(Number(selectedYear) - 1);
             const previous = buildDashboard(records, { now, year: previousYear, month: selectedMonth });
             const diff = model.readings - previous.readings;
-            const comparison = section("Сравнение с прошлым годом");
-            element(comparison, "p", `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " " : ""}${previousYear}: ${previous.readings} чтений · ${diff > 0 ? "+" : ""}${diff} к этому периоду.`, "book-dashboard-comparison");
-            element(comparison, "p", "Сравнение по сохранённой истории; отсутствие записей не означает отсутствие чтения. Текущий год или месяц может быть ещё не завершён.", "book-excerpt-meta");
+            element(activity, "p", `${selectedMonth ? MONTH_LABELS[Number(selectedMonth) - 1] + " " : ""}${previousYear}: ${previous.readings} чтений · ${diff > 0 ? "+" : ""}${diff} к этому периоду.`, "book-dashboard-comparison");
         }
-        const activity = section(selectedYear ? `Активность · ${selectedYear}` : "История по годам");
         if (selectedYear) {
             const annual = buildDashboard(records, { now, year: selectedYear });
             const timeline = element(activity, "div", undefined, "book-dashboard-months");
@@ -296,23 +335,25 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             element(history, "summary", "Все годы");
             yearHistory(history, model);
         } else yearHistory(activity, model);
-        const types = section("Что читалось");
+        const types = section("Что читалось", overview, "types");
         if (model.readings) {
             breakdown(types, model);
         } else element(types, "p", "За этот период чтения ещё не записаны.", "books-empty");
-        const readings = section("Прочитано за период");
+        const readings = section("Прочитано за период", content, "readings");
         if (model.readings) table(readings, ["Дата", "Произведение", "Автор", "Тип", "Оценка", "Чтение"], model.readingRows.map(item => [service.core.displayDate(item.date), cell => link(cell, item, app), item.authors.join(", "), TYPE_LABELS[item.type], item.rating == null ? "—" : `${item.rating}/10`, item.number > 1 ? `№${item.number} · повторное` : "Первое"]));
         else element(readings, "p", "Пока нет записей за выбранный период.", "books-empty");
-        const authors = section("Авторы за период");
+        const details = element(content, "div", undefined, "book-dashboard-details-grid");
+        const authors = section("Авторы за период", details, "authors");
         if (model.authorRows.length) table(authors, ["Автор", "Произведений", "Чтений", "Средняя оценка художественных"], model.authorRows.map(row => [row.name, row.books, row.readings, row.average === null ? "—" : row.average.toFixed(1)]));
         else element(authors, "p", "В этом периоде авторов пока нет.", "books-empty");
-        const favorites = section("Любимые произведения · 8–10");
+        const favorites = section("Любимые произведения · 8–10", details, "favorites");
         if (model.favoriteBooks.length) table(favorites, ["Произведение", "Автор", "Оценка"], model.favoriteBooks.map(item => [cell => link(cell, item, app), item.authors.join(", "), item.rating]));
         else element(favorites, "p", "Пока нет оценок 8–10 у художественных произведений за период.", "books-empty");
         memories(model);
         const methodology = element(content, "details", undefined, "book-dashboard-methodology");
         element(methodology, "summary", "Как считаются итоги и точность дат");
         element(methodology, "p", "Каждое чтение считается по истории карточки. В произведения и авторов входят также карточки с сохранённой выпиской за период. Цитаты учитываются по дате сохранения. Средние оценки авторов и любимые произведения используют последнюю доступную оценку художественного произведения за период.");
+        element(methodology, "p", "Сравнение по сохранённой истории; отсутствие записей не означает отсутствие чтения. Текущий год или месяц может быть ещё не завершён.");
         if (model.imprecise) element(methodology, "p", `Чтений с датой до месяца или года: ${model.imprecise}. Отсутствующие дни не восстанавливаются.`);
         if (selectedMonth) element(methodology, "p", "Чтения с датой только до года не входят в отдельный месяц.");
         if (model.undatedExcerpts) element(methodology, "p", `Выписок без даты сохранения: ${model.undatedExcerpts}. ${selectedYear ? "В выбранный период они не включены." : "Они включены в общие итоги."}`);
@@ -329,6 +370,13 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         try {
             const next = await service.snapshot({ includeCollections: true });
             if (disposed || current !== generation) return;
+            // TFile has circular parent/vault references; compare visible data.
+            const nextSignature = JSON.stringify(next.map(record => [record.file.path, record.file.basename,
+                record.fm.title, record.fm.authors, record.fm.work_type, Boolean(record.collection),
+                (record.history || []).map(entry => [entry.date, entry.number, entry.rating]),
+                (record.excerpts || []).map(entry => entry.savedDate || ""), record.historyError, record.error]));
+            if (signature === nextSignature) return;
+            signature = nextSignature;
             records = next;
             if (yearSelect) {
                 const years = [...new Set([...availableYears(records), currentYear])].sort((a, b) => b.localeCompare(a));
@@ -340,14 +388,20 @@ async function render({ dv, app, obsidian, mode = "index" }) {
                 monthSelect.disabled = !selectedYear;
                 monthSelect.value = selectedMonth;
                 resetMonth.disabled = !selectedMonth;
+                if (view) { view.year = selectedYear; view.month = selectedMonth; }
             }
             draw();
         } catch (error) { if (!disposed) status.textContent = `Не удалось собрать итоги: ${error.message || error}`; }
     }
-    const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
-    function dispose() { disposed = true; clearTimeout(timer); unsubscribe(); }
-    dv.component?.register?.(dispose);
+    unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
+    function dispose() {
+        if (disposed) return;
+        disposed = true; generation++; clearTimeout(timer); unsubscribe();
+        if (view?.root === root) view.root = null;
+        root.remove?.();
+    }
     await reload();
+    if (!disposed) root.setAttribute("data-ready", "true");
     return { reload, dispose };
 }
 
