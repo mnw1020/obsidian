@@ -184,6 +184,29 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         element(panel, home ? "h4" : "h2", title);
         return panel;
     }
+    function breakdown(parent, model, title = "") {
+        const groups = [["fiction", "Художественная", model.fictionReadings, model.fictionTypes], ["nonfiction", "Нон-фикшн", model.nonfictionReadings, model.nonfictionTypes]]
+            .filter(([, , count]) => count > 0);
+        if (!groups.length) return;
+        const panel = element(parent, "section", undefined, "book-dashboard-breakdown-period");
+        panel.dataset.period = model.year ? model.year + (model.month ? "-" + model.month : "") : "all";
+        if (title) element(panel, home ? "h4" : "h3", title, "book-dashboard-breakdown-title");
+        const body = element(panel, "div", undefined, "book-dashboard-breakdown-groups");
+        for (const [genre, label, count, types] of groups) {
+            const group = element(body, "section", undefined, "book-dashboard-breakdown-genre");
+            group.dataset.genre = genre;
+            const head = element(group, "div", undefined, "book-dashboard-breakdown-head");
+            element(head, home ? "h5" : "h3", label, "book-dashboard-breakdown-label");
+            element(head, "strong", String(count), "book-dashboard-breakdown-total");
+            const list = element(group, "dl", undefined, "book-dashboard-breakdown-types");
+            for (const row of types.filter(row => row.count > 0)) {
+                const item = element(list, "div", undefined, "book-dashboard-breakdown-type");
+                item.dataset.type = row.type;
+                element(item, "dt", row.label);
+                element(item, "dd", String(row.count), "book-dashboard-breakdown-count");
+            }
+        }
+    }
     function memories(model) {
         const panel = element(content, "section", undefined, "book-dashboard-section");
         const heading = element(panel, home ? "h4" : "h2", selectedMonth ? "В выбранном месяце раньше · " : "В этом месяце раньше · ");
@@ -234,6 +257,10 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         if (home) {
             const month = buildDashboard(records, { now, year: currentYear, month: currentMonth });
             metrics(content, [["Чтений в этом месяце", month.readings], ["Чтений в этом году", model.readings], ["Цитат в этом месяце", month.quotes]]);
+            const breakdowns = element(content, "div", undefined, "book-dashboard-breakdowns");
+            breakdown(breakdowns, month, `В этом месяце · ${MONTH_LABELS[Number(currentMonth) - 1].toLocaleLowerCase("ru")}`);
+            breakdown(breakdowns, model, `В этом году · ${currentYear}`);
+            if (!breakdowns.childElementCount) breakdowns.remove();
             memories(model);
             return;
         }
@@ -270,16 +297,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         } else yearHistory(activity, model);
         const types = section("Что читалось");
         if (model.readings) {
-            const distribution = element(types, "div", undefined, "book-dashboard-distribution");
-            for (const row of model.types) {
-                const item = element(distribution, "div");
-                element(item, "span", row.label);
-                element(item, "strong", `${row.count} · ${Math.round(row.count / model.readings * 100)}%`);
-                const meter = element(item, "div", undefined, "book-dashboard-type-track");
-                element(meter, "span").style.width = `${row.count / model.readings * 100}%`;
-            }
-            const fiction = model.readingRows.filter(item => item.file.path.startsWith("Книги/Художественные/")).length;
-            element(types, "p", `Художественных чтений: ${fiction} · Non-fiction: ${model.readings - fiction}`, "book-excerpt-meta");
+            breakdown(types, model);
         } else element(types, "p", "За этот период чтения ещё не записаны.", "books-empty");
         const readings = section("Прочитано за период");
         if (model.readings) table(readings, ["Дата", "Произведение", "Автор", "Тип", "Оценка", "Чтение"], model.readingRows.map(item => [service.core.displayDate(item.date), cell => link(cell, item, app), item.authors.join(", "), TYPE_LABELS[item.type], item.rating == null ? "—" : `${item.rating}/10`, item.number > 1 ? `№${item.number} · повторное` : "Первое"]));
