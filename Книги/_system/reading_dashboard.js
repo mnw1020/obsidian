@@ -189,19 +189,19 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             .filter(([, , count]) => count > 0);
         if (!groups.length) return;
         const panel = element(parent, "section", undefined, "book-dashboard-breakdown-period");
-        panel.dataset.period = model.year ? model.year + (model.month ? "-" + model.month : "") : "all";
+        panel.setAttribute("data-period", model.year ? model.year + (model.month ? "-" + model.month : "") : "all");
         if (title) element(panel, home ? "h4" : "h3", title, "book-dashboard-breakdown-title");
         const body = element(panel, "div", undefined, "book-dashboard-breakdown-groups");
         for (const [genre, label, count, types] of groups) {
             const group = element(body, "section", undefined, "book-dashboard-breakdown-genre");
-            group.dataset.genre = genre;
+            group.setAttribute("data-genre", genre);
             const head = element(group, "div", undefined, "book-dashboard-breakdown-head");
             element(head, home ? "h5" : "h3", label, "book-dashboard-breakdown-label");
             element(head, "strong", String(count), "book-dashboard-breakdown-total");
             const list = element(group, "dl", undefined, "book-dashboard-breakdown-types");
             for (const row of types.filter(row => row.count > 0)) {
                 const item = element(list, "div", undefined, "book-dashboard-breakdown-type");
-                item.dataset.type = row.type;
+                item.setAttribute("data-type", row.type);
                 element(item, "dt", row.label);
                 element(item, "dd", String(row.count), "book-dashboard-breakdown-count");
             }
@@ -257,10 +257,11 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         if (home) {
             const month = buildDashboard(records, { now, year: currentYear, month: currentMonth });
             metrics(content, [["Чтений в этом месяце", month.readings], ["Чтений в этом году", model.readings], ["Цитат в этом месяце", month.quotes]]);
-            const breakdowns = element(content, "div", undefined, "book-dashboard-breakdowns");
-            breakdown(breakdowns, month, `В этом месяце · ${MONTH_LABELS[Number(currentMonth) - 1].toLocaleLowerCase("ru")}`);
-            breakdown(breakdowns, model, `В этом году · ${currentYear}`);
-            if (!breakdowns.childElementCount) breakdowns.remove();
+            if (month.readings || model.readings) {
+                const breakdowns = element(content, "div", undefined, "book-dashboard-breakdowns");
+                breakdown(breakdowns, month, `В этом месяце · ${MONTH_LABELS[Number(currentMonth) - 1].toLocaleLowerCase("ru")}`);
+                breakdown(breakdowns, model, `В этом году · ${currentYear}`);
+            }
             memories(model);
             return;
         }

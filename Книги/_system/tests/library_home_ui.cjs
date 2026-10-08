@@ -14,7 +14,7 @@ const core = require('../book_core.js')({ app: {}, obsidian: { parseYaml } }), k
 const now = new Date(), year = now.getFullYear(), month = String(now.getMonth() + 1).padStart(2, '0');
 
 function fixture(filePath, fm, entry, excerpt) {
-    const text = `---\n${stringifyYaml(fm)}\n---\n\nЛичные заметки владельца.\n\n${core.HISTORY_START}\n${core.renderEntry(entry)}\n${core.HISTORY_END}\n\n${knowledge.renderExcerpt(excerpt)}\n`;
+    const text = `---\n${stringifyYaml(fm)}\n---\n\nЛичные заметки владельца.\n\n${core.HISTORY_START}\n${(Array.isArray(entry) ? entry : [entry]).map(row => core.renderEntry(row)).join('\n\n')}\n${core.HISTORY_END}\n\n${knowledge.renderExcerpt(excerpt)}\n`;
     return { path: filePath, name: filePath.split('/').at(-1), basename: filePath.split('/').at(-1).slice(0, -3), extension: 'md', fm, text, stat: { mtime: 1 } };
 }
 const bookFiles = [
@@ -23,12 +23,12 @@ const bookFiles = [
 ];
 const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 "JetBrains Mono",monospace;background:var(--background-primary);color:var(--text-normal);--editor-font:"JetBrains Mono",monospace;--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-error:#a83232}main{width:100%;max-width:1100px;margin:auto;padding:24px;min-width:0}.markdown-preview-sizer{width:100%;max-width:820px;margin-inline:auto;min-width:0}button,select{font:inherit;cursor:pointer}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-error:#ff8585}body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}.bases-table-container{max-width:100%;overflow:auto}.bases-table{width:100%;table-layout:fixed;border-collapse:collapse}.bases-table :is(td,th){padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere;border-bottom:1px solid var(--background-modifier-border)}`;
 
-async function mount(browser, { width = 1024, pane, theme = 'theme-light', quickadd = true, missingModule = false, failWidget = false, delayNative = false, delayRead = false } = {}) {
+async function mount(browser, { width = 1024, pane, theme = 'theme-light', quickadd = true, missingModule = false, failWidget = false, delayNative = false, delayRead = false, files = bookFiles, mode = 'home' } = {}) {
     const page = await browser.newPage({ viewport: { width, height: 1200 } }), errors = [];
     page.on('pageerror', error => errors.push(error.message));
     const paneStyle = pane ? ` style="width:${pane}px;margin-inline:0"` : '';
     await page.setContent(`<style>${baseline}</style><style>${thingsCss}</style><style>${gruvboxCss}</style><style>${dataviewCss}</style><style>${sources['Книги/_system/books-library.css']}</style><style>body.theme-light,body.theme-dark{--text-accent:#efa76b;--interactive-accent:#efa76b}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered books-library books-home-page"${paneStyle}><div class="markdown-preview-sizer markdown-preview-section"><div class="metadata-container">Свойства</div><div class="inline-title">_index</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><div class="el-h1" id="native-title"><h1>Библиотека</h1></div><div class="el-p" id="native-actions">${fallbackActions}</div><div class="el-div" id="native-stats"><div class="callout" data-callout="quote"><div class="callout-title-inner">Библиотека</div><p>2 произведения · 2 автора · 1 серия</p></div></div><div class="el-p" id="native-body"><p>Исходная библиотека</p><a class="internal-link" data-href="Книги/_system/_Книги.base#Список" href="#">Весь каталог</a></div></div></main></body>`);
-    await page.evaluate(async ({ sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead }) => {
+    await page.evaluate(async ({ sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead, mode }) => {
         const map = new Map(files.map(file => [file.path, file]));
         for (const [filePath, text] of Object.entries(sources)) map.set(filePath, { path: filePath, text });
         map.set('Книги/_index.md', { path: 'Книги/_index.md', name: '_index.md', basename: '_index', extension: 'md', text: note, fm: {} });
@@ -81,10 +81,10 @@ async function mount(browser, { width = 1024, pane, theme = 'theme-light', quick
             for (const file of files) { const row = body.createEl('tr'); row.createEl('td', { text: file.fm.title }); row.createEl('td', { text: file.fm.authors.join(', ') }); row.createEl('td', { text: file.fm.date }); }
         } } };
         const dv = { container: document.querySelector('#content'), component, current: () => ({ file: { path: 'Книги/_index.md' } }), paragraph: text => document.querySelector('#content').createEl('p', { text }) };
-        const module = { exports: {} }; new Function('module', sources['Книги/_system/library_home.js'])(module);
-        window.renderPromise = module.exports({ app, dv, obsidian }).then(handle => { window.handle = handle; }, error => { if (!missingModule) throw error; window.fixture.initialError = error.message; });
+        const module = { exports: {} }; new Function('module', sources['Книги/_system/' + (mode === 'home' ? 'library_home.js' : 'reading_dashboard.js')])(module);
+        window.renderPromise = module.exports({ app, dv, obsidian, mode }).then(handle => { window.handle = handle; }, error => { if (!missingModule) throw error; window.fixture.initialError = error.message; });
         if (!delayNative && !delayRead) await window.renderPromise;
-    }, { sources, files: bookFiles, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead });
+    }, { sources, files, yamlSource, note, quickadd, missingModule, failWidget, delayNative, delayRead, mode });
     return { page, errors };
 }
 
@@ -228,6 +228,70 @@ async function liveChecks(browser) {
     } finally { await page.close(); }
 }
 
+async function breakdownChecks(browser) {
+    function work(folder, type, dates) {
+        const title = folder + ' ' + type;
+        return fixture(`Книги/${folder}/${type}.md`, { title, authors: ['Автор'], work_type: type, read_count: dates.length, date: dates.at(-1) },
+            dates.map((date, index) => ({ number: index + 1, date, rating: null, comment: '' })),
+            { id: 'book-excerpt-breakdown-' + (folder === 'Non-fiction' ? 'nonfiction' : 'fiction') + '-' + type, text: 'Выписка', savedDate: `${year}-${month}-01` });
+    }
+    const files = [work('Художественные', 'book', [`${year}-${month}-01`]), work('Художественные', 'story', [`${year}-${month}-02`, `${year}-${month}-03`, String(year)]),
+        work('Non-fiction', 'book', [`${year}-${month}-04`, String(year)]), work('Non-fiction', 'lecture', [`${year}-${month}-05`])];
+    const monthly = [{ genre: 'fiction', count: 3, types: [['book', 1], ['story', 2]] }, { genre: 'nonfiction', count: 2, types: [['book', 1], ['lecture', 1]] }];
+    const annual = [{ genre: 'fiction', count: 4, types: [['book', 1], ['story', 3]] }, { genre: 'nonfiction', count: 3, types: [['book', 2], ['lecture', 1]] }];
+    async function contents(page, period) {
+        return page.locator(`.book-dashboard-breakdown-period[data-period="${period}"] .book-dashboard-breakdown-genre`).evaluateAll(groups => groups.map(group => ({ genre: group.dataset.genre,
+            count: Number(group.querySelector('.book-dashboard-breakdown-total').textContent), types: [...group.querySelectorAll('.book-dashboard-breakdown-type')].map(row => [row.dataset.type, Number(row.querySelector('dd').textContent)]) })));
+    }
+    async function noEmptyTypes(page) {
+        assert(await page.locator('.book-dashboard-breakdown-total, .book-dashboard-breakdown-count').evaluateAll(nodes => nodes.every(node => Number(node.textContent) > 0)), 'Empty genres and types are omitted');
+        const overflow = await page.locator('.book-dashboard-breakdowns, .book-dashboard-breakdown-period, .book-dashboard-breakdown-groups, .book-dashboard-breakdown-genre').evaluateAll(nodes => nodes.filter(node => node.scrollWidth > node.clientWidth + 1).map(node => node.className));
+        assert.deepEqual(overflow, [], 'Genre and type breakdowns fit their containers');
+    }
+    for (const layout of [{ width: 320, theme: 'theme-light' }, { width: 1024, theme: 'theme-dark' }]) {
+        const { page, errors } = await mount(browser, { ...layout, files });
+        try {
+            assert.deepEqual(await contents(page, `${year}-${month}`), monthly);
+            assert.deepEqual(await contents(page, String(year)), annual, 'Year-only dates belong to the year, without being put in the current month');
+            assert.equal(await page.locator('.book-dashboard-breakdown-type[data-type="article"], .book-dashboard-breakdown-type[data-type="other"]').count(), 0);
+            await noEmptyTypes(page); await assertBounded(page);
+            await screenshot(page, `library-breakdown-${layout.width}-${layout.theme}.png`);
+            if (layout.width === 1024) {
+                await page.evaluate(paths => paths.forEach(filePath => window.fixture.remove(filePath)), files.slice(2).map(file => file.path));
+                await page.waitForFunction(() => document.querySelectorAll('.book-dashboard-breakdown-genre[data-genre="nonfiction"]').length === 0);
+                assert.deepEqual(await contents(page, String(year)), annual.slice(0, 1));
+                await page.evaluate(filePath => window.fixture.remove(filePath), files[1].path);
+                await page.waitForFunction(() => document.querySelectorAll('.book-dashboard-breakdown-type[data-type="story"]').length === 0);
+                assert.deepEqual(await contents(page, `${year}-${month}`), [{ genre: 'fiction', count: 1, types: [['book', 1]] }]);
+                await page.evaluate(filePath => window.fixture.remove(filePath), files[0].path);
+                await page.waitForFunction(() => document.querySelectorAll('.book-dashboard-breakdowns').length === 0);
+                await page.evaluate(values => values.forEach(file => window.fixture.add(file)), files);
+                await page.waitForFunction(period => document.querySelector(`.book-dashboard-breakdown-period[data-period="${period}"] [data-genre="fiction"] .book-dashboard-breakdown-total`)?.textContent === '3', `${year}-${month}`);
+                assert.deepEqual(await contents(page, String(year)), annual);
+            }
+            await noEmptyTypes(page); assert.equal(await page.evaluate(() => window.fixture.writes), 0); await dispose(page); assert.deepEqual(errors, []);
+        } finally { await page.close(); }
+    }
+    const older = work('Non-fiction', 'article', [`${year - 1}-${month}-08`]);
+    const { page, errors } = await mount(browser, { files: [...files, older], mode: 'index' });
+    try {
+        const all = [annual[0], { genre: 'nonfiction', count: 4, types: [['book', 2], ['lecture', 1], ['article', 1]] }];
+        assert.deepEqual(await contents(page, 'all'), all);
+        await page.getByRole('combobox', { name: 'Год чтения', exact: true }).selectOption(String(year));
+        assert.deepEqual(await contents(page, String(year)), annual);
+        await page.getByRole('combobox', { name: 'Месяц чтения', exact: true }).selectOption(month);
+        assert.deepEqual(await contents(page, `${year}-${month}`), monthly);
+        await page.getByRole('combobox', { name: 'Год чтения', exact: true }).selectOption(String(year - 1));
+        assert.deepEqual(await contents(page, `${year - 1}-${month}`), [{ genre: 'nonfiction', count: 1, types: [['article', 1]] }]);
+        await page.getByRole('combobox', { name: 'Месяц чтения', exact: true }).selectOption(month === '12' ? '11' : '12');
+        assert.equal(await page.locator('.book-dashboard-breakdown-period').count(), 0, 'An empty selected period has no genre or type rows');
+        await page.getByRole('button', { name: 'За всё время', exact: true }).click();
+        assert.deepEqual(await contents(page, 'all'), all); await noEmptyTypes(page);
+        assert.equal(await page.evaluate(() => window.fixture.writes), 0);
+        await page.evaluate(() => window.fixture.component.unload()); assert.deepEqual(errors, []);
+    } finally { await page.close(); }
+}
+
 async function fallbackChecks(browser) {
     for (const options of [{ missingModule: true }, { quickadd: false }, { failWidget: true }]) {
         const { page, errors } = await mount(browser, options);
@@ -292,7 +356,8 @@ async function main() {
         const layouts = await layoutChecks(browser);
         if (process.argv.includes('--layouts-only')) {
             if (process.argv.includes('--live')) await liveChecks(browser);
-            console.log(`${layouts} library Chromium layouts passed: full-width reading metrics, removed quote panel, Things/gruvbox/Dataview, hidden properties, action order, accessible search icon${process.argv.includes('--live') ? ', live work/quote counts and widget cleanup' : ''}.`);
+            if (process.argv.includes('--breakdown')) await breakdownChecks(browser);
+            console.log(`${layouts} library Chromium layouts passed: full-width reading metrics, removed quote panel, Things/gruvbox/Dataview, hidden properties, action order, accessible search icon${process.argv.includes('--live') ? ', live work/quote counts and widget cleanup' : ''}${process.argv.includes('--breakdown') ? ', genre/type breakdowns, empty types, live updates and selected periods' : ''}.`);
         }
         else {
             await liveChecks(browser); await fallbackChecks(browser); await lateCleanupChecks(browser); await initialCleanupChecks(browser);
