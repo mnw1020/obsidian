@@ -3,7 +3,15 @@
 .books-home-page :is(.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .books-home-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .markdown-preview-view.books-home-page:has(.book-home-ui[data-ready="true"]) .inline-title { display: none; }
-.markdown-preview-view.books-home-page .el-pre:has(.book-home-ui[data-ready="true"]) ~ * { display: none; }
+/* Obsidian measures a section by the next sibling's offsetTop. display:none
+   makes that offset zero and gives the large home section a negative height.
+   Keep fallback wrappers in the flow, with no visible content or height. */
+.markdown-preview-view.books-home-page .el-pre:has(.book-home-ui[data-ready="true"]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight) {
+    display: block !important;
+    height: 0 !important; min-height: 0 !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important;
+    overflow: hidden; visibility: hidden; pointer-events: none;
+}
 .book-home-ui {
     --home-line: color-mix(in srgb,var(--background-modifier-border,#c9c3b9) 70%,transparent);
     --home-accent: var(--text-accent,#a46830);

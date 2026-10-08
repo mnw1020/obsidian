@@ -11,6 +11,18 @@ const thingsCss = fs.readFileSync(path.resolve(root, '../.obsidian/themes/Things
 const gruvboxCss = fs.readFileSync(path.resolve(root, '../.obsidian/snippets/Obsidian gruvbox.css'), 'utf8');
 const dataviewCss = fs.readFileSync(path.resolve(root, '../.obsidian/plugins/dataview/styles.css'), 'utf8');
 const core = require('../book_core.js')({ app: {}, obsidian: { parseYaml } }), knowledge = require('../knowledge.js');
+// Exercise the installed Obsidian preview algorithms, not just browser scrolling.
+function previewAlgorithms() {
+    const archive = fs.readFileSync('C:/Users/Mindwork/AppData/Local/Obsidian/resources/obsidian.asar');
+    const header = JSON.parse(archive.toString('utf8', 16, 16 + archive.readUInt32LE(12)));
+    const entry = header.files['app.js'], offset = 8 + archive.readUInt32LE(4) + Number(entry.offset);
+    const code = archive.toString('utf8', offset, offset + entry.size);
+    const preview = code.slice(code.indexOf('markdown-preview-pusher'));
+    return {
+        measure: preview.match(/e\.prototype\.measureSection=(function\(e\)\{[\s\S]*?\}),e\.prototype\.onRendered/)[1],
+        virtual: preview.match(/e\.prototype\.updateVirtualDisplay=(function\(e\)\{[\s\S]*?\}),e\.prototype\.renderHighlights/)[1]
+    };
+}
 const now = new Date(), year = now.getFullYear(), month = String(now.getMonth() + 1).padStart(2, '0');
 
 function fixture(filePath, fm, entry, excerpt) {
@@ -359,6 +371,7 @@ async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
         if (process.argv.includes('--scroll')) await scrollChecks(browser);
+        if (process.argv.includes('--virtual-scroll')) await virtualScrollChecks(browser);
         const layouts = await layoutChecks(browser);
         if (process.argv.includes('--layouts-only')) {
             if (process.argv.includes('--live')) await liveChecks(browser);
@@ -370,6 +383,56 @@ async function main() {
             console.log(`${layouts} library Chromium layouts passed: real core/reading widgets, retained quote metrics, Things/gruvbox/Dataview, narrow panes, hidden properties, live stats, QuickAdd URI fallback, native Bases targets/cleanup, error fallback and late unload.`);
         }
     } finally { await browser.close(); }
+}
+
+async function virtualScrollChecks(browser) {
+    const algorithms = previewAlgorithms();
+    for (const legacy of [true, false]) {
+        const { page, errors } = await mount(browser, { width: 390 });
+        try {
+            const result = await page.evaluate(({ algorithms, legacy }) => {
+                HTMLElement.prototype.detach = function () { this.remove(); };
+                HTMLElement.prototype.setChildrenInPlace = function (nodes) {
+                    for (const child of [...this.childNodes]) if (!nodes.includes(child)) child.remove();
+                    for (const node of nodes) this.appendChild(node);
+                };
+                const preview = document.querySelector('main'), sizer = preview.querySelector('.markdown-preview-sizer');
+                preview.style.height = '600px'; preview.style.overflowY = 'auto';
+                const pusher = document.createElement('div'); pusher.className = 'markdown-preview-pusher';
+                pusher.style.height = '.1px'; sizer.prepend(pusher);
+                if (legacy) {
+                    const style = document.createElement('style');
+                    style.textContent = '.markdown-preview-view.books-home-page .el-pre:has(#content .book-home-ui[data-ready="true"]) ~ :not(.markdown-preview-pusher):not(.mod-ui) { display:none!important }';
+                    document.head.appendChild(style);
+                }
+                const runtime = {
+                    previewEl: preview, sizerEl: sizer, pusherEl: pusher,
+                    sections: [...sizer.children].filter(el => el !== pusher).map(el => ({ el, rendered: true, shown: true, computed: false, height: 0 })),
+                    topSpace: pusher.offsetTop, renderExtra: 1, renderExtraMinPx: 500, lastScrollTs: Date.now(), renderHighlights() {},
+                    measureSection: new Function('return (' + algorithms.measure + ')')(),
+                    updateVirtualDisplay: new Function('Qy', 'Ij', 'return (' + algorithms.virtual + ')')({ isIosApp: false }, { progressiveRender: true })
+                };
+                for (const section of runtime.sections) runtime.measureSection(section);
+                const home = runtime.sections.find(section => section.el.querySelector('.book-home-ui'));
+                const measuredHeight = home.height, actualHeight = home.el.offsetHeight;
+                preview.scrollTop = preview.scrollHeight;
+                const before = preview.scrollTop;
+                for (let round = 0; round < 5; round++) runtime.updateVirtualDisplay();
+                return { measuredHeight, actualHeight, before, after: preview.scrollTop, attached: home.el.parentNode === sizer, footerVisible: Boolean(document.querySelector('.book-home-footer')?.getClientRects().length) };
+            }, { algorithms, legacy });
+            if (legacy) {
+                assert(result.measuredHeight <= 0 && result.actualHeight > 600, 'Former display:none rule loses the section height: ' + JSON.stringify(result));
+                assert(!result.attached || result.after < result.before, 'Installed Obsidian reproduces content loss or a jump with the former styles');
+            } else {
+                assert(result.measuredHeight >= result.actualHeight - 1, 'Obsidian measures the full height of the home section');
+                assert.equal(result.after, result.before, 'Repeated virtual display updates keep the bottom scroll position');
+                assert.equal(result.attached, true, 'Obsidian retains the home section in the DOM');
+                assert.equal(result.footerVisible, true, 'Page content remains visible at the bottom');
+            }
+            await dispose(page); assert.deepEqual(errors, []);
+        } finally { await page.close(); }
+    }
+    console.log('Installed Obsidian preview algorithms reproduce the old failure and retain content/scrolling with the corrected fallback styles.');
 }
 
 async function scrollChecks(browser) {
