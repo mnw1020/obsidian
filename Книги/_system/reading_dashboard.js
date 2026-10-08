@@ -143,6 +143,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         component[stateKey] = state;
         component.render = wrapped;
         component.register(() => {
+            state.unloaded = true;
             state.dispose?.();
             if (component.render === wrapped) component.render = original;
             delete component[stateKey];
@@ -152,6 +153,8 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     const root = element(dv.container, "div", undefined, `book-reading-dashboard${home ? "" : " is-index"}`);
     if (view) { view.root = root; view.dispose = dispose; }
     else component?.register?.(dispose);
+    if (view?.unloaded) dispose();
+    if (disposed) return { dispose };
     const stylesheet = app.vault.getAbstractFileByPath("Книги/_system/reading-dashboard.css");
     if (stylesheet) element(root, "style", await app.vault.read(stylesheet));
     if (disposed) return { dispose };
@@ -188,6 +191,12 @@ async function render({ dv, app, obsidian, mode = "index" }) {
     status.setAttribute("role", "status");
     if (!home) summary = element(masthead, "div", undefined, "book-dashboard-summary");
     const content = element(root, "div", undefined, "book-dashboard-content");
+    if (!home) {
+        const footer = element(root, "footer", undefined, "book-dashboard-footer");
+        for (const [title, path] of [["Проверка библиотеки", "Книги/_system/Проверка библиотеки.md"], ["Журнал изменений", "Книги/_system/Журнал изменений.md"]]) {
+            link(footer, { file: { path } }, app, title);
+        }
+    }
     const file = app.vault.getAbstractFileByPath("Книги/_system/knowledge.js");
     if (!file) { status.textContent = "Не найден модуль библиотеки."; return; }
     const mod = { exports: {} };

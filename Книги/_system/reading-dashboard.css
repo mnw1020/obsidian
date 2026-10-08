@@ -158,6 +158,8 @@
 .book-reading-dashboard.is-index .book-dashboard-methodology { margin: 0; padding: 20px 0 0; border-top: 1px solid var(--home-line); color: var(--text-muted); font-size: .72em; line-height: 1.7; }
 .book-reading-dashboard.is-index .book-dashboard-methodology summary { color: var(--text-muted); line-height: 1.7; }
 .book-reading-dashboard.is-index .book-dashboard-methodology p { margin: 12px 0; overflow-wrap: anywhere; }
+.book-reading-dashboard.is-index .book-dashboard-footer { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 22px; font-size: .7em; }
+.book-reading-dashboard.is-index .book-dashboard-footer a { color: var(--text-muted); }
 @container reading-dashboard (max-width: 850px) {
     .book-reading-dashboard.is-index :is(.book-dashboard-overview,.book-dashboard-details-grid) { grid-template-columns: minmax(0,1fr); }
 }

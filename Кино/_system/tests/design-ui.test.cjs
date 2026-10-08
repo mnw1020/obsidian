@@ -312,32 +312,34 @@ test('franchise header hides only an exact duplicate original title and preserve
 test('actual home header, statistics, command links and deferred Bases sections fit mobile and desktop',async()=>{
     const browser=await chromium.launch({channel:process.env.AI_TEST_BROWSER||'chrome',headless:true});
     try {
-        const page=await browser.newPage();
+        const page=await browser.newPage(),homeSources={...sources,homeRenderer:fs.readFileSync(path.join(system,'kino_home.js'),'utf8'),homeCss:fs.readFileSync(path.join(system,'kino-home.css'),'utf8')};
         for(const width of [390,768,1440]) {
-            await page.setViewportSize({width,height:1000});await mount(page,{name:'_index',path:'Кино/_index.md',frontmatter:{cssclasses:['kino-page','kino-dashboard','movies-dashboard']}},'dashboard');
-            await page.evaluate(async({sources})=>{
+            await page.setViewportSize({width,height:1000});await page.setContent('<!doctype html><html><head><meta charset="utf-8"></head><body class="theme-dark"></body></html>');
+            await page.evaluate(async({sources,baseStyles})=>{
+                for(const text of [baseStyles,sources.gruvbox,sources.dynamic,sources.design]){const style=document.createElement('style');style.textContent=text;document.head.append(style);}
                 Element.prototype.createEl=function(tag,options={}){const el=document.createElement(tag);if(options.text!==undefined)el.textContent=options.text;if(options.cls)el.className=options.cls;for(const name of ['href','type','value'])if(options[name]!==undefined)el[name]=options[name];this.append(el);return el;};
                 Element.prototype.createDiv=function(options={}){return this.createEl('div',typeof options==='string'?{cls:options}:options);};Element.prototype.empty=function(){this.replaceChildren();};
-                const test=window.kinoTest,container=document.querySelector('.block-language-dataviewjs'),component=test.component;
-                const fileMap=Object.fromEntries(['kino_ui','lazy_base'].map(n=>['Кино/_system/'+n+'.js',{path:'Кино/_system/'+n+'.js',content:n==='kino_ui'?sources.renderer:sources.lazy}]));
-                const collection=Array.from({length:48},(_,i)=>({path:`Кино/Media/Фильм-${i}.md`,data:{tags:[i%5===0?'serial':'movies'],'Просмотрено':i<30?'2025-01-01':null,'Оценка':i<30?7+i%3:null}}));
-                test.app.vault.getMarkdownFiles=()=>collection;
-                test.app.vault.getAbstractFileByPath=p=>fileMap[p]??collection.find(f=>f.path===p)??{path:p};
-                test.app.vault.read=async f=>f.content;
-                test.app.metadataCache.getFileCache=f=>({frontmatter:f.data??test.source});
-                const dv={container,current:()=>test.source,component};
-                const obsidian={};
-                await new Function('dv','app','require','return (async()=>{'+sources.home+'})()')(dv,test.app,()=>obsidian);
-                for(const {heading,description,script} of sources.homeSections) {
-                    test.section.createEl('h2',{text:heading});test.section.createEl('p',{text:description,cls:'kino-section-intro'});
-                    const holder=test.section.createDiv({cls:'block-language-dataviewjs'});
-                    await new Function('dv','app','require','return (async()=>{'+script+'})()')({...dv,container:holder},test.app,()=>obsidian);
-                }
-            },{sources});
-            assert.equal(await page.locator('.kino-dashboard-header h1').textContent(),'Кинотека');assert.equal(await page.locator('.movie-stat-card').count(),4);
-            assert.equal(await page.locator('.movie-stat-value').first().textContent(),'30');assert.equal(await page.locator('.kino-actions a').count(),7);assert.equal(await page.locator('.kino-lazy-toggle').count(),3);
-            assert.equal(await page.locator('.kino-lazy-content:not(:empty)').count(),0);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-            assert.equal(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');await page.screenshot({path:path.join(previewDir,`home-${width}.png`),fullPage:true});
+                const view=document.body.createDiv({cls:'markdown-preview-view markdown-rendered kino-page kino-dashboard movies-dashboard kino-home-page'}),sizer=view.createDiv({cls:'markdown-preview-sizer markdown-preview-section'});
+                sizer.createDiv({cls:'metadata-container',text:'Native properties'});sizer.createDiv({cls:'inline-title',text:'_index'});
+                const container=sizer.createDiv({cls:'el-pre'}).createDiv({cls:'block-language-dataviewjs'}),fallback=sizer.createEl('h1',{text:'Кинотека'});fallback.id='home-static-title';
+                const cleanups=[],stats={writes:0,links:[]},component={register:callback=>cleanups.push(callback)};
+                const fileMap={'Кино/_system/kino_home.js':{path:'Кино/_system/kino_home.js',content:sources.homeRenderer},'Кино/_system/kino-home.css':{path:'Кино/_system/kino-home.css',content:sources.homeCss}};
+                const collection=Array.from({length:48},(_,i)=>({path:`Кино/Media/Фильм-${i}.md`,basename:`Фильм ${i}`,data:{tags:[i%5===0?'serial':'movies'],'Просмотрено':i<30?'2025-01-01':null,'Оценка':i<30?7+i%3:null}}));
+                const app={vault:{getMarkdownFiles:()=>collection,getAbstractFileByPath:p=>fileMap[p]??collection.find(f=>f.path===p),read:async f=>f.content,modify:()=>stats.writes++},metadataCache:{getFileCache:f=>({frontmatter:f.data??{}})},workspace:{openLinkText:(...args)=>stats.links.push(args)}};
+                const dv={container,current:()=>({file:{name:'_index',path:'Кино/_index.md'}}),component,paragraph:text=>container.createEl('p',{text})};
+                await new Function('dv','app','require','return (async()=>{'+sources.home+'})()')(dv,app,()=>({}));
+                window.kinoHomeTest={stats,dispose:()=>cleanups.splice(0).forEach(callback=>callback())};
+            },{sources:homeSources,baseStyles});
+            assert.equal(await page.locator('.kino-home-title').textContent(),'Кинотека');assert.deepEqual(await page.locator('.kino-home-stat strong').allTextContents(),['48','30','38','10','8,00']);
+            assert.equal(await page.locator('.kino-home-actions a[data-choice]').count(),7);assert.equal(await page.locator('.kino-home-native-view').count(),3);
+            assert.equal(await page.locator('.kino-home-recent .kino-home-row').count(),20);assert.equal(await page.locator('.kino-home-serials .kino-home-row').count(),5);
+            assert.equal(await page.locator('.kino-home-native-content:not(:empty)').count(),0);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+            assert.equal(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
+            await page.locator('.kino-home-views>summary').click();await page.locator('.kino-home-native-view summary').first().click();await page.locator('.kino-home-native-content a').waitFor();
+            assert.equal(await page.locator('.kino-home-native-content a').getAttribute('data-href'),'Кино/_Кино.base#Последние');
+            await page.locator('.kino-home-views>summary').click();await page.locator('.kino-home-native-content a').waitFor({state:'detached'});
+            await page.screenshot({path:path.join(previewDir,`home-composite-${width}.png`),fullPage:true});
+            await page.evaluate(()=>window.kinoHomeTest.dispose());assert.equal(await page.locator('.kino-home-ui').count(),0);assert.equal(await page.locator('#home-static-title').isVisible(),true);assert.equal(await page.evaluate(()=>window.kinoHomeTest.stats.writes),0);
         }
     } finally {await browser.close();}
 });

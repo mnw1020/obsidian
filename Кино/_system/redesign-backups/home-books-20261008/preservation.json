@@ -1,0 +1,50 @@
+{
+  "created": "2026-10-08T18:45:35.123Z",
+  "buttonBlocksByteIdentical": 7,
+  "originalNavigationTargetsPreserved": true,
+  "originalHomeBaseTargetsPreserved": true,
+  "baseByteUnchanged": true,
+  "sharedDesignByteUnchanged": true,
+  "reference": {
+    "../Книги/_index.md": {
+      "before": "0cf0cb82bd2443735f63465232fa1b0173f0eecb7c9e249054066b81bec1af13",
+      "current": "f40f072822497766becb61b8e18abf51065a4258f43d76d11828ab8d3d1c92b5",
+      "unchanged": false,
+      "lastModifiedUtc": "2026-10-08T18:39:07.763Z",
+      "writtenByThisTask": false
+    },
+    "../Книги/_system/library_home.js": {
+      "before": "e2c71682baf880f5ebd9517b0c197007ce395a9b08a0c7bf9cbafd4e4db2622e",
+      "current": "e2c71682baf880f5ebd9517b0c197007ce395a9b08a0c7bf9cbafd4e4db2622e",
+      "unchanged": true,
+      "lastModifiedUtc": "2026-10-08T18:32:50.679Z",
+      "writtenByThisTask": false
+    },
+    "../Книги/_system/library-home.css": {
+      "before": "80783e47018baa3c1669c4a2475cad328bfb0c6df277febe5b551551b1065396",
+      "current": "e2dc6f20d67fb381bd8d749006270a2fe4c537c6ce5230a2134abcde3a640652",
+      "unchanged": false,
+      "lastModifiedUtc": "2026-10-08T18:39:07.762Z",
+      "writtenByThisTask": false
+    }
+  },
+  "protectedLogicUnchanged": [
+    "_system/ai_core.js",
+    "_system/ai_crypto.js",
+    "_system/openai_recommendations.js",
+    "Просмотры/_Просмотры.base",
+    "Сезоны/_Сезоны.base"
+  ],
+  "scriptsChecked": 28,
+  "dataviewBlocksChecked": 6587,
+  "homeNewModules": [
+    "_system/kino_home.js",
+    "_system/kino-home.css"
+  ],
+  "legacyVerifier": {
+    "status": "different saved recommendations from original 2026-10-05 snapshot",
+    "recommendationsLastModifiedUtc": "2026-10-07T18:26:29.955Z",
+    "homeSnapshotCreatedUtc": "2026-10-08T18:33:34.361Z",
+    "recommendationsWritePredatesThisTask": true
+  }
+}

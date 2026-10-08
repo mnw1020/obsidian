@@ -115,5 +115,10 @@
     .kino-home-ui.kino-home-ui .kino-home-metric strong { font-size: 24px; }
     .kino-home-ui.kino-home-ui .kino-home-overview p { font-size: .75em; }
 }
+@container kino-home (max-width: 350px) {
+    .kino-home-ui.kino-home-ui .kino-home-overview-links { grid-template-columns: minmax(0,1fr); }
+    .kino-home-ui.kino-home-ui .kino-home-metrics { grid-template-columns: minmax(0,1fr); }
+    .kino-home-ui.kino-home-ui .kino-home-metric { display: grid; grid-template-columns: 45px minmax(0,1fr); align-items: baseline; gap: 14px; }
+}
 @media(pointer:coarse) { .kino-home-ui.kino-home-ui :is(button,summary,.kino-home-action,.kino-home-overview>a) { min-height: 44px; } }
 @media(pointer:coarse) { .kino-home-ui.kino-home-ui .kino-home-action.is-icon { flex-basis: 44px; width: 44px; height: 44px; } }

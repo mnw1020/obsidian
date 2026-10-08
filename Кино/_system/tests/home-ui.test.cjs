@@ -62,7 +62,7 @@ async function mount(options={}){
         class Events{constructor(){this.refs=new Set();}on(name,callback){const ref={emitter:this,name,callback};this.refs.add(ref);return ref;}offref(ref){this.refs.delete(ref);}emit(name,...args){for(const ref of [...this.refs])if(ref.name===name)ref.callback(...args);}}
         const map=new Map(files.map(file=>[file.path,{...file}]));for(const [path,text]of Object.entries(sources))map.set(path,{path,text});
         map.set('Кино/_index.md',{path:'Кино/_index.md',basename:'_index',extension:'md',text:note,fm:{cssclasses:['kino-page','kino-home-page']}});
-        if(options.missingCss)map.delete('Кино/_system/kino-home.css');if(options.missingModule)map.delete('Кино/_system/kino_home.js');
+        if(options.missingCss)map.delete('Кино/_system/kino-home.css');if(options.emptyCss)map.get('Кино/_system/kino-home.css').text=' ';if(options.missingModule)map.delete('Кино/_system/kino_home.js');
         const state={writes:0,network:0,choices:[],links:[],nativeCalls:[],waits:[],components:[],map,commandFailure:options.commandFailure,commandPending:options.commandPending};
         class Component{
             constructor(){this.cleanups=[];this.refs=[];this.children=new Set();this.unloaded=false;state.components.push(this);}
@@ -96,7 +96,7 @@ async function mount(options={}){
         let renderer;
         async function execute(){
             const file=map.get('Кино/_system/kino_home.js');if(!file)return;
-            try{if(!renderer){const mod={exports:{}};new Function('module',file.text)(mod);renderer=mod.exports;}window.homeTest.handle=await renderer({dv,app,obsidian});}
+            try{if(!renderer){const mod={exports:{}};new Function('module',file.text)(mod);renderer=mod.exports;}window.homeTest.renderer=renderer;window.homeTest.obsidian=obsidian;window.homeTest.handle=await renderer({dv,app,obsidian});}
             catch(error){state.initialError=error.message;dv.paragraph('Не удалось загрузить главную. Каталог и команды доступны ниже.');}
         }
         const originalRender=async()=>{container.replaceChildren();await execute();};component.render=originalRender;window.homeTest.originalRender=originalRender;
@@ -137,6 +137,8 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.equal(await kino.page.locator('.kino-home-stat strong').count(),5);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-row').count(),20);
             assert.equal(await kino.page.locator('.kino-home-serials .kino-home-row').count(),5);
+            assert.deepEqual(await kino.page.locator('.kino-home-recent .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.slice(0,20).map(file=>file.path));
+            assert.deepEqual(await kino.page.locator('.kino-home-serials .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.filter(file=>file.fm.tags.includes('serial')).slice(0,5).map(file=>file.path));
             assert.equal(await kino.page.locator('.kino-home-overview').count(),4);
             assert.equal(await kino.page.locator('.kino-home-native-content:not(:empty)').count(),0);
             assert.equal(await kino.page.locator('.inline-title').isVisible(),false);
@@ -152,13 +154,16 @@ test('actual Books and cinema home renderers share masthead, typography and boun
 test('home retains all command choices, original navigation and source-aware internal links',async()=>{
     const {page,errors}=await mount();
     try{
-        assert.deepEqual(await page.locator('.kino-home-nav a').evaluateAll(links=>links.map(link=>link.dataset.href)),expectedNav);
+        const navigation=await page.locator('.kino-home-ui a[data-href]').evaluateAll(links=>links.map(link=>link.dataset.href));
+        for(const target of expectedNav)assert.ok(navigation.includes(target),`Original navigation target remains available: ${target}`);
         await page.locator('.kino-home-management summary').click();
-        const links=page.locator('.kino-home-actions a,.kino-home-management a');
+        const links=page.locator('.kino-home-actions a[data-choice],.kino-home-management a[data-choice]');
         assert.deepEqual(await links.evaluateAll(links=>links.map(link=>new URL(link.href).searchParams.get('choice'))),expectedChoices);
         for(let i=0;i<7;i++)await links.nth(i).click();assert.deepEqual(await page.evaluate(()=>window.homeTest.state.choices),expectedChoices);
+        assert.equal(await page.locator('.kino-home-ui a[data-choice]').count(),10);
+        assert.deepEqual(await page.locator('.kino-home-overview a[data-choice]').evaluateAll(links=>links.map(link=>link.dataset.choice)),['Кино - Открыть актера','Кино - Открыть режиссера','Кино - Открыть жанр']);
         await page.locator('.kino-home-nav a').first().click({modifiers:['Control']});
-        assert.deepEqual(await page.evaluate(()=>window.homeTest.state.links[0]),[expectedNav[0],'Кино/_index.md',true]);
+        assert.deepEqual(await page.evaluate(()=>window.homeTest.state.links[0]),['Кино/_system/Рекомендации','Кино/_index.md',true]);
         await page.locator('.kino-home-row-title').first().click({modifiers:['Meta']});
         assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][1]),'Кино/_index.md');assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][2]),true);
         await dispose(page);assert.deepEqual(errors,[]);
@@ -200,7 +205,7 @@ test('deferred native views retain their targets and release native children on 
 });
 
 test('missing modules and CSS preserve native fallbacks; delayed reads cannot resurrect an unloaded home',async()=>{
-    for(const options of [{missingModule:true},{missingCss:true},{delayCss:true}]){
+    for(const options of [{missingModule:true},{missingCss:true},{emptyCss:true},{delayCss:true}]){
         const {page,errors}=await mount(options);
         try{
             if(options.delayCss){await page.waitForFunction(()=>typeof window.homeTest.state.resolveCss==='function');await page.evaluate(()=>window.homeTest.component.unload());await page.evaluate(async()=>{window.homeTest.state.resolveCss();await window.homeTest.renderPromise;});}
@@ -215,7 +220,7 @@ test('QuickAdd URI fallback, busy actions and command failures leave the home us
     try{assert.equal(new URL(await fallback.page.locator('.kino-home-action').first().getAttribute('href')).searchParams.get('choice'),'movie_imdb');await dispose(fallback.page);}finally{await fallback.page.close();}
     const busy=await mount({commandPending:true});
     try{
-        const first=busy.page.locator('.kino-home-actions a').first();await first.click();await busy.page.waitForFunction(()=>typeof window.homeTest.state.resolveCommand==='function');await first.click();
+        const first=busy.page.locator('.kino-home-actions a[data-choice]').first();await first.click();await busy.page.waitForFunction(()=>typeof window.homeTest.state.resolveCommand==='function');await first.dispatchEvent('click');
         assert.deepEqual(await busy.page.evaluate(()=>window.homeTest.state.choices),['movie_imdb']);await busy.page.evaluate(()=>window.homeTest.state.resolveCommand());
         await busy.page.waitForFunction(()=>!document.querySelector('.kino-home-action[aria-disabled="true"]'));await dispose(busy.page);
     }finally{await busy.page.close();}
@@ -239,12 +244,34 @@ test('native failure retries and late completion do not leak or restore hidden h
     }finally{await late.page.close();}
 });
 
-test('Dataview refresh replaces prior event subscriptions and keeps its scroll-height guard',async()=>{
+test('Dataview refresh guards a ready home and repeated mounting replaces prior event subscriptions',async()=>{
     const {page,errors}=await mount({width:390});
     try{
         const refs=await page.evaluate(()=>window.homeTest.leaks().refs);assert.ok(refs>0);
         const state=await page.evaluate(async()=>{const test=window.homeTest;const wrapped=test.component.render!==test.originalRender;window.scrollTo(0,500);const before=scrollY;await test.component.render();return {wrapped,before,after:scrollY,roots:document.querySelectorAll('.kino-home-ui').length,leaks:test.leaks(),minHeight:test.container.style.minHeight};});
         assert.equal(state.wrapped,true);assert.equal(state.roots,1);assert.equal(state.leaks.refs,refs);assert.equal(state.leaks.children,0);assert.equal(state.minHeight,'');assert.ok(Math.abs(state.before-state.after)<=2);
+        await page.evaluate(async()=>{const test=window.homeTest;test.handle=await test.renderer({dv:test.dv,app:test.app,obsidian:test.obsidian});});
+        assert.equal(await page.locator('.kino-home-ui').count(),1);assert.equal(await page.evaluate(()=>window.homeTest.leaks().refs),refs);
         await dispose(page);assert.equal(await page.evaluate(()=>window.homeTest.component.render===window.homeTest.originalRender),true);assert.deepEqual(errors,[]);
     }finally{await page.close();}
+});
+
+test('missing data, zero and comma ratings preserve old totals while period metrics count unique media',async()=>{
+    const row=(name,fm)=>({path:`Кино/Media/${name}.md`,basename:name,name:name+'.md',extension:'md',fm});
+    const files=[row('A',{tags:['movies','serial'],'Просмотрено':isoOffset(0)+'T23:00:00Z','Оценка':'7,5','Количество просмотров':'2','Релиз':'2015'}),
+        row('B',{tags:'#movies','Просмотрено':'','Оценка':0}),row('C',{tags:['serial'],'Просмотрено':'2026-02-30','Оценка':'Infinity','Количество просмотров':'3'}),
+        row('D',{tags:['movies'],'Просмотрено':null,'Оценка':''}),row('E',{tags:['movies'],'Просмотрено':isoOffset(0),'Оценка':9}),
+        row('F',{tags:['movies'],'Просмотрено':isoOffset(400),'Оценка':'bad'})];
+    const full=await mount({files,width:390});
+    try{
+        assert.deepEqual(await full.page.locator('.kino-home-stats strong').allTextContents(),['6','5','5','2','5,50']);
+        assert.deepEqual(await full.page.locator('.kino-home-metric strong').allTextContents(),['2','2','2']);
+        assert.deepEqual(await full.page.locator('.kino-home-recent .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path.split('/').at(-1))),['E.md','A.md','F.md','B.md','C.md','D.md']);
+        assert.equal(await full.page.locator('.kino-home-recent .kino-home-row[data-path="Кино/Media/A.md"] .kino-home-row-meta').textContent(),'Сериал · 2015');
+        assert.equal(await full.page.locator('.kino-home-recent .kino-home-row[data-path="Кино/Media/B.md"] .kino-home-row-score').textContent(),'0');
+        assert.equal(await full.page.locator('.kino-home-recent .kino-home-row[data-path="Кино/Media/C.md"] .kino-home-row-date').textContent(),'Без даты');
+        await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);
+    }finally{await full.page.close();}
+    const empty=await mount({files:[],width:390});
+    try{assert.deepEqual(await empty.page.locator('.kino-home-stats strong').allTextContents(),['0','0','0','0','—']);assert.equal(await empty.page.locator('.kino-home-empty').count(),2);await bounded(empty.page);await dispose(empty.page);assert.deepEqual(empty.errors,[]);}finally{await empty.page.close();}
 });

@@ -1,0 +1,42 @@
+Command: node --test _system/tests/home-ui.test.cjs
+Browser: installed Chrome, Playwright headless
+Final run: 2026-10-08
+
+✔ actual Books and cinema home renderers share masthead, typography and bounded responsive panels (3292.3165ms)
+✔ home retains all command choices, original navigation and source-aware internal links (469.7961ms)
+✔ stats update from local data events, exclude other folders and render untrusted text safely (633.0824ms)
+✔ deferred native views retain their targets and release native children on collapse and unload (523.6792ms)
+✔ missing modules and CSS preserve native fallbacks; delayed reads cannot resurrect an unloaded home (795.6772ms)
+✔ QuickAdd URI fallback, busy actions and command failures leave the home usable (1035.6424ms)
+✔ native failure retries and late completion do not leak or restore hidden home widgets (652.1174ms)
+✔ Dataview refresh guards a ready home and repeated mounting replaces prior event subscriptions (241.2277ms)
+✔ missing data, zero and comma ratings preserve old totals while period metrics count unique media (469.7672ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8559.04
+
+Command: node --test _system/tests/design-ui.test.cjs
+Browser: installed Chrome, Playwright headless
+Final run: 2026-10-08
+
+✔ responsive cinema presentation preserves visible notes, footer poster and scoped typography (1208.0648ms)
+✔ properties and roles render lazily, navigate anchors safely, and release components on collapse and disposal (907.6178ms)
+✔ missing data, absent files, unavailable Markdown renderer and roles failure remain usable (912.5276ms)
+✔ viewing and season comments retain Markdown; utility kinds keep existing titles and source properties editable (997.467ms)
+✔ cold native Bases style by cinema paths, including span links, without affecting unrelated pages or collections (1096.3395ms)
+✔ shared renderer leases survive one embedded unload and preserve native classes (671.2648ms)
+✔ franchise header hides only an exact duplicate original title and preserves headings and anchors (811.0374ms)
+✔ actual home header, statistics, command links and deferred Bases sections fit mobile and desktop (1609.3057ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8541.7824
