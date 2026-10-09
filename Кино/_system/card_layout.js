@@ -105,7 +105,9 @@ function ensureLayout(raw, { kind = "media", parseYaml } = {}) {
     }
     const newline = newlineOf(raw);
     const fields = readFields(parts.yaml, parseYaml);
-    const yaml = addClasses(parts.yaml, kind, parseYaml, newline);
+    const styledYaml = addClasses(parts.yaml, kind, parseYaml, newline);
+    const yaml = fieldBlock(styledYaml, "obsidianUIMode") ? styledYaml
+        : "obsidianUIMode: preview" + newline + styledYaml;
     let body = parts.body.replace(regionPattern(UI_START, UI_END, true), "");
     body = dedupeRecommendations(body);
     const poster = kind === "media" ? String(fields.poster ?? "").trim() : "";

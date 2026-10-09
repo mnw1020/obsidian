@@ -1797,7 +1797,7 @@ async function ensureFranchise(app, ob, choice, id) {
         if (fm["imdb Id"] || fm["Фильм"] || fm["Сериал"] || tags.some(x=>["movies","serial","season","viewing"].includes(String(x).replace(/^#/,"")))) throw new Error("Выбранная страница не является франшизой.");
     } else {
         await ensureFolder(app,choice.path.split("/").slice(0,-1).join("/"));
-        file = await app.vault.create(choice.path,"---\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table);
+        file = await app.vault.create(choice.path,"---\nobsidianUIMode: preview\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table);
     }
     await app.vault.process(file,raw=>{
         if (!raw.includes(marker)) raw=raw.trimEnd()+"\n\n"+table;
