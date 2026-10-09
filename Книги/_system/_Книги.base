@@ -40,7 +40,7 @@ properties:
   note.series_index:
     displayName: №
 views:
-  - type: list
+  - type: table
     name: Список
     groupBy:
       property: formula.author_links
@@ -87,6 +87,8 @@ views:
       - formula.series_link
       - series_index
     sort:
+      - property: formula.work_type
+        direction: ASC
       - property: formula.author_links
         direction: ASC
       - property: formula.book_link
