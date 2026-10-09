@@ -388,6 +388,21 @@ test('writeIfChanged refuses to overwrite a concurrent generated-page edit', asy
     assert.equal(page.text, 'Изменение с телефона'); assert.deepEqual(h.mutations, []);
 });
 
+test('generated Markdown pages default to preview and retain it on regeneration', async () => {
+    const h = harness();
+    const page = await h.core.writeIfChanged('Книги/_system/Новая.md', '# Сводка\n\nТекст.\n');
+    assert.equal(fromText(page.text).obsidianUIMode, 'preview');
+    assert.ok(page.text.endsWith('# Сводка\n\nТекст.\n'));
+    await h.core.writeIfChanged(page.path, '# Обновлённая сводка\n');
+    assert.equal(fromText(page.text).obsidianUIMode, 'preview');
+    const other = await h.core.writeIfChanged('Другая папка/Файл.md', '# Другой раздел\n');
+    assert.equal(other.text, '# Другой раздел\n');
+    const base = await h.core.writeIfChanged('Книги/_system/Вид.base', 'views: []\n');
+    assert.equal(base.text, 'views: []\n');
+    await h.core.appendJournal(['Событие']);
+    assert.equal(fromText(h.files.get('Книги/_system/Журнал изменений.md').text).obsidianUIMode, 'preview');
+});
+
 test('home statistics reflect the just-written book despite a stale metadata cache', async () => {
     const h = harness(), book = h.book(), home = h.file('Книги/_index.md', {}, '<!-- BOOK-HOME-STATS:START -->old<!-- BOOK-HOME-STATS:END -->');
     await h.core.appendReading(book, { date: '2026', rating: null, comment: '' });

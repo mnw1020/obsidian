@@ -1,0 +1,9 @@
+{
+  "id": "book-preview-defaults",
+  "name": "Книги: режим чтения",
+  "version": "1.0.0",
+  "minAppVersion": "1.5.0",
+  "description": "Добавляет режим чтения в YAML новых заметок в папке Книги.",
+  "author": "Mindwork",
+  "isDesktopOnly": false
+}

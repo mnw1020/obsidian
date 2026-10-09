@@ -266,6 +266,9 @@ module.exports = ({ app, obsidian }) => {
     }
     async function writeIfChanged(path, text) {
         path = obsidian.normalizePath ? obsidian.normalizePath(path) : path;
+        if (path.startsWith("Книги/") && /\.md$/i.test(path) && readFrontmatter(text).obsidianUIMode !== "preview") {
+            text = patchProperties(text, { obsidianUIMode: "preview" });
+        }
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
             try { return await app.vault.create(path, text); }
@@ -300,7 +303,7 @@ module.exports = ({ app, obsidian }) => {
         const block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="${normalization}" structure="${structural}" -->\n## ${stamp}\n\n` + lines.map(line => `- ${line}\n`).join("") + "\n";
         let file = app.vault.getAbstractFileByPath(JOURNAL_PATH);
         if (!file) {
-            try { await app.vault.create(JOURNAL_PATH, `# Журнал изменений\n\n[[Книги/_index|← Книги]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`); return; }
+            try { await app.vault.create(JOURNAL_PATH, `---\nobsidianUIMode: preview\n---\n\n# Журнал изменений\n\n[[Книги/_index|← Книги]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`); return; }
             catch (error) { file = app.vault.getAbstractFileByPath(JOURNAL_PATH); if (!file) throw error; }
         }
         await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
