@@ -157,6 +157,38 @@ test('actual Books and cinema home renderers share masthead, typography and boun
     }
 });
 
+test('all home blocks collapse by keyboard and retain their state after reopening the home',async()=>{
+    const {page,errors}=await mount({width:390});
+    try{
+        await page.evaluate(()=>{
+            const stored=new Map();
+            Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>stored.get(key)||null,setItem:(key,value)=>stored.set(key,value)}});
+        });
+        const keys=['masthead','recent','reading','serials','overview','footer'];
+        for(const key of keys){
+            const control=page.locator(`[data-fold="${key}"] .kino-home-fold`).first();
+            // Nested serials must be folded before their parent is hidden.
+            if(key==='reading')continue;
+            await control.press('Enter');assert.equal(await control.getAttribute('aria-expanded'),'false');
+            const hidden=await control.evaluate(button=>button.getAttribute('aria-controls').split(' ').every(id=>document.getElementById(id).hidden));
+            assert.equal(hidden,true);
+        }
+        await page.locator('[data-fold="reading"] .kino-home-fold').first().press('Space');
+        await page.locator('.kino-home-management>summary').click();
+        await page.locator('.kino-home-views>summary').click();
+        const native=page.locator('.kino-home-native-view').first();await native.locator('summary').click();await native.locator('.bases-view').waitFor();
+        await page.evaluate(async()=>{const test=window.homeTest;delete test.app.__kinoHomeFolds;test.handle=await test.renderer({dv:test.dv,app:test.app,obsidian:test.obsidian});});
+        for(const key of keys)assert.equal(await page.locator(`[data-fold="${key}"] .kino-home-fold`).first().getAttribute('aria-expanded'),'false');
+        assert.equal(await page.locator('.kino-home-management').evaluate(node=>node.open),true);
+        assert.equal(await page.locator('.kino-home-views').evaluate(node=>node.open),true);
+        await page.locator('.kino-home-native-view .bases-view').waitFor();
+        await page.locator('[data-fold="recent"] .kino-home-fold').first().press('Enter');
+        assert.equal(await page.locator('.kino-home-recent .kino-home-row').first().isVisible(),true);
+        assert.equal(await page.locator('.kino-home-recent .kino-home-section-link').getAttribute('data-href'),'Кино/_Кино.base#Все');
+        await bounded(page);await dispose(page);assert.deepEqual(errors,[]);
+    }finally{await page.close();}
+});
+
 test('home retains all command choices, original navigation and source-aware internal links',async()=>{
     const {page,errors}=await mount();
     try{

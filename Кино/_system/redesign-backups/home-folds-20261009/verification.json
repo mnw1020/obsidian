@@ -1,0 +1,23 @@
+{
+  "completed": "2026-10-09T17:16:37.889Z",
+  "collapsibleBlocks": [
+    "masthead",
+    "recent",
+    "reading",
+    "serials",
+    "overview",
+    "footer",
+    "management",
+    "views",
+    "native-views"
+  ],
+  "stateStorage": "localStorage with per-app memory fallback",
+  "keyboardSupport": [
+    "Enter",
+    "Space"
+  ],
+  "noteWritesOnToggle": 0,
+  "homeTestsPassed": 10,
+  "designHomeTestsPassed": 1,
+  "failed": 0
+}

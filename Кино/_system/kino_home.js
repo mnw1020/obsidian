@@ -116,6 +116,52 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         root = el(dv.container, 'section', 'kino-home-ui'); root.dataset.ready = 'false';
         if (refresh) refresh.root = root;
         el(root, 'style', '', css);
+        const foldKey = 'kino.home.folds.v1:' + (app.vault.getName?.() || '') + ':' + source;
+        const memory = app.__kinoHomeFolds || (app.__kinoHomeFolds = Object.create(null));
+        let folds = memory[foldKey] || {};
+        try {
+            const saved = JSON.parse(doc.defaultView.localStorage.getItem(foldKey));
+            if (saved && typeof saved === 'object' && !Array.isArray(saved)) folds = saved;
+        } catch (_) {}
+        memory[foldKey] = folds;
+        function saveFold(key, expanded) {
+            if (disposed) return;
+            folds[key] = expanded;
+            try { doc.defaultView.localStorage.setItem(foldKey, JSON.stringify(folds)); } catch (_) {}
+        }
+        const instance = 'kino-fold-' + Math.random().toString(36).slice(2);
+        function foldBlock(box, heading, targets, key, label) {
+            box.dataset.fold = key;
+            const button = el(heading, 'button', 'kino-home-fold'); button.type = 'button';
+            heading.prepend(button);
+            const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
+            const arrow = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+            arrow.setAttribute('d', 'M6 9l6 6 6-6'); arrow.setAttribute('fill', 'none');
+            arrow.setAttribute('stroke', 'currentColor'); arrow.setAttribute('stroke-width', '2');
+            svg.appendChild(arrow); button.appendChild(svg);
+            if (key === 'footer') el(button, 'span', '', 'Служебные ссылки');
+            const nodes = targets.filter(Boolean);
+            nodes.forEach((node, index) => { if (!node.id) node.id = `${instance}-${key}-${index}`; });
+            button.setAttribute('aria-controls', nodes.map(node => node.id).join(' '));
+            function drawFold(expanded) {
+                box.dataset.collapsed = String(!expanded);
+                button.setAttribute('aria-expanded', String(expanded));
+                button.setAttribute('aria-label', `${expanded ? 'Свернуть' : 'Раскрыть'} блок «${label}»`);
+                button.title = button.getAttribute('aria-label');
+                for (const node of nodes) node.hidden = !expanded;
+            }
+            drawFold(typeof folds[key] === 'boolean' ? folds[key] : true);
+            listen(button, 'click', () => {
+                const expanded = button.getAttribute('aria-expanded') !== 'true';
+                drawFold(expanded); saveFold(key, expanded);
+            });
+        }
+        function rememberDetails(details, key) {
+            details.dataset.fold = key;
+            if (typeof folds[key] === 'boolean') details.open = folds[key];
+            listen(details, 'toggle', event => { if (event.target === details) saveFold(key, details.open); });
+        }
         const status = el(root, 'p', 'kino-home-action-error'); status.hidden = true; status.setAttribute('role', 'status');
         function command(parent, text, choice, cls = '') {
             const link = el(parent, 'a', cls, text);
@@ -233,11 +279,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         const catalogTile = el(overviewLinks, 'div', 'kino-home-overview'); internal(catalogTile, 'Каталог', 'Кино/_Кино.base#Карточки'); el(catalogTile, 'p', '', 'Вся коллекция и оценки');
         const views = el(root, 'details', 'kino-home-views'); el(views, 'summary', '', 'Другие представления каталога');
+        rememberDetails(management, 'management'); rememberDetails(views, 'views');
         const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
         for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_Кино.base#' + name);
         const nativeViews = [];
         function nativeView(label, target) {
             const details = el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
+            rememberDetails(details, 'native:' + target);
             el(details, 'summary', '', label); const content = el(details, 'div', 'kino-home-native-content');
             let child = null, generation = 0;
             const linkCleanups = [];
@@ -276,6 +324,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         listen(views, 'toggle', () => { for (const view of nativeViews) if (views.open) void view.open(); else view.clear(); });
         const footer = el(root, 'footer', 'kino-home-footer');
         internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
+        foldBlock(masthead, heading.querySelector('h1'), [nav, actions, stats], 'masthead', 'Кинотека');
+        for (const [block, key, label] of [[recent, 'recent', 'Последние просмотры'], [reading, 'reading', 'Просмотры в цифрах']]) {
+            foldBlock(block.box, block.head.querySelector('h2'), [block.body, block.head.querySelector('.kino-home-caption')], key, label);
+        }
+        foldBlock(serials, serialHead.querySelector('h3'), [serialList], 'serials', 'Последние сериалы');
+        foldBlock(overviews, overviews.querySelector('h2'), [overviewLinks], 'overview', 'Обзор кинотеки');
+        foldBlock(footer, footer, [...footer.querySelectorAll('a')], 'footer', 'Служебные ссылки');
         if (!disposed) root.dataset.ready = 'true';
         return { dispose };
     } catch (problem) { dispose(); throw problem; }
