@@ -15,7 +15,7 @@
 }
 .kino-home-ui.kino-home-ui {
     --home-line: color-mix(in srgb,var(--background-modifier-border,#c9c3b9) 70%,transparent);
-    --home-accent: #c79b51;
+    --home-accent: #b89760;
     --home-tint: color-mix(in srgb,var(--home-accent) 8%,var(--background-primary));
     --home-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
     --home-numbers: "JetBrains Mono","Cascadia Mono","Cascadia Code",Consolas,monospace;
