@@ -15,12 +15,12 @@
 }
 .kino-home-ui.kino-home-ui {
     --home-line: color-mix(in srgb,var(--background-modifier-border,#c9c3b9) 70%,transparent);
-    --home-accent: var(--text-accent,#a46830);
+    --home-accent: #c79b51;
     --home-tint: color-mix(in srgb,var(--home-accent) 8%,var(--background-primary));
     --home-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
     --home-numbers: "JetBrains Mono","Cascadia Mono","Cascadia Code",Consolas,monospace;
-    --home-number-color: color-mix(in srgb,var(--text-normal) 45%,var(--home-accent));
-    --home-heading-color: color-mix(in srgb,var(--text-normal) 55%,var(--home-accent));
+    --home-number-color: var(--home-accent);
+    --home-heading-color: var(--home-accent);
     width: 100%; max-width: 100%; min-width: 0; container: kino-home / inline-size;
 }
 .kino-home-ui.kino-home-ui * { box-sizing: border-box; }
@@ -138,7 +138,7 @@
 /* Statistics panels use the same heading controls as the home sections. */
 .kino-home-ui.kino-home-ui .kino-home-charts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; border-top: 1px solid var(--home-line); padding-top: 20px; }
 .kino-home-ui.kino-home-ui .kino-home-chart { min-width: 0; }
-.kino-home-ui.kino-home-ui .kino-home-chart h3 { margin: 0 0 16px; font: 500 19px/1.4 var(--home-serif) !important; color: var(--text-normal) !important; }
+.kino-home-ui.kino-home-ui .kino-home-chart h3 { margin: 0 0 16px; font: 500 19px/1.4 var(--home-serif) !important; color: var(--home-heading-color) !important; }
 .kino-home-ui.kino-home-ui .kino-home-chart-list { display: grid; gap: 9px; }
 .kino-home-ui.kino-home-ui .kino-home-chart-row { display: grid; grid-template-columns: 42px minmax(0,1fr) 40px; align-items: center; gap: 12px; min-width: 0; font-size: .75em; }
 .kino-home-ui.kino-home-ui .kino-home-chart-label { color: var(--text-muted); overflow-wrap: anywhere; }
@@ -148,7 +148,7 @@
 .kino-home-ui.kino-home-ui .kino-home-chart-body>.kino-home-caption { margin-top: 14px; }
 @container kino-home (max-width: 600px) { .kino-home-ui.kino-home-ui .kino-home-charts { grid-template-columns: minmax(0,1fr); } }
 
-.kino-home-ui.kino-home-ui { --home-movies: #f5a623; --home-serials: #b69ae4; }
+.kino-home-ui.kino-home-ui { --home-movies: #cb9c4d; --home-serials: #baa9d5; }
 .kino-home-ui.kino-home-ui .kino-home-chart-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 16px; color: var(--text-muted); font-size: .7em; }
 .kino-home-ui.kino-home-ui .kino-home-chart-key { display: inline-flex; align-items: center; gap: 7px; }
 .kino-home-ui.kino-home-ui .kino-home-chart-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; }

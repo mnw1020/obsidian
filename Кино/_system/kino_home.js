@@ -229,12 +229,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const box = el(charts, 'section', 'kino-home-chart');
             const heading = el(box, 'h3', '', title);
             const body = el(box, 'div', 'kino-home-chart-body');
-            const legend = el(body, 'div', 'kino-home-chart-legend');
-            for (const [kind, label] of [['movies', 'Фильмы'], ['serials', 'Сериалы']]) {
-                const entry = el(legend, 'span', 'kino-home-chart-key');
-                el(entry, 'span', 'kino-home-chart-dot is-' + kind).setAttribute('aria-hidden', 'true');
-                el(entry, 'span', '', label);
-            }
             const list = el(body, 'div', 'kino-home-chart-list'); list.setAttribute('role', 'list');
             foldBlock(box, heading, [body], key, title);
             return { list, body };

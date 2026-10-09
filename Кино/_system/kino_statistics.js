@@ -151,8 +151,6 @@ async function render({ dv, app }) {
         for(const [key,label]of [['works','Произведений'],['movies','Фильмов'],['serials','Сериалов'],['events','Просмотров и сезонов'],['repeats','Повторных просмотров'],['average','Средняя оценка']]) {
             const box=el(metrics,'div','kino-home-stat');const n=el(box,'strong');n.dataset.metric=key;el(box,'span','',label);metricNodes.push([key,n]);
         }
-        const legend=el(root,'div','kino-home-chart-legend');
-        for(const [kind,label]of [['movies','Фильмы'],['serials','Сериалы']]){const item=el(legend,'span','kino-home-chart-key');el(item,'span','kino-home-chart-dot is-'+kind);el(item,'span','',label);}
         function section(title,id,open=true) {
             const box=el(root,'details','kino-report-section');box.dataset.section=id;box.open=state.folds[id]??open;
             const summary=el(box,'summary');el(summary,'span','',title);el(summary,'span','kino-home-fold-chevron').setAttribute('aria-hidden','true');

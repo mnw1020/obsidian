@@ -57,6 +57,7 @@ test('report supports filters, live metadata, table search, keyboard folds, sour
             for(const text of snippets){const s=document.createElement('style');s.textContent=text;document.head.append(s);}
         },{source:fs.readFileSync(path.join(system,'kino_statistics.js'),'utf8'),files:fixtures,css,home:fs.readFileSync(path.join(system,'kino-home.css'),'utf8'),report:fs.readFileSync(path.join(system,'kino-statistics.css'),'utf8'),snippets});
         assert.equal(await page.locator('[data-metric=works]').textContent(),'4');
+        assert.equal(await page.locator('.kino-home-chart-legend').count(),0);
         await page.getByLabel('Год просмотра',{exact:true}).selectOption('2026');assert.equal(await page.locator('[data-metric=works]').textContent(),'2');
         await page.getByLabel('Месяц',{exact:true}).selectOption('05');assert.equal(await page.locator('[data-metric=works]').textContent(),'1');
         const directors=page.locator('[data-section=directors]');await directors.locator('summary').press('Enter');assert.equal(await directors.evaluate(e=>e.open),false);await directors.locator('summary').press('Enter');

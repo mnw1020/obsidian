@@ -134,6 +134,7 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.deepEqual(await styles(kino.page,'.kino-home'),await styles(book.page,'.book-home'));
             assert.equal(await kino.page.locator('.kino-home-ui[data-ready="true"]').count(),1);
             assert.equal(await kino.page.locator('.kino-home-title').textContent(),'Кинотека');
+            assert.deepEqual(await kino.page.locator('.kino-home-title,.kino-home-stat strong,.kino-home-reading h2,.kino-home-chart h3').evaluateAll(nodes=>[...new Set(nodes.map(n=>getComputedStyle(n).color))]),['rgb(199, 155, 81)']);
             const reportLink=kino.page.locator('.kino-home-reading .kino-home-report-link');
             assert.equal(await reportLink.getAttribute('data-href'),'Кино/_system/Итоги просмотров');
             assert.equal(await reportLink.evaluate(link=>link.getBoundingClientRect().left>=link.parentElement.querySelector('h2').getBoundingClientRect().right),true);
@@ -323,9 +324,9 @@ test('missing data, zero and comma ratings preserve old totals while period metr
         const monthRow = full.page.locator('[data-fold="months"] .kino-home-chart-row').nth(today.getMonth());
         assert.equal(await monthRow.getAttribute('data-movies'),'1');
         assert.equal(await monthRow.getAttribute('data-serials'),'1');
-        assert.deepEqual(await monthRow.locator('.kino-home-chart-bar').evaluateAll(bars=>bars.map(bar=>[bar.style.width,getComputedStyle(bar).backgroundColor])),[['50%','rgb(245, 166, 35)'],['50%','rgb(182, 154, 228)']]);
+        assert.deepEqual(await monthRow.locator('.kino-home-chart-bar').evaluateAll(bars=>bars.map(bar=>[bar.style.width,getComputedStyle(bar).backgroundColor])),[['50%','rgb(203, 156, 77)'],['50%','rgb(186, 169, 213)']]);
         assert.deepEqual(await full.page.locator('[data-fold="ratings"] .kino-home-chart-row').evaluateAll(rows=>rows.map(row=>[row.dataset.movies,row.dataset.serials])),[['1','0'],['0','1'],['1','0']]);
-        assert.equal(await full.page.locator('.kino-home-chart-legend').count(),2);
+        assert.equal(await full.page.locator('.kino-home-chart-legend').count(),0);
         await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);
     }finally{await full.page.close();}
     const empty=await mount({files:[],width:390});

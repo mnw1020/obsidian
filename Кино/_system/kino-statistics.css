@@ -15,7 +15,7 @@
 .kino-home-ui.kino-report .kino-report-section:not([open])>summary .kino-home-fold-chevron { transform: rotate(-45deg); }
 .kino-home-ui.kino-report .kino-report-body { margin-top: 20px; min-width: 0; }
 .kino-home-ui.kino-report .kino-report-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px; }
-.kino-home-ui.kino-report h3 { margin: 0 0 16px; font: 500 18px/1.4 var(--home-serif); color: var(--text-normal); }
+.kino-home-ui.kino-report h3 { margin: 0 0 16px; font: 500 18px/1.4 var(--home-serif); color: var(--home-heading-color); }
 .kino-home-ui.kino-report .kino-report-bar { display: grid; grid-template-columns: 76px minmax(0,1fr) 50px; gap: 12px; align-items: center; width: 100%; min-width: 0; min-height: 30px; margin: 0; padding: 5px 0; border: none; border-radius: 0; box-shadow: none; background: transparent; text-align: left; font-size: .78em; }
 .kino-home-ui.kino-report button.kino-report-bar:hover { background: var(--home-tint); }
 .kino-home-ui.kino-report button.kino-report-bar[aria-pressed=true] { color: var(--home-accent); font-weight: 700; }
