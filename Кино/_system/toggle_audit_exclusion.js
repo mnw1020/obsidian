@@ -66,5 +66,10 @@ async function withKinoLayout(app,obsidian,raw,kind){
     if(!file)return raw;
     const module={exports:{}};
     new Function("module","exports",await app.vault.read(file))(module,module.exports);
-    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+    const laidOut=module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+    const uiFile=app.vault.getAbstractFileByPath("Кино/_system/exclusions_ui.js");
+    if(!uiFile)return laidOut;
+    const ui={exports:{}};
+    new Function("module",await app.vault.read(uiFile))(ui);
+    return ui.exports.ensureLayout(laidOut);
 }
