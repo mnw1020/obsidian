@@ -137,8 +137,8 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.equal(await kino.page.locator('.kino-home-stat strong').count(),4);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-row').count(),0);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-fold').getAttribute('aria-expanded'),'false');
-            assert.equal(await kino.page.locator('.kino-home-serials .kino-home-row').count(),5);
-            assert.deepEqual(await kino.page.locator('.kino-home-serials .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.filter(file=>file.fm.tags.includes('serial')).slice(0,5).map(file=>file.path));
+            assert.equal(await kino.page.locator('.kino-home-serials').count(),0);
+            assert.equal(await kino.page.locator('[data-fold="months"] .kino-home-chart-row').count(),12);
             assert.equal(await kino.page.locator('.kino-home-overview').count(),4);
             if(layout.pane){
                 const lines=await kino.page.locator('.kino-home-overview>a[data-choice="Кино - Открыть режиссера"]').evaluate(link=>{const range=document.createRange();range.selectNodeContents(link);return new Set([...range.getClientRects()].map(rect=>Math.round(rect.top))).size;});
@@ -164,14 +164,14 @@ test('all home blocks collapse by keyboard and retain their state after reopenin
             const stored=new Map();
             Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>stored.get(key)||null,setItem:(key,value)=>stored.set(key,value)}});
         });
-        const keys=['masthead','recent','reading','serials','overview','footer'];
+        const keys=['masthead','recent','reading','months','ratings','overview','footer'];
         const headingButton=page.locator('.kino-home-recent h2>.kino-home-fold');
         assert.equal(await headingButton.locator('.kino-home-fold-title').textContent(),'Последние просмотры');
         assert.equal(await headingButton.locator('svg').count(),0);
         assert.equal(await headingButton.evaluate(button=>{const title=button.querySelector('.kino-home-fold-title').getBoundingClientRect(),chevron=button.querySelector('.kino-home-fold-chevron').getBoundingClientRect();return chevron.left>=title.right&&getComputedStyle(button).fontFamily===getComputedStyle(button.parentElement).fontFamily;}),true);
         for(const key of keys){
             const control=page.locator(`[data-fold="${key}"] .kino-home-fold`).first();
-            // Nested serials must be folded before their parent is hidden.
+            // Fold nested charts before their parent.
             if(key==='reading')continue;
             if(key==='recent')await control.press('Enter');
             await control.press('Enter');assert.equal(await control.getAttribute('aria-expanded'),'false');
@@ -207,7 +207,7 @@ test('home retains all command choices, original navigation and source-aware int
         assert.deepEqual(await page.locator('.kino-home-overview a[data-choice]').evaluateAll(links=>links.map(link=>link.dataset.choice)),['Кино - Открыть актера','Кино - Открыть режиссера','Кино - Открыть жанр']);
         await page.locator('.kino-home-nav a').first().click({modifiers:['Control']});
         assert.deepEqual(await page.evaluate(()=>window.homeTest.state.links[0]),['Кино/_system/Рекомендации','Кино/_index.md',true]);
-        await page.locator('.kino-home-serials .kino-home-row-title').first().click({modifiers:['Meta']});
+        await page.locator('.kino-home-overview a[data-href]').click({modifiers:['Meta']});
         assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][1]),'Кино/_index.md');assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][2]),true);
         await dispose(page);assert.deepEqual(errors,[]);
     }finally{await page.close();}
@@ -221,9 +221,9 @@ test('stats update from local data events, exclude other folders and render untr
         await page.waitForFunction(()=>document.querySelector('[data-stat="average"]').textContent==='7,98');
         assert.equal(await page.locator('[data-stat="watched"]').count(),0);
         assert.equal(await page.locator('[data-stat="average"]').textContent(),'7,98');
+        assert.ok((await page.locator('[data-fold="ratings"] .kino-home-chart-row').allTextContents()).includes('7,51'));
         await page.evaluate(()=>window.homeTest.add({path:'Кино/Media/Текст.md',basename:'<img src=x onerror=alert(1)>',name:'Текст.md',extension:'md',stat:{mtime:100},fm:{tags:['movies','serial'],'Просмотрено':'2099-01-01','Оценка':'bad','Название':'<script>alert(1)</script>'}}));
         await page.waitForFunction(()=>document.querySelector('[data-stat="total"]').textContent==='49');
-        assert.equal(await page.locator('.kino-home-serials .kino-home-row-title').first().textContent(),'<img src=x onerror=alert(1)>');
         assert.equal(await page.locator('.kino-home-ui img,.kino-home-ui script').count(),0);
         assert.equal(await page.locator('[data-stat="movies"]').textContent(),'39');assert.equal(await page.locator('[data-stat="serials"]').textContent(),'11');
         await page.evaluate(()=>window.homeTest.remove('Кино/Media/Текст.md'));
@@ -310,10 +310,10 @@ test('missing data, zero and comma ratings preserve old totals while period metr
     try{
         assert.deepEqual(await full.page.locator('.kino-home-stats strong').allTextContents(),['6','5','2','5,50']);
         assert.deepEqual(await full.page.locator('.kino-home-metric strong').allTextContents(),['2','2','2']);
-        assert.deepEqual(await full.page.locator('.kino-home-serials .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path.split('/').at(-1))),['A.md','C.md']);
-        assert.equal(await full.page.locator('.kino-home-serials .kino-home-row[data-path="Кино/Media/A.md"] .kino-home-row-meta').textContent(),'Сериал · 2015');
-        assert.equal(await full.page.locator('.kino-home-serials .kino-home-row[data-path="Кино/Media/A.md"] .kino-home-row-score').textContent(),'7,5');
-        assert.equal(await full.page.locator('.kino-home-serials .kino-home-row[data-path="Кино/Media/C.md"] .kino-home-row-date').textContent(),'Без даты');
+        assert.deepEqual(await full.page.locator('[data-fold="ratings"] .kino-home-chart-row').allTextContents(),['91','7,51','01']);
+        const monthly=await full.page.locator('[data-fold="months"] .kino-home-chart-count').allTextContents();
+        assert.equal(monthly.reduce((sum,value)=>sum+Number(value),0),2);
+        assert.equal(monthly[today.getMonth()],'2');
         await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);
     }finally{await full.page.close();}
     const empty=await mount({files:[],width:390});

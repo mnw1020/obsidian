@@ -224,29 +224,29 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const cell = el(metrics, 'div', 'kino-home-metric'), value = el(cell, 'strong'); value.dataset.period = key;
             el(cell, 'span', '', label); metricValues.push([key, value]);
         }
-        const serials = el(reading.body, 'section', 'kino-home-serials');
-        const serialHead = el(serials, 'div', 'kino-home-serials-head'); el(serialHead, 'h3', '', 'Последние сериалы');
-        internal(serialHead, 'Все сериалы ↗', 'Кино/_Кино.base#Последние сериалы', 'kino-home-section-link');
-        const serialList = el(serials, 'div', 'kino-home-list');
-        const rowCleanups = [];
-        function rowLink(parent, text, target) {
-            const link = el(parent, 'a', 'internal-link kino-home-row-title', text); link.href = target; link.dataset.href = target;
-            const callback = event => { event.preventDefault(); if (!disposed) app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey)); };
-            link.addEventListener('click', callback); rowCleanups.push(() => link.removeEventListener('click', callback)); return link;
+        const charts = el(reading.body, 'div', 'kino-home-charts');
+        function chart(title, key) {
+            const box = el(charts, 'section', 'kino-home-chart');
+            const heading = el(box, 'h3', '', title);
+            const body = el(box, 'div', 'kino-home-chart-body');
+            const list = el(body, 'div', 'kino-home-chart-list'); list.setAttribute('role', 'list');
+            foldBlock(box, heading, [body], key, title);
+            return { list, body };
         }
-        cleanups.push(() => { for (const cleanup of rowCleanups.splice(0)) cleanup(); });
-        function drawRows(container, items) {
-            container.replaceChildren();
-            if (!items.length) { el(container, 'p', 'kino-home-empty', 'Пока нет произведений в этой подборке.'); return; }
-            for (const item of items) {
-                const row = el(container, 'div', 'kino-home-row'); row.dataset.path = item.file.path; row.dataset.watched = item.watched?.iso || '';
-                const main = el(row, 'div', 'kino-home-row-main');
-                rowLink(main, item.file.basename || item.file.name?.replace(/\.md$/i, '') || item.file.path.split('/').pop().replace(/\.md$/i, ''), item.file.path);
-                el(main, 'span', 'kino-home-row-meta', [item.serial ? 'Сериал' : 'Фильм', item.year].filter(value => value != null && value !== '').join(' · '));
-                const date = el(row, 'time', 'kino-home-row-date', item.watched?.display || 'Без даты');
-                if (item.watched) date.dateTime = item.watched.iso;
-                const score = el(row, 'span', 'kino-home-row-score', item.score == null ? '—' : String(item.score).replace('.', ','));
-                score.setAttribute('aria-label', item.score == null ? 'Оценка не указана' : `Моя оценка: ${item.score}`);
+        const months = chart('Просмотры по месяцам', 'months');
+        const monthCaption = el(months.body, 'p', 'kino-home-caption');
+        const ratings = chart('Распределение оценок', 'ratings');
+        const ratingCaption = el(ratings.body, 'p', 'kino-home-caption');
+        function drawChart(list, entries, empty) {
+            list.replaceChildren();
+            if (!entries.length) { el(list, 'p', 'kino-home-empty', empty); return; }
+            const max = Math.max(1, ...entries.map(entry => entry[1]));
+            for (const [label, count] of entries) {
+                const row = el(list, 'div', 'kino-home-chart-row'); row.setAttribute('role', 'listitem');
+                el(row, 'span', 'kino-home-chart-label', label);
+                const track = el(row, 'span', 'kino-home-chart-track'); track.setAttribute('aria-hidden', 'true');
+                const bar = el(track, 'span', 'kino-home-chart-bar'); bar.style.width = (count / max * 100) + '%';
+                el(row, 'strong', 'kino-home-chart-count', count);
             }
         }
         function draw() {
@@ -261,9 +261,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 reread: items.filter(item => Number(String(item.fields['Количество просмотров'] ?? '').replace(',', '.')) > 1).length
             };
             for (const [key, node] of metricValues) node.textContent = String(periods[key]);
-            for (const cleanup of rowCleanups.splice(0)) cleanup();
-            const sorted = [...items].sort(recentSort);
-            drawRows(serialList, sorted.filter(item => item.serial).slice(0, 5));
+            const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+            drawChart(months.list, monthNames.map((name, index) => [name, items.filter(item => item.watched?.year === now.getFullYear() && item.watched.month === index + 1).length]));
+            monthCaption.textContent = now.getFullYear() + ' год · по последней дате просмотра';
+            const counts = new Map();
+            for (const score of scores) counts.set(score, (counts.get(score) || 0) + 1);
+            drawChart(ratings.list, [...counts].sort((a, b) => b[0] - a[0]).map(([score, count]) => [String(score).replace('.', ','), count]), 'Пока нет оценок.');
+            ratingCaption.textContent = 'С оценкой: ' + scores.length + ' · Без оценки: ' + (items.length - scores.length);
         }
         draw();
         function schedule() { if (disposed) return; clearTimeout(timer); timer = setTimeout(draw, 120); }
@@ -332,7 +336,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         for (const [block, key, label] of [[recent, 'recent', 'Последние просмотры'], [reading, 'reading', 'Просмотры в цифрах']]) {
             foldBlock(block.box, block.head.querySelector('h2'), [block.body, block.head.querySelector('.kino-home-caption')], key, label);
         }
-        foldBlock(serials, serialHead.querySelector('h3'), [serialList], 'serials', 'Последние сериалы');
         foldBlock(overviews, overviews.querySelector('h2'), [overviewLinks], 'overview', 'Обзор кинотеки');
         foldBlock(footer, footer, [...footer.querySelectorAll('a')], 'footer', 'Служебные ссылки');
         if (!disposed) root.dataset.ready = 'true';
