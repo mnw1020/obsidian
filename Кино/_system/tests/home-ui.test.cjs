@@ -143,7 +143,7 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-fold').getAttribute('aria-expanded'),'false');
             assert.equal(await kino.page.locator('.kino-home-serials').count(),0);
             assert.equal(await kino.page.locator('[data-fold="months"] .kino-home-chart-row').count(),12);
-            assert.equal(await kino.page.locator('.kino-home-overview').count(),4);
+            assert.equal(await kino.page.locator('.kino-home-overview').count(),3);
             if(layout.pane){
                 const lines=await kino.page.locator('.kino-home-overview>a[data-choice="Кино - Открыть режиссера"]').evaluate(link=>{const range=document.createRange();range.selectNodeContents(link);return new Set([...range.getClientRects()].map(rect=>Math.round(rect.top))).size;});
                 assert.equal(lines,1,'The director label stays on one line in a narrow actual pane');
@@ -214,7 +214,7 @@ test('home retains all command choices, original navigation and source-aware int
         assert.deepEqual(await page.locator('.kino-home-overview a[data-choice]').evaluateAll(links=>links.map(link=>link.dataset.choice)),['Кино - Открыть актера','Кино - Открыть режиссера','Кино - Открыть жанр']);
         await page.locator('.kino-home-nav a').first().click({modifiers:['Control']});
         assert.deepEqual(await page.evaluate(()=>window.homeTest.state.links[0]),['Кино/_system/Рекомендации','Кино/_index.md',true]);
-        await page.locator('.kino-home-overview a[data-href]').click({modifiers:['Meta']});
+        await page.locator('.kino-home-action.is-icon').click({modifiers:['Meta']});
         assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][1]),'Кино/_index.md');assert.equal(await page.evaluate(()=>window.homeTest.state.links[1][2]),true);
         await dispose(page);assert.deepEqual(errors,[]);
     }finally{await page.close();}

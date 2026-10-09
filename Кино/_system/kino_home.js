@@ -291,7 +291,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         for (const [label, description, choice] of [['Актёры', 'Фильмы и сериалы по актёрам', 'Кино - Открыть актера'], ['Режиссёры', 'Работы и личные оценки', 'Кино - Открыть режиссера'], ['Жанры', 'Истории по настроению', 'Кино - Открыть жанр']]) {
             const tile = el(overviewLinks, 'div', 'kino-home-overview'); command(tile, label, choice); el(tile, 'p', '', description);
         }
-        const catalogTile = el(overviewLinks, 'div', 'kino-home-overview'); internal(catalogTile, 'Каталог', 'Кино/_Кино.base#Карточки'); el(catalogTile, 'p', '', 'Вся коллекция и оценки');
         const views = el(root, 'details', 'kino-home-views'); el(views, 'summary', '', 'Другие представления каталога');
         rememberDetails(management, 'management'); rememberDetails(views, 'views');
         const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
