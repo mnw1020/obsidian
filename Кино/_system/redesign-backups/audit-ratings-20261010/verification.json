@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-10",
+  "status": "complete",
+  "tests": {
+    "auditAndCommand": 7,
+    "ai": 13,
+    "cardLayoutAndSystemViews": 22
+  },
+  "originalAuditSectionsPreserved": true,
+  "quickaddOnlyNewChoiceAdded": true,
+  "command": "QuickAdd: Кино - Обновить оценки",
+  "scope": "current card, or all from audit page",
+  "updatedField": "Прогноз оценки",
+  "liveCollectionUpdateExecuted": false
+}
