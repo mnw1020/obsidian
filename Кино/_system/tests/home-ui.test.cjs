@@ -314,6 +314,12 @@ test('missing data, zero and comma ratings preserve old totals while period metr
         const monthly=await full.page.locator('[data-fold="months"] .kino-home-chart-count').allTextContents();
         assert.equal(monthly.reduce((sum,value)=>sum+Number(value),0),2);
         assert.equal(monthly[today.getMonth()],'2');
+        const monthRow = full.page.locator('[data-fold="months"] .kino-home-chart-row').nth(today.getMonth());
+        assert.equal(await monthRow.getAttribute('data-movies'),'1');
+        assert.equal(await monthRow.getAttribute('data-serials'),'1');
+        assert.deepEqual(await monthRow.locator('.kino-home-chart-bar').evaluateAll(bars=>bars.map(bar=>[bar.style.width,getComputedStyle(bar).backgroundColor])),[['50%','rgb(228, 182, 95)'],['50%','rgb(182, 154, 228)']]);
+        assert.deepEqual(await full.page.locator('[data-fold="ratings"] .kino-home-chart-row').evaluateAll(rows=>rows.map(row=>[row.dataset.movies,row.dataset.serials])),[['1','0'],['0','1'],['1','0']]);
+        assert.equal(await full.page.locator('.kino-home-chart-legend').count(),2);
         await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);
     }finally{await full.page.close();}
     const empty=await mount({files:[],width:390});

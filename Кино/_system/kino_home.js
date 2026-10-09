@@ -229,6 +229,12 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const box = el(charts, 'section', 'kino-home-chart');
             const heading = el(box, 'h3', '', title);
             const body = el(box, 'div', 'kino-home-chart-body');
+            const legend = el(body, 'div', 'kino-home-chart-legend');
+            for (const [kind, label] of [['movies', 'Фильмы'], ['serials', 'Сериалы']]) {
+                const entry = el(legend, 'span', 'kino-home-chart-key');
+                el(entry, 'span', 'kino-home-chart-dot is-' + kind).setAttribute('aria-hidden', 'true');
+                el(entry, 'span', '', label);
+            }
             const list = el(body, 'div', 'kino-home-chart-list'); list.setAttribute('role', 'list');
             foldBlock(box, heading, [body], key, title);
             return { list, body };
@@ -237,15 +243,26 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const monthCaption = el(months.body, 'p', 'kino-home-caption');
         const ratings = chart('Распределение оценок', 'ratings');
         const ratingCaption = el(ratings.body, 'p', 'kino-home-caption');
+        function splitTypes(items) {
+            // A note bearing both tags is counted once, as a serial.
+            return [items.filter(item => !item.serial).length, items.filter(item => item.serial).length];
+        }
         function drawChart(list, entries, empty) {
             list.replaceChildren();
             if (!entries.length) { el(list, 'p', 'kino-home-empty', empty); return; }
-            const max = Math.max(1, ...entries.map(entry => entry[1]));
-            for (const [label, count] of entries) {
+            const max = Math.max(1, ...entries.map(entry => entry[1] + entry[2]));
+            for (const [label, movies, serials] of entries) {
+                const count = movies + serials;
                 const row = el(list, 'div', 'kino-home-chart-row'); row.setAttribute('role', 'listitem');
+                row.dataset.movies = movies; row.dataset.serials = serials;
+                row.title = label + ': фильмы — ' + movies + ', сериалы — ' + serials + ', всего — ' + count;
+                row.setAttribute('aria-label', row.title);
                 el(row, 'span', 'kino-home-chart-label', label);
                 const track = el(row, 'span', 'kino-home-chart-track'); track.setAttribute('aria-hidden', 'true');
-                const bar = el(track, 'span', 'kino-home-chart-bar'); bar.style.width = (count / max * 100) + '%';
+                for (const [kind, value] of [['movies', movies], ['serials', serials]]) {
+                    const bar = el(track, 'span', 'kino-home-chart-bar is-' + kind);
+                    bar.style.width = (value / max * 100) + '%';
+                }
                 el(row, 'strong', 'kino-home-chart-count', count);
             }
         }
@@ -262,11 +279,15 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             };
             for (const [key, node] of metricValues) node.textContent = String(periods[key]);
             const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
-            drawChart(months.list, monthNames.map((name, index) => [name, items.filter(item => item.watched?.year === now.getFullYear() && item.watched.month === index + 1).length]));
+            drawChart(months.list, monthNames.map((name, index) => [name, ...splitTypes(items.filter(item => item.watched?.year === now.getFullYear() && item.watched.month === index + 1))]));
             monthCaption.textContent = now.getFullYear() + ' год · по последней дате просмотра';
             const counts = new Map();
-            for (const score of scores) counts.set(score, (counts.get(score) || 0) + 1);
-            drawChart(ratings.list, [...counts].sort((a, b) => b[0] - a[0]).map(([score, count]) => [String(score).replace('.', ','), count]), 'Пока нет оценок.');
+            for (const item of items) {
+                if (item.score == null) continue;
+                if (!counts.has(item.score)) counts.set(item.score, [0, 0]);
+                counts.get(item.score)[item.serial ? 1 : 0]++;
+            }
+            drawChart(ratings.list, [...counts].sort((a, b) => b[0] - a[0]).map(([score, counts]) => [String(score).replace('.', ','), ...counts]), 'Пока нет оценок.');
             ratingCaption.textContent = 'С оценкой: ' + scores.length + ' · Без оценки: ' + (items.length - scores.length);
         }
         draw();
