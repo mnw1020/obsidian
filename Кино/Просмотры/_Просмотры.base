@@ -9,6 +9,8 @@ formulas:
   previous_rating: if(note["Предыдущая оценка"] != null, number(note["Предыдущая оценка"]), null)
   rating_delta: if(note["Изменение оценки"] != null, number(note["Изменение оценки"]), null)
 properties:
+  file.name:
+    displayName: Запись
   note.Фильм:
     displayName: Фильм
   note.Просмотр:
@@ -86,3 +88,20 @@ views:
         direction: DESC
     columnSize:
       formula.previous_rating: 170
+  - type: table
+    name: По дате
+    order:
+      - file.name
+      - Фильм
+      - formula.viewing_label
+      - Сезон
+      - formula.when
+      - formula.rating
+      - Комментарий
+    sort:
+      - property: Дата
+        direction: DESC
+      - property: Год
+        direction: DESC
+      - property: Просмотр
+        direction: DESC

@@ -37,7 +37,6 @@ module.exports = async (params) => {
         return (
             file &&
             file.extension === "md" &&
-            file.basename !== "_index" &&
             file.path.startsWith(SEASONS_FOLDER + "/")
         );
     }

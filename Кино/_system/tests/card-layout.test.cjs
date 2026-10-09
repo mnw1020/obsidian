@@ -165,7 +165,37 @@ for (const serial of [false, true]) test('real rebuild command preserves private
     assert.equal(env.fields(mediaPath).Название, 'Original');
     assert.equal(env.fields(viewingPath)['Последний просмотр'], true);
     await command(env); assert.equal(env.texts.get(mediaPath), result);
+    assert.ok(result.includes('# Просмотр 1 (7/10)'));
+    assert.ok(result.includes('*04.10.2026*'));
+    assert.ok(result.includes('Просмотр сохранён'));
+    assert.ok(!result.includes('FROM "Кино/Просмотры"'));
     if (serial) { assert.ok(result.includes('Сезон сохранён')); assert.ok(env.texts.get(seasonPath).includes(personal)); }
+});
+
+test('native viewing history retains year-only dates, multiline Markdown, missing ratings and chronological order', () => {
+    const history = layout.viewingHistory([
+        { number: 2, date: '2026-10-10', rating: null, comment: '> Второй отзыв\n\n[[Заметка#^id]]' },
+        { number: 1, year: 2020, rating: 8.5, comment: 'Первый отзыв\n\n^viewing-1' }
+    ]);
+    assert.ok(history.indexOf('# Просмотр 1') < history.indexOf('# Просмотр 2'));
+    assert.ok(history.includes('# Просмотр 1 (8.5/10)\n\n*2020*\n\nПервый отзыв\n\n^viewing-1'));
+    assert.ok(history.includes('# Просмотр 2 (без оценки)\n\n*10.10.2026*\n\n> Второй отзыв\n\n[[Заметка#^id]]'));
+    assert.ok(!history.includes('dataview'));
+});
+
+for (const [kind,commandName] of [['viewing','edit_viewing'],['season','edit_season']]) test('record editor skips the folder index: '+kind, async () => {
+    const serial=kind==='season',folder=serial?'Сезоны':'Просмотры';
+    const index='Кино/'+folder+'/_index.md',media='Кино/Media/Test.md',record='Кино/'+folder+'/Test - '+(serial?'s01':'v1')+'.md';
+    const initial={
+        [index]:note({obsidianUIMode:'preview'},'# Индекс\n\n![[Кино/'+folder+'/_'+folder+'.base]]'),
+        [media]:note({tags:[serial?'serial':'movies'],poster},button),
+        [record]:note({[serial?'Сериал':'Фильм']:'[[Кино/Media/Test|Test]]',[serial?'Сезон':'Просмотр']:1,Дата:'2025-01-01',Оценка:8,tags:[kind],Комментарий:'Отзыв'})
+    };
+    const env=mockVault(initial,index,serial?{season:'1',date:'2025-01-01',rating:'9',comment:'Обновлено'}:{number:'1',date:'2025-01-01',rating:'9',comment:'Обновлено'});
+    let selected=false;
+    env.quickAddApi.suggester=async(_labels,choices)=>{assert.ok(!choices.some(f=>f.path===index),'index is absent from record picker');selected=true;return choices[0];};
+    await require('../'+commandName+'.js')(env);
+    assert.ok(selected);assert.equal(env.texts.get(index),initial[index]);assert.equal(env.fields(record).Оценка,9);
 });
 
 test('new viewing and editing retain original Markdown, legacy review and links', async () => {

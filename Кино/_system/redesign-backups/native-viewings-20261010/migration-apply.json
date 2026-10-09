@@ -1,0 +1,44 @@
+{
+  "mode": "apply",
+  "cards": [
+    {
+      "path": "Media/Трасса 60.md",
+      "records": 2,
+      "changed": true
+    },
+    {
+      "path": "Media/Чудо на Гудзоне.md",
+      "records": 2,
+      "changed": true
+    }
+  ],
+  "sourceRecords": [
+    {
+      "path": "Просмотры/Трасса 60 - v1.md",
+      "sha256": "050e8ccc8133b917c25ab1a6969773f44c072ebe33609599ec542e6895463535"
+    },
+    {
+      "path": "Просмотры/Трасса 60 - v2.md",
+      "sha256": "0cafdec8d969954cb0ba2a69aceea5b0fd23121aa0592c0d9a76e2024a5a108a"
+    },
+    {
+      "path": "Просмотры/Чудо на Гудзоне - v1.md",
+      "sha256": "d7471b4c4ca1856bdcf752750961e23928850e1499f1843bd0277c8d5f0c05c1"
+    },
+    {
+      "path": "Просмотры/Чудо на Гудзоне - v2.md",
+      "sha256": "42be93ae9a74484b3c356ae1ade768eae4c316d6a68c26d54f208b2b2e6622ee"
+    },
+    {
+      "path": "Сезоны/Локи - s01.md",
+      "sha256": "276c603aac68560a38009da38fa08fb929b2cea7d3b8c73c3803d890d14aefed"
+    },
+    {
+      "path": "Сезоны/Локи - s02.md",
+      "sha256": "7250a69074ff90c4ca76abbdd24f528b90c7652e969346a5dd8f2ea79422ae8c"
+    }
+  ],
+  "frontmatterPreserved": true,
+  "personalMarkdownPreserved": true,
+  "postersLast": true
+}

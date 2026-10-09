@@ -127,6 +127,21 @@ function region(kind, content, newline = "\n") {
     return markers[0] + newline + asNewlines(content, newline) + newline + markers[1];
 }
 
+// The same ordinary Markdown is used by add, edit, rebuild and one-off migration.
+function viewingHistory(rows, newline = "\n") {
+    const sorted = [...rows].sort((a, b) => a.number - b.number || String(a.date || a.year || "").localeCompare(String(b.date || b.year || "")));
+    const chunks = [];
+    for (const row of sorted) {
+        const rating = row.rating !== null && row.rating !== undefined ? `${row.rating}/10` : "без оценки";
+        chunks.push(`# Просмотр ${row.number} (${rating})`);
+        const date = String(row.date || row.year || "").trim();
+        const match = date.match(/^(\d{4})-(\d{2})-(\d{2})(?:T|$)/);
+        if (date) chunks.push(`*${match ? `${match[3]}.${match[2]}.${match[1]}` : date}*`);
+        if (row.comment) chunks.push(String(row.comment).trim());
+    }
+    return region("viewings", chunks.join("\n\n"), newline);
+}
+
 // This whitelist recognizes the exact former generated history query only.
 function legacyHistoryPattern() {
     return /^```dataview\r?\nTABLE WITHOUT ID\r?\n  Просмотр AS "№",\r?\n  choice\(Дата != null, dateformat\(Дата, "dd\.MM\.yyyy"\), string\(Год\)\) AS "Когда",\r?\n  Оценка AS "⭐",\r?\n  Комментарий AS "Мысль",\r?\n  file\.link AS "Запись"\r?\nFROM "Кино\/Просмотры"\r?\nWHERE Фильм = this\.file\.link\r?\nSORT Просмотр DESC, Год DESC, Дата DESC\r?\n```[ \t]*\r?$/gm;
@@ -199,4 +214,4 @@ function mergeRoleCard(raw, generated, { parseYaml } = {}) {
         { kind: "roles", parseYaml });
 }
 
-module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, personalBody, splitRaw, uiBlock, UI_START, UI_END, MARKERS };
+module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, viewingHistory, personalBody, splitRaw, uiBlock, UI_START, UI_END, MARKERS };

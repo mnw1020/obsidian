@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-10",
+  "testsPassed": 28,
+  "sourceRecordsByteIdenticalToBackup": 6,
+  "cardFrontmatterPreserved": 2,
+  "recommendationActionsPreserved": true,
+  "indexReports": [
+    {
+      "path": "Просмотры/_index.md",
+      "nativeBase": true,
+      "excludesIndex": true,
+      "previousViewsPreserved": 3
+    },
+    {
+      "path": "Сезоны/_index.md",
+      "nativeBase": true,
+      "excludesIndex": true,
+      "previousViewsPreserved": 2
+    }
+  ]
+}

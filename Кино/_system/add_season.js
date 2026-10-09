@@ -14,8 +14,6 @@ module.exports = async (params) => {
     const VIEWINGS_FOLDER = "Кино/Просмотры";
 
     const SEASONS_START = "<!-- SEASONS:START -->";
-    const VIEWINGS_START = "<!-- KINO:VIEWINGS:START -->";
-    const VIEWINGS_END = "<!-- KINO:VIEWINGS:END -->";
     const SEASONS_END = "<!-- SEASONS:END -->";
 
     function getFrontmatter(file) {
@@ -898,6 +896,7 @@ module.exports = async (params) => {
                     normalizeDate(
                         fm["Дата"]
                     ),
+                year: fm["Год"],
                 rating:
                     toNumber(
                         fm["Оценка"]
@@ -996,35 +995,7 @@ module.exports = async (params) => {
         }
 
         if (viewingRows.length > 0) {
-            chunks.push(VIEWINGS_START);
-
-            for (
-                const row of
-                viewingRows
-            ) {
-                const rating =
-                    row.rating !== null
-                        ? `${formatNumber(row.rating)}/10`
-                        : "без оценки";
-
-                chunks.push(
-                    `# Просмотр ${row.number} (${rating})`
-                );
-
-                if (row.date) {
-                    chunks.push(
-                        `*${displayViewingDate(row.date)}*`
-                    );
-                }
-
-                if (row.comment) {
-                    chunks.push(
-                        row.comment
-                    );
-                }
-            }
-
-            chunks.push(VIEWINGS_END);
+            chunks.push(cardLayout.viewingHistory(viewingRows));
         }
 
         const result = cardLayout.rebuildCard(originalText, chunks.join("\n\n"), { parseYaml });

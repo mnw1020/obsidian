@@ -9,6 +9,8 @@ formulas:
   delta: if(note["Изменение оценки"] != null, number(note["Изменение оценки"]), null)
   delta_label: if(formula.delta != null, if(formula.delta > 0, "+" + formula.delta.toString(), formula.delta.toString()), "")
 properties:
+  file.name:
+    displayName: Запись
   note.Сериал:
     displayName: Сериал
   note.Сезон:
@@ -54,3 +56,19 @@ views:
         direction: DESC
     columnSize:
       formula.previous_rating: 133
+  - type: table
+    name: По дате
+    order:
+      - file.name
+      - Сериал
+      - Сезон
+      - formula.when
+      - formula.rating
+      - Комментарий
+    sort:
+      - property: Дата
+        direction: DESC
+      - property: Сериал
+        direction: ASC
+      - property: Сезон
+        direction: DESC

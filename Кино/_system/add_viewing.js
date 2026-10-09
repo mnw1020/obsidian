@@ -13,8 +13,6 @@ module.exports = async (params) => {
     const VIEWINGS_FOLDER = "Кино/Просмотры";
     const SEASONS_FOLDER = "Кино/Сезоны";
 
-    const VIEWINGS_START = "<!-- KINO:VIEWINGS:START -->";
-    const VIEWINGS_END = "<!-- KINO:VIEWINGS:END -->";
     const SEASONS_START = "<!-- SEASONS:START -->";
     const SEASONS_END = "<!-- SEASONS:END -->";
 
@@ -528,6 +526,7 @@ module.exports = async (params) => {
                     normalizeDate(
                         fm["Дата"]
                     ),
+                year: fm["Год"],
                 rating:
                     toNumber(
                         fm["Оценка"]
@@ -892,39 +891,7 @@ module.exports = async (params) => {
         }
 
         if (viewings.length > 0) {
-            chunks.push(
-                VIEWINGS_START
-            );
-
-            for (
-                const row of
-                viewings
-            ) {
-                const rating =
-                    row.rating !== null
-                        ? `${row.rating}/10`
-                        : "без оценки";
-
-                chunks.push(
-                    `# Просмотр ${row.number} (${rating})`
-                );
-
-                if (row.date) {
-                    chunks.push(
-                        `*${displayDate(row.date)}*`
-                    );
-                }
-
-                if (row.comment) {
-                    chunks.push(
-                        row.comment
-                    );
-                }
-            }
-
-            chunks.push(
-                VIEWINGS_END
-            );
+            chunks.push(cardLayout.viewingHistory(viewings));
         }
 
         const result = cardLayout.rebuildCard(raw, chunks.join("\n\n"), { parseYaml });

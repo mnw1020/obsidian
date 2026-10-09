@@ -15,18 +15,6 @@ module.exports = async (params) => {
     const START = "<!-- SEASONS:START -->";
     const END = "<!-- SEASONS:END -->";
 
-    const HISTORY_BLOCK = `\`\`\`dataview
-TABLE WITHOUT ID
-  Просмотр AS "№",
-  choice(Дата != null, dateformat(Дата, "dd.MM.yyyy"), string(Год)) AS "Когда",
-  Оценка AS "⭐",
-  Комментарий AS "Мысль",
-  file.link AS "Запись"
-FROM "Кино/Просмотры"
-WHERE Фильм = this.file.link
-SORT Просмотр DESC, Год DESC, Дата DESC
-\`\`\``;
-
     function cachedFm(file) {
         return app.metadataCache.getFileCache(file)?.frontmatter ?? {};
     }
@@ -289,7 +277,9 @@ SORT Просмотр DESC, Год DESC, Дата DESC
                 file,
                 number: Math.trunc(toNumber(fm["Просмотр"]) ?? 0),
                 date: normalizeDate(fm["Дата"]),
-                rating: toNumber(fm["Оценка"])
+                year: fm["Год"],
+                rating: toNumber(fm["Оценка"]),
+                comment: String(fm["Комментарий"] ?? "").trim()
             });
         }
 
@@ -301,7 +291,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
         return rows;
     }
 
-    async function rebuildViewings(mediaFile, replaceBody) {
+    async function rebuildViewings(mediaFile) {
         const rows = await getViewingRows(mediaFile);
         if (rows.length === 0) return false;
 
@@ -355,14 +345,8 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             }
         );
 
-        if (!replaceBody) return true;
-
         const raw = await app.vault.read(mediaFile);
-        const parts = splitFrontmatter(raw);
-        const fm = await readFm(mediaFile);
-        const poster = String(fm.poster ?? "").trim();
-
-        const result = cardLayout.rebuildCard(raw, cardLayout.region("viewings", HISTORY_BLOCK), { parseYaml });
+        const result = cardLayout.rebuildCard(raw, cardLayout.viewingHistory(rows), { parseYaml });
         await app.vault.modify(mediaFile, result);
         return true;
     }
@@ -405,9 +389,8 @@ SORT Просмотр DESC, Год DESC, Дата DESC
     if (serial) {
         const rebuiltSeries = await rebuildSeries(mediaFile);
 
-        // Если есть отдельные записи просмотров сериала,
-        // их дельты/сводку тоже обновляем, но сезонное тело не затираем.
-        await rebuildViewings(mediaFile, !rebuiltSeries);
+        // Separate generated regions preserve seasons alongside viewing history.
+        await rebuildViewings(mediaFile);
 
         if (!rebuiltSeries) {
             const viewings = await getViewingRows(mediaFile);
@@ -418,7 +401,7 @@ SORT Просмотр DESC, Год DESC, Дата DESC
             }
         }
     } else {
-        const ok = await rebuildViewings(mediaFile, true);
+        const ok = await rebuildViewings(mediaFile);
 
         if (!ok) {
             new Notice("У фильма нет записей просмотров.");
