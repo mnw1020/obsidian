@@ -217,6 +217,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const recent = panel('Последние просмотры', 'kino-home-recent');
         el(recent.head, 'p', 'kino-home-caption', 'Последние 20 по дате просмотра');
         const reading = panel('Просмотры в цифрах', 'kino-home-reading');
+        internal(reading.head, 'Итоги ↗', 'Кино/_system/Итоги просмотров', 'kino-home-section-link kino-home-report-link');
         const metrics = el(reading.body, 'div', 'kino-home-metrics'), metricValues = [];
         for (const [key, label] of [['month', 'В этом месяце'], ['year', 'В этом году'], ['reread', 'Пересмотрено за всё время']]) {
             const cell = el(metrics, 'div', 'kino-home-metric'), value = el(cell, 'strong'); value.dataset.period = key;

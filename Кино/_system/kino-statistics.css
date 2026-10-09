@@ -1,0 +1,41 @@
+.kino-home-ui.kino-report { container: kino-report / inline-size; }
+.kino-home-ui.kino-report .kino-home-masthead { padding-bottom: 24px; }
+.kino-home-ui.kino-report h1.kino-home-title { margin: 28px 0 22px; }
+.kino-home-ui.kino-report .kino-report-controls { display: flex; flex-wrap: wrap; gap: 12px; }
+.kino-home-ui.kino-report .kino-report-controls label { display: flex; flex: 1 1 170px; flex-direction: column; gap: 6px; font-size: .75em; color: var(--text-muted); }
+.kino-home-ui.kino-report :is(input,select) { min-width: 0; max-width: 100%; min-height: 36px; }
+.kino-home-ui.kino-report button { min-height: 36px; }
+.kino-home-ui.kino-report .kino-report-controls>button { align-self: end; font-size: .75em; }
+.kino-home-ui.kino-report .kino-report-period { margin: 20px 0; color: var(--text-muted); font-size: .85em; }
+.kino-home-ui.kino-report .kino-report-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px 16px; }
+.kino-home-ui.kino-report>.kino-home-chart-legend { margin: 20px 0; }
+.kino-home-ui.kino-report .kino-report-section { margin: 20px 0; padding: 22px; border: 1px solid var(--home-line); border-radius: 10px; background: var(--background-primary); min-width: 0; }
+.kino-home-ui.kino-report .kino-report-section>summary { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; list-style: none; font: 700 24px/1.3 var(--home-serif); color: var(--home-heading-color); }
+.kino-home-ui.kino-report .kino-report-section>summary::-webkit-details-marker { display: none; }
+.kino-home-ui.kino-report .kino-report-section:not([open])>summary .kino-home-fold-chevron { transform: rotate(-45deg); }
+.kino-home-ui.kino-report .kino-report-body { margin-top: 20px; min-width: 0; }
+.kino-home-ui.kino-report .kino-report-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 28px; }
+.kino-home-ui.kino-report h3 { margin: 0 0 16px; font: 500 18px/1.4 var(--home-serif); color: var(--text-normal); }
+.kino-home-ui.kino-report .kino-report-bar { display: grid; grid-template-columns: 76px minmax(0,1fr) 50px; gap: 12px; align-items: center; width: 100%; min-width: 0; min-height: 30px; margin: 0; padding: 5px 0; border: none; border-radius: 0; box-shadow: none; background: transparent; text-align: left; font-size: .78em; }
+.kino-home-ui.kino-report button.kino-report-bar:hover { background: var(--home-tint); }
+.kino-home-ui.kino-report button.kino-report-bar[aria-pressed=true] { color: var(--home-accent); font-weight: 700; }
+.kino-home-ui.kino-report .kino-report-bar-label { overflow-wrap: anywhere; }
+.kino-home-ui.kino-report .kino-report-scroll { max-height: 420px; overflow-y: auto; }
+.kino-home-ui.kino-report .kino-report-table-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.kino-home-ui.kino-report .kino-report-table-controls input { flex: 1 1 180px; }
+.kino-home-ui.kino-report .kino-report-table-controls select { flex: 1 1 130px; font-size: .75em; }
+.kino-home-ui.kino-report .kino-report-table { max-width: 100%; overflow-x: auto; }
+.kino-home-ui.kino-report .kino-report-table table { width: 100%; margin: 0; font-size: .78em; border-collapse: collapse; }
+.kino-home-ui.kino-report .kino-report-table :is(th,td) { padding: 10px 12px; border: none; border-bottom: 1px solid var(--home-line); text-align: right; font-variant-numeric: tabular-nums; }
+.kino-home-ui.kino-report .kino-report-table :is(th,td):first-child { text-align: left; min-width: 145px; max-width: 340px; overflow-wrap: anywhere; }
+.kino-home-ui.kino-report .kino-report-table th { color: var(--text-muted); font-weight: 500; }
+.kino-home-ui.kino-report .kino-report-table tbody tr:hover { background: var(--home-tint); }
+.kino-home-ui.kino-report .kino-report-table-caption { font-size: .7em; color: var(--text-muted); }
+.kino-home-ui.kino-report [data-section=method] p { font-size: .8em; color: var(--text-muted); line-height: 1.7; }
+.kino-home-ui.kino-report .kino-report-update { color: var(--text-error); }
+@container kino-report (max-width: 650px) {
+    .kino-home-ui.kino-report .kino-report-grid { grid-template-columns: minmax(0,1fr); }
+    .kino-home-ui.kino-report .kino-report-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .kino-home-ui.kino-report .kino-report-section { padding: 18px; }
+    .kino-home-ui.kino-report .kino-report-section>summary { font-size: 22px; }
+}

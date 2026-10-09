@@ -33,6 +33,9 @@
 .kino-home-ui.kino-home-ui .kino-home-title .kino-home-fold-chevron { margin-top: .4em; }
 .kino-home-ui.kino-home-ui .kino-home-footer .kino-home-fold-chevron { margin-top: 4px; }
 .kino-home-ui.kino-home-ui .kino-home-panel-head>h2 { flex: 1 1 100%; min-width: 0; }
+.kino-home-ui.kino-home-ui .kino-home-reading .kino-home-panel-head { flex-wrap: nowrap; align-items: baseline; }
+.kino-home-ui.kino-home-ui .kino-home-reading .kino-home-panel-head>h2 { flex: 1 1 auto; }
+.kino-home-ui.kino-home-ui .kino-home-report-link { flex: 0 0 auto; white-space: nowrap; }
 .kino-home-ui.kino-home-ui .kino-home-panel[data-collapsed="true"] .kino-home-panel-head { margin-bottom: 0; }
 .kino-home-ui.kino-home-ui :is(a,button,summary):focus-visible { outline: 2px solid var(--home-accent); outline-offset: 3px; }
 .kino-home-ui.kino-home-ui a { text-decoration: none; overflow-wrap: anywhere; }
