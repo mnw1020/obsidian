@@ -50,6 +50,7 @@ test('plain audit with author variants never prompts normalization or writes boo
     assert.deepEqual(h.mutations, [h.report.path]);
     assert.deepEqual([...h.books, h.home].map(file => file.text), originals);
     assert.match(h.report.text, /Варианты написания одного автора/);
+    assert.equal(fromText(h.report.text).obsidianUIMode, 'preview');
     assert.deepEqual(h.opened, [h.report.path]);
 });
 

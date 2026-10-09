@@ -447,6 +447,7 @@ module.exports = async (params) => {
     if (rating !== null) content += `rating: ${rating}\n`;
     content += "read_count: 1\n";
     content += "cssclasses:\n  - book-card\n";
+    content += "obsidianUIMode: preview\n";
     if (series) {
         content += `series: ${yamlString(series)}\n`;
         content += `series_index: ${seriesIndex}\n`;

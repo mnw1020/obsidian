@@ -106,6 +106,7 @@ for (const fm of [{ authors: ['Другой писатель'] }, { authors: ['�
         await h.run();
         assert.equal(h.books[0].fm.read_count, 1);
         assert.ok(h.mutations.some(([kind, path]) => kind === 'create' && path === 'Книги/Художественные/Лю Цысинь. Тёмный лес.md'));
+        assert.equal(h.files.get('Книги/Художественные/Лю Цысинь. Тёмный лес.md').fm.obsidianUIMode, 'preview');
     });
 }
 
