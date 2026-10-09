@@ -145,9 +145,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const identity = el(masthead, 'div', 'kino-home-identity');
         const heading = el(identity, 'div', 'kino-home-heading');
         el(heading, 'h1', 'kino-home-title', 'Кинотека');
-        el(heading, 'p', 'kino-home-subtitle', 'Фильмы, к которым хочется вернуться. Истории, которые ещё впереди.');
         const actions = el(identity, 'div', 'kino-home-actions');
-        for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Редактировать просмотр', 'Редактировать просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
+        for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
         const catalogue = internal(actions, 'Открыть каталог', 'Кино/_Кино.base#Карточки', 'kino-home-action is-icon');
         catalogue.setAttribute('aria-label', 'Открыть каталог'); catalogue.title = 'Открыть каталог';
         const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -164,13 +163,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         const management = el(root, 'details', 'kino-home-management'); el(management, 'summary', '', 'Управление коллекцией');
         const editActions = el(management, 'div', 'kino-home-actions');
-        for (const [text, choice] of [['Редактировать сезон', 'Редактировать сезон'], ['Пересобрать карточку', 'Пересобрать карточку'], ['Изменить франшизу', 'Франшиза']]) command(editActions, text, choice, 'kino-home-action');
+        for (const [text, choice] of [['Редактировать просмотр', 'Редактировать просмотр'], ['Редактировать сезон', 'Редактировать сезон'], ['Пересобрать карточку', 'Пересобрать карточку'], ['Изменить франшизу', 'Франшиза']]) command(editActions, text, choice, 'kino-home-action');
         function panel(title, cls, label, target) {
             const box = el(root, 'section', `kino-home-panel ${cls}`), head = el(box, 'div', 'kino-home-panel-head');
             el(head, 'h2', '', title); if (label) internal(head, label, target, 'kino-home-section-link');
             return { box, head, body: el(box, 'div', 'kino-home-widget') };
         }
-        const recent = panel('Последние просмотры', 'kino-home-recent', 'Весь каталог ↗', 'Кино/_Кино.base#Карточки');
+        const recent = panel('Последние просмотры', 'kino-home-recent', 'Весь каталог ↗', 'Кино/_Кино.base#Все');
         el(recent.head, 'p', 'kino-home-caption', 'Последние 20 по дате просмотра');
         const recentList = el(recent.body, 'div', 'kino-home-list');
         const reading = panel('Просмотры в цифрах', 'kino-home-reading', 'Аналитика ↗', 'Кино/_system/Аналитика прогнозов');

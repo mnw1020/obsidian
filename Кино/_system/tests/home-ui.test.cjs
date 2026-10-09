@@ -6,7 +6,7 @@ const fs=require('node:fs'),path=require('node:path'),{createRequire}=require('n
 const {chromium}=require('playwright');
 const system=path.resolve(__dirname,'..'),vault=path.resolve(system,'../..');
 const previews=path.join(system,'redesign-backups/previews');
-const expectedChoices=['movie_imdb','Добавить просмотр','Редактировать просмотр','Добавить сезон','Редактировать сезон','Пересобрать карточку','Франшиза'];
+const expectedChoices=['movie_imdb','Добавить просмотр','Добавить сезон','Редактировать просмотр','Редактировать сезон','Пересобрать карточку','Франшиза'];
 const expectedNav=['Кино/_Кино.base#Карточки','Кино/_system/Рекомендации','Кино/_system/Аналитика прогнозов','Кино/_system/Проверка кинотеки','Кино/_system/README','Кино/_system/Журнал изменений'];
 const base=fs.readFileSync(path.join(__dirname,'design-ui.test.cjs'),'utf8').match(/const baseStyles = `([\s\S]*?)`;/)[1]+`
  body{font:16px/1.5 "JetBrains Mono",monospace;--text-accent:#efa76b;--interactive-accent:#efa76b;--text-error:#ff8585}
