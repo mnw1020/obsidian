@@ -158,7 +158,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         catalogue.replaceChildren(icon);
         const stats = el(masthead, 'div', 'kino-home-stats'), statValues = [];
-        for (const [key, label] of [['total', 'В коллекции'], ['watched', 'Просмотрено'], ['movies', 'Фильмов'], ['serials', 'Сериалов'], ['average', 'Средняя оценка']]) {
+        for (const [key, label] of [['total', 'В коллекции'], ['movies', 'Фильмов'], ['serials', 'Сериалов'], ['average', 'Средняя оценка']]) {
             const cell = el(stats, 'div', 'kino-home-stat'), value = el(cell, 'strong'); value.dataset.stat = key;
             el(cell, 'span', '', label); statValues.push([key, value]);
         }
@@ -208,7 +208,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         function draw() {
             if (disposed) return;
             const items = media(), scores = items.map(item => item.score).filter(value => value != null);
-            const values = { total: items.length, watched: items.filter(item => item.fields['Просмотрено'] != null).length, movies: items.filter(item => item.movie).length, serials: items.filter(item => item.serial).length,
+            const values = { total: items.length, movies: items.filter(item => item.movie).length, serials: items.filter(item => item.serial).length,
                 average: scores.length ? (scores.reduce((sum, value) => sum + value, 0) / scores.length).toFixed(2).replace('.', ',') : '—' };
             for (const [key, node] of statValues) node.textContent = String(values[key]);
             const now = new Date(), periods = {

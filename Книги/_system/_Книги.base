@@ -41,25 +41,7 @@ properties:
     displayName: №
 views:
   - type: table
-    name: Список
-    groupBy:
-      property: formula.author_links
-      direction: ASC
-    order:
-      - formula.book_link
-      - formula.author_links
-      - rating
-      - date
-    sort:
-      - property: date
-        direction: DESC
-      - property: formula.book_link
-        direction: ASC
-  - type: table
     name: Все
-    groupBy:
-      property: date
-      direction: DESC
     order:
       - formula.book_link
       - formula.author_links
@@ -71,6 +53,10 @@ views:
       - series_index
     sort:
       - property: date
+        direction: DESC
+      - property: formula.book_link
+        direction: ASC
+      - property: formula.author_links
         direction: DESC
   - type: table
     name: По типу

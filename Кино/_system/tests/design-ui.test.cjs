@@ -330,7 +330,7 @@ test('actual home header, statistics, command links and deferred Bases sections 
                 await new Function('dv','app','require','return (async()=>{'+sources.home+'})()')(dv,app,()=>({}));
                 window.kinoHomeTest={stats,dispose:()=>cleanups.splice(0).forEach(callback=>callback())};
             },{sources:homeSources,baseStyles});
-            assert.equal(await page.locator('.kino-home-title').textContent(),'Кинотека');assert.deepEqual(await page.locator('.kino-home-stat strong').allTextContents(),['48','30','38','10','8,00']);
+            assert.equal(await page.locator('.kino-home-title').textContent(),'Кинотека');assert.deepEqual(await page.locator('.kino-home-stat strong').allTextContents(),['48','38','10','8,00']);
             assert.equal(await page.locator('.kino-home-actions a[data-choice]').count(),7);assert.equal(await page.locator('.kino-home-native-view').count(),3);
             assert.equal(await page.locator('.kino-home-recent .kino-home-row').count(),20);assert.equal(await page.locator('.kino-home-serials .kino-home-row').count(),5);
             assert.equal(await page.locator('.kino-home-native-content:not(:empty)').count(),0);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);

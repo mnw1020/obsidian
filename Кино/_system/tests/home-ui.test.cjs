@@ -134,7 +134,7 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.deepEqual(await styles(kino.page,'.kino-home'),await styles(book.page,'.book-home'));
             assert.equal(await kino.page.locator('.kino-home-ui[data-ready="true"]').count(),1);
             assert.equal(await kino.page.locator('.kino-home-title').textContent(),'Кинотека');
-            assert.equal(await kino.page.locator('.kino-home-stat strong').count(),5);
+            assert.equal(await kino.page.locator('.kino-home-stat strong').count(),4);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-row').count(),20);
             assert.equal(await kino.page.locator('.kino-home-serials .kino-home-row').count(),5);
             assert.deepEqual(await kino.page.locator('.kino-home-recent .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path)),collection.slice(0,20).map(file=>file.path));
@@ -179,9 +179,10 @@ test('home retains all command choices, original navigation and source-aware int
 test('stats update from local data events, exclude other folders and render untrusted text safely',async()=>{
     const {page,errors}=await mount();
     try{
-        assert.deepEqual(await page.locator('.kino-home-stats strong').allTextContents(),['48','30','38','10','8,00']);
+        assert.deepEqual(await page.locator('.kino-home-stats strong').allTextContents(),['48','38','10','8,00']);
         await page.evaluate(()=>window.homeTest.modify('Кино/Media/Фильм-47.md',{'Просмотрено':'2026-10-08','Оценка':'7,5'}));
-        await page.waitForFunction(()=>document.querySelector('[data-stat="watched"]').textContent==='31');
+        await page.waitForFunction(()=>document.querySelector('[data-stat="average"]').textContent==='7,98');
+        assert.equal(await page.locator('[data-stat="watched"]').count(),0);
         assert.equal(await page.locator('[data-stat="average"]').textContent(),'7,98');
         await page.evaluate(()=>window.homeTest.add({path:'Кино/Media/Текст.md',basename:'<img src=x onerror=alert(1)>',name:'Текст.md',extension:'md',stat:{mtime:100},fm:{tags:['movies','serial'],'Просмотрено':'2099-01-01','Оценка':'bad','Название':'<script>alert(1)</script>'}}));
         await page.waitForFunction(()=>document.querySelector('[data-stat="total"]').textContent==='49');
@@ -270,7 +271,7 @@ test('missing data, zero and comma ratings preserve old totals while period metr
         row('F',{tags:['movies'],'Просмотрено':isoOffset(400),'Оценка':'bad'})];
     const full=await mount({files,width:390});
     try{
-        assert.deepEqual(await full.page.locator('.kino-home-stats strong').allTextContents(),['6','5','5','2','5,50']);
+        assert.deepEqual(await full.page.locator('.kino-home-stats strong').allTextContents(),['6','5','2','5,50']);
         assert.deepEqual(await full.page.locator('.kino-home-metric strong').allTextContents(),['2','2','2']);
         assert.deepEqual(await full.page.locator('.kino-home-recent .kino-home-row').evaluateAll(rows=>rows.map(row=>row.dataset.path.split('/').at(-1))),['E.md','A.md','F.md','B.md','C.md','D.md']);
         assert.equal(await full.page.locator('.kino-home-recent .kino-home-row[data-path="Кино/Media/A.md"] .kino-home-row-meta').textContent(),'Сериал · 2015');
@@ -279,5 +280,5 @@ test('missing data, zero and comma ratings preserve old totals while period metr
         await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);
     }finally{await full.page.close();}
     const empty=await mount({files:[],width:390});
-    try{assert.deepEqual(await empty.page.locator('.kino-home-stats strong').allTextContents(),['0','0','0','0','—']);assert.equal(await empty.page.locator('.kino-home-empty').count(),2);await bounded(empty.page);await dispose(empty.page);assert.deepEqual(empty.errors,[]);}finally{await empty.page.close();}
+    try{assert.deepEqual(await empty.page.locator('.kino-home-stats strong').allTextContents(),['0','0','0','—']);assert.equal(await empty.page.locator('.kino-home-empty').count(),2);await bounded(empty.page);await dispose(empty.page);assert.deepEqual(empty.errors,[]);}finally{await empty.page.close();}
 });

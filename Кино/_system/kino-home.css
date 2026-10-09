@@ -42,7 +42,7 @@
 .kino-home-ui.kino-home-ui .kino-home-action[aria-disabled="true"] { opacity: .5; cursor: wait; }
 .kino-home-ui.kino-home-ui .kino-home-action.is-icon { flex: 0 0 40px; width: 40px; height: 40px; padding: 0; }
 .kino-home-ui.kino-home-ui .kino-home-action.is-icon svg { display: block; width: 20px; height: 20px; }
-.kino-home-ui.kino-home-ui .kino-home-stats { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); border-top: 1px solid var(--home-line); gap: 16px; padding: 22px 0; }
+.kino-home-ui.kino-home-ui .kino-home-stats { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); border-top: 1px solid var(--home-line); gap: 16px; padding: 22px 0; }
 .kino-home-ui.kino-home-ui .kino-home-stat { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .kino-home-ui.kino-home-ui .kino-home-stat strong { font: 700 28px/1.2 var(--home-numbers); color: var(--home-number-color) !important; font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.035em; }
 .kino-home-ui.kino-home-ui .kino-home-stat span { font-size: .7em; color: var(--text-muted); overflow-wrap: anywhere; }

@@ -137,7 +137,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         try { if (!disposed) await renderer({ dv: scope, app, obsidian, ...options }); }
         catch (problem) { if (!disposed) el(container, 'p', 'book-home-widget-error', `Не удалось загрузить блок: ${problem.message || problem}`); }
     }
-    const recent = panel(root, 'Недавние произведения', 'book-home-recent', 'Весь каталог ↗', 'Книги/_system/_Книги.base#Список');
+    const recent = panel(root, 'Недавние произведения', 'book-home-recent', 'Весь каталог ↗', 'Книги/_system/_Книги.base#Все');
     el(recent.head, 'p', 'book-home-caption', 'Последние 20 по дате чтения');
     const reading = panel(root, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
     const overviews = el(root, 'section', 'book-home-overviews'); el(overviews, 'h2', '', 'Обзор библиотеки');
