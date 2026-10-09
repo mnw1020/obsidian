@@ -137,6 +137,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const button = el(heading, 'button', 'kino-home-fold'); button.type = 'button';
             heading.prepend(button);
             const title = el(button, 'span', 'kino-home-fold-title');
+            title.id = `${instance}-${key}-title`;
+            button.setAttribute('aria-labelledby', title.id);
             if (key === 'footer') title.textContent = 'Служебные ссылки';
             else for (const node of titleNodes) title.appendChild(node);
             el(button, 'span', 'kino-home-fold-chevron').setAttribute('aria-hidden', 'true');
@@ -146,7 +148,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             function drawFold(expanded) {
                 box.dataset.collapsed = String(!expanded);
                 button.setAttribute('aria-expanded', String(expanded));
-                button.setAttribute('aria-label', `${expanded ? 'Свернуть' : 'Раскрыть'} блок «${label}»`);
                 for (const node of nodes) node.hidden = !expanded;
                 box.dispatchEvent(new doc.defaultView.Event('kino-fold-change'));
             }

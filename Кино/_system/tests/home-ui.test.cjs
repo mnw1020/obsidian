@@ -170,6 +170,9 @@ test('all home blocks collapse by keyboard and retain their state after reopenin
         const keys=['masthead','recent','reading','months','ratings','overview','footer'];
         const headingButton=page.locator('.kino-home-recent h2>.kino-home-fold');
         assert.equal(await headingButton.locator('.kino-home-fold-title').textContent(),'Последние просмотры');
+        assert.equal(await headingButton.getAttribute('aria-label'),null);
+        assert.equal(await headingButton.getAttribute('title'),null);
+        assert.equal(await headingButton.evaluate(button=>document.getElementById(button.getAttribute('aria-labelledby')).textContent),'Последние просмотры');
         assert.equal(await headingButton.locator('svg').count(),0);
         assert.equal(await headingButton.evaluate(button=>{const title=button.querySelector('.kino-home-fold-title').getBoundingClientRect(),chevron=button.querySelector('.kino-home-fold-chevron').getBoundingClientRect();return chevron.left>=title.right&&getComputedStyle(button).fontFamily===getComputedStyle(button.parentElement).fontFamily;}),true);
         for(const key of keys){
@@ -320,7 +323,7 @@ test('missing data, zero and comma ratings preserve old totals while period metr
         const monthRow = full.page.locator('[data-fold="months"] .kino-home-chart-row').nth(today.getMonth());
         assert.equal(await monthRow.getAttribute('data-movies'),'1');
         assert.equal(await monthRow.getAttribute('data-serials'),'1');
-        assert.deepEqual(await monthRow.locator('.kino-home-chart-bar').evaluateAll(bars=>bars.map(bar=>[bar.style.width,getComputedStyle(bar).backgroundColor])),[['50%','rgb(228, 182, 95)'],['50%','rgb(182, 154, 228)']]);
+        assert.deepEqual(await monthRow.locator('.kino-home-chart-bar').evaluateAll(bars=>bars.map(bar=>[bar.style.width,getComputedStyle(bar).backgroundColor])),[['50%','rgb(245, 166, 35)'],['50%','rgb(182, 154, 228)']]);
         assert.deepEqual(await full.page.locator('[data-fold="ratings"] .kino-home-chart-row').evaluateAll(rows=>rows.map(row=>[row.dataset.movies,row.dataset.serials])),[['1','0'],['0','1'],['1','0']]);
         assert.equal(await full.page.locator('.kino-home-chart-legend').count(),2);
         await bounded(full.page);await dispose(full.page);assert.deepEqual(full.errors,[]);

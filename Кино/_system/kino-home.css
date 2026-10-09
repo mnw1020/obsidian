@@ -148,7 +148,7 @@
 .kino-home-ui.kino-home-ui .kino-home-chart-body>.kino-home-caption { margin-top: 14px; }
 @container kino-home (max-width: 600px) { .kino-home-ui.kino-home-ui .kino-home-charts { grid-template-columns: minmax(0,1fr); } }
 
-.kino-home-ui.kino-home-ui { --home-movies: #e4b65f; --home-serials: #b69ae4; }
+.kino-home-ui.kino-home-ui { --home-movies: #f5a623; --home-serials: #b69ae4; }
 .kino-home-ui.kino-home-ui .kino-home-chart-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-bottom: 16px; color: var(--text-muted); font-size: .7em; }
 .kino-home-ui.kino-home-ui .kino-home-chart-key { display: inline-flex; align-items: center; gap: 7px; }
 .kino-home-ui.kino-home-ui .kino-home-chart-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; }
