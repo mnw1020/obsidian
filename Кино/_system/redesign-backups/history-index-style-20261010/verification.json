@@ -1,0 +1,18 @@
+{
+  "indexes": [
+    {
+      "path": "Просмотры/_index.md",
+      "allLinksPreserved": true,
+      "nativeBase": true,
+      "foldableBlocks": 3
+    },
+    {
+      "path": "Сезоны/_index.md",
+      "allLinksPreserved": true,
+      "nativeBase": true,
+      "foldableBlocks": 3
+    }
+  ],
+  "sourceRecordsUnchanged": 6,
+  "cssInstalled": true
+}

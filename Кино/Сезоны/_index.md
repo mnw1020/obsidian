@@ -1,20 +1,17 @@
 ---
 obsidianUIMode: preview
-cssclasses: ["kino-page", "kino-system", "kino-dashboard"]
+cssclasses: ["kino-page", "kino-system", "kino-dashboard", "kino-history-index"]
 aliases:
   - Сезоны
 ---
 
-# Сезоны
+> [!kino-history-header]+ Сезоны
+> [[Кино/_index|← Кинотека]] · [[Кино/Просмотры/_index|Просмотры]] · [[Кино/_system/Итоги просмотров|Итоги просмотров]]
+>
+> [Добавить сезон](obsidian://quickadd?choice=%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD) [Редактировать сезон](obsidian://quickadd?choice=%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD)
 
-[[Кино/_index|← Кинотека]] · [[Кино/Просмотры/_index|Просмотры]] · [[Кино/_system/Итоги просмотров|Итоги просмотров]]
+> [!kino-history]+ История сезонов
+> ![[Кино/Сезоны/_Сезоны.base#По дате]]
 
-[Добавить сезон](obsidian://quickadd?choice=%D0%94%D0%BE%D0%B1%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD) · [Редактировать сезон](obsidian://quickadd?choice=%D0%A0%D0%B5%D0%B4%D0%B0%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D1%82%D1%8C%20%D1%81%D0%B5%D0%B7%D0%BE%D0%BD)
-
-## История сезонов
-
-![[Кино/Сезоны/_Сезоны.base#По дате]]
-
-## Другие представления
-
-[[Кино/Сезоны/_Сезоны.base#Все сезоны|По сериалам]] · [[Кино/Сезоны/_Сезоны.base#Изменение оценки|Изменение оценки]]
+> [!kino-history-views]- Другие представления
+> [[Кино/Сезоны/_Сезоны.base#Все сезоны|По сериалам]] [[Кино/Сезоны/_Сезоны.base#Изменение оценки|Изменение оценки]]
