@@ -132,15 +132,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const instance = 'kino-fold-' + Math.random().toString(36).slice(2);
         function foldBlock(box, heading, targets, key, label) {
             box.dataset.fold = key;
+            const titleNodes = key === 'footer' ? [] : [...heading.childNodes];
             const button = el(heading, 'button', 'kino-home-fold'); button.type = 'button';
             heading.prepend(button);
-            const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
-            const arrow = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
-            arrow.setAttribute('d', 'M6 9l6 6 6-6'); arrow.setAttribute('fill', 'none');
-            arrow.setAttribute('stroke', 'currentColor'); arrow.setAttribute('stroke-width', '2');
-            svg.appendChild(arrow); button.appendChild(svg);
-            if (key === 'footer') el(button, 'span', '', 'Служебные ссылки');
+            const title = el(button, 'span', 'kino-home-fold-title');
+            if (key === 'footer') title.textContent = 'Служебные ссылки';
+            else for (const node of titleNodes) title.appendChild(node);
+            el(button, 'span', 'kino-home-fold-chevron').setAttribute('aria-hidden', 'true');
             const nodes = targets.filter(Boolean);
             nodes.forEach((node, index) => { if (!node.id) node.id = `${instance}-${key}-${index}`; });
             button.setAttribute('aria-controls', nodes.map(node => node.id).join(' '));

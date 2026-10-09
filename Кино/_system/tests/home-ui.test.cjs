@@ -165,6 +165,10 @@ test('all home blocks collapse by keyboard and retain their state after reopenin
             Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>stored.get(key)||null,setItem:(key,value)=>stored.set(key,value)}});
         });
         const keys=['masthead','recent','reading','serials','overview','footer'];
+        const headingButton=page.locator('.kino-home-recent h2>.kino-home-fold');
+        assert.equal(await headingButton.locator('.kino-home-fold-title').textContent(),'Последние просмотры');
+        assert.equal(await headingButton.locator('svg').count(),0);
+        assert.equal(await headingButton.evaluate(button=>{const title=button.querySelector('.kino-home-fold-title').getBoundingClientRect(),chevron=button.querySelector('.kino-home-fold-chevron').getBoundingClientRect();return chevron.left>=title.right&&getComputedStyle(button).fontFamily===getComputedStyle(button.parentElement).fontFamily;}),true);
         for(const key of keys){
             const control=page.locator(`[data-fold="${key}"] .kino-home-fold`).first();
             // Nested serials must be folded before their parent is hidden.

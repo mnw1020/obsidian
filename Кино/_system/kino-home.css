@@ -25,11 +25,14 @@
 }
 .kino-home-ui.kino-home-ui * { box-sizing: border-box; }
 .kino-home-ui.kino-home-ui [hidden] { display: none !important; }
-.kino-home-ui.kino-home-ui .kino-home-fold { display: inline-flex; align-items: center; justify-content: center; width: 24px; min-height: 24px; padding: 0; margin: 0 8px 0 0; border: 0; border-radius: 4px; background: transparent; color: var(--text-muted); vertical-align: middle; line-height: 1; }
-.kino-home-ui.kino-home-ui .kino-home-fold:hover { color: var(--home-accent); background: var(--home-tint); }
-.kino-home-ui.kino-home-ui .kino-home-fold svg { width: 18px; height: 18px; flex: 0 0 18px; }
-.kino-home-ui.kino-home-ui .kino-home-fold[aria-expanded="false"] svg { transform: rotate(-90deg); }
-.kino-home-ui.kino-home-ui .kino-home-footer>.kino-home-fold { width: auto; gap: 5px; font: inherit; margin: 0; }
+.kino-home-ui.kino-home-ui .kino-home-fold { display: flex; flex: 1 1 100%; justify-content: space-between; align-items: flex-start; gap: 12px; width: 100%; padding: 0; margin: 0; border: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; line-height: inherit; letter-spacing: inherit; text-align: left; }
+.kino-home-ui.kino-home-ui .kino-home-fold:hover { color: var(--home-accent); background: transparent; }
+.kino-home-ui.kino-home-ui .kino-home-fold-title { flex: 1 1 auto; min-width: 0; }
+.kino-home-ui.kino-home-ui .kino-home-fold-chevron { display: block; flex: 0 0 8px; width: 8px; height: 8px; margin: 9px 3px 0 0; border-inline-end: 2px solid currentColor; border-block-end: 2px solid currentColor; color: var(--text-muted); transform: rotate(45deg); }
+.kino-home-ui.kino-home-ui .kino-home-fold[aria-expanded="false"] .kino-home-fold-chevron { transform: rotate(-45deg); }
+.kino-home-ui.kino-home-ui .kino-home-title .kino-home-fold-chevron { margin-top: .4em; }
+.kino-home-ui.kino-home-ui .kino-home-footer .kino-home-fold-chevron { margin-top: 4px; }
+.kino-home-ui.kino-home-ui .kino-home-panel-head>h2 { flex: 1 1 100%; min-width: 0; }
 .kino-home-ui.kino-home-ui .kino-home-panel[data-collapsed="true"] .kino-home-panel-head { margin-bottom: 0; }
 .kino-home-ui.kino-home-ui :is(a,button,summary):focus-visible { outline: 2px solid var(--home-accent); outline-offset: 3px; }
 .kino-home-ui.kino-home-ui a { text-decoration: none; overflow-wrap: anywhere; }
