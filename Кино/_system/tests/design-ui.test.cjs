@@ -332,7 +332,7 @@ test('actual home header, statistics, command links and deferred Bases sections 
             },{sources:homeSources,baseStyles});
             assert.equal(await page.locator('.kino-home-title').textContent(),'Кинотека');assert.deepEqual(await page.locator('.kino-home-stat strong').allTextContents(),['48','38','10','8,00']);
             assert.equal(await page.locator('.kino-home-actions a[data-choice]').count(),7);assert.equal(await page.locator('.kino-home-native-view').count(),3);
-            assert.equal(await page.locator('.kino-home-recent .kino-home-row').count(),20);assert.equal(await page.locator('.kino-home-serials .kino-home-row').count(),5);
+            assert.equal(await page.locator('.kino-home-recent .kino-home-fold').getAttribute('aria-expanded'),'false');assert.equal(await page.locator('.kino-home-recent .kino-home-row').count(),0);assert.equal(await page.locator('.kino-home-serials .kino-home-row').count(),5);
             assert.equal(await page.locator('.kino-home-native-content:not(:empty)').count(),0);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
             assert.equal(await page.locator('.metadata-container').evaluate(el=>getComputedStyle(el).display),'none');
             await page.locator('.kino-home-views>summary').click();await page.locator('.kino-home-native-view summary').first().click();await page.locator('.kino-home-native-content a').waitFor();

@@ -131,6 +131,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         const instance = 'kino-fold-' + Math.random().toString(36).slice(2);
         function foldBlock(box, heading, targets, key, label) {
+            const savedKey = key === 'recent' ? 'recent:cards' : key;
             box.dataset.fold = key;
             const titleNodes = key === 'footer' ? [] : [...heading.childNodes];
             const button = el(heading, 'button', 'kino-home-fold'); button.type = 'button';
@@ -148,11 +149,12 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 button.setAttribute('aria-label', `${expanded ? 'Свернуть' : 'Раскрыть'} блок «${label}»`);
                 button.title = button.getAttribute('aria-label');
                 for (const node of nodes) node.hidden = !expanded;
+                box.dispatchEvent(new doc.defaultView.Event('kino-fold-change'));
             }
-            drawFold(typeof folds[key] === 'boolean' ? folds[key] : true);
+            drawFold(typeof folds[savedKey] === 'boolean' ? folds[savedKey] : key !== 'recent');
             listen(button, 'click', () => {
                 const expanded = button.getAttribute('aria-expanded') !== 'true';
-                drawFold(expanded); saveFold(key, expanded);
+                drawFold(expanded); saveFold(savedKey, expanded);
             });
         }
         function rememberDetails(details, key) {
@@ -213,9 +215,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             el(head, 'h2', '', title); if (label) internal(head, label, target, 'kino-home-section-link');
             return { box, head, body: el(box, 'div', 'kino-home-widget') };
         }
-        const recent = panel('Последние просмотры', 'kino-home-recent', 'Весь каталог ↗', 'Кино/_Кино.base#Все');
+        const recent = panel('Последние просмотры', 'kino-home-recent');
         el(recent.head, 'p', 'kino-home-caption', 'Последние 20 по дате просмотра');
-        const recentList = el(recent.body, 'div', 'kino-home-list');
         const reading = panel('Просмотры в цифрах', 'kino-home-reading', 'Аналитика ↗', 'Кино/_system/Аналитика прогнозов');
         el(reading.head, 'p', 'kino-home-caption', 'Произведения по дате последнего просмотра');
         const metrics = el(reading.body, 'div', 'kino-home-metrics'), metricValues = [];
@@ -262,7 +263,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             for (const [key, node] of metricValues) node.textContent = String(periods[key]);
             for (const cleanup of rowCleanups.splice(0)) cleanup();
             const sorted = [...items].sort(recentSort);
-            drawRows(recentList, sorted.slice(0, 20)); drawRows(serialList, sorted.filter(item => item.serial).slice(0, 5));
+            drawRows(serialList, sorted.filter(item => item.serial).slice(0, 5));
         }
         draw();
         function schedule() { if (disposed) return; clearTimeout(timer); timer = setTimeout(draw, 120); }
@@ -281,10 +282,14 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
         for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_Кино.base#' + name);
         const nativeViews = [];
-        function nativeView(label, target) {
-            const details = el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
-            rememberDetails(details, 'native:' + target);
-            el(details, 'summary', '', label); const content = el(details, 'div', 'kino-home-native-content');
+        function nativeView(label, target, embedded = null) {
+            const details = embedded ? embedded.box : el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
+            if (!embedded) {
+                rememberDetails(details, 'native:' + target);
+                el(details, 'summary', '', label);
+            }
+            const isOpen = () => embedded ? details.dataset.collapsed === 'false' : views.open && details.open;
+            const content = el(embedded ? embedded.body : details, 'div', 'kino-home-native-content');
             let child = null, generation = 0;
             const linkCleanups = [];
             function clear() {
@@ -294,7 +299,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             }
             cleanups.push(clear);
             async function open() {
-                if (disposed || !views.open || !details.open || child) return;
+                if (disposed || !isOpen() || child) return;
                 const current = ++generation;
                 if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !component?.addChild) {
                     for (const cleanup of linkCleanups.splice(0)) cleanup();
@@ -304,18 +309,19 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 const holder = el(content, 'div', 'kino-home-native-render');
                 try { await obsidian.MarkdownRenderer.render(app, `![[${target}]]`, holder, source, renderingChild); }
                 catch (problem) {
-                    if (!disposed && current === generation && details.open && views.open) {
+                    if (!disposed && current === generation && isOpen()) {
                         holder.replaceChildren(); el(holder, 'p', 'kino-home-widget-error', `Не удалось загрузить представление: ${problem?.message || problem}`);
                         internal(holder, 'Открыть представление', target, '', linkCleanups);
                     }
                     release(renderingChild); if (child === renderingChild) child = null;
                 } finally {
-                    if (disposed || current !== generation || !details.open || !views.open) { release(renderingChild); holder.remove(); if (child === renderingChild) child = null; }
+                    if (disposed || current !== generation || !isOpen()) { release(renderingChild); holder.remove(); if (child === renderingChild) child = null; }
                 }
             }
-            listen(details, 'toggle', () => { if (!details.open) clear(); else void open(); });
-            nativeViews.push({ clear, open });
+            listen(details, embedded ? 'kino-fold-change' : 'toggle', () => { if (!isOpen()) clear(); else void open(); });
+            if (!embedded) nativeViews.push({ clear, open });
         }
+        nativeView('Последние просмотры', 'Кино/_Кино.base#Последние', recent);
         nativeView('Последние просмотры', 'Кино/_Кино.base#Последние');
         nativeView('Перепросмотры', 'Кино/_Кино.base#Перепросмотры');
         nativeView('Последние сериалы', 'Кино/_Кино.base#Последние сериалы');
