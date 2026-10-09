@@ -53,7 +53,7 @@ async function ensureCommand(app) {
     const find=choices=>{for(const choice of choices||[]){if(choice.id===CHOICE_ID||choice.name===CHOICE)return choice;const nested=find(choice.choices);if(nested)return nested;}return null;};
     if(find(plugin.settings.choices))return;
     const saved=await plugin.loadData?.();const choice=find(saved?.choices);
-    if(choice){plugin.settings.choices.push(choice);plugin.addCommandForChoice(choice);}
+    if(choice&&!find(plugin.settings.choices)){plugin.settings.choices.push(choice);plugin.addCommandForChoice(choice);}
 }
 module.exports=update;
 module.exports.ensureCommand=ensureCommand;

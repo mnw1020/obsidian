@@ -662,5 +662,10 @@ async function withKinoLayout(app,obsidian,raw,kind){
     if(!file)return raw;
     const module={exports:{}};
     new Function("module","exports",await app.vault.read(file))(module,module.exports);
-    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+    const laidOut=module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+    const auditFile=app.vault.getAbstractFileByPath("Кино/_system/audit_ui.js");
+    if(!auditFile)return laidOut;
+    const auditModule={exports:{}};
+    new Function("module",await app.vault.read(auditFile))(auditModule);
+    return auditModule.exports.ensureLayout(laidOut);
 }

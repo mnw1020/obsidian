@@ -1,0 +1,11 @@
+.kino-home-ui.kino-audit .kino-home-actions { margin-bottom: 16px; }
+.kino-home-ui.kino-audit button.kino-home-action { font-size: .76em; }
+.kino-home-ui.kino-audit .kino-home-action:disabled { opacity: .5; cursor: wait; }
+.kino-home-ui.kino-audit :is(.kino-audit-description,.kino-audit-status) { font-size: .78em; line-height: 1.6; margin: 16px 0 0; color: var(--text-muted); overflow-wrap: anywhere; }
+.kino-home-ui.kino-audit .kino-audit-status { color: var(--home-heading-color); }
+.kino-home-ui.kino-audit .kino-audit-stop { margin-top: 12px; font-size: .75em; }
+.kino-home-ui.kino-audit .kino-report-body { font-size: .83em; line-height: 1.7; overflow-wrap: anywhere; }
+.kino-home-ui.kino-audit .kino-report-body :is(p,ul) { margin-block: 12px; }
+.kino-home-ui.kino-audit .kino-report-body strong { color: var(--home-number-color); font-variant-numeric: tabular-nums; }
+.kino-home-ui.kino-audit .kino-audit-fallback { white-space: pre-wrap; font: inherit; }
+.kino-home-ui.kino-audit .kino-audit-failures { margin-top: 16px; font-size: .78em; }

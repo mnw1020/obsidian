@@ -1,0 +1,7 @@
+{
+  "name": "Кино - Обновить оценки",
+  "id": "7be5f7b8-4f71-43fb-a923-296575e2ca10",
+  "script": "Кино/_system/update_ratings.js",
+  "enabled": true,
+  "added": true
+}
