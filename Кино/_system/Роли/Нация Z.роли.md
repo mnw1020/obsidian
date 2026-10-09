@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Z Nation"
 Основная карточка: "[[Кино/Media/Нация Z.md]]"
 imdb Id: "tt3843168"

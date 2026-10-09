@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Into the Universe with Stephen Hawking
 Просмотрено: 2013-12-20
 Оценка: "6"

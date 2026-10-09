@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Kingsman: The Golden Circle"
 Просмотрено: 2017-12-29
 Оценка: "4"

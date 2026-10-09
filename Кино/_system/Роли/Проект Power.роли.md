@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Project Power"
 Основная карточка: "[[Кино/Media/Проект Power.md]]"
 imdb Id: "tt7550000"

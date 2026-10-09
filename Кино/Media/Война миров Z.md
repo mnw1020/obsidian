@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: World War Z
 Просмотрено: 2013-09-10
 Оценка: "8"

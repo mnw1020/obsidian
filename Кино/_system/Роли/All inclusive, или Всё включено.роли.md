@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "All inclusive, или Всё включено"
 Основная карточка: "[[Кино/Media/All inclusive, или Всё включено.md]]"
 imdb Id: "tt1846473"

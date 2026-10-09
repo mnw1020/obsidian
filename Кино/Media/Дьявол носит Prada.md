@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: The Devil Wears Prada
 Просмотрено: 2026-02-09
 Оценка: "8"

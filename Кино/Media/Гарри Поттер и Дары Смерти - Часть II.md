@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Harry Potter and the Deathly Hallows: Part 2"
 Просмотрено: 2012-06-04
 Оценка: "7"

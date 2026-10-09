@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Babysitting 2
 Просмотрено: 2016-01-03
 Оценка: "5"

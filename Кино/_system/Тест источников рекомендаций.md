@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 cssclasses: ["kino-page","kino-system"]
 ---
 

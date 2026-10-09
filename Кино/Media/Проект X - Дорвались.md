@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Project X
 Просмотрено: 2013-08-27
 Оценка: "4"

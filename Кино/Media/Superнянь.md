@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Babysitting
 Просмотрено: 2016-01-03
 Оценка: "8"

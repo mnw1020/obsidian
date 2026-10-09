@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Into the Universe with Stephen Hawking"
 Основная карточка: "[[Кино/Media/Discovery - Во Вселенную со Стивеном Хокингом.md]]"
 imdb Id: "tt1655078"

@@ -314,7 +314,7 @@ module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "a
     }
     const sourceFile = app?.vault?.getAbstractFileByPath?.(sourcePath);
     const frontmatter = (sourceFile ? app?.metadataCache?.getFileCache?.(sourceFile)?.frontmatter : null) ?? current;
-    const simpleProperties = !Object.keys(frontmatter).some(key => !["position", "file", "cssclasses", "Выбрано"].includes(key));
+    const simpleProperties = !Object.keys(frontmatter).some(key => !["position", "file", "cssclasses", "Выбрано", "obsidianUIMode"].includes(key));
     let propertiesLease;
     if (simpleProperties) {
         propertiesLease = leases.get("kino-person-simple-properties") ?? { count: 0, original: view.classList.contains("kino-person-simple-properties") };

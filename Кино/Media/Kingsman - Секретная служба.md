@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Kingsman: The Secret Service"
 Просмотрено: 2015-05-21
 Оценка: "7"

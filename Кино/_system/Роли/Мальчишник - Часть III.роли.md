@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "The Hangover Part III"
 Основная карточка: "[[Кино/Media/Мальчишник - Часть III.md]]"
 imdb Id: "tt1951261"

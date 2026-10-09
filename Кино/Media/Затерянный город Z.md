@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: The Lost City of Z
 Просмотрено: 2018-06-30
 Оценка: "5"

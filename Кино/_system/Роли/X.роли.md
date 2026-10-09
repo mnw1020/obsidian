@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "X"
 Основная карточка: "[[Кино/Media/X.md]]"
 imdb Id: "tt13560574"

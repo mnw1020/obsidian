@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Doom"
 Основная карточка: "[[Кино/Media/Doom.md]]"
 imdb Id: "tt0419706"

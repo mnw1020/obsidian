@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Project Power
 Просмотрено: 2022-06-24
 Оценка: "8"

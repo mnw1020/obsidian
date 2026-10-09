@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Kyle XY"
 Основная карточка: "[[Кино/Media/Кайл XY.md]]"
 imdb Id: "tt0756500"

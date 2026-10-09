@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Through the Wormhole"
 Основная карточка: "[[Кино/Media/Discovery - Сквозь кротовую нору с Морганом Фрименом.md]]"
 imdb Id: "tt1513168"

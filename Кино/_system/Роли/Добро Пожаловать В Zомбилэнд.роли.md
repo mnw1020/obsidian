@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Zombieland"
 Основная карточка: "[[Кино/Media/Добро Пожаловать В Zомбилэнд.md]]"
 imdb Id: "tt1156398"

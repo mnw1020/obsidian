@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "El Camino: A Breaking Bad Movie"
 Основная карточка: "[[Кино/Media/El Camino - Фильм по мотивам сериала 'Во все тяжкие'.md]]"
 imdb Id: "tt9243946"

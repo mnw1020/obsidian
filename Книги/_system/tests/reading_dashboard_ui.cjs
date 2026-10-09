@@ -188,11 +188,13 @@ async function collapseChecks(browser) {
       assert.equal(await page.evaluate(() => fixture.renderCalls), before.renderCalls, 'Global refresh bypasses the destructive renderer');
       assert.equal(await page.evaluate(() => fixture.savedBodies.every((node, index) => node === document.querySelectorAll('.book-dashboard-section-body')[index])), true, 'Global refresh keeps the existing card bodies');
       await collapsedState(page, collapsed);
+      for (const key of blockKeys.filter(key => !collapsed.includes(key))) await (await blockState(page, key, true)).click();
+      await collapsedState(page, blockKeys);
       await indexAppearance(page); await assertBounded(page, `collapsed index, ${theme}, viewport ${width}`);
       if (process.env.DASHBOARD_SCREENSHOT_DIR) {
         fs.mkdirSync(process.env.DASHBOARD_SCREENSHOT_DIR, { recursive: true });
-        await page.locator('main').evaluate(node => { node.scrollTop = 0; });
-        await page.screenshot({ path: path.join(process.env.DASHBOARD_SCREENSHOT_DIR, `reading-index-collapsed-${width}-${theme}.png`) });
+        await page.locator('main').evaluate(node => { node.scrollTop = 0; node.style.height = 'auto'; node.style.overflow = 'visible'; });
+        await page.screenshot({ path: path.join(process.env.DASHBOARD_SCREENSHOT_DIR, `reading-index-collapsed-${width}-${theme}.png`), fullPage: true });
       }
       assert.deepEqual(errors, []); await dispose(page);
     } finally { await page.close(); }

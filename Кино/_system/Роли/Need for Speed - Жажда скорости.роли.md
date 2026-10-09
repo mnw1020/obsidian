@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Need for Speed"
 Основная карточка: "[[Кино/Media/Need for Speed - Жажда скорости.md]]"
 imdb Id: "tt2369135"

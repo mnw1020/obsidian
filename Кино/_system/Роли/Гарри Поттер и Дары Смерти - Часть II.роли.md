@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Harry Potter and the Deathly Hallows: Part 2"
 Основная карточка: "[[Кино/Media/Гарри Поттер и Дары Смерти - Часть II.md]]"
 imdb Id: "tt1201607"

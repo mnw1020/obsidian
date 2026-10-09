@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: All inclusive, или Всё включено
 Просмотрено: 2012-11-15
 Оценка: "3"

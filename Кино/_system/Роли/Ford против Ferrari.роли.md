@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Ford v Ferrari"
 Основная карточка: "[[Кино/Media/Ford против Ferrari.md]]"
 imdb Id: "tt1950186"

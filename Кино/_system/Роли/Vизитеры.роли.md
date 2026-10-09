@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "V"
 Основная карточка: "[[Кино/Media/Vизитеры.md]]"
 imdb Id: "tt1307824"

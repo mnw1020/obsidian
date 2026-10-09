@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Happy End
 Просмотрено: 2023-02-03
 Оценка: "8"

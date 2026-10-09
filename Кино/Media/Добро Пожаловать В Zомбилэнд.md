@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Zombieland
 Просмотрено: 2024-01-11
 Оценка: "5"

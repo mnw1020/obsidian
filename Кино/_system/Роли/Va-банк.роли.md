@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Runner Runner"
 Основная карточка: "[[Кино/Media/Va-банк.md]]"
 imdb Id: "tt2364841"

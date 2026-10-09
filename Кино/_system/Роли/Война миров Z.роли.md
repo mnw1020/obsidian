@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "World War Z"
 Основная карточка: "[[Кино/Media/Война миров Z.md]]"
 imdb Id: "tt0816711"

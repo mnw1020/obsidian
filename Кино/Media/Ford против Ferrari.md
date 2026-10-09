@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Ford v Ferrari
 Просмотрено: 2021-02-22
 Оценка: "8"

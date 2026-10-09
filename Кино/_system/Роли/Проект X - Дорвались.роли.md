@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Project X"
 Основная карточка: "[[Кино/Media/Проект X - Дорвались.md]]"
 imdb Id: "tt1636826"

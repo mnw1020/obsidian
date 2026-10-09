@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Runner Runner
 Просмотрено: 2014-03-30
 Оценка: "4"

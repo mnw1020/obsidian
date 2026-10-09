@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "The King's Man"
 Основная карточка: "[[Кино/Media/King’s Man - Начало.md]]"
 imdb Id: "tt6856242"

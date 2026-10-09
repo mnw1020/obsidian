@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Rob the Mob"
 Основная карточка: "[[Кино/Media/Гангста Love.md]]"
 imdb Id: "tt2481480"

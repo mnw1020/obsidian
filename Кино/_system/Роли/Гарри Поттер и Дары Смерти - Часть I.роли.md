@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Harry Potter and the Deathly Hallows: Part 1"
 Основная карточка: "[[Кино/Media/Гарри Поттер и Дары Смерти - Часть I.md]]"
 imdb Id: "tt0926084"

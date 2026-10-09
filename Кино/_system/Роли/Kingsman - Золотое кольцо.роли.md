@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Kingsman: The Golden Circle"
 Основная карточка: "[[Кино/Media/Kingsman - Золотое кольцо.md]]"
 imdb Id: "tt4649466"

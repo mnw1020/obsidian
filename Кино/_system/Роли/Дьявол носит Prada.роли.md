@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "The Devil Wears Prada"
 Основная карточка: "[[Кино/Media/Дьявол носит Prada.md]]"
 imdb Id: "tt0458352"

@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "BBC: The Human Mind"
 Основная карточка: "[[Кино/Media/BBC - Разум человека.md]]"
 imdb Id: "tt10073724"

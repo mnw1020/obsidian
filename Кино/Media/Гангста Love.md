@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Rob the Mob
 Просмотрено: 2014-12-03
 Оценка: "4"

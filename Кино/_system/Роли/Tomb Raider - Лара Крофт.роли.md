@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Tomb Raider"
 Основная карточка: "[[Кино/Media/Tomb Raider - Лара Крофт.md]]"
 imdb Id: "tt1365519"

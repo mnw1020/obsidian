@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Yesterday"
 Основная карточка: "[[Кино/Media/Yesterday.md]]"
 imdb Id: "tt8079248"

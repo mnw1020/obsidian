@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Sheker. Poslednij shans
 Просмотрено: 2025-01-02
 Оценка: "6"

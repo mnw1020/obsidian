@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "BBC: The Human Mind"
 Просмотрено: 2013-10-27
 Оценка: "4"

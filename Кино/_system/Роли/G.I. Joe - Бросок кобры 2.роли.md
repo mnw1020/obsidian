@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "G.I. Joe: Retaliation"
 Основная карточка: "[[Кино/Media/G.I. Joe - Бросок кобры 2.md]]"
 imdb Id: "tt1583421"

@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Last Vegas"
 Основная карточка: "[[Кино/Media/Starперцы.md]]"
 imdb Id: "tt1204975"

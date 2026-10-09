@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Z Nation
 Просмотрено: 2015-10-14
 Оценка: "6"

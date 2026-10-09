@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "G.I. Joe: Retaliation"
 Просмотрено: 2013-07-17
 Оценка: "6"

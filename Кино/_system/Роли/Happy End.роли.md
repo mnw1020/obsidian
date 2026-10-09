@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Happy End"
 Основная карточка: "[[Кино/Media/Happy End.md]]"
 imdb Id: "tt12908084"

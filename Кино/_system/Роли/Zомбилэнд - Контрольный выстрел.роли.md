@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Zombieland: Double Tap"
 Основная карточка: "[[Кино/Media/Zомбилэнд - Контрольный выстрел.md]]"
 imdb Id: "tt1560220"

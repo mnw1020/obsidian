@@ -150,6 +150,8 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         });
     }
     view?.dispose?.();
+    const collapsed = view ? (view.collapsed ||= {}) : {};
+    const sectionIdPrefix = "book-reading-" + Math.random().toString(36).slice(2, 10);
     const root = element(dv.container, "div", undefined, `book-reading-dashboard${home ? "" : " is-index"}`);
     if (view) { view.root = root; view.dispose = dispose; }
     else component?.register?.(dispose);
@@ -227,11 +229,30 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             element(metric, "span", label);
         }
     }
-    function section(title, parent = content, kind = "") {
+    function panel(title, parent = content, kind = "") {
         const panel = element(parent, "section", undefined, `book-dashboard-section${kind ? " is-" + kind : ""}`);
-        element(panel, home ? "h4" : "h2", title);
-        return panel;
+        const heading = element(panel, home ? "h4" : "h2", home ? title : undefined);
+        if (home) return { panel, heading, body: panel };
+        panel.setAttribute("data-block", kind);
+        const toggle = element(heading, "button", undefined, "book-dashboard-section-toggle");
+        toggle.type = "button";
+        element(toggle, "span", title, "book-dashboard-section-title");
+        element(toggle, "span", undefined, "book-dashboard-section-chevron").setAttribute("aria-hidden", "true");
+        const body = element(panel, "div", undefined, "book-dashboard-section-body");
+        const id = `${sectionIdPrefix}-${kind}`;
+        body.setAttribute("id", id);
+        toggle.setAttribute("aria-controls", id);
+        function update() {
+            body.hidden = Boolean(collapsed[kind]);
+            panel.setAttribute("data-collapsed", String(body.hidden));
+            toggle.setAttribute("aria-expanded", String(!body.hidden));
+            toggle.title = body.hidden ? "Развернуть блок" : "Свернуть блок";
+        }
+        toggle.addEventListener("click", () => { collapsed[kind] = !body.hidden; update(); });
+        update();
+        return { panel, heading, body };
     }
+    function section(title, parent = content, kind = "") { return panel(title, parent, kind).body; }
     function breakdown(parent, model, title = "") {
         const groups = [["fiction", "Художественная", model.fictionReadings, model.fictionTypes], ["nonfiction", "Нон-фикшн", model.nonfictionReadings, model.nonfictionTypes]]
             .filter(([, , count]) => count > 0);
@@ -256,21 +277,21 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         }
     }
     function memories(model) {
-        const panel = element(content, "section", undefined, `book-dashboard-section${home ? "" : " is-memories"}`);
-        const heading = element(panel, home ? "h4" : "h2", selectedMonth ? "В выбранном месяце раньше · " : "В этом месяце раньше · ");
         const name = MONTH_LABELS[Number(model.memoryMonth) - 1].toLocaleLowerCase("ru");
+        const card = panel(selectedMonth ? "В выбранном месяце раньше · " : "В этом месяце раньше · " + name, content, home ? "" : "memories");
+        const { heading, body } = card;
         if (selectedMonth && !home) {
             const button = element(heading, "button", `${name} ×`, "book-dashboard-month-reset");
             button.setAttribute("aria-label", `Сбросить месяц: ${name}`);
             button.title = "Показать весь год";
             button.addEventListener("click", () => setPeriod(selectedYear, ""));
-        } else element(heading, "span", name);
+        }
         if (!model.earlierThisMonth.length) {
-            element(panel, "p", `До ${model.memoryYear} года в этом месяце чтения ещё не записаны.`, "books-empty");
+            element(body, "p", `До ${model.memoryYear} года в этом месяце чтения ещё не записаны.`, "books-empty");
             return;
         }
         if (home) {
-            const list = element(panel, "ul", undefined, "book-dashboard-reading-list");
+            const list = element(body, "ul", undefined, "book-dashboard-reading-list");
             for (const item of model.earlierThisMonth.slice(0, 5)) {
                 const row = element(list, "li");
                 link(row, item, app);
@@ -278,7 +299,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             }
             return;
         }
-        element(panel, "p", `Чтения за этот месяц до ${model.memoryYear} года.`, "book-excerpt-meta");
+        element(body, "p", `Чтения за этот месяц до ${model.memoryYear} года.`, "book-excerpt-meta");
         const grouped = new Map();
         for (const item of model.earlierThisMonth) {
             const year = item.date.slice(0, 4);
@@ -286,7 +307,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
             grouped.get(year).push(item);
         }
         for (const [year, items] of grouped) {
-            const group = element(panel, "details", undefined, "book-dashboard-memory");
+            const group = element(body, "details", undefined, "book-dashboard-memory");
             group.open = year === model.earlierThisMonth[0].date.slice(0, 4);
             element(group, "summary", `${year} · чтений: ${items.length}`);
             const list = element(group, "ul");

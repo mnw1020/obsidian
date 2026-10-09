@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Tomb Raider
 Просмотрено: 2018-06-20
 Оценка: "6"

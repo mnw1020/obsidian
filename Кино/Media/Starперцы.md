@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Last Vegas
 Просмотрено: 2014-01-28
 Оценка: "7"

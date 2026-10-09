@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "The Lost City of Z"
 Основная карточка: "[[Кино/Media/Затерянный город Z.md]]"
 imdb Id: "tt1212428"

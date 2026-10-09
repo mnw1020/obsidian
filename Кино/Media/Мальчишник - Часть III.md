@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: The Hangover Part III
 Просмотрено: 2013-10-13
 Оценка: "5"

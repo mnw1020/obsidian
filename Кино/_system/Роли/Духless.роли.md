@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Духless"
 Основная карточка: "[[Кино/Media/Духless.md]]"
 imdb Id: "tt1826660"

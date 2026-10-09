@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Kyle XY
 Просмотрено: 2014-08-11
 Оценка: "8"

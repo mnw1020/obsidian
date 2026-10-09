@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Kingsman: The Secret Service"
 Основная карточка: "[[Кино/Media/Kingsman - Секретная служба.md]]"
 imdb Id: "tt2802144"

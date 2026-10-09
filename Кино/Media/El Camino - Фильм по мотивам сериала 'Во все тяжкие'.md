@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "El Camino: A Breaking Bad Movie"
 Просмотрено: 2019-12-20
 Оценка: "8"

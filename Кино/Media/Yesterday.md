@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Yesterday
 Просмотрено: 2020-06-30
 Оценка: "8"

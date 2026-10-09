@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: The King's Man
 Просмотрено: 2022-03-15
 Оценка: "3"

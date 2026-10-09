@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 tags:
   - franchise
 Порядок: выход

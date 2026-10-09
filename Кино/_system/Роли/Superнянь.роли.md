@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Babysitting"
 Основная карточка: "[[Кино/Media/Superнянь.md]]"
 imdb Id: "tt3013602"

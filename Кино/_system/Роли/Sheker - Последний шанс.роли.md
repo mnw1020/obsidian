@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Sheker. Poslednij shans"
 Основная карточка: "[[Кино/Media/Sheker - Последний шанс.md]]"
 imdb Id: "tt37660303"

@@ -1,0 +1,10 @@
+✔ viewing and season comments retain Markdown; utility kinds keep existing titles and source properties editable (1565.8747ms)
+✔ empty entity states stay usable; cleanup restores native titles and personal properties remain visible (1145.2019ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2864.0868

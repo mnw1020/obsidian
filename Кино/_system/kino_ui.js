@@ -253,7 +253,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     for (const [selector, cls] of [[".kino-card-title", "kino-has-card-title"], [".kino-properties", "kino-has-properties"]]) {
         if (root.querySelector(selector)) acquireClass(cls);
     }
-    if (!Object.keys(fm).some(key => !["position", "file", "cssclasses"].includes(key))) acquireClass("kino-cosmetic-properties");
+    if (!Object.keys(fm).some(key => !["position", "file", "cssclasses", "obsidianUIMode"].includes(key))) acquireClass("kino-cosmetic-properties");
 
     const duplicateTitles = new Set();
     cleanup(() => { for (const heading of duplicateTitles) heading.classList.remove("kino-duplicate-title"); });

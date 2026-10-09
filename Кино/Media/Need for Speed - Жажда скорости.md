@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: Need for Speed
 Просмотрено: 2014-10-14
 Оценка: "9"

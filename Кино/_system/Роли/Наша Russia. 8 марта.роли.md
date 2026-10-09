@@ -1,4 +1,5 @@
 ---
+obsidianUIMode: preview
 Название: "Наша Russia. 8 марта"
 Основная карточка: "[[Кино/Media/Наша Russia. 8 марта.md]]"
 imdb Id: "tt33094176"
