@@ -191,16 +191,21 @@ module.exports = async (params) => {
         return weight ? score/weight : 0;
     }
 
-    async function localPrediction(target, rated) {
+    async function localPrediction(target, rated, context = null) {
         const allForIdf = [...rated, target];
-        const idf=buildIdf(allForIdf);
-        const targetVec=tfidfMap(target,idf);
+        const idf=context?.idf || buildIdf(allForIdf);
+        const vector = item => {
+            if (!context) return tfidfMap(item,idf);
+            if (!context.vectors.has(item)) context.vectors.set(item,tfidfMap(item,idf));
+            return context.vectors.get(item);
+        };
+        const targetVec=vector(target);
         const calibration=fitPublicCalibration(rated);
         const globalMean=mean(rated.map(x=>x.rating)) || 6;
         const targetBase=baseline(target,calibration,globalMean);
         const candidates=[];
         for(const item of rated){
-            const sim=metadataSimilarity(target,item,targetVec,tfidfMap(item,idf));
+            const sim=metadataSimilarity(target,item,targetVec,vector(item));
             if(sim<MIN_SIM) continue;
             const itemBase=baseline(item,calibration,globalMean);
             candidates.push({item,sim,resid:item.rating-itemBase});
@@ -218,6 +223,34 @@ module.exports = async (params) => {
     }
 
     function confidenceText(x){ return x>=0.72?"высокая":x>=0.46?"средняя":"низкая"; }
+
+    // Read-only estimates for a collection update. Each target is excluded from
+    // training, just as in the existing single-card command. Shared TF-IDF vectors
+    // avoid rebuilding the same corpus for every already-rated card.
+    if (Array.isArray(params?.forecastFiles)) {
+        const items=[];
+        for (const file of app.vault.getMarkdownFiles().filter(isMedia)) items.push(await buildFeature(file));
+        const byPath=new Map(items.map(item=>[item.file.path,item]));
+        const rated=items.filter(item=>item.rating!==null && item.rating>=1 && item.rating<=10);
+        const ratedPaths=new Set(rated.map(item=>item.file.path));
+        const context={idf:buildIdf(rated),vectors:new Map()};
+        const targets=[...new Set(params.forecastFiles.map(file=>file?.path).filter(Boolean))];
+        const results=[];
+        for (let index=0;index<targets.length;index++) {
+            if (params.shouldCancel?.()) return {results,cancelled:true};
+            const target=byPath.get(targets[index]);
+            const peers=rated.filter(item=>item.file.path!==target?.file.path);
+            if (!target) results.push({path:targets[index],error:"Не найдена основная карточка"});
+            else if (peers.length<30) results.push({file:target.file,error:"Для прогноза нужно не менее 30 оценённых других карточек"});
+            else {
+                const estimate=await localPrediction(target,peers,ratedPaths.has(target.file.path)?context:null);
+                results.push({file:target.file,prediction:Math.round(estimate.pred*10)/10,real:target.rating});
+            }
+            params.onProgress?.({phase:"predicting",completed:index+1,total:targets.length});
+            if ((index+1)%5===0) await new Promise(resolve=>setTimeout(resolve,0));
+        }
+        return {results,cancelled:Boolean(params.shouldCancel?.())};
+    }
 
     // Read-only batch forecast for the recommendations page. It uses the same
     // model as a card forecast and never writes to a movie file.
