@@ -144,6 +144,7 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.equal(await kino.page.locator('.kino-home-serials').count(),0);
             assert.equal(await kino.page.locator('[data-fold="months"] .kino-home-chart-row').count(),12);
             assert.equal(await kino.page.locator('.kino-home-overview').count(),3);
+            assert.equal(await kino.page.locator('.kino-home-overviews .kino-home-views').count(),1);
             if(layout.pane){
                 const lines=await kino.page.locator('.kino-home-overview>a[data-choice="Кино - Открыть режиссера"]').evaluate(link=>{const range=document.createRange();range.selectNodeContents(link);return new Set([...range.getClientRects()].map(rect=>Math.round(rect.top))).size;});
                 assert.equal(lines,1,'The director label stays on one line in a narrow actual pane');
@@ -187,12 +188,17 @@ test('all home blocks collapse by keyboard and retain their state after reopenin
         }
         await page.locator('[data-fold="reading"] .kino-home-fold').first().press('Space');
         await page.locator('.kino-home-management>summary').click();
+        await page.locator('[data-fold="overview"] .kino-home-fold').first().press('Enter');
         await page.locator('.kino-home-views>summary').click();
         const native=page.locator('.kino-home-native-view').first();await native.locator('summary').click();await native.locator('.bases-view').waitFor();
+        await page.locator('[data-fold="overview"] .kino-home-fold').first().press('Enter');
+        await native.locator('.bases-view').waitFor({state:'detached'});
         await page.evaluate(async()=>{const test=window.homeTest;delete test.app.__kinoHomeFolds;test.handle=await test.renderer({dv:test.dv,app:test.app,obsidian:test.obsidian});});
         for(const key of keys)assert.equal(await page.locator(`[data-fold="${key}"] .kino-home-fold`).first().getAttribute('aria-expanded'),'false');
         assert.equal(await page.locator('.kino-home-management').evaluate(node=>node.open),true);
         assert.equal(await page.locator('.kino-home-views').evaluate(node=>node.open),true);
+        assert.equal(await page.locator('.kino-home-native-view .bases-view').count(),0);
+        await page.locator('[data-fold="overview"] .kino-home-fold').first().press('Enter');
         await page.locator('.kino-home-native-view .bases-view').waitFor();
         await page.locator('[data-fold="recent"] .kino-home-fold').first().press('Enter');
         await page.locator('.kino-home-recent .bases-view').waitFor();

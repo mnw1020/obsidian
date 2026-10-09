@@ -286,23 +286,27 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             if (!owner?.on) continue;
             for (const event of events) { const ref = owner.on(event, schedule); cleanups.push(() => owner.offref?.(ref)); }
         }
-        const overviews = el(root, 'section', 'kino-home-overviews'); el(overviews, 'h2', '', 'Обзор кинотеки');
-        const overviewLinks = el(overviews, 'div', 'kino-home-overview-links');
+        const overviews = el(root, 'section', 'kino-home-panel kino-home-overviews'); el(overviews, 'h2', '', 'Обзор кинотеки');
+        const overviewBody = el(overviews, 'div', 'kino-home-overview-body');
+        const overviewLinks = el(overviewBody, 'div', 'kino-home-overview-links');
         for (const [label, description, choice] of [['Актёры', 'Фильмы и сериалы по актёрам', 'Кино - Открыть актера'], ['Режиссёры', 'Работы и личные оценки', 'Кино - Открыть режиссера'], ['Жанры', 'Истории по настроению', 'Кино - Открыть жанр']]) {
             const tile = el(overviewLinks, 'div', 'kino-home-overview'); command(tile, label, choice); el(tile, 'p', '', description);
         }
-        const views = el(root, 'details', 'kino-home-views'); el(views, 'summary', '', 'Другие представления каталога');
+        const views = el(overviewBody, 'details', 'kino-home-views');
+        const viewsHeading = el(views, 'summary'); el(viewsHeading, 'span', '', 'Другие представления каталога');
+        el(viewsHeading, 'span', 'kino-home-fold-chevron').setAttribute('aria-hidden', 'true');
         rememberDetails(management, 'management'); rememberDetails(views, 'views');
         const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
         for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_Кино.base#' + name);
         const nativeViews = [];
+        const viewsVisible = () => views.open && overviews.dataset.collapsed !== 'true';
         function nativeView(label, target, embedded = null) {
             const details = embedded ? embedded.box : el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
             if (!embedded) {
                 rememberDetails(details, 'native:' + target);
                 el(details, 'summary', '', label);
             }
-            const isOpen = () => embedded ? details.dataset.collapsed === 'false' : views.open && details.open;
+            const isOpen = () => embedded ? details.dataset.collapsed === 'false' : viewsVisible() && details.open;
             const content = el(embedded ? embedded.body : details, 'div', 'kino-home-native-content');
             let child = null, generation = 0;
             const linkCleanups = [];
@@ -339,14 +343,16 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         nativeView('Последние просмотры', 'Кино/_Кино.base#Последние');
         nativeView('Перепросмотры', 'Кино/_Кино.base#Перепросмотры');
         nativeView('Последние сериалы', 'Кино/_Кино.base#Последние сериалы');
-        listen(views, 'toggle', () => { for (const view of nativeViews) if (views.open) void view.open(); else view.clear(); });
+        function syncViews() { for (const view of nativeViews) if (viewsVisible()) void view.open(); else view.clear(); }
+        listen(views, 'toggle', syncViews);
+        listen(overviews, 'kino-fold-change', syncViews);
         const footer = el(root, 'footer', 'kino-home-footer');
         internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
         foldBlock(masthead, heading.querySelector('h1'), [nav, actions, stats], 'masthead', 'Кинотека');
         for (const [block, key, label] of [[recent, 'recent', 'Последние просмотры'], [reading, 'reading', 'Просмотры в цифрах']]) {
             foldBlock(block.box, block.head.querySelector('h2'), [block.body, block.head.querySelector('.kino-home-caption')], key, label);
         }
-        foldBlock(overviews, overviews.querySelector('h2'), [overviewLinks], 'overview', 'Обзор кинотеки');
+        foldBlock(overviews, overviews.querySelector('h2'), [overviewBody], 'overview', 'Обзор кинотеки');
         foldBlock(footer, footer, [...footer.querySelectorAll('a')], 'footer', 'Служебные ссылки');
         if (!disposed) root.dataset.ready = 'true';
         return { dispose };
