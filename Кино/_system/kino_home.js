@@ -147,7 +147,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 box.dataset.collapsed = String(!expanded);
                 button.setAttribute('aria-expanded', String(expanded));
                 button.setAttribute('aria-label', `${expanded ? 'Свернуть' : 'Раскрыть'} блок «${label}»`);
-                button.title = button.getAttribute('aria-label');
                 for (const node of nodes) node.hidden = !expanded;
                 box.dispatchEvent(new doc.defaultView.Event('kino-fold-change'));
             }
@@ -217,8 +216,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         const recent = panel('Последние просмотры', 'kino-home-recent');
         el(recent.head, 'p', 'kino-home-caption', 'Последние 20 по дате просмотра');
-        const reading = panel('Просмотры в цифрах', 'kino-home-reading', 'Аналитика ↗', 'Кино/_system/Аналитика прогнозов');
-        el(reading.head, 'p', 'kino-home-caption', 'Произведения по дате последнего просмотра');
+        const reading = panel('Просмотры в цифрах', 'kino-home-reading');
         const metrics = el(reading.body, 'div', 'kino-home-metrics'), metricValues = [];
         for (const [key, label] of [['month', 'В этом месяце'], ['year', 'В этом году'], ['reread', 'Пересмотрено за всё время']]) {
             const cell = el(metrics, 'div', 'kino-home-metric'), value = el(cell, 'strong'); value.dataset.period = key;
@@ -240,9 +238,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             return { list, body };
         }
         const months = chart('Просмотры по месяцам', 'months');
-        const monthCaption = el(months.body, 'p', 'kino-home-caption');
         const ratings = chart('Распределение оценок', 'ratings');
-        const ratingCaption = el(ratings.body, 'p', 'kino-home-caption');
         function splitTypes(items) {
             // A note bearing both tags is counted once, as a serial.
             return [items.filter(item => !item.serial).length, items.filter(item => item.serial).length];
@@ -280,7 +276,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             for (const [key, node] of metricValues) node.textContent = String(periods[key]);
             const monthNames = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
             drawChart(months.list, monthNames.map((name, index) => [name, ...splitTypes(items.filter(item => item.watched?.year === now.getFullYear() && item.watched.month === index + 1))]));
-            monthCaption.textContent = now.getFullYear() + ' год · по последней дате просмотра';
             const counts = new Map();
             for (const item of items) {
                 if (item.score == null) continue;
@@ -288,7 +283,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 counts.get(item.score)[item.serial ? 1 : 0]++;
             }
             drawChart(ratings.list, [...counts].sort((a, b) => b[0] - a[0]).map(([score, counts]) => [String(score).replace('.', ','), ...counts]), 'Пока нет оценок.');
-            ratingCaption.textContent = 'С оценкой: ' + scores.length + ' · Без оценки: ' + (items.length - scores.length);
         }
         draw();
         function schedule() { if (disposed) return; clearTimeout(timer); timer = setTimeout(draw, 120); }
