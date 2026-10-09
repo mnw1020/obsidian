@@ -26,9 +26,9 @@ function scan(folder) {
         const after = ensurePreview(before), original = parts(before), updated = parts(after);
         total++;
         if (original.body !== updated.body) throw new Error(`Body changed: ${file}`);
-        const mode = /^obsidianUIMode:[ \t]*preview[ \t]*(?:#.*)?\r?$/m;
+        const mode = /^(?:obsidianUIMode|'obsidianUIMode'|"obsidianUIMode")[ \t]*:[ \t]*preview[ \t]*(?:#.*)?\r?$/m;
         if (!mode.test(updated.yaml || '')) throw new Error(`Missing preview property: ${file}`);
-        if (original.yaml !== null && !/^obsidianUIMode:/m.test(original.yaml)) {
+        if (original.yaml !== null && !/^(?:obsidianUIMode|'obsidianUIMode'|"obsidianUIMode")[ \t]*:/m.test(original.yaml)) {
             const withoutAddition = updated.yaml.replace(/^obsidianUIMode:[^\r\n]*(?:\r?\n|$)/m, '');
             if (withoutAddition !== original.yaml) throw new Error(`Other YAML changed: ${file}`);
         }

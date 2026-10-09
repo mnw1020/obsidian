@@ -69,14 +69,18 @@ class BookPreviewDefaults extends Plugin {
     onload() {
         this.pending = new Map();
         this.disposed = false;
-        this.registerEvent(this.app.vault.on("create", file => this.schedule(file)));
-        this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
-            if (oldPath.startsWith(BOOKS_PREFIX) || !file.path.startsWith(BOOKS_PREFIX)) return;
-            if (file.extension === "md") this.schedule(file);
-            else for (const note of this.app.vault.getMarkdownFiles()) {
-                if (note.path.startsWith(file.path + "/")) this.schedule(note);
-            }
-        }));
+        // During startup Obsidian emits create for existing notes as well.
+        this.app.workspace.onLayoutReady(() => {
+            if (this.disposed) return;
+            this.registerEvent(this.app.vault.on("create", file => this.schedule(file)));
+            this.registerEvent(this.app.vault.on("rename", (file, oldPath) => {
+                if (oldPath.startsWith(BOOKS_PREFIX) || !file.path.startsWith(BOOKS_PREFIX)) return;
+                if (file.extension === "md") this.schedule(file);
+                else for (const note of this.app.vault.getMarkdownFiles()) {
+                    if (note.path.startsWith(file.path + "/")) this.schedule(note);
+                }
+            }));
+        });
     }
 
     isBook(file) {

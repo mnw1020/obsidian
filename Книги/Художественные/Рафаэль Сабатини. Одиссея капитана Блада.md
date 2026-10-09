@@ -7,6 +7,7 @@ rating: 8
 read_count: 1
 cssclasses:
   - book-card
+obsidianUIMode: preview
 ---
 
 <!-- BOOK-CARD:START -->

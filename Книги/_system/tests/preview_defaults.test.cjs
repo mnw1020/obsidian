@@ -48,13 +48,14 @@ test('a nested obsolete mode value is removed while other YAML stays byte-for-by
     assert.equal(ensurePreview(before), '---\nobsidianUIMode: preview\n  # Mode comment\n\nauthors:\n  - Author\n---\nBody');
 });
 
-function harness() {
+function harness({ ready = true } = {}) {
     const refs = new Set();
     const files = new Map();
     const contents = new Map();
     const timers = new Map();
     const processed = [];
     const errors = [];
+    const layoutCallbacks = [];
     let nextTimer = 0;
     class Plugin {
         constructor(app) { this.app = app; this.refs = []; }
@@ -78,7 +79,11 @@ function harness() {
         console: { error(...args) { errors.push(args); } }
     };
     vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../preview-defaults/main.js'), 'utf8'), sandbox);
-    const plugin = new sandbox.module.exports({ vault });
+    const workspace = {
+        layoutReady: ready,
+        onLayoutReady(callback) { if (this.layoutReady) callback(); else layoutCallbacks.push(callback); }
+    };
+    const plugin = new sandbox.module.exports({ vault, workspace });
     plugin.onload();
     return {
         plugin, processed, errors, timers, contents, refs, vault,
@@ -87,6 +92,7 @@ function harness() {
             files.set(filePath, file); contents.set(file, text); return file;
         },
         emit(event, ...args) { for (const ref of refs) if (ref.event === event) ref.callback(...args); },
+        ready() { workspace.layoutReady = true; for (const callback of layoutCallbacks.splice(0)) callback(); },
         rename(file, filePath) { const old = file.path; files.delete(old); file.path = filePath; files.set(filePath, file); this.emit('rename', file, old); },
         async tick() { for (const [id, callback] of [...timers]) { timers.delete(id); callback(); } await Promise.resolve(); },
         text(file) { return contents.get(file); }
@@ -108,6 +114,36 @@ test('the plugin watches creation only inside Books and never scans notes on sta
     assert.equal(h.text(other), 'Text');
     assert.equal(h.text(sibling), 'Text');
     assert.equal(h.text(image), 'Binary');
+});
+
+test('startup create events for existing notes are ignored until the layout is ready', async () => {
+    const h = harness({ ready: false });
+    const existing = h.add('Книги/Существующая.md', '---\nobsidianUIMode: source\n---\nManual');
+    h.emit('create', existing);
+    assert.equal(h.refs.size, 0);
+    await h.tick();
+    assert.deepEqual(h.processed, []);
+    h.ready();
+    assert.equal(h.refs.size, 2);
+    const created = h.add('Книги/Новая.md', 'New');
+    h.emit('create', created);
+    await h.tick();
+    assert.deepEqual(h.processed, [created.path]);
+    assert.equal(h.text(existing), '---\nobsidianUIMode: source\n---\nManual');
+    assert.equal(h.text(created), ensurePreview('New'));
+});
+
+test('unload before layout readiness prevents deferred event subscriptions', async () => {
+    const h = harness({ ready: false });
+    h.plugin.unload();
+    h.ready();
+    assert.equal(h.refs.size, 0);
+    const created = h.add('Книги/Новая.md', 'Body');
+    h.emit('create', created);
+    await h.tick();
+    assert.equal(h.timers.size, 0);
+    assert.deepEqual(h.processed, []);
+    assert.equal(h.text(created), 'Body');
 });
 
 test('debouncing processes the latest complete contents atomically and does not watch modifications', async () => {
