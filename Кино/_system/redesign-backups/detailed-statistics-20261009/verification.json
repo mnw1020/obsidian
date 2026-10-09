@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-09",
+  "status": "complete",
+  "tests": {
+    "home": 11,
+    "homeDesign": 1,
+    "statistics": 3
+  },
+  "report": "Кино/_system/Итоги просмотров.md",
+  "linkPosition": "right of statistics block heading",
+  "sourceNotesChanged": false,
+  "baseDefinitionsChanged": false,
+  "realDataCheck": "real-data-check.json"
+}

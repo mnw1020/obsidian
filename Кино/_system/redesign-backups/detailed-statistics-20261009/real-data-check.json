@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-09",
+  "filesRead": 3109,
+  "parseFailures": 0,
+  "records": 1551,
+  "movies": 1309,
+  "serials": 242,
+  "events": 1554,
+  "repeats": 2,
+  "average": 6.101225016118633,
+  "years": 16,
+  "genres": 41,
+  "directors": 1955,
+  "actors": 88471,
+  "franchises": 172,
+  "unlinked": 0,
+  "undated": 0,
+  "fallback": 1548,
+  "modelMs": 407
+}

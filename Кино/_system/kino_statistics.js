@@ -161,11 +161,12 @@ async function render({ dv, app }) {
         }
         const activity=section('Годы и месяцы просмотров','activity');
         const activityGrid=el(activity,'div','kino-report-grid');
-        const yearsBox=el(activityGrid,'div');el(yearsBox,'h3','','По годам');const yearsChart=el(yearsBox,'div');
+        const yearsBox=el(activityGrid,'div');el(yearsBox,'h3','','По годам');const yearsChart=el(yearsBox,'div','kino-report-scroll');
         const monthsBox=el(activityGrid,'div');const monthsHeading=el(monthsBox,'h3');const monthsChart=el(monthsBox,'div');
         const ratingBox=section('Личные оценки','ratings');const ratingChart=el(ratingBox,'div');
         const releaseBox=section('Годы выпуска и десятилетия','releases');const releaseGrid=el(releaseBox,'div','kino-report-grid');
-        const decadeChart=el(releaseGrid,'div');const releaseChart=el(releaseGrid,'div','kino-report-scroll');
+        const decadesBox=el(releaseGrid,'div');el(decadesBox,'h3','','По десятилетиям');const decadeChart=el(decadesBox,'div');
+        const releasesBox=el(releaseGrid,'div');el(releasesBox,'h3','','По годам выпуска');const releaseChart=el(releasesBox,'div','kino-report-scroll');
         const groupTables={};
         for(const [id,title]of [['genres','Жанры'],['directors','Режиссёры'],['actors','Актёры'],['franchises','Франшизы'],['countries','Страны']]) {
             const body=section(title,id,id!=='countries');groupTables[id]=makeTable(body,id,['Название','Всего','Фильмы','Сериалы','Средняя оценка']);

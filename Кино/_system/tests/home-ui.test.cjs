@@ -134,6 +134,9 @@ test('actual Books and cinema home renderers share masthead, typography and boun
             assert.deepEqual(await styles(kino.page,'.kino-home'),await styles(book.page,'.book-home'));
             assert.equal(await kino.page.locator('.kino-home-ui[data-ready="true"]').count(),1);
             assert.equal(await kino.page.locator('.kino-home-title').textContent(),'Кинотека');
+            const reportLink=kino.page.locator('.kino-home-reading .kino-home-report-link');
+            assert.equal(await reportLink.getAttribute('data-href'),'Кино/_system/Итоги просмотров');
+            assert.equal(await reportLink.evaluate(link=>link.getBoundingClientRect().left>=link.parentElement.querySelector('h2').getBoundingClientRect().right),true);
             assert.equal(await kino.page.locator('.kino-home-stat strong').count(),4);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-row').count(),0);
             assert.equal(await kino.page.locator('.kino-home-recent .kino-home-fold').getAttribute('aria-expanded'),'false');
