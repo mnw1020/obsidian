@@ -146,11 +146,6 @@ async function render({ dv, app }) {
         const typeSelect=select('Тип',[['','Фильмы и сериалы'],['movies','Фильмы'],['serials','Сериалы']]);
         const reset=el(controls,'button','','За всё время');reset.type='button';
         const period=el(head,'p','kino-report-period');period.setAttribute('role','status');
-        const metrics=el(head,'div','kino-report-metrics');
-        const metricNodes=[];
-        for(const [key,label]of [['works','Произведений'],['movies','Фильмов'],['serials','Сериалов'],['events','Просмотров и сезонов'],['repeats','Повторных просмотров'],['average','Средняя оценка']]) {
-            const box=el(metrics,'div','kino-home-stat');const n=el(box,'strong');n.dataset.metric=key;el(box,'span','',label);metricNodes.push([key,n]);
-        }
         function section(title,id,open=true) {
             const box=el(root,'details','kino-report-section');box.dataset.section=id;box.open=state.folds[id]??open;
             const summary=el(box,'summary');el(summary,'span','',title);el(summary,'span','kino-home-fold-chevron').setAttribute('aria-hidden','true');
@@ -212,7 +207,6 @@ async function render({ dv, app }) {
         listen(monthsChart,'click',e=>{const button=e.target.closest('button[data-value]');if(button&&state.year)setPeriod(state.year,state.month===button.dataset.value?'':button.dataset.value);});
         function draw(){if(disposed)return;const model=build(data,state);yearSelect.value=state.year;monthSelect.value=state.month;monthSelect.disabled=!state.year;typeSelect.value=state.type;
             period.textContent=(state.year?(state.month?MONTHS[+state.month-1]+' · ':'')+state.year:'За всё время')+(state.type?' · '+(state.type==='movies'?'Фильмы':'Сериалы'):'');
-            const totals={works:model.records.length,movies:model.types[0],serials:model.types[1],events:model.events.length,repeats:model.repeats,average:fmt(model.average)};for(const [key,node]of metricNodes)node.textContent=totals[key];
             chart(yearsChart,model.years.map(([year,events])=>({label:year,value:year,selected:state.year===year,types:split(events.map(e=>e.record))})),true);
             monthsHeading.textContent='По месяцам · '+(state.year||'все годы');chart(monthsChart,model.months.map(([label,events],i)=>({label:label.slice(0,3),value:String(i+1).padStart(2,'0'),selected:state.month===String(i+1).padStart(2,'0'),types:split(events.map(e=>e.record))})),Boolean(state.year));
             chart(ratingChart,model.ratings.map(([score,rows])=>({label:String(score).replace('.',','),types:split(rows)})));

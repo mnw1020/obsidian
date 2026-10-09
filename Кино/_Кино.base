@@ -260,6 +260,8 @@ views:
       - formula.imdb_kp_delta
       - formula.rating_delta_prediction
     sort:
+      - property: formula.predicted_rating
+        direction: DESC
       - property: formula.rating_delta_prediction
         direction: ASC
       - property: formula.rating

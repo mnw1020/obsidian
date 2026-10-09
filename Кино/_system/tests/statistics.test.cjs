@@ -56,21 +56,22 @@ test('report supports filters, live metadata, table search, keyboard folds, sour
             const handle=await mod.exports({dv,app});window.reportTest={app,dv,component,original,handle,files,links,renderer:mod.exports,unload:()=>callbacks.forEach(f=>f())};
             for(const text of snippets){const s=document.createElement('style');s.textContent=text;document.head.append(s);}
         },{source:fs.readFileSync(path.join(system,'kino_statistics.js'),'utf8'),files:fixtures,css,home:fs.readFileSync(path.join(system,'kino-home.css'),'utf8'),report:fs.readFileSync(path.join(system,'kino-statistics.css'),'utf8'),snippets});
-        assert.equal(await page.locator('[data-metric=works]').textContent(),'4');
+        assert.equal(await page.locator('[data-metric],.kino-report-metrics').count(),0);
+        assert.equal(await page.locator('[data-section=works] tbody tr').count(),4);
         assert.equal(await page.locator('.kino-home-chart-legend').count(),0);
-        await page.getByLabel('Год просмотра',{exact:true}).selectOption('2026');assert.equal(await page.locator('[data-metric=works]').textContent(),'2');
-        await page.getByLabel('Месяц',{exact:true}).selectOption('05');assert.equal(await page.locator('[data-metric=works]').textContent(),'1');
+        await page.getByLabel('Год просмотра',{exact:true}).selectOption('2026');assert.equal(await page.locator('[data-section=works] tbody tr').count(),2);
+        await page.getByLabel('Месяц',{exact:true}).selectOption('05');assert.equal(await page.locator('[data-section=works] tbody tr').count(),1);
         const directors=page.locator('[data-section=directors]');await directors.locator('summary').press('Enter');assert.equal(await directors.evaluate(e=>e.open),false);await directors.locator('summary').press('Enter');
         await page.getByRole('button',{name:'За всё время',exact:true}).click();
         const search=page.locator('[data-section=genres] input');await search.fill('Comedy');assert.equal(await page.locator('[data-section=genres] tbody tr').count(),1);
         await page.evaluate(()=>{const t=window.reportTest;t.files[0].fm.Оценка=10;t.app.metadataCache.emit();});
-        await page.waitForFunction(()=>document.querySelector('[data-metric=average]').textContent==='6,33');assert.equal(await search.inputValue(),'Comedy');
+        await page.waitForFunction(()=>document.querySelector('[data-section=works] tbody tr').textContent.includes('10,00'));assert.equal(await search.inputValue(),'Comedy');
         await page.locator('[data-section=works] tbody a[data-href]').first().click({modifiers:['Control']});
         assert.deepEqual(await page.evaluate(()=>window.reportTest.links[0].slice(1)),['Кино/_system/Итоги просмотров.md',true]);
         await page.evaluate(()=>window.reportTest.component.render());assert.equal(await page.locator('.kino-report').count(),1);
         assert.equal(await page.locator('#fallback').isVisible(),false);
         assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-        assert.deepEqual(await page.locator('.kino-report-section,.kino-report-grid,.kino-report-metrics').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&n.scrollWidth>n.clientWidth+1).map(n=>n.className)),[]);
+        assert.deepEqual(await page.locator('.kino-report-section,.kino-report-grid').evaluateAll(nodes=>nodes.filter(n=>n.getClientRects().length&&n.scrollWidth>n.clientWidth+1).map(n=>n.className)),[]);
         const preview=path.join(system,'redesign-backups/previews');fs.mkdirSync(preview,{recursive:true});await page.screenshot({path:path.join(preview,`statistics-${width}.png`),fullPage:true});
         await page.evaluate(()=>window.reportTest.unload());assert.equal(await page.locator('.kino-report').count(),0);assert.equal(await page.locator('#fallback').isVisible(),true);
         assert.deepEqual(await page.evaluate(()=>({vault:window.reportTest.app.vault.refs.size,cache:window.reportTest.app.metadataCache.refs.size,restored:window.reportTest.component.render===window.reportTest.original})),{vault:0,cache:0,restored:true});
