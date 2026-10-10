@@ -135,25 +135,27 @@
 
 /* Adaptations: one work with all of its cinema links gathered alongside it. */
 .book-adaptations-ui .book-authors-controls { grid-template-columns: minmax(0, 1fr) 200px; }
+.book-adaptations-ui .book-authors-header { grid-template-columns: minmax(0, 1fr); }
 .book-adaptations-ui .book-authors-stats { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
 .book-adaptations-ui .book-authors-stat:last-child { grid-column: auto; }
+.book-adaptations-ui .book-authors-stat:last-child .book-authors-stat-value { font-size: 27px; padding-top: 0; }
 .book-adaptations-ui .book-adaptations-list { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .book-adaptations-ui .book-adaptations-card { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; padding: 22px; border: 1px solid var(--authors-line); border-radius: 16px; background: linear-gradient(130deg, var(--background-secondary), var(--background-primary)); min-width: 0; }
 .book-adaptations-ui .book-adaptations-book { min-width: 0; }
-.book-adaptations-ui .book-adaptations-book-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+.book-adaptations-ui .book-adaptations-book-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 .book-adaptations-ui .book-adaptations-book-heading :is(h2,h3) { font-size: 20px; line-height: 1.3; margin: 0; padding: 0; border: 0; overflow-wrap: anywhere; }
 .book-adaptations-ui .book-adaptations-book a { text-decoration: none; color: var(--authors-text); }
 .book-adaptations-ui .book-adaptations-book a:hover { color: var(--authors-accent); }
 .book-adaptations-ui .book-adaptations-book .book-authors-author-link { color: var(--authors-muted); }
-.book-adaptations-ui .book-adaptations-book-rating { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; color: var(--authors-accent); font-size: 12px; }
+.book-adaptations-ui .book-adaptations-book-rating { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; color: var(--authors-accent); font-size: 12px; }
 .book-adaptations-ui .book-adaptations-count { color: var(--authors-muted); font-size: 11px; }
-.book-adaptations-ui .book-adaptations-media-list { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.book-adaptations-ui .book-adaptations-media-list { display: flex; flex-direction: column; gap: 8px; min-width: 0; list-style: none; padding: 0; margin: 0; }
 .book-adaptations-ui .book-adaptations-media { display: grid; grid-template-columns: 32px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--authors-line); border-radius: 11px; background: var(--background-primary); min-width: 0; }
 .book-adaptations-ui .book-adaptations-media-icon { width: 32px; height: 34px; display: grid; place-items: center; border-radius: 8px; background: var(--authors-surface); color: var(--authors-accent); font-size: 17px; }
 .book-adaptations-ui .book-adaptations-media-main { min-width: 0; }
 .book-adaptations-ui .book-adaptations-media-title { color: var(--authors-text); font-size: 14px; font-weight: 550; line-height: 1.35; text-decoration: none; overflow-wrap: anywhere; }
 .book-adaptations-ui .book-adaptations-media-title:hover { color: var(--authors-accent); }
-.book-adaptations-ui .book-adaptations-media-meta { margin-top: 4px; color: var(--authors-muted); font-size: 11px; line-height: 1.4; }
+.book-adaptations-ui .book-adaptations-media-meta { margin: 4px 0 0; color: var(--authors-muted); font-size: 11px; line-height: 1.4; }
 .book-adaptations-ui .book-adaptations-media-rating { color: var(--authors-accent); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .book-adaptations-ui .book-adaptations-footer { margin: 14px 0 0; color: var(--authors-muted); font-size: 12px; }
 @container book-authors (max-width: 640px) {

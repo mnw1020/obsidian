@@ -29,6 +29,7 @@ fixture('Книги/Художественные/Вторая.md', {title:'Вт�
 fixture('Книги/Художественные/Третья.md', {title:'Третья',authors:['Олдос Хаксли'],rating:7,date:'2023-09',read_count:1});
 makeFile('Книги/_index.md', fs.readFileSync(path.join(root,'_index.md'),'utf8'));
 makeFile('Книги/_system/book_core.js',fs.readFileSync(path.join(root,'_system/book_core.js'),'utf8'));
+makeFile('Книги/_system/adaptations_ui.js',fs.readFileSync(path.join(root,'_system/adaptations_ui.js'),'utf8'));
 makeFile('Книги/_system/author_pages.js',fs.readFileSync(path.join(root,'_system/author_pages.js'),'utf8'));
 class Events {
   constructor(){this.handlers=[];}
