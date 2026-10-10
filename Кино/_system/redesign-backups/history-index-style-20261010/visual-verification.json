@@ -1,0 +1,301 @@
+{
+  "environment": "Playwright Chrome, real Markdown parsed into native callout fixture; fixture Bases table; active snippets and Things theme; no live Obsidian runtime exercised",
+  "results": [
+    {
+      "name": "Просмотры",
+      "width": 390,
+      "viewport": 390,
+      "document": 390,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "type": "kino-history",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "type": "kino-history-views",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить просмотр",
+          "left": 37,
+          "right": 176.453125,
+          "width": 139.453125
+        },
+        {
+          "text": "Редактировать просмотр",
+          "left": 184.453125,
+          "right": 352.625,
+          "width": 168.171875
+        }
+      ],
+      "table": {
+        "client": 320,
+        "scroll": 850,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "34px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\viewings-390.png"
+    },
+    {
+      "name": "Просмотры",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        },
+        {
+          "type": "kino-history",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        },
+        {
+          "type": "kino-history-views",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить просмотр",
+          "left": 241,
+          "right": 380.453125,
+          "width": 139.453125
+        },
+        {
+          "text": "Редактировать просмотр",
+          "left": 388.453125,
+          "right": 556.625,
+          "width": 168.171875
+        }
+      ],
+      "table": {
+        "client": 970,
+        "scroll": 970,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "56px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\viewings-1440.png"
+    },
+    {
+      "name": "Просмотры",
+      "width": 1440,
+      "pane": 330,
+      "viewport": 1440,
+      "document": 1440,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        },
+        {
+          "type": "kino-history",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        },
+        {
+          "type": "kino-history-views",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить просмотр",
+          "left": 53,
+          "right": 192.453125,
+          "width": 139.453125
+        },
+        {
+          "text": "Редактировать просмотр",
+          "left": 53,
+          "right": 221.171875,
+          "width": 168.171875
+        }
+      ],
+      "table": {
+        "client": 228,
+        "scroll": 850,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "34px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\viewings-pane330.png"
+    },
+    {
+      "name": "Сезоны",
+      "width": 390,
+      "viewport": 390,
+      "document": 390,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "type": "kino-history",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        },
+        {
+          "type": "kino-history-views",
+          "left": 16,
+          "right": 374,
+          "width": 358
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить сезон",
+          "left": 37,
+          "right": 153.28125,
+          "width": 116.28125
+        },
+        {
+          "text": "Редактировать сезон",
+          "left": 161.28125,
+          "right": 306.28125,
+          "width": 145
+        }
+      ],
+      "table": {
+        "client": 320,
+        "scroll": 850,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "34px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\seasons-390.png"
+    },
+    {
+      "name": "Сезоны",
+      "width": 1440,
+      "viewport": 1440,
+      "document": 1440,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        },
+        {
+          "type": "kino-history",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        },
+        {
+          "type": "kino-history-views",
+          "left": 212,
+          "right": 1228,
+          "width": 1016
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить сезон",
+          "left": 241,
+          "right": 357.28125,
+          "width": 116.28125
+        },
+        {
+          "text": "Редактировать сезон",
+          "left": 365.28125,
+          "right": 510.28125,
+          "width": 145
+        }
+      ],
+      "table": {
+        "client": 970,
+        "scroll": 970,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "56px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\seasons-1440.png"
+    },
+    {
+      "name": "Сезоны",
+      "width": 1440,
+      "pane": 330,
+      "viewport": 1440,
+      "document": 1440,
+      "panels": [
+        {
+          "type": "kino-history-header",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        },
+        {
+          "type": "kino-history",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        },
+        {
+          "type": "kino-history-views",
+          "left": 32,
+          "right": 298,
+          "width": 266
+        }
+      ],
+      "actions": [
+        {
+          "text": "Добавить сезон",
+          "left": 53,
+          "right": 169.28125,
+          "width": 116.28125
+        },
+        {
+          "text": "Редактировать сезон",
+          "left": 53,
+          "right": 198,
+          "width": 145
+        }
+      ],
+      "table": {
+        "client": 228,
+        "scroll": 850,
+        "overflow": "auto"
+      },
+      "titleColor": "rgb(184, 151, 96)",
+      "titleFont": "\"Iowan Old Style\", \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif",
+      "titleSize": "34px",
+      "screenshot": "E:\\_flashPhone_\\_Sync\\obsidian\\Кино\\_system\\redesign-backups\\history-index-style-20261010\\seasons-pane330.png"
+    }
+  ]
+}

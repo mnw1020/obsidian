@@ -69,20 +69,22 @@ async function mount(page, source) {
 (async()=>{
     const browser=await chromium.launch({channel:'chrome',headless:true});const results=[];
     try {
-        for(const source of sources)for(const width of [390,1440]){
+        for(const source of sources)for(const {width,pane} of [{width:390},{width:1440},{width:1440,pane:330}]){
             const page=await browser.newPage({viewport:{width,height:1000},deviceScaleFactor:1});await mount(page,source);
-            const measurements=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,panels:[...document.querySelectorAll('.callout')].map(el=>{const b=el.getBoundingClientRect();return{type:el.dataset.callout,left:b.left,right:b.right,width:b.width};}),actions:[...document.querySelectorAll('[data-callout="kino-history-header"] .callout-content>p:last-child a')].map(el=>{const b=el.getBoundingClientRect();return{text:el.textContent,left:b.left,right:b.right,width:b.width};}),table:(()=>{const el=document.querySelector('.bases-embed');return{client:el.clientWidth,scroll:el.scrollWidth,overflow:getComputedStyle(el).overflowX};})(),titleColor:getComputedStyle(document.querySelector('.callout-title-inner')).color,titleFont:getComputedStyle(document.querySelector('.callout-title-inner')).fontFamily}));
+            if(pane)await page.locator('.markdown-preview-view').evaluate((el,pane)=>el.style.width=pane+'px',pane);
+            const measurements=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth,panels:[...document.querySelectorAll('.callout')].map(el=>{const b=el.getBoundingClientRect();return{type:el.dataset.callout,left:b.left,right:b.right,width:b.width};}),actions:[...document.querySelectorAll('[data-callout="kino-history-header"] .callout-content>p:last-child a')].map(el=>{const b=el.getBoundingClientRect();return{text:el.textContent,left:b.left,right:b.right,width:b.width};}),table:(()=>{const el=document.querySelector('.bases-embed');return{client:el.clientWidth,scroll:el.scrollWidth,overflow:getComputedStyle(el).overflowX};})(),titleColor:getComputedStyle(document.querySelector('.callout-title-inner')).color,titleFont:getComputedStyle(document.querySelector('.callout-title-inner')).fontFamily,titleSize:getComputedStyle(document.querySelector('.callout-title-inner')).fontSize}));
             assert.ok(measurements.document<=width,`${source.name}/${width}: page overflow ${measurements.document}`);
-            for(const b of [...measurements.panels,...measurements.actions])assert.ok(b.left>=0&&b.right<=width+1,`${source.name}/${width}: ${JSON.stringify(b)}`);
+            for(const b of [...measurements.panels,...measurements.actions])assert.ok(b.left>=0&&b.right<=(pane||width)+1,`${source.name}/${width}: ${JSON.stringify(b)}`);
             assert.equal(measurements.titleColor,'rgb(184, 151, 96)');
+            if(pane)assert.equal(measurements.titleSize,'34px');
             assert.equal(measurements.table.overflow,'auto');
-            const file=path.join(__dirname,`${source.name==='Сезоны'?'seasons':'viewings'}-${width}.png`);await page.screenshot({path:file,fullPage:true});
+            const file=path.join(__dirname,`${source.name==='Сезоны'?'seasons':'viewings'}-${pane?'pane'+pane:width}.png`);await page.screenshot({path:file,fullPage:true});
             await page.locator('[data-callout="kino-history-views"] .callout-title').click();
             assert.equal(await page.locator('[data-callout="kino-history-views"] .callout-content').isVisible(),true);
             assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
             await page.screenshot({path:file.replace('.png','-views.png'),fullPage:true});
             await page.locator('[data-callout="kino-history"] .callout-title').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('[data-callout="kino-history"] .callout-content').isVisible(),false);
-            results.push({name:source.name,width,...measurements,screenshot:file});await page.close();
+            results.push({name:source.name,width,pane,...measurements,screenshot:file});await page.close();
         }
         fs.writeFileSync(path.join(__dirname,'visual-verification.json'),JSON.stringify({environment:'Playwright Chrome, real Markdown parsed into native callout fixture; fixture Bases table; active snippets and Things theme; no live Obsidian runtime exercised',results},null,2));console.log(JSON.stringify(results,null,2));
     } finally {await browser.close();}
