@@ -1,0 +1,11 @@
+✔ book relations use compact rows, explicit pane source, immediate saved links and cache-driven hide/show (2856.3941ms)
+✔ standalone books retain direct and reverse links when the cinema module is absent (797.0049ms)
+✔ an unloaded card cannot render or register listeners after a late module read (649.9286ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4634.5128

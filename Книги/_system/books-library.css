@@ -259,6 +259,7 @@
     --poetry-tint: color-mix(in srgb, var(--books-gold) 8%, var(--books-bg));
     /* Bases/Dynamic Views otherwise inherit their resolved tokens from body. */
     --dynamic-views-background-primary: var(--books-bg);
+    --dynamic-views-bases-table-border-color: var(--books-line);
     --dynamic-views-background-primary-alt: var(--books-surface);
     --dynamic-views-background-modifier-border: var(--books-line);
     --dynamic-views-background-modifier-border-hover: #87684a;
@@ -291,7 +292,8 @@
         .book-dashboard-metric strong, .book-dashboard-month strong, .book-dashboard-year-link,
         .book-adaptations-book-rating, .book-adaptations-media-rating) { color: var(--books-gold); }
 
-:is(.books-library, .books-home-page, .books-reading-page) .book-dashboard-month-bar {
+:is(.books-library, .books-home-page, .books-reading-page) .book-reading-dashboard .book-dashboard-month-bar,
+.books-reading-page .book-reading-dashboard.is-index .book-dashboard-month-bar {
     background-color: var(--books-bar);
 }
 

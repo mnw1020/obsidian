@@ -51,7 +51,12 @@ test('plain audit with author variants never prompts normalization or writes boo
     assert.deepEqual([...h.books, h.home].map(file => file.text), originals);
     assert.match(h.report.text, /Варианты написания одного автора/);
     assert.equal(fromText(h.report.text).obsidianUIMode, 'preview');
+    assert.deepEqual(fromText(h.report.text).cssclasses, ['books-library']);
     assert.deepEqual(h.opened, [h.report.path]);
+    h.report.text += '\nПредыдущее состояние отчёта.\n';
+    await audit(h);
+    assert.deepEqual(fromText(h.report.text).cssclasses, ['books-library'], 'report regeneration retains the palette scope');
+    assert.deepEqual([...h.books, h.home].map(file => file.text), originals);
 });
 
 test('audit refuses to overwrite a concurrently changed service report and leaves other files alone', async () => {
@@ -136,7 +141,11 @@ test('offline relation audit excludes service notes, accepts both adaptation rev
     assert.deepEqual(auditCollections({ library, vault }), { books: 2, media: 2, links: 2, relatedLinks: 3, continuationLinks: 1, issues: [] });
     const validReport = renderReport(auditCollections({ library, vault }), new Date('2026-10-10T00:00:00Z'));
     assert.equal(fromText(validReport).obsidianUIMode, 'preview');
+    assert.deepEqual(fromText(validReport).cssclasses, ['books-library']);
     assert.match(validReport, /Проверено 10\.10\.2026/);
+    const regeneratedReport = renderReport({ ...auditCollections({ library, vault }), relatedLinks: 4 }, new Date('2026-10-11T00:00:00Z'));
+    assert.deepEqual(fromText(regeneratedReport).cssclasses, ['books-library'], 'offline report keeps its style when regenerated');
+    assert.match(regeneratedReport, /Связанных произведений: 4\./);
     write(m, { tags: ['movies'], adapted_from: ['[[' + a + ']]'], related: ['[[' + s + ']]'] });
     const missing = auditCollections({ library, vault });
     assert.equal(missing.issues.length, 1);

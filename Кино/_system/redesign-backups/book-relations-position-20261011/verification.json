@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-11",
+  "bookCardsVerified": 214,
+  "bookCardsUnchanged": true,
+  "servicePagesChangedOnlyInStylingClass": 7,
+  "serviceTextAndOtherYamlPreserved": true,
+  "installedStyleMatchesSource": true,
+  "linksAudit": {
+    "books": 214,
+    "media": 1551,
+    "links": 9,
+    "relatedLinks": 7,
+    "continuationLinks": 0,
+    "issues": []
+  }
+}

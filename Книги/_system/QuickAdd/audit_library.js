@@ -594,7 +594,7 @@ module.exports = async (params) => {
         let file = app.vault.getAbstractFileByPath(path);
         if (!file) {
             const header = "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n";
-            file = await app.vault.create(path, "---\nobsidianUIMode: preview\n---\n\n" + header + block);
+            file = await app.vault.create(path, "---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n" + header + block);
             return;
         }
         await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
@@ -1186,7 +1186,7 @@ module.exports = async (params) => {
         return out + items.map(item => `- ${item}`).join("\n") + "\n\n";
     }
 
-    let report = `---\nobsidianUIMode: preview\n---\n\n# Проверка библиотеки\n\n`;
+    let report = `---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Проверка библиотеки\n\n`;
     report += `[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n`;
     report += `[🔎 Проверить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%B8%D1%82%D1%8C%20%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA%D1%83) · [🛠 Исправить](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%98%D1%81%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D1%82%D1%8C%20%D0%B1%D0%B5%D0%B7%D0%BE%D0%BF%D0%B0%D1%81%D0%BD%D0%BE%D0%B5)\n\n`;
     report += `[🔧 Нормализовать](obsidian://quickadd?choice=${encodeURIComponent("Книги - Нормализовать библиотеку")})\n\n`;

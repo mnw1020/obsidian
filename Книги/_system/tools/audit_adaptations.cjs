@@ -71,7 +71,7 @@ function auditCollections({ library = path.resolve(__dirname, '../..'), vault = 
 
 function renderReport(summary, date = new Date()) {
     const day = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Asia/Yekaterinburg' }).format(date);
-    return '---\nobsidianUIMode: preview\n---\n\n# Проверка связей с кино\n\nПроверено ' + day + ': ' + summary.books + ' произведений, ' + summary.media + ' карточек кино.\n\n' +
+    return '---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Проверка связей с кино\n\nПроверено ' + day + ': ' + summary.books + ' произведений, ' + summary.media + ' карточек кино.\n\n' +
         'Экранизаций: ' + summary.links + '. Связанных произведений: ' + summary.relatedLinks + '. Продолжений: ' + summary.continuationLinks + '.\n\n' +
         (summary.issues.length ? summary.issues.map(issue => '- ' + issue).join('\n') : 'Битых ссылок, дублей, неподходящих целей и пропущенных обратных ссылок не найдено.') +
         '\n\nПроверка структурная: adaptations ↔ Первоисточники / adapted_from, related ↔ related между книгами и кино, continued_by ↔ continues между книгами. Содержание связей сохраняется без изменений, совпадения названий автоматически не связываются.\n';

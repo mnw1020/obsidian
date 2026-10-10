@@ -146,8 +146,7 @@ async function assertNumbers(page) {
         assert.match(number.numeric, /lining-nums/u, 'Digits share their baseline');
         const normalDistance = distance(number.color, number.normal), accentDistance = distance(number.accent, number.normal);
         assert(normalDistance > 1, 'Numbers have a subtle accent rather than the plain text color');
-        assert.deepEqual(number.color, [184, 151, 96], 'Numbers use the shared soft cinema gold (#b89760)');
-        assert.deepEqual(number.accent, [228, 164, 95], 'Interactive controls use the shared cinema accent (#e4a45f)');
+        assert(normalDistance / accentDistance > .47 && normalDistance / accentDistance < .63, 'Number color uses approximately 55% accent');
     }
     assert.equal(new Set(numbers.map(number => number.color.join(','))).size, 1, 'Header and reading figures have the same color');
 }

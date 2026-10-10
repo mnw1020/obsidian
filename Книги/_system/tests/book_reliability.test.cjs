@@ -471,6 +471,7 @@ test('generated Markdown pages default to preview and retain it on regeneration'
     const h = harness();
     const page = await h.core.writeIfChanged('Книги/_system/Новая.md', '# Сводка\n\nТекст.\n');
     assert.equal(fromText(page.text).obsidianUIMode, 'preview');
+    assert.equal(fromText(page.text).cssclasses, undefined, 'generic writes do not impose a page style');
     assert.ok(page.text.endsWith('# Сводка\n\nТекст.\n'));
     await h.core.writeIfChanged(page.path, '# Обновлённая сводка\n');
     assert.equal(fromText(page.text).obsidianUIMode, 'preview');
@@ -479,7 +480,13 @@ test('generated Markdown pages default to preview and retain it on regeneration'
     const base = await h.core.writeIfChanged('Книги/_system/Вид.base', 'views: []\n');
     assert.equal(base.text, 'views: []\n');
     await h.core.appendJournal(['Событие']);
-    assert.equal(fromText(h.files.get('Книги/_system/Журнал изменений.md').text).obsidianUIMode, 'preview');
+    const journal = h.files.get('Книги/_system/Журнал изменений.md');
+    assert.equal(fromText(journal.text).obsidianUIMode, 'preview');
+    assert.deepEqual(fromText(journal.text).cssclasses, ['books-library']);
+    await h.core.appendJournal(['Следующее событие']);
+    assert.deepEqual(fromText(journal.text).cssclasses, ['books-library'], 'journal append retains the palette scope');
+    assert.match(journal.text, /- Событие\n/);
+    assert.match(journal.text, /- Следующее событие\n/);
 });
 
 test('home statistics reflect the just-written book despite a stale metadata cache', async () => {
