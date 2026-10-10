@@ -9,7 +9,8 @@ const css = fs.readFileSync(path.join(root, '_system/books-library.css'), 'utf8'
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
-        for (const width of [320, 390, 1024]) {
+        for (const width of [320, 390, 1024]) for (const empty of [false, true]) {
+            const example = empty ? { ...card, fm: { ...card.fm, adaptations: [] } } : card;
             const page = await browser.newPage({ viewport: { width, height: 1100 } });
             const errors = []; page.on('pageerror', error => errors.push(error.message));
             await page.setContent('<style>body{margin:0;background:#20242a;color:#eee;font:16px/1.5 Arial;--background-primary:#20242a;--background-secondary:#292e36;--background-modifier-border:#454b56;--text-muted:#b4b8c2;--text-normal:#eee;--text-accent:#efa76b;--interactive-accent:#efa76b;--text-on-accent:#20242a}*{box-sizing:border-box}article{padding:16px;max-width:860px;margin:auto}a{color:#efa76b}</style><style>' + css + '</style><article class="book-card markdown-preview-view"><div id="card"></div></article>');
@@ -30,20 +31,25 @@ async function main() {
                 };
                 const module = { exports: {} }; new Function('module', source)(module);
                 await module.exports.render({ app, dv: { current: () => ({ file: { path: card.path } }), container } });
-            }, { card, source });
+            }, { card: example, source });
             const links = page.locator('.book-card-adaptation-links a');
-            assert.equal(await links.count(), 3);
-            await page.getByText('Задача 3 тел', { exact: true }).click();
-            assert.deepEqual(await page.evaluate(() => window.calls[0]), ['Кино/Media/Задача 3 тел', card.path, false]);
+            assert.equal(await links.count(), empty ? 0 : 3);
+            assert.equal(await page.locator('.book-card-adaptations').isVisible(), !empty);
+            if (!empty) {
+                await page.getByText('Задача 3 тел', { exact: true }).click();
+                assert.deepEqual(await page.evaluate(() => window.calls[0]), ['Кино/Media/Задача 3 тел', card.path, false]);
+            }
+            if (process.env.ADAPTATIONS_SCREENSHOT && width === 390 && !empty) await page.screenshot({ path: process.env.ADAPTATIONS_SCREENSHOT, fullPage: true });
+            await page.locator('summary').click();
             await page.getByText('Связать с кино', { exact: true }).click();
-            assert.equal(await links.count(), 4);
+            assert.equal(await links.count(), empty ? 1 : 4);
+            assert.equal(await page.locator('.book-card-adaptations').isVisible(), true);
             assert.equal(await page.getByText('Новая связь', { exact: true }).count(), 1);
             assert.deepEqual(errors, []);
             assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Horizontal overflow at ' + width);
-            if (process.env.ADAPTATIONS_SCREENSHOT && width === 390) await page.screenshot({ path: process.env.ADAPTATIONS_SCREENSHOT, fullPage: true });
             await page.close();
         }
-        console.log('3 browser layouts passed: actual book links, navigation, immediate update and no overflow.');
+        console.log('6 browser cases passed: empty block hidden, links styled, navigation and immediate first-link update, no overflow.');
     } finally { await browser.close(); }
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -138,14 +138,19 @@ async function render({ app, dv }) {
     adaptations.setAttribute('aria-label', 'Экранизации и связанные произведения');
     const renderAdaptations = (values = fm.adaptations) => {
         adaptations.replaceChildren();
-        el(adaptations, 'div', 'book-card-label', 'Экранизации и связанные произведения');
         const links = adaptationLinks({ app, file, fm: { ...fm, adaptations: values } });
+        adaptations.hidden = !links.length;
+        if (!links.length) return;
+        const heading = el(adaptations, 'div', 'book-card-adaptations-heading');
+        el(heading, 'span', 'book-card-label', 'Связанные произведения');
+        el(heading, 'span', 'book-card-adaptations-count', String(links.length));
         const items = el(adaptations, 'div', 'book-card-adaptation-links');
-        for (const link of links) internal(items, link.label, link.target);
-        if (!links.length) el(items, 'span', 'book-card-empty', 'Связей пока нет');
-        choice(adaptations, 'Связать с кино', 'Книги - Связать с кино', 'book-card-action', {
-            bookAdaptationRequest: { path: source, onLinked: renderAdaptations }
-        });
+        for (const link of links) {
+            const item = internal(items, '', link.target, 'book-card-adaptation');
+            el(item, 'span', 'book-card-adaptation-icon', '▷').setAttribute('aria-hidden', 'true');
+            el(item, 'span', 'book-card-adaptation-title', link.label);
+            el(item, 'span', 'book-card-adaptation-arrow', '↗').setAttribute('aria-hidden', 'true');
+        }
     };
     renderAdaptations();
     const actions = el(hero, 'div', 'book-card-actions');
@@ -155,6 +160,9 @@ async function render({ app, dv }) {
     el(more, 'summary', '', 'Ещё');
     const secondary = el(more, 'div', 'book-card-secondary');
     choice(secondary, 'Редактировать чтение', 'Книги - Редактировать чтение');
+    choice(secondary, 'Связать с кино', 'Книги - Связать с кино', 'book-card-action', {
+        bookAdaptationRequest: { path: source, onLinked: renderAdaptations }
+    });
     choice(secondary, 'Экранизации', 'Книги - Экранизации');
     const props = el(secondary, 'button', 'book-card-action', 'Показать свойства');
     props.type = 'button';

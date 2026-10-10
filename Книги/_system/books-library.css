@@ -50,10 +50,16 @@
 .book-card .book-card-contents { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: .75em; margin-top: 22px; }
 .book-card .book-card-contents a { min-height: 32px; display: inline-flex; align-items: center; }
 .book-card .book-card-error { color: var(--text-error); }
-.book-card .book-card-adaptations { margin: 20px 0; padding-top: 16px; border-top: 1px solid var(--background-modifier-border); }
-.book-card .book-card-adaptation-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 12px; }
-.book-card .book-card-adaptation-links a { min-height: 36px; display: inline-flex; align-items: center; overflow-wrap: anywhere; max-width: 100%; }
-.book-card .book-card-empty { color: var(--text-muted); font-size: .85em; }
+.book-card .book-card-adaptations { margin: 22px 0; }
+.book-card .book-card-adaptations[hidden] { display: none; }
+.book-card .book-card-adaptations-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.book-card .book-card-adaptations-count { color: var(--text-muted); font-size: .7em; line-height: 1.5; padding: 0 6px; border: 1px solid var(--background-modifier-border); border-radius: 6px; }
+.book-card .book-card-adaptation-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.book-card a.book-card-adaptation { display: inline-flex; align-items: center; gap: 9px; min-height: 42px; max-width: 100%; padding: 8px 12px; border: 1px solid var(--background-modifier-border); border-radius: 10px; background: var(--background-secondary); color: var(--text-normal); text-decoration: none; font-size: .85em; line-height: 1.4; transition: border-color .15s, background-color .15s; }
+.book-card a.book-card-adaptation:hover, .book-card a.book-card-adaptation:focus-visible { border-color: var(--text-accent); background: var(--background-primary); }
+.book-card .book-card-adaptation-icon { color: var(--text-accent); font-size: 1.1em; flex-shrink: 0; }
+.book-card .book-card-adaptation-title { overflow-wrap: anywhere; min-width: 0; }
+.book-card .book-card-adaptation-arrow { color: var(--text-muted); font-size: .9em; flex-shrink: 0; }
 .book-card.markdown-preview-view { --line-height-normal: 1.7; }
 .book-card.markdown-preview-view p { line-height: 1.75; }
 .book-card h2 { font-size: 1.3em; margin-top: 2em; padding-bottom: 10px; border-bottom: 1px solid var(--background-modifier-border); }
