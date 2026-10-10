@@ -68,7 +68,6 @@ async function main() {
             await page.locator('.book-card-author').first().click();
             assert.deepEqual(await page.evaluate(() => window.calls.slice(0, 2)), [{ name: 'Книги - Добавить чтение', vars: {}, active: card.path }, { name: 'Книги - Открыть автора', vars: { author: [].concat(card.fm.authors)[0] }, active: card.path }]);
             if (out && card === azimov) { fs.mkdirSync(out, { recursive: true }); await page.screenshot({ path: path.join(out, `book-${theme}-${width}${pane ? '-pane-' + pane : ''}.png`), fullPage: true }); }
-            await page.locator('summary').click();
             await page.getByText('Показать свойства', { exact: true }).click();
             assert.equal(await page.locator('.metadata-container').isVisible(), true);
             await page.getByText('Скрыть свойства', { exact: true }).click();

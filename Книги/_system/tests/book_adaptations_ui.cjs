@@ -40,7 +40,11 @@ async function main() {
                 assert.deepEqual(await page.evaluate(() => window.calls[0]), ['Кино/Media/Задача 3 тел', card.path, false]);
             }
             if (process.env.ADAPTATIONS_SCREENSHOT && width === 390 && !empty) await page.screenshot({ path: process.env.ADAPTATIONS_SCREENSHOT, fullPage: true });
-            await page.locator('summary').click();
+            assert.equal(await page.locator('details, summary').count(), 0);
+            assert.equal(await page.getByText('Экранизации', { exact: true }).count(), 0);
+            for (const label of ['Записать чтение', 'Сохранить выписку', 'Редактировать чтение', 'Связать с кино', 'Показать свойства']) {
+                assert.equal(await page.getByText(label, { exact: true }).isVisible(), true);
+            }
             await page.getByText('Связать с кино', { exact: true }).click();
             assert.equal(await links.count(), empty ? 1 : 4);
             assert.equal(await page.locator('.book-card-adaptations').isVisible(), true);

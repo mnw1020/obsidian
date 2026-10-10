@@ -156,14 +156,11 @@ async function render({ app, dv }) {
     const actions = el(hero, 'div', 'book-card-actions');
     choice(actions, 'Записать чтение', 'Книги - Добавить чтение', 'book-card-action book-card-primary');
     choice(actions, 'Сохранить выписку', 'Книги - Добавить выписку');
-    const more = el(actions, 'details', 'book-card-more');
-    el(more, 'summary', '', 'Ещё');
-    const secondary = el(more, 'div', 'book-card-secondary');
+    const secondary = el(hero, 'div', 'book-card-secondary');
     choice(secondary, 'Редактировать чтение', 'Книги - Редактировать чтение');
     choice(secondary, 'Связать с кино', 'Книги - Связать с кино', 'book-card-action', {
         bookAdaptationRequest: { path: source, onLinked: renderAdaptations }
     });
-    choice(secondary, 'Экранизации', 'Книги - Экранизации');
     const props = el(secondary, 'button', 'book-card-action', 'Показать свойства');
     props.type = 'button';
     props.setAttribute('aria-expanded', 'false');
