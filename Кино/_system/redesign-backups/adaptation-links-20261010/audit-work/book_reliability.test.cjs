@@ -357,6 +357,70 @@ test('safe deduplication retains links added after the maintenance snapshot', as
     assert.deepEqual(a.fm.related, ['[[Неизвестное]]', '[[Новая связь]]']);
 });
 
+test('safe fixes repair related in either collection and within cinema without conflating adaptations', async () => {
+    const h = harness(), a = h.book('Книги/Художественные/A.md', { related: ['[[Кино/Media/Фильм]]', '[[Кино/Media/Фильм.md|Алиас]]'] }), b = h.book('Книги/Художественные/B.md');
+    const movie = h.file('Кино/Media/Фильм.md', { tags: ['movies'], related: ['[[Кино/Media/Сериал]]'] });
+    const serial = h.file('Кино/Media/Сериал.md', { tags: ['#serial'], related: ['[[Книги/Художественные/B]]'] });
+    await safeFix(h.params);
+    assert.deepEqual(a.fm.related, ['[[Кино/Media/Фильм]]']);
+    assert.deepEqual(b.fm.related, ['[[Кино/Media/Сериал]]']);
+    assert.deepEqual(movie.fm.related, ['[[Кино/Media/Сериал]]', '[[Книги/Художественные/A]]']);
+    assert.deepEqual(serial.fm.related, ['[[Книги/Художественные/B]]', '[[Кино/Media/Фильм]]']);
+    for (const work of [a, b, movie, serial]) {
+        assert.equal(work.fm.adaptations, undefined);
+        assert.equal(work.fm['Первоисточники'], undefined);
+        assert.equal(work.fm.adapted_from, undefined);
+    }
+    assert.equal(h.cache.get(movie.path).related.length, 1, 'cache stays stale while current YAML is repaired');
+    h.mutations.length = 0;
+    await safeFix(h.params);
+    assert.deepEqual(h.mutations, []);
+});
+
+test('safe fixes leave complete canonical or legacy adaptation pairs byte-for-byte unchanged', async () => {
+    for (const reverse of [
+        { adapted_from: ['[[Книги/Художественные/Тест]]'] },
+        { Первоисточники: ['[[Книги/Художественные/Тест]]'] },
+        { Первоисточники: ['[[Книги/Художественные/Тест]]'], adapted_from: ['[[Книги/Художественные/Тест]]'] }
+    ]) {
+        const h = harness(), book = h.book(undefined, { adaptations: ['[[Кино/Media/Фильм]]'] });
+        const movie = h.file('Кино/Media/Фильм.md', { tags: ['movies'], ...reverse });
+        const before = [book.text, movie.text];
+        await safeFix(h.params);
+        assert.deepEqual([book.text, movie.text], before);
+        assert.deepEqual(h.mutations, []);
+        assert.deepEqual(movie.fm, { tags: ['movies'], ...reverse });
+    }
+});
+
+test('safe fixes add the missing book adaptation reverse from adapted_from without injecting Первоисточники', async () => {
+    const h = harness(), book = h.book();
+    const movie = h.file('Кино/Media/Фильм.md', { tags: ['movies'], adapted_from: ['[[Книги/Художественные/Тест]]'] });
+    const movieBefore = movie.text;
+    await safeFix(h.params);
+    assert.deepEqual(book.fm.adaptations, ['[[Кино/Media/Фильм]]']);
+    assert.equal(movie.text, movieBefore);
+    assert.equal(movie.fm['Первоисточники'], undefined);
+    h.mutations.length = 0;
+    await safeFix(h.params);
+    assert.deepEqual(h.mutations, []);
+});
+
+test('safe fixes inspect freshly synced adaptation alternatives inside the atomic update', async () => {
+    const h = harness(), book = h.book(undefined, { adaptations: ['[[Кино/Media/Фильм]]'] });
+    const movie = h.file('Кино/Media/Фильм.md', { tags: ['movies'] });
+    let visits = 0;
+    h.beforeProcess = file => {
+        if (file === movie && ++visits === 2) file.text = file.text.replace('\n---\n', '\nadapted_from: ["[[Книги/Художественные/Тест]]"]\n---\n');
+    };
+    await safeFix(h.params);
+    const current = fromText(movie.text);
+    assert.deepEqual(current.adapted_from, ['[[Книги/Художественные/Тест]]']);
+    assert.equal(current['Первоисточники'], undefined);
+    assert.deepEqual(book.fm.adaptations, ['[[Кино/Media/Фильм]]']);
+    assert.deepEqual(h.mutations, []);
+});
+
 test('link command checks current values and avoids duplicate links on a repeated run', async () => {
     const h = harness(), book = h.book(), movie = h.file('Кино/Тест.md', { tags: ['movies'] });
     await linkAdaptation(h.params);

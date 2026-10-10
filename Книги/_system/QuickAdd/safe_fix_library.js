@@ -7,10 +7,9 @@ module.exports = async (params) => {
     new Function("module", await app.vault.read(coreFile))(coreModule);
     const core = coreModule.exports({ app, obsidian });
     const rules = [
-        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники" },
-        { name: "related", leftType: "book", leftProp: "related", rightType: "book", rightProp: "related" },
-        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues" },
-        { name: "adapted_from → adaptations", leftType: "media", leftProp: "adapted_from", rightType: "book", rightProp: "adaptations", sourceOnly: true }
+        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники", rightProps: ["Первоисточники", "adapted_from"] },
+        { name: "related", leftType: "work", leftProp: "related", rightType: "work", rightProp: "related" },
+        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues" }
     ];
     const list = core.listValues, journal = [], failures = [];
     let fixes = 0, structural = false;
@@ -36,6 +35,7 @@ module.exports = async (params) => {
         catch (error) { failures.push(`${file.path}: ${error.message}`); }
     }
     const filesByType = { book: core.books(), media: app.vault.getMarkdownFiles().filter(isMedia) };
+    filesByType.work = [...filesByType.book, ...filesByType.media];
     const variants = new Map();
     for (const file of filesByType.book) {
         const value = core.getFrontmatter(file).authors;
@@ -78,10 +78,11 @@ module.exports = async (params) => {
             }
         } catch (error) { failures.push(`${file.path}: ${error.message}`); }
     }
-    const properties = {
-        book: [...new Set(rules.flatMap(rule => [rule.leftType === "book" ? rule.leftProp : null, rule.rightType === "book" ? rule.rightProp : null]).filter(Boolean))],
-        media: [...new Set(rules.flatMap(rule => [rule.leftType === "media" ? rule.leftProp : null, rule.rightType === "media" ? rule.rightProp : null]).filter(Boolean))]
-    };
+    const propertiesFor = type => [...new Set(rules.flatMap(rule => [
+        ...([type, "work"].includes(rule.leftType) ? [rule.leftProp] : []),
+        ...([type, "work"].includes(rule.rightType) ? rule.rightProps || [rule.rightProp] : [])
+    ]))];
+    const properties = { book: propertiesFor("book"), media: propertiesFor("media") };
     for (const type of ["book", "media"]) {
         for (const file of filesByType[type]) {
             try {
@@ -105,26 +106,28 @@ module.exports = async (params) => {
             } catch (error) { failures.push(`${file.path}: ${error.message}`); }
         }
     }
-    const matchesType = (file, type) => type === "book" ? core.isBook(file) : isMedia(file);
-    async function addReverse(file, property, target) {
+    const matchesType = (file, type) => type === "book" ? core.isBook(file) : type === "media" ? isMedia(file) : type === "work" && (core.isBook(file) || isMedia(file));
+    async function addReverse(file, property, target, alternatives = [property]) {
         const { result } = await core.updateFrontmatter(file, fm => {
             const values = list(fm[property]);
-            const present = values.some(raw => {
+            // Inspect alternatives inside the atomic update: a synced legacy reverse
+            // must not cause a redundant canonical link to be added.
+            const present = alternatives.some(name => list(fm[name]).some(raw => {
                 const dest = resolve(raw, file.path);
                 return dest ? dest.path === target.path : linkTarget(raw) === targetPath(target);
-            });
+            }));
             if (present) return false;
             fm[property] = [...values, `[[${targetPath(target)}]]`];
             return true;
         });
         return result;
     }
-    async function repairSide(source, sourceProp, targetType, targetProp, ruleName) {
+    async function repairSide(source, sourceProp, targetType, targetProp, ruleName, reverseProps = [targetProp]) {
         for (const raw of list(core.getFrontmatter(source)[sourceProp])) {
             const target = resolve(raw, source.path);
             if (!target || !matchesType(target, targetType)) continue;
             try {
-                if (await addReverse(target, targetProp, source)) {
+                if (await addReverse(target, targetProp, source, reverseProps)) {
                     journal.push(`Взаимная связь: **${source.path}** ↔ **${target.path}** — добавлена \`${targetProp}\` (${ruleName}).`);
                     fixes++; structural = true;
                 }
@@ -132,8 +135,13 @@ module.exports = async (params) => {
         }
     }
     for (const rule of rules) {
-        for (const file of filesByType[rule.leftType]) await repairSide(file, rule.leftProp, rule.rightType, rule.rightProp, rule.name);
-        if (!rule.sourceOnly) for (const file of filesByType[rule.rightType]) await repairSide(file, rule.rightProp, rule.leftType, rule.leftProp, rule.name);
+        const rightProps = rule.rightProps || [rule.rightProp];
+        for (const file of filesByType[rule.leftType]) await repairSide(file, rule.leftProp, rule.rightType, rule.rightProp, rule.name, rightProps);
+        if (!(rule.leftType === rule.rightType && rule.leftProp === rule.rightProp)) {
+            for (const rightProp of rightProps) {
+                for (const file of filesByType[rule.rightType]) await repairSide(file, rightProp, rule.leftType, rule.leftProp, rule.name);
+            }
+        }
     }
     try { await core.updateHomeStats(); await core.appendJournal(journal, structural); }
     catch (error) { failures.push(`Сводка или журнал: ${error.message}`); }

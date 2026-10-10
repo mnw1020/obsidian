@@ -56,7 +56,7 @@ async function setup(browser, width = 390, shared = true, delay = false) {
         const component = { register: callback => cleanups.push(callback) };
         const dv = { current: () => ({ file: { path: book.path } }), container, component };
         const mod = { exports: {} }; new Function('module', renderer)(mod);
-        window.fixture = { app, book, film, serial, newFilm, other, choices, opened, component, dv, renderer: mod.exports,
+        window.fixture = { app, book, film, serial, newFilm, other, files, map, choices, opened, component, dv, renderer: mod.exports,
             unload() { for (const callback of cleanups) callback(); },
             refs() { return [vault, metadataCache, workspace].reduce((sum, emitter) => sum + emitter.refs.size, 0); }
         };
@@ -110,6 +110,41 @@ test('book relations use compact rows, explicit pane source, immediate saved lin
             await page.waitForFunction(() => document.querySelectorAll('.book-card-adaptation').length === 2);
             assert.equal(await page.locator('.book-card-adaptation-title').first().textContent(), '<img src=x onerror=alert(1)>');
             assert.equal(await page.locator('.book-card-adaptation img').count(), 0, 'aliases are rendered as text');
+            // A reverse relation saved in another book must update without a global resolved event.
+            await page.evaluate(() => {
+                fixture.other.fm.related = ['[[Книга]]'];
+                fixture.app.metadataCache.trigger('changed', fixture.other);
+            });
+            await page.waitForFunction(() => document.querySelector('.book-card-adaptation[data-type="book"]'));
+            assert.equal(await page.locator('.book-card-adaptation[data-type="book"] .book-card-adaptation-title').textContent(), 'Другая книга');
+            assert.equal(await page.locator('.book-card-adaptation[data-type="book"] .book-card-adaptation-meta').textContent(), 'Книга · Автор');
+            await page.evaluate(() => {
+                const oldPath = fixture.other.path;
+                fixture.map.delete(oldPath);
+                fixture.other.path = 'Книги/Художественные/Переименованная.md';
+                fixture.other.basename = 'Переименованная';
+                fixture.map.set(fixture.other.path, fixture.other);
+                fixture.app.vault.trigger('rename', fixture.other, oldPath);
+            });
+            await page.waitForFunction(() => document.querySelector('.book-card-adaptation[data-type="book"]')?.getAttribute('href') === 'Книги/Художественные/Переименованная');
+            await page.evaluate(() => {
+                fixture.files.splice(fixture.files.indexOf(fixture.other), 1);
+                fixture.map.delete(fixture.other.path);
+                fixture.other.fm = {}; // Deletion can arrive after the metadata has already gone.
+                fixture.app.vault.trigger('delete', fixture.other);
+            });
+            await page.waitForFunction(() => !document.querySelector('.book-card-adaptation[data-type="book"]'));
+            await page.evaluate(() => {
+                fixture.other.fm = { title: 'Другая книга', authors: ['Автор'], related: ['[[Книга]]'] };
+                fixture.files.push(fixture.other); fixture.map.set(fixture.other.path, fixture.other);
+                fixture.app.vault.trigger('create', fixture.other);
+            });
+            await page.waitForFunction(() => document.querySelector('.book-card-adaptation[data-type="book"]'));
+            await page.evaluate(() => {
+                fixture.other.fm.related = [];
+                fixture.app.metadataCache.trigger('changed', fixture.other);
+            });
+            await page.waitForFunction(() => !document.querySelector('.book-card-adaptation[data-type="book"]'));
             await page.evaluate(() => fixture.unload());
             assert.equal(await page.evaluate(() => fixture.refs()), 3, 'only the shared app-level cache listeners remain');
             const before = await rows.count();

@@ -3,15 +3,17 @@
   "changed": [
     "Книги/_system/QuickAdd/audit_library.js",
     "Книги/_system/tools/audit_adaptations.cjs",
-    "Книги/_system/tests/audit_integration.test.cjs"
+    "Книги/_system/tests/audit_integration.test.cjs",
+    "Книги/_system/QuickAdd/safe_fix_library.js",
+    "Книги/_system/tests/book_reliability.test.cjs"
   ],
   "backup": "Кино/_system/redesign-backups/adaptation-links-20261010/audit-before",
   "tests": {
     "files": ["audit_integration.test.cjs", "book_reliability.test.cjs"],
-    "passed": 44,
+    "passed": 48,
     "failed": 0
   },
-  "syntaxChecks": 3,
+  "syntaxChecks": 4,
   "liveAudit": {
     "books": 214,
     "media": 1551,
@@ -26,6 +28,9 @@
     "Related links are symmetric between any book/media pair, including same-collection works.",
     "Adaptation reciprocity accepts media.Первоисточники or media.adapted_from without double counting.",
     "Offline audit excludes book service folders and generates preview frontmatter only when --report is requested.",
-    "Live audit was run without --report after parent data repairs became visible."
+    "Live audit was run without --report after parent data repairs became visible.",
+    "Safe fixes use the same rules; complete legacy adaptation pairs do not receive canonical duplicates.",
+    "Safe-fix alternatives are checked inside the atomic current-YAML update, preserving a concurrently synced legacy reverse.",
+    "The real safe-fix command was not run; only test fixtures were repaired."
   ]
 }

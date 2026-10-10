@@ -1,0 +1,22 @@
+{
+  "audit": {
+    "books": 214,
+    "media": 1551,
+    "links": 9,
+    "relatedLinks": 7,
+    "continuationLinks": 0,
+    "issues": []
+  },
+  "repairedCardsVerified": 12,
+  "backupHashesMatch": true,
+  "repairedHashesMatch": true,
+  "snippetsMatchSources": true,
+  "personalMarkdownPreserved": true,
+  "unrelatedYamlPreserved": true,
+  "existingRelationsPreserved": true,
+  "documentationUpdated": [
+    "Как пользоваться.md",
+    "Журнал изменений.md",
+    "Проверка связей с кино.md"
+  ]
+}
