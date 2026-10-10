@@ -85,6 +85,12 @@ test('shared book palette colours actual cards, home, authors, quotes, poems and
             try {
                 await page.addStyleTag({ content: css });
                 if (item.late) await page.addStyleTag({ content: fs.readFileSync(path.join(books, '_system', item.late), 'utf8') });
+                if (item.name === 'reading') {
+                    const select = page.getByLabel('Год чтения', { exact: true });
+                    const year = await select.locator('option').evaluateAll(nodes => nodes.map(node => node.value).find(Boolean));
+                    assert(year, 'the real reading history offers a year');
+                    await select.selectOption(year);
+                }
                 const root = page.locator('.markdown-preview-view').first();
                 assert.equal(await root.evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(22, 24, 28)', item.name + ' background');
                 assert.equal(await root.evaluate(node => getComputedStyle(node).getPropertyValue('--text-normal').trim()), '#f0ece3', item.name + ' text token');
@@ -109,9 +115,15 @@ test('native book Bases and book dialogs use local colours while other notes, Ba
             const snapshot = () => page.evaluate(() => [...document.querySelectorAll('#neutral,#neutral *,#neutral-base,#neutral-base *,#neutral-modal,#neutral-modal *')].map(node => { const style = getComputedStyle(node); return { color: style.color, bg: style.backgroundColor, border: style.borderColor, font: style.fontFamily, size: style.fontSize }; }));
             const before = await snapshot();
             await page.addStyleTag({ content: css });
+            // Dynamic Views animates background colours when a snippet is enabled.
+            await page.waitForFunction(() => getComputedStyle(document.querySelector('#book-base .card')).backgroundColor === 'rgb(32, 35, 41)');
             assert.deepEqual(await snapshot(), before, 'all unrelated note/base/dialog colours and fonts stay unchanged');
             assert.equal(await page.locator('#book-base').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(22, 24, 28)');
-            assert.equal(await page.locator('#book-base .card').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(32, 35, 41)');
+            const cardColour = await page.locator('#book-base .card').evaluate(node => {
+                const style = getComputedStyle(node);
+                return { background: style.backgroundColor, wrapperToken: style.getPropertyValue('--dynamic-views-background-primary-alt'), surface: style.getPropertyValue('--books-surface'), cardToken: style.getPropertyValue('--card-bg') };
+            });
+            assert.equal(cardColour.background, 'rgb(32, 35, 41)', JSON.stringify(cardColour));
             assert.equal(await page.locator('#book-modal').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(22, 24, 28)');
             assert.equal(await page.locator('#book-modal h1').evaluate(node => getComputedStyle(node).color), 'rgb(184, 151, 96)');
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

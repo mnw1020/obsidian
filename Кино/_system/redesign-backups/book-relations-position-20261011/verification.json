@@ -12,5 +12,12 @@
     "relatedLinks": 7,
     "continuationLinks": 0,
     "issues": []
+  },
+  "checks": {
+    "bookRelationsUi": "3/3",
+    "generatorsAndAudit": "48/48",
+    "homeLayouts": "8/8",
+    "paletteUi": "2/2",
+    "paletteBrowserScenarios": 14
   }
 }

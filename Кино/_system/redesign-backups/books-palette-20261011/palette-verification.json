@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-11",
+  "source": "Книги/_system/books-library.css",
+  "installedSnippet": ".obsidian/snippets/books-library.css",
+  "sourceMatchesInstalled": true,
+  "palette": {
+    "background": "#16181c",
+    "surface": "#202329",
+    "raised": "#282b31",
+    "text": "#f0ece3",
+    "muted": "#a8a69f",
+    "border": "#383a40",
+    "interactive": "#e4a45f",
+    "headingsAndFigures": "#b89760",
+    "readingBars": "#cb9c4d",
+    "secondaryBars": "#baa9d5"
+  },
+  "checks": {
+    "books-palette-ui.test.cjs": { "passed": 2, "failed": 0, "widths": [390, 1440] },
+    "library_home_ui.cjs": { "passedLayouts": 8, "failed": 0 },
+    "realRenderers": ["book_card.js", "library_home.js", "authors_ui.js", "knowledge.js", "poetry.js", "reading_dashboard.js"],
+    "lateSpecializedCss": "passed",
+    "fontsWeightsAndElementGeometryUnchanged": "passed",
+    "nativeBookBasesAndSpecificBookDialogs": "passed",
+    "unrelatedNotesBasesDialogsUnchanged": "passed",
+    "horizontalPageOverflow": false,
+    "visualInspection": ["card-390.png", "home-390.png", "authors-1440.png", "quotes-390.png", "poetry-390.png", "reading-1440.png", "scope-and-native-bases-390.png"]
+  },
+  "previewDirectory": "Кино/_system/redesign-backups/books-palette-20261011/previews",
+  "previewCount": 14,
+  "note": "Read-only browser adapters; no collection notes or commands were changed by the palette work."
+}
