@@ -32,7 +32,14 @@ function buildOverview({ app, core, obsidian = {} }) {
         const release = String(mediaFm['Релиз'] || '').match(/^\d{4}/)?.[0] || '';
         const item = { file: media, title: media.basename, originalTitle: String(mediaFm['Название'] || ''), type, year: release,
             rating: score(mediaFm['Оценка']) };
-        item.search = searchable([item.title, item.originalTitle, release].join(' '));
+        const franchises = new Map();
+        for (const value of values(mediaFm['Франшиза'])) {
+            const page = resolve(value, media.path);
+            if (!page || page.extension !== 'md' || !(page.path.startsWith('Кино/Франшизы/') || values(core.getFrontmatter(page).tags).includes('franchise'))) continue;
+            franchises.set(page.path, { target: page.path.replace(/\.md$/i, ''), title: page.basename });
+        }
+        item.franchises = [...franchises.values()];
+        item.search = searchable([item.title, item.originalTitle, release, ...item.franchises.map(page => page.title)].join(' '));
         group.media.set(media.path, item);
     }
     for (const record of records) for (const value of values(record.fm.adaptations)) {
@@ -163,17 +170,18 @@ async function render({ dv, app, obsidian = {} }) {
         anchor.addEventListener('click', event => { event.preventDefault(); app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey)); });
         return anchor;
     }
-    function authorLink(parent, name) {
-        const anchor = el(parent, 'a', 'book-authors-author-link', name);
-        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - Открыть автора') + '&value-author=' + encodeURIComponent(name).replace(/[!'()*]/g, char => '%' + char.charCodeAt(0).toString(16));
-        anchor.title = `Открыть страницу автора: ${name}`;
+    function entityLink(parent, name, kind = 'author') {
+        const choice = kind === 'series' ? 'Книги - Открыть серию' : 'Книги - Открыть автора';
+        const anchor = el(parent, 'a', kind === 'series' ? 'book-adaptations-series-link' : 'book-authors-author-link', name);
+        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent(choice) + '&value-' + kind + '=' + encodeURIComponent(name).replace(/[!'()*]/g, char => '%' + char.charCodeAt(0).toString(16));
+        anchor.title = `Открыть ${kind === 'series' ? 'серию' : 'страницу автора'}: ${name}`;
         anchor.addEventListener('click', async event => {
             const api = app.plugins?.plugins?.quickadd?.api;
             if (!api?.executeChoice) return;
             event.preventDefault();
-            try { await api.executeChoice('Книги - Открыть автора', { author: name }); }
+            try { await api.executeChoice(choice, { [kind]: name }); }
             catch (problem) {
-                if (!/cancel/i.test(String(problem.message || problem))) warning.textContent = `Не удалось открыть автора: ${problem.message || problem}`;
+                if (!/cancel/i.test(String(problem.message || problem))) warning.textContent = `Не удалось открыть ${kind === 'series' ? 'серию' : 'автора'}: ${problem.message || problem}`;
             }
         });
     }
@@ -196,9 +204,9 @@ async function render({ dv, app, obsidian = {} }) {
             const authors = el(bookHeading, 'p', 'book-authors-row-meta');
             item.authors.forEach((name, index) => {
                 if (index) el(authors, 'span', '', ' · ');
-                authorLink(authors, name);
+                entityLink(authors, name);
             });
-            if (item.series) el(bookHeading, 'p', 'book-authors-row-examples', item.series);
+            if (item.series) entityLink(el(bookHeading, 'p', 'book-authors-row-examples'), item.series, 'series');
             const info = el(book, 'div', 'book-adaptations-book-rating');
             if (item.rating !== null) el(info, 'span', '', `Книга ${item.rating}/10`);
             el(info, 'span', 'book-adaptations-count', `На экране: ${item.media.length}`);
@@ -211,6 +219,14 @@ async function render({ dv, app, obsidian = {} }) {
                 mediaLink.title = `Открыть карточку: ${media.title}`;
                 el(main, 'p', 'book-adaptations-media-meta', [media.type === 'serial' ? 'Сериал' : 'Фильм', media.year,
                     media.originalTitle && media.originalTitle !== media.title ? media.originalTitle : ''].filter(Boolean).join(' · '));
+                if (media.franchises.length) {
+                    const franchises = el(main, 'div', 'book-adaptations-franchises');
+                    el(franchises, 'span', '', 'Франшиза · ');
+                    media.franchises.forEach((page, index) => {
+                        if (index) el(franchises, 'span', '', ' · ');
+                        internal(franchises, page.title, page.target, 'book-adaptations-franchise-link');
+                    });
+                }
                 const rating = el(row, 'span', 'book-adaptations-media-rating', media.rating === null ? 'Без оценки' : `${media.rating}/10`);
                 rating.setAttribute('aria-label', media.rating === null ? 'Оценка кино не указана' : `Моя оценка кино: ${media.rating} из 10`);
             }
@@ -232,7 +248,7 @@ async function render({ dv, app, obsidian = {} }) {
             const overview = buildOverview({ app, core, obsidian });
             // TFile belongs to the live vault and can contain circular parent references.
             const nextSignature = JSON.stringify([overview.unresolved, overview.items.map(item => [item.file.path, item.title, item.authors, item.series, item.rating,
-                item.media.map(media => [media.file.path, media.title, media.originalTitle, media.type, media.year, media.rating])])]);
+                item.media.map(media => [media.file.path, media.title, media.originalTitle, media.type, media.year, media.rating, media.franchises])])]);
             if (nextSignature === signature) return;
             signature = nextSignature; items = overview.items; stats.replaceChildren();
             for (const [key, label] of [['books', 'Произведений'], ['media', 'Экранизаций'], ['movies', 'Фильмов'], ['serials', 'Сериалов']]) {

@@ -10,7 +10,9 @@ function fixture(filePath, diskPath) {
 const books = bookPaths.map(filePath => fixture('Книги/' + filePath, path.join(root, filePath)));
 const mediaPaths = [...new Set(books.flatMap(file => file.fm.adaptations.map(link => link.replace(/^\[\[([^\]|]+).*$/, '$1') + '.md')))];
 const movies = mediaPaths.map(filePath => fixture(filePath, path.join(root, '..', filePath)));
-const files = [...books, ...movies];
+const franchisePaths = [...new Set(movies.flatMap(file => [].concat(file.fm['Франшиза'] || []).map(link => link.replace(/^\[\[([^\]|]+).*$/, '$1') + '.md')))];
+const franchises = franchisePaths.map(filePath => fixture(filePath, path.join(root, '..', filePath)));
+const files = [...books, ...movies, ...franchises];
 async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     try {
@@ -46,6 +48,11 @@ async function main() {
             assert.equal(await page.locator('.book-adaptations-media').count(), 4);
             await page.locator('.book-authors-author-link').filter({ hasText: 'Лю Цысинь' }).click();
             assert.deepEqual(await page.evaluate(() => window.fixture.commands.at(-1)), ['Книги - Открыть автора', { author: 'Лю Цысинь' }]);
+            await page.locator('.book-adaptations-series-link').filter({ hasText: 'Память о прошлом Земли' }).click();
+            assert.deepEqual(await page.evaluate(() => window.fixture.commands.at(-1)), ['Книги - Открыть серию', { series: 'Память о прошлом Земли' }]);
+            assert.equal(await page.locator('.book-adaptations-franchises').count(), 1);
+            await page.locator('.book-adaptations-franchise-link').filter({ hasText: 'Киновселенная Marvel' }).click();
+            assert.deepEqual(await page.evaluate(() => window.fixture.opened.at(-1)), ['Кино/Франшизы/Киновселенная Marvel', 'Книги/_system/Экранизации.md', false]);
             await page.evaluate(() => {
                 const host = document.querySelector('main');
                 for (const cls of ['metadata-container', 'frontmatter-container']) {

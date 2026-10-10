@@ -156,11 +156,8 @@
 .book-adaptations-ui .book-adaptations-media-title { color: var(--authors-text); font-size: 14px; font-weight: 550; line-height: 1.35; text-decoration: none; overflow-wrap: anywhere; }
 .book-adaptations-ui .book-adaptations-media-title:hover { color: var(--authors-accent); }
 .book-adaptations-ui .book-adaptations-book a.book-authors-author-link,
-.book-adaptations-ui .book-adaptations-book a.book-adaptations-series-link,
-.book-adaptations-ui a.book-adaptations-franchise-link,
 .book-adaptations-ui a.book-adaptations-media-title { color: var(--authors-accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--authors-accent) 40%, transparent); text-underline-offset: 3px; }
 .book-adaptations-ui a.book-adaptations-media-title::after { content: ' ↗'; font-size: .8em; }
-.book-adaptations-ui .book-adaptations-franchises { margin-top: 6px; color: var(--authors-muted); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
 .book-adaptations-ui .book-adaptations-media-meta { margin: 4px 0 0; color: var(--authors-muted); font-size: 11px; line-height: 1.4; }
 .book-adaptations-ui .book-adaptations-media-rating { color: var(--authors-accent); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .book-adaptations-ui .book-adaptations-footer { margin: 14px 0 0; color: var(--authors-muted); font-size: 12px; }

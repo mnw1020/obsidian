@@ -26,6 +26,17 @@ test('one work keeps all distinct direct and reverse adaptations, shared media i
     assert.deepEqual(result.stats, { books: 2, media: 3, links: 4, movies: 1, serials: 2 });
     assert.equal(result.unresolved, 1);
 });
+
+test('franchise links resolve existing pages, deduplicate aliases and participate in search', () => {
+    const env = fixture();
+    const page = file('Кино/Франшизы/Вселенная.md', { tags: ['franchise'] });
+    env.files.push(page);
+    env.files.find(item => item.basename === 'Фильм').fm['Франшиза'] = ['[[Вселенная]]', '[[Кино/Франшизы/Вселенная|Алиас]]', '[[Нет франшизы]]', '[[Книга]]'];
+    const overview = ui.buildOverview(env);
+    const movie = overview.items.find(item => item.title === 'Ёлка').media.find(item => item.title === 'Фильм');
+    assert.deepEqual(movie.franchises, [{ target: 'Кино/Франшизы/Вселенная', title: 'Вселенная' }]);
+    assert.equal(ui.filterItems(overview.items, { query: 'вселенная' }).length, 1);
+});
 test('search and type filters preserve work grouping without mutating the full overview', () => {
     const items = ui.buildOverview(fixture()).items;
     const search = ui.filterItems(items, { query: 'елка' });
