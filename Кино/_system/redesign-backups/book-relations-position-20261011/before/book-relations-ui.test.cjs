@@ -80,12 +80,6 @@ test('book relations use compact rows, explicit pane source, immediate saved lin
             assert.equal(await panel.evaluate(node => node.tagName), 'DETAILS');
             assert.equal(await panel.evaluate(node => node.open), true);
             assert.equal(await summary.locator('.book-card-related-heading').textContent(), 'Связанные произведения');
-            assert.ok(await page.evaluate(() => {
-                const panel = document.querySelector('.book-card-adaptations').getBoundingClientRect();
-                const actions = [...document.querySelectorAll('.book-card-actions .book-card-action, .book-card-secondary .book-card-action')];
-                return actions.every(action => action.getBoundingClientRect().bottom <= panel.top) &&
-                    document.querySelector('.book-card-contents').getBoundingClientRect().top >= panel.bottom;
-            }), 'related works sit below all action buttons and above the section links');
             assert.deepEqual(await panel.evaluate(node => ({ radius: getComputedStyle(node).borderRadius,
                 headingSize: getComputedStyle(node.querySelector('.book-card-related-heading')).fontSize,
                 headingColor: getComputedStyle(node.querySelector('.book-card-related-heading')).color })),
@@ -109,8 +103,7 @@ test('book relations use compact rows, explicit pane source, immediate saved lin
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal overflow');
             assert.ok(await rows.evaluateAll(nodes => nodes.every(node => node.getBoundingClientRect().height <= 80)), 'rows stay compact');
             const previews = path.join(vault, 'Кино/_system/redesign-backups/previews'); fs.mkdirSync(previews, { recursive: true });
-            await page.evaluate(() => document.activeElement?.blur());
-            await page.screenshot({ path: path.join(previews, 'book-relations-position-20261011-' + width + '.png'), fullPage: true });
+            await page.screenshot({ path: path.join(previews, 'book-relations-style-20261011-' + width + '.png'), fullPage: true });
             await summary.press('Enter');
             await page.evaluate(() => {
                 fixture.book.fm = { ...fixture.book.fm, adaptations: [] };

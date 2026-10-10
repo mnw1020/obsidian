@@ -1,0 +1,122 @@
+/* BOOKS:PALETTE:START — shared cinema colours; typography and geometry stay local. */
+:is(.book-card, .books-library, .books-entity, .book-knowledge,
+    .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page,
+    .book-home-ui, .book-authors-ui, .book-poetry-ui, .book-quotes-index, .book-reading-dashboard,
+    .book-poetry-modal, .book-quote-create-modal, .modal:has(.book-quote-edit, .book-quote-delete-dialog),
+    .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Книги/"]),
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Книги/"]),
+    .workspace-leaf-content[data-type="bases"]:has(.bases-list .internal-link[data-href^="Книги/"])) {
+    --books-bg: #16181c;
+    --books-surface: #202329;
+    --books-raised: #282b31;
+    --books-text: #f0ece3;
+    --books-muted: #a8a69f;
+    --books-line: #383a40;
+    --books-gold: #b89760;
+    --books-interactive: #e4a45f;
+    --books-interactive-hover: #efb876;
+    --books-bar: #cb9c4d;
+    --books-bar-secondary: #baa9d5;
+    --background-primary: var(--books-bg);
+    --background-primary-alt: var(--books-surface);
+    --background-secondary: var(--books-surface);
+    --background-secondary-alt: var(--books-raised);
+    --background-modifier-border: var(--books-line);
+    --background-modifier-border-hover: #87684a;
+    --background-modifier-border-focus: var(--books-interactive);
+    --background-modifier-form-field: var(--books-bg);
+    --background-modifier-hover: var(--books-raised);
+    --background-modifier-active-hover: color-mix(in srgb, var(--books-gold) 10%, var(--books-bg));
+    --text-normal: var(--books-text);
+    --text-muted: var(--books-muted);
+    --text-faint: #8d8d88;
+    --text-accent: var(--books-interactive);
+    --text-accent-hover: var(--books-interactive-hover);
+    --interactive-accent: var(--books-interactive);
+    --interactive-accent-hover: var(--books-interactive-hover);
+    --text-on-accent: #211a13;
+    --interactive-normal: var(--books-raised);
+    --interactive-hover: #33363d;
+    --link-color: var(--books-interactive);
+    --link-color-hover: var(--books-interactive-hover);
+    --link-external-color: var(--books-interactive);
+    --link-external-color-hover: var(--books-interactive-hover);
+    --h1-color: var(--books-gold);
+    --h2-color: var(--books-gold);
+    --h3-color: var(--books-gold);
+    --h4-color: var(--books-gold);
+    --h5-color: var(--books-gold);
+    --h6-color: var(--books-gold);
+    --table-header-background: var(--books-surface);
+    --table-border-color: var(--books-line);
+    --table-header-color: var(--books-muted);
+    --table-row-background-hover: var(--books-raised);
+    --blockquote-border-color: var(--books-gold);
+    --tag-color: var(--books-gold);
+    --tag-background: var(--books-raised);
+    /* Re-resolve widget variables on their roots, even when their CSS loads later. */
+    --book-card-accent: var(--books-gold);
+    --book-related-accent: var(--books-gold);
+    --home-accent: var(--books-gold);
+    --home-number-color: var(--books-gold);
+    --home-heading-color: var(--books-gold);
+    --home-line: color-mix(in srgb, var(--books-line) 70%, transparent);
+    --home-tint: color-mix(in srgb, var(--books-gold) 8%, var(--books-bg));
+    --authors-text: var(--books-text);
+    --authors-muted: var(--books-muted);
+    --authors-line: var(--books-line);
+    --authors-surface: var(--books-surface);
+    --authors-accent: var(--books-gold);
+    --quotes-line: var(--books-line);
+    --quotes-muted: var(--books-muted);
+    --quotes-accent: var(--books-gold);
+    --quotes-soft-line: color-mix(in srgb, var(--books-line) 65%, transparent);
+    --quotes-selected: color-mix(in srgb, var(--books-gold) 10%, var(--books-bg));
+    --poetry-line: color-mix(in srgb, var(--books-line) 70%, transparent);
+    --poetry-accent: var(--books-gold);
+    --poetry-tint: color-mix(in srgb, var(--books-gold) 8%, var(--books-bg));
+    /* Bases/Dynamic Views otherwise inherit their resolved tokens from body. */
+    --dynamic-views-background-primary: var(--books-bg);
+    --dynamic-views-background-primary-alt: var(--books-surface);
+    --dynamic-views-background-modifier-border: var(--books-line);
+    --dynamic-views-background-modifier-border-hover: #87684a;
+    --dynamic-views-background-modifier-border-focus: var(--books-interactive);
+    --dynamic-views-background-modifier-hover: var(--books-raised);
+    --dynamic-views-text-normal: var(--books-text);
+    --dynamic-views-text-muted: var(--books-muted);
+    --dynamic-views-text-faint: #8d8d88;
+    --dynamic-views-text-accent: var(--books-interactive);
+    --dynamic-views-link-color: var(--books-interactive);
+    --dynamic-views-link-color-hover: var(--books-interactive-hover);
+    background-color: var(--books-bg);
+    color: var(--books-text);
+    color-scheme: dark;
+}
+
+:is(.book-card, .books-library, .books-entity, .book-knowledge,
+    .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page,
+    .book-poetry-modal, .book-quote-create-modal, .modal:has(.book-quote-edit, .book-quote-delete-dialog))
+    :is(h1, h2, h3, h4, h5, h6, .cm-header-1, .cm-header-2, .cm-header-3, .cm-header-4, .cm-header-5, .cm-header-6) {
+    color: var(--books-gold) !important;
+}
+:is(.book-card, .books-library, .books-entity, .book-knowledge,
+    .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page)
+    :is(h1, h2, h3, h4, h5, h6) :is(a, button) { color: inherit !important; }
+
+:is(.book-card, .books-library, .books-entity, .book-knowledge,
+    .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page)
+    :is(.book-card-rating, .books-stat-value, .book-authors-stat-value, .book-authors-chip strong,
+        .book-dashboard-metric strong, .book-dashboard-month strong, .book-dashboard-year-link,
+        .book-adaptations-book-rating, .book-adaptations-media-rating) { color: var(--books-gold); }
+
+:is(.books-library, .books-home-page, .books-reading-page) .book-dashboard-month-bar {
+    background-color: var(--books-bar);
+}
+
+:is(.books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page,
+    .book-quotes-page, .book-poetry-page,
+    .workspace-leaf-content[data-type="bases"]:has(.card[data-path^="Книги/"]),
+    .workspace-leaf-content[data-type="bases"]:has(.bases-td .internal-link[data-href^="Книги/"]),
+    .workspace-leaf-content[data-type="bases"]:has(.bases-list .internal-link[data-href^="Книги/"]))
+    :is(.bases-view, .bases-table, .bases-cards-container) { background-color: var(--books-bg); color: var(--books-text); }
+/* BOOKS:PALETTE:END */

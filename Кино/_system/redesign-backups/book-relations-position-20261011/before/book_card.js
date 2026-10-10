@@ -254,7 +254,6 @@ async function render({ app, dv }) {
         props.textContent = visible ? 'Скрыть свойства' : 'Показать свойства';
         props.setAttribute('aria-expanded', String(visible));
     });
-    hero.appendChild(adaptations);
     const contents = el(hero, 'nav', 'book-card-contents');
     contents.setAttribute('aria-label', 'Разделы произведения');
     internal(contents, 'История чтений ↓', source + '#История чтений');

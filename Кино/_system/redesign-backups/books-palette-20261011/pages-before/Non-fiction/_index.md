@@ -1,6 +1,5 @@
 ---
 obsidianUIMode: preview
-cssclasses: ["books-library"]
 ---
 
 # Non-fiction

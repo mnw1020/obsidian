@@ -1,0 +1,42 @@
+{
+  "mode": "apply",
+  "changed": [
+    {
+      "path": "Книги/Non-fiction/_index.md",
+      "before": "72abca17d0c08b9b6f5215c007d876d040d6691cd9bd3bdee3336d0cbeb3c782",
+      "after": "ad3156dd4be40e47e1aa1b4697b29bec23ed5fac0f2971779e472f6d6d781503"
+    },
+    {
+      "path": "Книги/_system/Журнал изменений.md",
+      "before": "c7b0f236de9fe6b8d7616592ec00d94aa90ded142ae38de82ebe3550aff36f72",
+      "after": "8e943b39211b07233d36d1462fa3a907f5f74bcb7343d3d1aa670f16e4950373"
+    },
+    {
+      "path": "Книги/_system/Приёмка.md",
+      "before": "96b7b1b92de8cb1251ffb6f2ec381ba775ec29cea0208836d8608cd8a7709977",
+      "after": "eae860b680bd574b301aeeee561e6471faab7ecf46cf488161eae854f4ce79b8"
+    },
+    {
+      "path": "Книги/_system/Проверка библиотеки.md",
+      "before": "a6e342521d62d168c2a4c1c4c9f31782f90d996286758913591e6ff5b8d5b1ce",
+      "after": "8ee60f4c94ae919571bbb399b23502d4b7f05032a3d5f517ee1a7f3539b7dafd"
+    },
+    {
+      "path": "Книги/_system/Проверка связей с кино.md",
+      "before": "977e27bb5c0a701e726687a8384c7f49e7861c40791ee6f70299b88e9cdebfb9",
+      "after": "ea010d013252b7345f846faa039a3c7996fcbf44ce9fff28cb5d23d286ccea18"
+    },
+    {
+      "path": "Книги/_system/Редизайн карточек.md",
+      "before": "db83b3aa92c0d59db01a14ee33fa98d2871e883fc3f0aacc746b3f571f6c05a2",
+      "after": "03543b0d2a0e8255100e056ddd3b4b3c68f4721d86dbedd4bcc30710900f104e"
+    },
+    {
+      "path": "Книги/Цитата.md",
+      "before": "3ea0738d647380c516ca05a346896feda7485f559e10a0310080a58d290aa60f",
+      "after": "6a73c51eada46e228a651ca7fa6829822f5bc0e5798488c1f55ab4dfa56bdd1d"
+    }
+  ],
+  "personalTextPreserved": true,
+  "otherYamlPreserved": true
+}
