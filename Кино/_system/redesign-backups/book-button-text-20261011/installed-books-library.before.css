@@ -37,7 +37,6 @@
 .book-card a.book-card-action,
 .book-card button.book-card-action { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 9px 16px; border: 1px solid var(--background-modifier-border); border-radius: 10px; background: var(--background-primary); color: var(--text-normal); text-decoration: none; font-family: var(--font-interface); font-size: .82em; line-height: 1.3; cursor: pointer; text-align: center; white-space: normal; height: auto; box-shadow: none; }
 .book-card a.book-card-primary { background: var(--interactive-accent); color: var(--text-on-accent); border-color: var(--interactive-accent); }
-.book-card :is(a, button).book-card-action:not(.book-card-primary) { color: var(--text-muted); }
 .book-card .book-card-action:hover { filter: brightness(1.1); border-color: var(--text-accent); }
 .book-card :is(a, button):focus-visible { outline: 2px solid var(--text-accent); outline-offset: 3px; }
 .book-card .book-card-secondary { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
