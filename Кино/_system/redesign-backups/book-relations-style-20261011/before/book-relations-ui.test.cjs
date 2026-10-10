@@ -75,36 +75,19 @@ test('book relations use compact rows, explicit pane source, immediate saved lin
         for (const width of [390, 1440]) {
             const page = await setup(browser, width);
             const rows = page.locator('.book-card-adaptation');
-            const panel = page.locator('.book-card-adaptations');
-            const summary = panel.locator('summary');
-            assert.equal(await panel.evaluate(node => node.tagName), 'DETAILS');
-            assert.equal(await panel.evaluate(node => node.open), true);
-            assert.equal(await summary.locator('.book-card-related-heading').textContent(), 'Связанные произведения');
-            assert.deepEqual(await panel.evaluate(node => ({ radius: getComputedStyle(node).borderRadius,
-                headingSize: getComputedStyle(node.querySelector('.book-card-related-heading')).fontSize,
-                headingColor: getComputedStyle(node.querySelector('.book-card-related-heading')).color })),
-                { radius: '11px', headingSize: '21px', headingColor: 'rgb(184, 151, 96)' });
             assert.equal(await rows.count(), 2);
             assert.equal(await page.locator('.book-card-adaptation-meta').allTextContents().then(values => values.join('|')), 'Фильм · 1984|Сериал · 2000');
             await rows.first().click({ modifiers: ['Control'] });
             assert.deepEqual(await page.evaluate(() => fixture.opened[0]), ['Кино/Media/Дюна (1984)', 'Книги/Художественные/Герберт. Дюна.md', true]);
-            await summary.press('Enter');
-            assert.equal(await panel.evaluate(node => node.open), false);
-            assert.equal(await rows.first().isVisible(), false);
             await page.getByRole('link', { name: 'Связать с кино', exact: true }).click();
             assert.equal(await rows.count(), 3);
-            assert.equal(await panel.evaluate(node => node.open), false, 'adding a relation preserves a collapsed panel');
-            await summary.press('Space');
-            assert.equal(await panel.evaluate(node => node.open), true);
-            assert.equal(await rows.first().isVisible(), true);
             assert.deepEqual(await page.evaluate(() => fixture.choices), [{ name: 'Книги - Связать с кино', path: 'Книги/Художественные/Герберт. Дюна.md', active: 'Книги/Художественные/Герберт. Дюна.md' }]);
             assert.equal(await page.evaluate(() => fixture.book.fm.adaptations.length), 1, 'saved callback works before cache refresh');
             assert.equal(await page.locator('.book-card-adaptations-count').textContent(), '3');
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no horizontal overflow');
             assert.ok(await rows.evaluateAll(nodes => nodes.every(node => node.getBoundingClientRect().height <= 80)), 'rows stay compact');
             const previews = path.join(vault, 'Кино/_system/redesign-backups/previews'); fs.mkdirSync(previews, { recursive: true });
-            await page.screenshot({ path: path.join(previews, 'book-relations-style-20261011-' + width + '.png'), fullPage: true });
-            await summary.press('Enter');
+            await page.screenshot({ path: path.join(previews, 'book-relations-' + width + '.png'), fullPage: true });
             await page.evaluate(() => {
                 fixture.book.fm = { ...fixture.book.fm, adaptations: [] };
                 fixture.serial.fm.adapted_from = [];
@@ -120,8 +103,6 @@ test('book relations use compact rows, explicit pane source, immediate saved lin
                 fixture.app.metadataCache.trigger('changed', fixture.film);
             });
             await page.waitForFunction(() => document.querySelectorAll('.book-card-adaptation').length === 1);
-            assert.equal(await panel.evaluate(node => node.open), false, 'hide/show retains the chosen fold state');
-            await summary.press('Enter');
             await page.evaluate(() => {
                 fixture.book.fm.adaptations = ['[[Кино/Media/Дюна (2021)|<img src=x onerror=alert(1)>]]'];
                 fixture.app.metadataCache.trigger('changed', fixture.book);

@@ -160,8 +160,8 @@ async function render({ app, dv }) {
     fact('Последнее чтение', displayDate(fm.date));
     fact('Всего чтений', String(fm.read_count ?? '—'));
     if (fiction && !(Number(fm.rating) >= 1 && Number(fm.rating) <= 10)) fact('Оценка', 'Пока без оценки');
-    const adaptations = el(hero, 'details', 'book-card-adaptations');
-    adaptations.open = true;
+    const adaptations = el(hero, 'section', 'book-card-adaptations');
+    adaptations.setAttribute('aria-label', 'Экранизации и связанные произведения');
     let relationsFm = fm;
     const renderAdaptations = payload => {
         if (relationsDisposed) return;
@@ -180,19 +180,19 @@ async function render({ app, dv }) {
         adaptations.replaceChildren();
         adaptations.hidden = !links.length;
         if (!links.length) return;
-        const heading = el(adaptations, 'summary', 'book-card-adaptations-heading');
-        el(heading, 'span', 'book-card-related-heading', 'Связанные произведения');
+        const heading = el(adaptations, 'div', 'book-card-adaptations-heading');
+        el(heading, 'span', 'book-card-label', 'Связанные произведения');
         el(heading, 'span', 'book-card-adaptations-count', String(links.length));
         const items = el(adaptations, 'div', 'book-card-adaptation-links');
         const types = { book: 'Книга', movies: 'Фильм', serial: 'Сериал' };
         for (const link of links) {
             const item = internal(items, '', link.target, 'book-card-adaptation' + (link.missing ? ' is-missing' : ''));
             item.dataset.type = link.type || 'movies';
-            el(item, 'span', 'book-card-adaptation-icon', link.type === 'book' ? 'Аа' : link.type === 'serial' ? '▣' : '▷').setAttribute('aria-hidden', 'true');
+            el(item, 'span', 'book-card-adaptation-icon', link.type === 'book' ? '▤' : link.type === 'serial' ? '▦' : '▷').setAttribute('aria-hidden', 'true');
             const body = el(item, 'span', 'book-card-adaptation-main');
             el(body, 'span', 'book-card-adaptation-title', link.label);
             const meta = [types[link.type] || 'Произведение', link.author, link.year].filter(Boolean);
-            if (link.missing) meta.push('Ссылка недоступна');
+            if (link.missing) meta.push('Файл не найден');
             el(body, 'span', 'book-card-adaptation-meta', meta.join(' · '));
             el(item, 'span', 'book-card-adaptation-arrow', '↗').setAttribute('aria-hidden', 'true');
         }
