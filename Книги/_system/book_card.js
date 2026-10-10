@@ -204,19 +204,36 @@ async function render({ app, dv }) {
         clearTimeout(relationTimer);
         relationTimer = setTimeout(() => renderAdaptations(), 80);
     };
+    const isBookRelationFile = candidate => {
+        const meta = candidate && app.metadataCache.getFileCache(candidate)?.frontmatter || {};
+        if (relationCore?.kind) return relationCore.kind(candidate, meta) === 'book';
+        return candidate?.path?.startsWith('Книги/') && /\.md$/i.test(candidate.path) &&
+            !/^Книги\/(?:_system|Цитаты|Конспекты|Идеи)\//.test(candidate.path) &&
+            candidate.basename !== '_index' && String(meta.title || '').trim() && [].concat(meta.authors || []).some(Boolean);
+    };
+    // Keep known paths as well: after a deletion the metadata can already be unavailable.
+    const relatedBookPaths = new Set((app.vault.getMarkdownFiles?.() || []).filter(isBookRelationFile).map(candidate => candidate.path));
+    const needsRelationRefresh = (changed, oldPath) => {
+        const path = changed?.path;
+        const wasBook = relatedBookPaths.has(path) || relatedBookPaths.has(oldPath);
+        if (oldPath) relatedBookPaths.delete(oldPath);
+        const isBook = isBookRelationFile(changed);
+        if (isBook) relatedBookPaths.add(path);
+        return path === source || oldPath === source || path?.startsWith('Кино/') || oldPath?.startsWith('Кино/') || wasBook || isBook;
+    };
     watchRelations(app.workspace, 'kino:adaptations-changed', payload => {
         if (payload?.bookPath === source) renderAdaptations(payload);
     });
     watchRelations(app.metadataCache, 'changed', changed => {
         if (changed?.path === source) relationsFm = app.metadataCache.getFileCache(file)?.frontmatter || {};
-        if (changed?.path === source || changed?.path?.startsWith('Кино/')) scheduleRelations();
+        if (needsRelationRefresh(changed)) scheduleRelations();
     });
     watchRelations(app.metadataCache, 'resolved', () => {
         relationsFm = app.metadataCache.getFileCache(file)?.frontmatter || {};
         scheduleRelations();
     });
-    for (const event of ['create', 'delete', 'rename']) watchRelations(app.vault, event, changed => {
-        if (changed?.path === source || changed?.path?.startsWith('Кино/')) scheduleRelations();
+    for (const event of ['create', 'delete', 'rename']) watchRelations(app.vault, event, (changed, oldPath) => {
+        if (needsRelationRefresh(changed, oldPath)) scheduleRelations();
     });
     renderAdaptations();
     const actions = el(hero, 'div', 'book-card-actions');

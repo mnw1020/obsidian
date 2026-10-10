@@ -20,10 +20,9 @@ module.exports = async (params) => {
     const ENTRY_END = "<!-- BOOK-READING:END -->";
     const COMMENT_MARK = "<!-- BOOK-READING:COMMENT -->";
     const RELATION_RULES = [
-        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники", section: "cinema" },
-        { name: "related", leftType: "book", leftProp: "related", rightType: "book", rightProp: "related", section: "general" },
-        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues", section: "general" },
-        { name: "adapted_from → adaptations", leftType: "media", leftProp: "adapted_from", rightType: "book", rightProp: "adaptations", section: "general", sourceOnly: true }
+        { name: "книга ↔ кино", leftType: "book", leftProp: "adaptations", rightType: "media", rightProp: "Первоисточники", rightProps: ["Первоисточники", "adapted_from"], section: "cinema" },
+        { name: "related", leftType: "work", leftProp: "related", rightType: "work", rightProp: "related", section: "general" },
+        { name: "продолжение", leftType: "book", leftProp: "continued_by", rightType: "book", rightProp: "continues", section: "general" }
     ];
 
     const getFrontmatter = core.getFrontmatter;
@@ -847,11 +846,12 @@ module.exports = async (params) => {
     const mediaFiles = app.vault.getMarkdownFiles()
         .filter(isMedia)
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
-    const filesByType = { book: books, media: mediaFiles };
+    const filesByType = { book: books, media: mediaFiles, work: [...books, ...mediaFiles] };
 
     function matchesType(file, type) {
         if (type === "book") return isCandidateBook(file);
         if (type === "media") return isMedia(file);
+        if (type === "work") return isCandidateBook(file) || isMedia(file);
         return false;
     }
 
@@ -874,18 +874,18 @@ module.exports = async (params) => {
         };
     }
 
-    function reverseContains(sourceFile, propertyName, expectedFile) {
+    function reverseContains(sourceFile, propertyNames, expectedFile) {
         const expectedPath = noteTargetPath(expectedFile);
-        return rawListValues(getFrontmatter(sourceFile)[propertyName]).some(value => {
+        return [].concat(propertyNames).some(propertyName => rawListValues(getFrontmatter(sourceFile)[propertyName]).some(value => {
             const relation = canonicalRelationTarget(value, sourceFile);
             return relation.resolved
                 ? noteTargetPath(relation.resolved) === expectedPath
                 : relation.target === expectedPath;
-        });
+        }));
     }
 
     function relationFileLabel(file, type) {
-        if (type === "book") return wikiLink(file, asText(getFrontmatter(file).title) || file.basename);
+        if (type === "book" || (type === "work" && isCandidateBook(file))) return wikiLink(file, asText(getFrontmatter(file).title) || file.basename);
         return wikiLink(file, file.basename);
     }
 
@@ -923,7 +923,8 @@ module.exports = async (params) => {
                     const pair = relationKey(leftFile, rightFile, rule);
                     validPairs.add(pair);
                     if (!reverseContains(relation.resolved, reverseProp, sourceFile)) {
-                        output.push(`${sourceLink} → ${relationFileLabel(relation.resolved, targetType)} - нет обратной ссылки в \`${reverseProp}\` (${rule.name}).`);
+                        const reverseLabel = [].concat(reverseProp).map(propName => `\`${propName}\``).join(" или ");
+                        output.push(`${sourceLink} → ${relationFileLabel(relation.resolved, targetType)} - нет обратной ссылки в ${reverseLabel} (${rule.name}).`);
                     } else {
                         completePairs.add(pair);
                     }
@@ -931,9 +932,12 @@ module.exports = async (params) => {
             }
         }
 
-        await scanSide(filesByType[rule.leftType], rule.leftProp, rule.leftType, rule.rightType, rule.rightProp, true);
+        const rightProps = rule.rightProps || [rule.rightProp];
+        await scanSide(filesByType[rule.leftType], rule.leftProp, rule.leftType, rule.rightType, rightProps, true);
         if (!rule.sourceOnly && !(rule.leftType === rule.rightType && rule.leftProp === rule.rightProp)) {
-            await scanSide(filesByType[rule.rightType], rule.rightProp, rule.rightType, rule.leftType, rule.leftProp, false);
+            for (const rightProp of rightProps) {
+                await scanSide(filesByType[rule.rightType], rightProp, rule.rightType, rule.leftType, rule.leftProp, false);
+            }
         }
 
         if (rule.section === "cinema") {
@@ -1220,8 +1224,8 @@ module.exports = async (params) => {
     report += "- `series` / `series_index`, повторяющиеся номера и пробелы в сериях;\n";
     report += "- ссылки на отсутствующие локальные вложения в Markdown-файлах внутри `Книги/`;\n";
     report += "- картинки внутри `Книги/`, на которые не ссылается ни один Markdown-файл vault;\n";
-    report += "- двусторонность `adaptations` ↔ `Первоисточники`, битые ссылки, дубли и типы целей;\n";
-    report += "- взаимность `related` ↔ `related` и `continued_by` ↔ `continues`; новые пары добавляются явно в `RELATION_RULES`;\n";
+    report += "- двусторонность `adaptations` ↔ `Первоисточники` / `adapted_from`, битые ссылки, дубли и типы целей;\n";
+    report += "- взаимность `related` ↔ `related` между книгами и карточками кино, включая связи внутри коллекции, и `continued_by` ↔ `continues` между книгами; новые пары добавляются явно в `RELATION_RULES`;\n";
     report += "- книги без `adaptations`, у которых найден фильм/сериал с очень похожим названием — только как подсказка, без автосвязи.\n";
 
     const reportFile = await core.writeIfChanged(normalizePath(REPORT_PATH), report);
