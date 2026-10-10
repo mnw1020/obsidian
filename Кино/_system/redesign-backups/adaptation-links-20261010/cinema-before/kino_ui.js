@@ -142,70 +142,6 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             if (!list.children.length) element(body, "p", "kino-muted", "Свойства не заполнены.");
         });
     }
-
-    async function relatedWorks() {
-        let api = null;
-        const moduleFile = app.vault.getAbstractFileByPath("Кино/_system/adaptation_links.js");
-        if (moduleFile) {
-            try { const loaded = { exports: {} }; new Function("module", await app.vault.read(moduleFile))(loaded); api = loaded.exports; }
-            catch (error) { console.warn("Кино: связи произведений", error); }
-        }
-        if (disposed) return;
-        const slot = element(root, "div", "kino-related-slot"), actions = element(root, "div", "kino-related-actions");
-        const add = element(actions, "button", "kino-related-add", "Связать с книгой"); add.type = "button";
-        const message = element(actions, "p", "kino-related-message"); message.hidden = true; message.setAttribute("role", "status");
-        let expanded = true, timer;
-        function fallback() {
-            const links = new Map();
-            for (const value of [...values(fm["Первоисточники"]), ...values(fm.adapted_from), ...values(fm.related)]) {
-                const ref = linkParts(value); if (!ref) continue;
-                links.set(ref.path.replace(/\.md$/i, ""), { target: ref.path, label: ref.label, type: ref.path.startsWith("Книги/") ? "book" : "movies" });
-            }
-            return [...links.values()];
-        }
-        function draw(payload) {
-            if (disposed) return;
-            if (payload && api?.remember) for (const [path, data] of [[payload.bookPath, payload.bookFm], [payload.mediaPath, payload.mediaFm]]) {
-                const target = path && app.vault.getAbstractFileByPath(path); if (target && data) api.remember(app, target, data);
-            }
-            const list = api?.related && file ? api.related({ app, file, fm: app.metadataCache.getFileCache(file)?.frontmatter || fm }) : fallback();
-            const previous = slot.querySelector("details"); if (previous) expanded = previous.open;
-            slot.replaceChildren();
-            if (!list.length) return;
-            const box = element(slot, "details", "kino-related-panel"); box.open = expanded;
-            const summary = element(box, "summary"); element(summary, "span", "kino-related-heading", "Связанные произведения");
-            element(summary, "span", "kino-related-count", list.length);
-            const items = element(box, "div", "kino-related-list");
-            for (const link of list) {
-                const item = internalLink(items, { path: link.target, display: "" }); item.classList.add("kino-related-item");
-                const icon = element(item, "span", "kino-related-icon", link.type === "book" ? "Аа" : link.type === "serial" ? "▣" : "▷"); icon.setAttribute("aria-hidden", "true");
-                const main = element(item, "span", "kino-related-main"); element(main, "span", "kino-related-title", link.label);
-                const type = link.type === "book" ? "Книга" : link.type === "serial" ? "Сериал" : "Фильм";
-                element(main, "span", "kino-related-meta", [type, link.author, link.year, link.missing ? "Ссылка недоступна" : ""].filter(Boolean).join(" · "));
-                element(item, "span", "kino-related-arrow", "↗").setAttribute("aria-hidden", "true");
-            }
-        }
-        draw();
-        add.addEventListener("click", async () => {
-            if (add.disabled || disposed) return;
-            add.disabled = true; message.hidden = true;
-            try {
-                const quickAdd = app.plugins?.plugins?.quickadd?.api;
-                if (!quickAdd?.executeChoice) throw new Error("Включи QuickAdd для добавления связи.");
-                await quickAdd.executeChoice("Книги - Связать с кино", { adaptationRequest: { path: sourcePath, onLinked: draw } });
-            } catch (error) { if (!disposed) { message.hidden = false; message.textContent = "Не удалось добавить связь: " + (error.message || error); } }
-            finally { if (!disposed) add.disabled = false; }
-        });
-        const schedule = changed => {
-            if (changed?.path && !/^(?:Кино|Книги)\//.test(changed.path)) return;
-            clearTimeout(timer); timer = setTimeout(draw, 100);
-        };
-        for (const [owner, events, handler] of [[app.workspace, ["kino:adaptations-changed"], draw], [app.metadataCache, ["changed"], schedule], [app.vault, ["create", "delete", "rename"], schedule]]) {
-            if (!owner?.on) continue;
-            for (const event of events) { const ref = owner.on(event, handler); cleanup(() => owner.offref?.(ref)); }
-        }
-        cleanup(() => clearTimeout(timer));
-    }
     function roleDetails() {
         const ref = linkParts(fm["Роли файл"]);
         if (!ref) return;
@@ -302,7 +238,6 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                 const links = element(row, "div", "kino-credit-values");
                 list.forEach(value => choice ? entityLink(links, value, choice) : internalLink(links, value));
             }
-            await relatedWorks();
         } else if (number(fm["Оценка"]) != null) {
             score(element(root, "div", "kino-scores kino-scores-single"), "Моя оценка", fm["Оценка"], "kino-score-personal");
         }

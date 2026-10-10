@@ -59,6 +59,32 @@ async function render({ app, dv }) {
     if (!file) return;
     const fm = app.metadataCache.getFileCache(file)?.frontmatter || {};
     const container = dv.container;
+    // Each rendered pane owns its listeners. A late callback must never revive an unloaded card.
+    dv.component?.__bookRelationsCleanup?.();
+    const relationRefs = [];
+    let relationsDisposed = false, relationTimer;
+    const disposeRelations = () => {
+        relationsDisposed = true;
+        clearTimeout(relationTimer);
+        for (const [owner, ref] of relationRefs.splice(0)) owner.offref?.(ref);
+    };
+    if (dv.component) {
+        dv.component.__bookRelationsCleanup = disposeRelations;
+        dv.component.register?.(() => {
+            disposeRelations();
+            if (dv.component.__bookRelationsCleanup === disposeRelations) delete dv.component.__bookRelationsCleanup;
+        });
+    }
+    let relationCore;
+    const relationFile = app.vault.getAbstractFileByPath('Кино/_system/adaptation_links.js');
+    if (relationFile) {
+        try {
+            const relationModule = { exports: {} };
+            new Function('module', 'exports', await app.vault.read(relationFile))(relationModule, relationModule.exports);
+            if (typeof relationModule.exports.related === 'function') relationCore = relationModule.exports;
+        } catch (_) { /* The independent fallback keeps books usable if cinema is unavailable. */ }
+    }
+    if (relationsDisposed) return;
     const el = (parent, tag, cls, text) => {
         const node = parent.ownerDocument.createElement(tag);
         if (cls) node.className = cls;
@@ -136,22 +162,62 @@ async function render({ app, dv }) {
     if (fiction && !(Number(fm.rating) >= 1 && Number(fm.rating) <= 10)) fact('Оценка', 'Пока без оценки');
     const adaptations = el(hero, 'section', 'book-card-adaptations');
     adaptations.setAttribute('aria-label', 'Экранизации и связанные произведения');
-    const renderAdaptations = (values = fm.adaptations) => {
+    let relationsFm = fm;
+    const renderAdaptations = payload => {
+        if (relationsDisposed) return;
+        // The command returns the exact saved properties before Obsidian's cache catches up.
+        if (payload?.bookPath === source && payload.bookFm) relationsFm = payload.bookFm;
+        else if (Array.isArray(payload)) relationsFm = { ...relationsFm, adaptations: payload };
+        const links = relationCore ? relationCore.related({ app, file, fm: relationsFm }) :
+            adaptationLinks({ app, file, fm: relationsFm }).map(link => {
+                const target = app.metadataCache.getFirstLinkpathDest?.(link.target, source) ||
+                    app.vault.getAbstractFileByPath(link.target + '.md');
+                const meta = target && app.metadataCache.getFileCache(target)?.frontmatter || {};
+                const tags = [].concat(meta.tags || []).map(tag => String(tag).replace(/^#/, ''));
+                return { ...link, type: tags.includes('serial') ? 'serial' : 'movies',
+                    year: String(meta['Релиз'] || meta['Год'] || '').match(/\d{4}/)?.[0], missing: !target };
+            });
         adaptations.replaceChildren();
-        const links = adaptationLinks({ app, file, fm: { ...fm, adaptations: values } });
         adaptations.hidden = !links.length;
         if (!links.length) return;
         const heading = el(adaptations, 'div', 'book-card-adaptations-heading');
         el(heading, 'span', 'book-card-label', 'Связанные произведения');
         el(heading, 'span', 'book-card-adaptations-count', String(links.length));
         const items = el(adaptations, 'div', 'book-card-adaptation-links');
+        const types = { book: 'Книга', movies: 'Фильм', serial: 'Сериал' };
         for (const link of links) {
-            const item = internal(items, '', link.target, 'book-card-adaptation');
-            el(item, 'span', 'book-card-adaptation-icon', '▷').setAttribute('aria-hidden', 'true');
-            el(item, 'span', 'book-card-adaptation-title', link.label);
+            const item = internal(items, '', link.target, 'book-card-adaptation' + (link.missing ? ' is-missing' : ''));
+            item.dataset.type = link.type || 'movies';
+            el(item, 'span', 'book-card-adaptation-icon', link.type === 'book' ? '▤' : link.type === 'serial' ? '▦' : '▷').setAttribute('aria-hidden', 'true');
+            const body = el(item, 'span', 'book-card-adaptation-main');
+            el(body, 'span', 'book-card-adaptation-title', link.label);
+            const meta = [types[link.type] || 'Произведение', link.author, link.year].filter(Boolean);
+            if (link.missing) meta.push('Файл не найден');
+            el(body, 'span', 'book-card-adaptation-meta', meta.join(' · '));
             el(item, 'span', 'book-card-adaptation-arrow', '↗').setAttribute('aria-hidden', 'true');
         }
     };
+    const watchRelations = (owner, event, callback) => {
+        if (owner?.on && owner?.offref) relationRefs.push([owner, owner.on(event, callback)]);
+    };
+    const scheduleRelations = () => {
+        clearTimeout(relationTimer);
+        relationTimer = setTimeout(() => renderAdaptations(), 80);
+    };
+    watchRelations(app.workspace, 'kino:adaptations-changed', payload => {
+        if (payload?.bookPath === source) renderAdaptations(payload);
+    });
+    watchRelations(app.metadataCache, 'changed', changed => {
+        if (changed?.path === source) relationsFm = app.metadataCache.getFileCache(file)?.frontmatter || {};
+        if (changed?.path === source || changed?.path?.startsWith('Кино/')) scheduleRelations();
+    });
+    watchRelations(app.metadataCache, 'resolved', () => {
+        relationsFm = app.metadataCache.getFileCache(file)?.frontmatter || {};
+        scheduleRelations();
+    });
+    for (const event of ['create', 'delete', 'rename']) watchRelations(app.vault, event, changed => {
+        if (changed?.path === source || changed?.path?.startsWith('Кино/')) scheduleRelations();
+    });
     renderAdaptations();
     const actions = el(hero, 'div', 'book-card-actions');
     choice(actions, 'Записать чтение', 'Книги - Добавить чтение', 'book-card-action book-card-primary');
@@ -159,7 +225,7 @@ async function render({ app, dv }) {
     const secondary = el(hero, 'div', 'book-card-secondary');
     choice(secondary, 'Редактировать чтение', 'Книги - Редактировать чтение');
     choice(secondary, 'Связать с кино', 'Книги - Связать с кино', 'book-card-action', {
-        bookAdaptationRequest: { path: source, onLinked: renderAdaptations }
+        adaptationRequest: { path: source, onLinked: renderAdaptations }
     });
     const props = el(secondary, 'button', 'book-card-action', 'Показать свойства');
     props.type = 'button';

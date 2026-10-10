@@ -1,0 +1,109 @@
+{
+  "mode": "dry-run",
+  "reviewedPairs": 12,
+  "adaptations": 5,
+  "related": 7,
+  "changedFiles": [
+    {
+      "path": "Книги/Художественные/Лю Цысинь/Память о прошлом Земли. 01. Задача трёх тел.md",
+      "properties": [
+        "adaptations",
+        "related"
+      ],
+      "before": "0992a21508310088c23b763bed92149ca63c7b3c5f04ef991fb95e3898782f38",
+      "after": "ed122f0e4037750fc166199de7c1c9cb0e0f2e5646d1454b3a1dbcf37a0ca055"
+    },
+    {
+      "path": "Кино/Media/Задача трех тел.md",
+      "properties": [
+        "Первоисточники"
+      ],
+      "before": "c78c1cb14551a0d8264c0f9b72863cf1585c6e6781d32e69b334a7ad41f0f518",
+      "after": "94b4bd754dad02e3242c337dd1016aad9c8f6f3acb7628b71d619c39b3877525"
+    },
+    {
+      "path": "Кино/Media/Блуждающая Земля.md",
+      "properties": [
+        "related"
+      ],
+      "before": "6b879f354c5f04ee73629a5d75646b66eea1dfbdee62b13a3248eb46e2add02c",
+      "after": "e6582c45cd89e36ac6e37bf204266b41df6271a17aac11a4f088f58374fecb46"
+    },
+    {
+      "path": "Кино/Media/Блуждающая Земля 2.md",
+      "properties": [
+        "related"
+      ],
+      "before": "3da21c1da9ae4f774da19d461ee9adcfe3b185d4e6afc9f086f7683afca743f4",
+      "after": "14baa6cdf77424e16ee3b36a27d76dd40e9a4048e687cba65aa30f9ad9f78d99"
+    },
+    {
+      "path": "Книги/Художественные/Лю Цысинь/Память о прошлом Земли. 02. Тёмный лес.md",
+      "properties": [
+        "adaptations",
+        "related"
+      ],
+      "before": "4f93f8a11cfe407be0678b97dda08409ca973c5c064a28bb9cae46d8328db7a4",
+      "after": "114a63c5960fd7b1ec60e800e5e0e777ff6ed0692e257c2c4ab2b87f67f8f77f"
+    },
+    {
+      "path": "Книги/Художественные/Лю Цысинь/Память о прошлом Земли. 03. Вечная жизнь смерти.md",
+      "properties": [
+        "related"
+      ],
+      "before": "81be42422e4e0aca5797b8ba63df4e8c3adfd4b1095f10beb4b7c22ef1c85d9e",
+      "after": "04e93d138f8afbfa028382251bc55568980c7662f1abb4b946a663479dba7060"
+    },
+    {
+      "path": "Книги/Художественные/Филип Пулман/Тёмные начала. 02. Чудесный нож.md",
+      "properties": [
+        "adaptations"
+      ],
+      "before": "a4433f5d9c0b209d902d50af6ecb165db7f87aba7aeecb7cfd3d1c9a3a8b3116",
+      "after": "95fda91add16a7054f92b81008d7b3e73e29648e200737a4f9512d85a4455bba"
+    },
+    {
+      "path": "Кино/Media/Темные начала.md",
+      "properties": [
+        "Первоисточники"
+      ],
+      "before": "ceae697b23fc7c55604f6c94d87748444584fac49d73f682d2f4f0921a16f574",
+      "after": "aaacab62009f7dda047431ed7155920a988b9522687660ecc8d37a759848eac4"
+    },
+    {
+      "path": "Книги/Художественные/Филип Пулман/Тёмные начала. 03. Янтарный телескоп.md",
+      "properties": [
+        "adaptations"
+      ],
+      "before": "1b0b7ac5538e8b3a50883febbe2e0e7475e4e58bfbcaec8f3e6b60a422d7ee8f",
+      "after": "73af8082b7dc5ebd38bfe488e88976e87f87d404f227a90fa038f8fc906a9c26"
+    },
+    {
+      "path": "Кино/Media/Задача 3 тел.md",
+      "properties": [
+        "Первоисточники"
+      ],
+      "before": "48f6cf7a167923a13545236114a87cbdf97f4449969880bec12e0f6efff35da1",
+      "after": "a8cbb0d1b7282d0f9b0976f70cfe46ee35eda5b1183ba1cbc0d0d154d03d074e"
+    },
+    {
+      "path": "Книги/Художественные/Тия Александер. Год 2150.md",
+      "properties": [
+        "related"
+      ],
+      "before": "9ccd65afa1a0e0ae3ccf2a4f35eadc7a8b3ed50cc43d4aece6500bc56b1ead46",
+      "after": "a66d511d6b03e6b0211725ebc37ab155af5c0684d874480173b27530567ca7ca"
+    },
+    {
+      "path": "Кино/Media/Одна из многих.md",
+      "properties": [
+        "related"
+      ],
+      "before": "cd8565f6c36c9ebf5cb83413ab4829ebf791d9115b1abf9662e2619ec81e6063",
+      "after": "c678ec557db2ab461612bc30d51a44a9f8b484120662b65f27cb89908608d96a"
+    }
+  ],
+  "personalMarkdownPreserved": true,
+  "unrelatedYamlPreserved": true,
+  "existingRelationsPreserved": true
+}
