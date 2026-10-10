@@ -1,0 +1,20 @@
+{
+  "scanned": 3299,
+  "frontmatter": 3299,
+  "descriptions": 1552,
+  "repairs": [
+    "Media\\Полицейский из Беверли-Хиллз.md",
+    "Media\\Смерть шпионам - Крым.md",
+    "Media\\Смерть шпионам - Скрытый враг.md",
+    "Media\\Смерть шпионам - Ударная волна.md",
+    "Media\\Смерть шпионам!.md"
+  ],
+  "errors": [],
+  "verified": {
+    "unchangedBodies": true,
+    "unchangedOtherProperties": true,
+    "descriptionTextPreserved": true,
+    "secondAuditErrors": 0,
+    "secondAuditPendingRepairs": 0
+  }
+}
