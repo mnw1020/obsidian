@@ -30,19 +30,30 @@ async function main() {
                 const resolve = target => [...map.values()].find(file => file.path === target || file.path === target + '.md' || file.basename === target);
                 const vault = Object.assign(new Events(), { getAbstractFileByPath: target => map.get(target), getMarkdownFiles: () => [...map.values()].filter(file => file.extension === 'md'), read: async file => file.text });
                 const metadataCache = Object.assign(new Events(), { getFileCache: file => ({ frontmatter: file.fm }), getFirstLinkpathDest: resolve });
-                const opened = [], app = { vault, metadataCache, workspace: { openLinkText: (...args) => opened.push(args) } };
+                const opened = [], commands = [], app = { vault, metadataCache, workspace: { openLinkText: (...args) => opened.push(args) },
+                    plugins: { plugins: { quickadd: { api: { executeChoice: async (...args) => commands.push(args) } } } } };
                 const cleanups = [], component = { register: callback => cleanups.push(callback) };
                 const module = { exports: {} }; new Function('module', sources['Книги/_system/adaptations_ui.js'])(module);
                 const container = document.querySelector('#content'), dv = { container, component, current: () => ({ file: { path: 'Книги/_system/Экранизации.md' } }) };
                 let originalCalls = 0;
                 const original = component.render = async () => { originalCalls++; container.replaceChildren(); window.handle = await module.exports({ app, dv }); };
-                window.fixture = { map, app, component, opened, original, cleanups, originalCalls: () => originalCalls,
+                window.fixture = { map, app, component, opened, commands, original, cleanups, originalCalls: () => originalCalls,
                     unload() { for (const callback of cleanups) callback(); },
                     modify(filePath, changes) { const file = map.get(filePath); Object.assign(file.fm, changes); metadataCache.emit('changed', file); } };
                 await component.render();
             }, { files, sources });
             assert.equal(await page.locator('.book-adaptations-card').count(), 2);
             assert.equal(await page.locator('.book-adaptations-media').count(), 4);
+            await page.locator('.book-authors-author-link').filter({ hasText: 'Лю Цысинь' }).click();
+            assert.deepEqual(await page.evaluate(() => window.fixture.commands.at(-1)), ['Книги - Открыть автора', { author: 'Лю Цысинь' }]);
+            await page.evaluate(() => {
+                const host = document.querySelector('main');
+                for (const cls of ['metadata-container', 'frontmatter-container']) {
+                    const node = document.createElement('div'); node.className = cls; node.textContent = 'YAML'; host.prepend(node);
+                }
+            });
+            assert.equal(await page.locator('.metadata-container').isVisible(), false);
+            assert.equal(await page.locator('.frontmatter-container').isVisible(), false);
             assert.equal(await page.locator('.book-authors-stat').count(), 4);
             assert.deepEqual(await page.locator('.book-authors-stat-value').allTextContents(), ['2', '4', '0', '4']);
             assert.deepEqual((await page.locator('.book-adaptations-media-rating').allTextContents()).sort(), ['10/10', '7/10', '8/10', '9/10']);

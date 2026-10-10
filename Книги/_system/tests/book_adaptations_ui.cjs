@@ -16,6 +16,8 @@ async function main() {
             await page.setContent('<style>body{margin:0;background:#20242a;color:#eee;font:16px/1.5 Arial;--background-primary:#20242a;--background-secondary:#292e36;--background-modifier-border:#454b56;--text-muted:#b4b8c2;--text-normal:#eee;--text-accent:#efa76b;--interactive-accent:#efa76b;--text-on-accent:#20242a}*{box-sizing:border-box}article{padding:16px;max-width:860px;margin:auto}a{color:#efa76b}</style><style>' + css + '</style><article class="book-card markdown-preview-view"><div id="card"></div></article>');
             await page.evaluate(async ({ card, source }) => {
                 const container = document.querySelector('#card');
+                const properties = document.createElement('div'); properties.className = 'metadata-container'; properties.textContent = 'YAML';
+                document.querySelector('article').prepend(properties);
                 window.calls = [];
                 let active;
                 const leaf = { view: { file: card, containerEl: document.querySelector('article') } };
@@ -45,6 +47,11 @@ async function main() {
             for (const label of ['Записать чтение', 'Сохранить выписку', 'Редактировать чтение', 'Связать с кино', 'Показать свойства']) {
                 assert.equal(await page.getByText(label, { exact: true }).isVisible(), true);
             }
+            assert.equal(await page.locator('.metadata-container').isVisible(), false);
+            await page.getByText('Показать свойства', { exact: true }).click();
+            assert.equal(await page.locator('.metadata-container').isVisible(), true);
+            await page.getByText('Скрыть свойства', { exact: true }).click();
+            assert.equal(await page.locator('.metadata-container').isVisible(), false);
             await page.getByText('Связать с кино', { exact: true }).click();
             assert.equal(await links.count(), empty ? 1 : 4);
             assert.equal(await page.locator('.book-card-adaptations').isVisible(), true);

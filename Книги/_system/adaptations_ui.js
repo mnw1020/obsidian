@@ -126,7 +126,7 @@ async function render({ dv, app, obsidian = {} }) {
     const heading = el(identity, 'div', 'book-authors-heading');
     el(heading, 'div', 'book-authors-eyebrow', 'Библиотека / Книги и кино');
     el(heading, 'h1', 'book-authors-name', 'Экранизации');
-    el(heading, 'p', 'book-authors-subtitle', 'Одно произведение — все его версии на экране');
+    el(heading, 'p', 'book-authors-subtitle', 'Книги и связанное с ними кино');
     const stats = el(root, 'div', 'book-authors-stats');
     const section = el(root, 'section', 'book-authors-collection');
     const sectionHead = el(section, 'div', 'book-authors-section-heading');
@@ -163,6 +163,20 @@ async function render({ dv, app, obsidian = {} }) {
         anchor.addEventListener('click', event => { event.preventDefault(); app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey)); });
         return anchor;
     }
+    function authorLink(parent, name) {
+        const anchor = el(parent, 'a', 'book-authors-author-link', name);
+        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - Открыть автора') + '&value-author=' + encodeURIComponent(name).replace(/[!'()*]/g, char => '%' + char.charCodeAt(0).toString(16));
+        anchor.title = `Открыть страницу автора: ${name}`;
+        anchor.addEventListener('click', async event => {
+            const api = app.plugins?.plugins?.quickadd?.api;
+            if (!api?.executeChoice) return;
+            event.preventDefault();
+            try { await api.executeChoice('Книги - Открыть автора', { author: name }); }
+            catch (problem) {
+                if (!/cancel/i.test(String(problem.message || problem))) warning.textContent = `Не удалось открыть автора: ${problem.message || problem}`;
+            }
+        });
+    }
     function field(label, tag, cls) {
         const wrapper = el(controls, 'label', `book-authors-field ${cls}`); el(wrapper, 'span', 'book-authors-control-label', label);
         const node = el(wrapper, tag); node.setAttribute('aria-label', label); return node;
@@ -179,7 +193,11 @@ async function render({ dv, app, obsidian = {} }) {
             const book = el(card, 'header', 'book-adaptations-book');
             const bookHeading = el(book, 'div', 'book-adaptations-book-heading');
             internal(el(bookHeading, 'h3', 'book-authors-row-title'), item.title, item.file.path.replace(/\.md$/i, ''));
-            el(bookHeading, 'p', 'book-authors-row-meta', item.authors.join(' · '));
+            const authors = el(bookHeading, 'p', 'book-authors-row-meta');
+            item.authors.forEach((name, index) => {
+                if (index) el(authors, 'span', '', ' · ');
+                authorLink(authors, name);
+            });
             if (item.series) el(bookHeading, 'p', 'book-authors-row-examples', item.series);
             const info = el(book, 'div', 'book-adaptations-book-rating');
             if (item.rating !== null) el(info, 'span', '', `Книга ${item.rating}/10`);
@@ -189,7 +207,8 @@ async function render({ dv, app, obsidian = {} }) {
                 const row = el(mediaList, 'li', 'book-adaptations-media');
                 const mediaIcon = el(row, 'span', 'book-adaptations-media-icon', media.type === 'serial' ? '📺' : '🎬'); mediaIcon.setAttribute('aria-hidden', 'true');
                 const main = el(row, 'div', 'book-adaptations-media-main');
-                internal(main, media.title, media.file.path.replace(/\.md$/i, ''), 'book-adaptations-media-title');
+                const mediaLink = internal(main, media.title, media.file.path.replace(/\.md$/i, ''), 'book-adaptations-media-title');
+                mediaLink.title = `Открыть карточку: ${media.title}`;
                 el(main, 'p', 'book-adaptations-media-meta', [media.type === 'serial' ? 'Сериал' : 'Фильм', media.year,
                     media.originalTitle && media.originalTitle !== media.title ? media.originalTitle : ''].filter(Boolean).join(' · '));
                 const rating = el(row, 'span', 'book-adaptations-media-rating', media.rating === null ? 'Без оценки' : `${media.rating}/10`);
