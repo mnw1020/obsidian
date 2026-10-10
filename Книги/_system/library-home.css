@@ -75,7 +75,6 @@
 .book-home-ui .book-home-views { padding: 18px 0; border-top: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); font-size: .82em; }
 .book-home-ui .book-home-views>summary { color: var(--text-muted); cursor: pointer; }
 .book-home-ui .book-home-view-links { display: flex; flex-wrap: wrap; gap: 10px 22px; padding: 20px 0; }
-.book-home-ui .book-home-reread h3 { margin: 4px 0 14px; font-size: 1em; font-weight: 500; color: var(--text-normal); }
 .book-home-ui .book-home-footer { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 22px; font-size: .7em; }
 .book-home-ui .book-home-footer a { color: var(--text-muted); }
 .book-home-ui :is(.book-home-widget-error,.book-home-action-error) { color: var(--text-error); font-size: .8em; overflow-wrap: anywhere; }

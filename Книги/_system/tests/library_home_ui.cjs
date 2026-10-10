@@ -184,7 +184,7 @@ async function layoutChecks(browser) {
             assert.equal(await page.locator('.book-home-reading select').count(), 0, 'Detailed period controls stay on the results page');
             const nav = page.locator('.book-home-masthead');
             for (const [label, target] of [['Цитаты', 'Книги/Цитаты'], ['Стихи', 'Книги/Стихи'], ['Итоги чтения', 'Книги/_system/Итоги чтения']]) assert.equal(await nav.getByRole('link', { name: label, exact: true }).getAttribute('data-href'), target);
-            assert.deepEqual(await page.locator('.book-home-view-links a').evaluateAll(links => links.map(link => link.dataset.href)), ['Все', 'Любимые', 'Без оценки', 'По году', 'По типу'].map(view => 'Книги/_system/_Книги.base#' + view), 'Catalogue shortcuts retain the canonical Base anchors');
+            assert.deepEqual(await page.locator('.book-home-view-links a').evaluateAll(links => links.map(link => link.dataset.href)), ['Все', 'Любимые', 'Без оценки', 'По году', 'По типу', 'Перечитанные'].map(view => 'Книги/_system/_Книги.base#' + view), 'Catalogue shortcuts retain the canonical Base anchors');
             assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: 'Стихи', exact: true }).getAttribute('data-href'), 'Книги/Стихи');
             for (const label of ['Авторы', 'Серии', 'Экранизации']) assert.equal(await page.locator('.book-home-overviews').getByRole('link', { name: label, exact: true }).getAttribute('href'), 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - ' + label));
             assert.deepEqual(await page.locator('.book-home-footer a').evaluateAll(links => links.map(link => link.dataset.href)), ['Книги/_system/Проверка библиотеки', 'Книги/_system/Журнал изменений']);
@@ -218,14 +218,18 @@ async function layoutChecks(browser) {
 async function liveChecks(browser) {
     const { page, errors } = await mount(browser);
     try {
-        await page.evaluate(filePath => window.fixture.modify(filePath, { read_count: 2 }), bookFiles[0].path);
-        await page.waitForFunction(() => document.querySelector('[data-stat="reread"]')?.textContent === '1');
         await page.locator('.book-home-views > summary').click();
-        const reread = page.locator('.book-home-reread .books-base-toggle');
-        await reread.waitFor({ state: 'visible' }); await reread.click();
-        await page.waitForFunction(() => window.fixture.nativeCalls.length === 2);
-        assert.match(await page.evaluate(() => window.fixture.nativeCalls[1].markdown), /Книги\/_system\/_Книги\.base#Перечитанные/u);
+        const reread = page.locator('.book-home-view-links a').filter({ hasText: /^Перечитанные$/u });
+        assert.equal(await reread.isVisible(), false, 'Empty rereads have no visible catalog link');
+        assert.equal(await page.locator('.book-home-reread').count(), 0, 'Rereads do not occupy a home section');
+        assert.equal(await page.locator('.book-home-ui').getByText('Перечитываний пока нет.', { exact: false }).isVisible(), false);
+        await page.evaluate(filePath => window.fixture.modify(filePath, { read_count: 2 }), bookFiles[0].path);
+        await reread.waitFor({ state: 'visible' });
+        assert.equal(await reread.getAttribute('data-href'), 'Книги/_system/_Книги.base#Перечитанные');
         await reread.click();
+        assert.equal(await page.evaluate(() => window.fixture.nativeCalls.length), 1, 'The catalog link does not mount another table on home');
+        await page.evaluate(filePath => window.fixture.modify(filePath, { read_count: 1 }), bookFiles[0].path);
+        await reread.waitFor({ state: 'hidden' });
         await page.locator('.book-home-recent .books-base-toggle').click();
         assert.equal(await page.locator('.book-home-recent .bases-table').count(), 0, 'Collapsing a Base unloads its native child');
         await page.locator('.book-home-recent .books-base-toggle').click();

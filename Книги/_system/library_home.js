@@ -96,7 +96,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const cell = el(stats, 'div', 'book-home-stat');
         const value = el(cell, 'strong'); value.dataset.stat = key; el(cell, 'span', '', label); statValues.push([key, value]);
     }
-    function drawStats() { if (disposed) return; const values = core.stats(); for (const [key, node] of statValues) { const value = String(values[key]); if (node.textContent !== value) node.textContent = value; } }
+    let rereadLink = null;
+    function drawStats() {
+        if (disposed) return;
+        const values = core.stats();
+        for (const [key, node] of statValues) { const value = String(values[key]); if (node.textContent !== value) node.textContent = value; }
+        if (rereadLink) rereadLink.hidden = values.reread === 0;
+    }
     drawStats();
     function scheduleStats() { clearTimeout(timer); timer = setTimeout(drawStats, 120); }
     for (const [owner, events] of [[app.metadataCache, ['changed']], [app.vault, ['create', 'delete', 'rename', 'modify']]]) {
@@ -149,20 +155,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const views = el(root, 'details', 'book-home-views'); el(views, 'summary', '', 'Другие представления каталога');
     const viewLinks = el(views, 'nav', 'book-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
     for (const [label, name] of [['Подробная таблица', 'Все'], ['Любимые', 'Любимые'], ['Без оценки', 'Без оценки'], ['По году', 'По году'], ['По типу', 'По типу']]) internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name);
-    const reread = el(views, 'section', 'book-home-reread'); el(reread, 'h3', '', 'Перечитанные');
-    const rereadBody = el(reread, 'div', 'book-home-widget');
-    let rereadComponent = null, rereadPending = false;
-    listen(views, 'toggle', async () => {
-        if (!views.open) { if (rereadComponent) release(rereadComponent); rereadComponent = null; rereadBody.replaceChildren(); return; }
-        if (disposed || rereadComponent || rereadPending) return;
-        rereadPending = true;
-        const index = children.length;
-        try { await mount(rereadBody, lazy, { mode: 'reread', target: 'Книги/_system/_Книги.base#Перечитанные', label: 'перечитанные' }); rereadComponent = children[index]; }
-        finally {
-            rereadPending = false;
-            if (!views.open || disposed) { if (rereadComponent) release(rereadComponent); rereadComponent = null; rereadBody.replaceChildren(); }
-        }
-    });
+    rereadLink = internal(viewLinks, 'Перечитанные', 'Книги/_system/_Книги.base#Перечитанные');
+    drawStats();
     const footer = el(root, 'footer', 'book-home-footer');
     internal(footer, 'Проверка библиотеки', 'Книги/_system/Проверка библиотеки'); internal(footer, 'Журнал изменений', 'Книги/_system/Журнал изменений');
     function release(component) {
