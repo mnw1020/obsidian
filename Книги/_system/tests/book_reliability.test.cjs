@@ -381,6 +381,21 @@ test('failed reciprocal link rollback preserves a concurrently added unrelated l
     assert.ok(h.notices.some(message => message.includes('Simulated second-file failure')));
 });
 
+test('card link request uses its source pane and immediately returns saved links despite stale cache', async () => {
+    const h = harness(), other = h.book('Книги/Художественные/Другая.md'), book = h.book();
+    const movie = h.file('Кино/Тест.md', { tags: ['serial'] });
+    const results = [];
+    h.active = other;
+    h.params.variables = { bookAdaptationRequest: { path: book.path, onLinked: links => results.push(links) } };
+    await linkAdaptation(h.params);
+    assert.equal(other.fm.adaptations, undefined);
+    assert.equal(h.cache.get(book.path).adaptations, undefined);
+    assert.deepEqual(results, [['[[Кино/Тест]]']]);
+    assert.deepEqual(movie.fm['Первоисточники'], [`[[${book.path.slice(0, -3)}]]`]);
+    await linkAdaptation(h.params);
+    assert.deepEqual(results, [['[[Кино/Тест]]'], ['[[Кино/Тест]]']]);
+});
+
 test('writeIfChanged refuses to overwrite a concurrent generated-page edit', async () => {
     const h = harness(), page = h.file('Книги/_system/Страница.md', {}, 'Исходный текст');
     h.beforeProcess = file => { if (file === page) { file.text = 'Изменение с телефона'; h.beforeProcess = null; } };

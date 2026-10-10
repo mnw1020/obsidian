@@ -20,7 +20,9 @@ module.exports = async (params) => {
     const isMedia = file => file?.extension === "md" && file.path.startsWith("Кино/") &&
         !/^Кино\/(?:Просмотры|Сезоны|_system)\//.test(file.path) &&
         list(core.getFrontmatter(file).tags).map(tag => tag.replace(/^#/, "")).some(tag => ["movies", "serial"].includes(tag));
-    let bookFile = app.workspace.getActiveFile();
+    const request = params.variables?.bookAdaptationRequest;
+    let bookFile = request?.path ? app.vault.getAbstractFileByPath(request.path) : app.workspace.getActiveFile();
+    if (request?.path && !core.isBook(bookFile)) { new Notice("Карточка произведения больше недоступна."); return; }
     if (!core.isBook(bookFile)) {
         const books = core.books().sort((a, b) => String(core.getFrontmatter(a).title).localeCompare(String(core.getFrontmatter(b).title), "ru"));
         if (!books.length) { new Notice("Произведения не найдены."); return; }
@@ -60,6 +62,8 @@ module.exports = async (params) => {
         new Notice(`Не удалось создать взаимную связь: ${error.message}${failures.length ? `. Проверь одностороннюю связь: ${failures.join("; ")}` : ""}`, 10000);
         return;
     }
+    // Pass saved values directly to the rendered card: metadata cache may still be stale.
+    if (typeof request?.onLinked === "function") request.onLinked(list(core.getFrontmatter(bookFile).adaptations));
     if (!addedBook && !addedMedia) { new Notice("Эта книга и экранизация уже связаны."); return; }
     const title = core.getFrontmatter(bookFile).title || bookFile.basename;
     try { await core.appendJournal([`Связь с кино: **${title}** ↔ **${mediaFile.basename}**.`]); }

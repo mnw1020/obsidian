@@ -50,6 +50,10 @@
 .book-card .book-card-contents { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: .75em; margin-top: 22px; }
 .book-card .book-card-contents a { min-height: 32px; display: inline-flex; align-items: center; }
 .book-card .book-card-error { color: var(--text-error); }
+.book-card .book-card-adaptations { margin: 20px 0; padding-top: 16px; border-top: 1px solid var(--background-modifier-border); }
+.book-card .book-card-adaptation-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 8px 0 12px; }
+.book-card .book-card-adaptation-links a { min-height: 36px; display: inline-flex; align-items: center; overflow-wrap: anywhere; max-width: 100%; }
+.book-card .book-card-empty { color: var(--text-muted); font-size: .85em; }
 .book-card.markdown-preview-view { --line-height-normal: 1.7; }
 .book-card.markdown-preview-view p { line-height: 1.75; }
 .book-card h2 { font-size: 1.3em; margin-top: 2em; padding-bottom: 10px; border-bottom: 1px solid var(--background-modifier-border); }

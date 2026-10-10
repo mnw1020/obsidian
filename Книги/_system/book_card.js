@@ -21,6 +21,37 @@ function displayDate(value) {
     return `${month[3]}.${month[2]}.${month[1]}`;
 }
 
+function adaptationLinks({ app, file, fm }) {
+    const list = value => [].concat(value || []).map(String).map(value => value.trim()).filter(Boolean);
+    const parse = value => {
+        const match = value.match(/^\[\[([^\]|]+)(?:\|([^\]]+))?\]\]$/);
+        const target = (match ? match[1] : value).replace(/\.md$/i, '');
+        return { target, label: match?.[2] || target.split('/').pop() };
+    };
+    const links = new Map();
+    for (const value of list(fm.adaptations)) {
+        const link = parse(value);
+        const dest = app.metadataCache.getFirstLinkpathDest?.(link.target, file.path);
+        if (dest) link.target = dest.path.replace(/\.md$/i, '');
+        links.set(link.target, link);
+    }
+    // Also expose existing cinema links whose book-side property is missing.
+    for (const media of app.vault.getMarkdownFiles?.() || []) {
+        if (!media.path.startsWith('Кино/') || /^Кино\/(?:Просмотры|Сезоны|_system)\//.test(media.path)) continue;
+        const meta = app.metadataCache.getFileCache(media)?.frontmatter || {};
+        if (!list(meta.tags).some(tag => ['movies', 'serial'].includes(tag.replace(/^#/, '')))) continue;
+        const sources = [...list(meta['Первоисточники']), ...list(meta.adapted_from)];
+        if (!sources.some(value => {
+            const target = parse(value).target;
+            const dest = app.metadataCache.getFirstLinkpathDest?.(target, media.path);
+            return dest ? dest.path === file.path : target === file.path.replace(/\.md$/i, '');
+        })) continue;
+        const target = media.path.replace(/\.md$/i, '');
+        if (!links.has(target)) links.set(target, { target, label: media.basename });
+    }
+    return [...links.values()];
+}
+
 async function render({ app, dv }) {
     // Bind every link to this rendered page, including in split panes.
     const source = dv.current()?.file?.path;
@@ -103,6 +134,20 @@ async function render({ app, dv }) {
     fact('Последнее чтение', displayDate(fm.date));
     fact('Всего чтений', String(fm.read_count ?? '—'));
     if (fiction && !(Number(fm.rating) >= 1 && Number(fm.rating) <= 10)) fact('Оценка', 'Пока без оценки');
+    const adaptations = el(hero, 'section', 'book-card-adaptations');
+    adaptations.setAttribute('aria-label', 'Экранизации и связанные произведения');
+    const renderAdaptations = (values = fm.adaptations) => {
+        adaptations.replaceChildren();
+        el(adaptations, 'div', 'book-card-label', 'Экранизации и связанные произведения');
+        const links = adaptationLinks({ app, file, fm: { ...fm, adaptations: values } });
+        const items = el(adaptations, 'div', 'book-card-adaptation-links');
+        for (const link of links) internal(items, link.label, link.target);
+        if (!links.length) el(items, 'span', 'book-card-empty', 'Связей пока нет');
+        choice(adaptations, 'Связать с кино', 'Книги - Связать с кино', 'book-card-action', {
+            bookAdaptationRequest: { path: source, onLinked: renderAdaptations }
+        });
+    };
+    renderAdaptations();
     const actions = el(hero, 'div', 'book-card-actions');
     choice(actions, 'Записать чтение', 'Книги - Добавить чтение', 'book-card-action book-card-primary');
     choice(actions, 'Сохранить выписку', 'Книги - Добавить выписку');
@@ -110,7 +155,6 @@ async function render({ app, dv }) {
     el(more, 'summary', '', 'Ещё');
     const secondary = el(more, 'div', 'book-card-secondary');
     choice(secondary, 'Редактировать чтение', 'Книги - Редактировать чтение');
-    choice(secondary, 'Связать с кино', 'Книги - Связать с кино');
     choice(secondary, 'Экранизации', 'Книги - Экранизации');
     const props = el(secondary, 'button', 'book-card-action', 'Показать свойства');
     props.type = 'button';
@@ -128,4 +172,4 @@ async function render({ app, dv }) {
     internal(contents, 'Все цитаты ↗', 'Книги/Цитаты');
 }
 
-module.exports = { header, render, displayDate };
+module.exports = { header, render, displayDate, adaptationLinks };
