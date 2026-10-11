@@ -24,7 +24,7 @@ function aggregate(items, dimension = 'author') {
         row.items.push(item);
         if (item.rating !== null) { row.ratings.push(item.rating); row.favorites += Number(item.rating >= 8); row.points += Math.max(0, item.rating - 5); }
     }
-    return [...map.values()].map(row => ({ ...row, count: row.items.length, read: row.items.filter(item => item.history.length).length,
+    return [...map.values()].map(row => ({ ...row, count: row.items.length,
         authors: values(row.items.flatMap(item => item.authors)),
         average: row.ratings.length ? row.ratings.reduce((sum, n) => sum + n, 0) / row.ratings.length : null,
         latest: row.items.map(item => item.date).sort().at(-1) || '', search: searchable([row.name, ...row.items.map(item => item.search)].join(' ')) }));
@@ -54,8 +54,10 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     internal(nav, 'Цитаты', 'Книги/Цитаты');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
-    const monogram = el(identity, 'div', 'book-authors-monogram', seriesMode ? '≡' : index ? 'Аа' : initials(selectedName) || 'А');
-    monogram.setAttribute('aria-hidden', 'true');
+    if (!seriesMode) {
+        const monogram = el(identity, 'div', 'book-authors-monogram', index ? 'Аа' : initials(selectedName) || 'А');
+        monogram.setAttribute('aria-hidden', 'true');
+    }
     const heading = el(identity, 'div', 'book-authors-heading');
     el(heading, 'div', 'book-authors-eyebrow', `Библиотека / ${index ? catalogue : seriesMode ? 'Серия' : 'Автор'}`);
     el(heading, 'h1', 'book-authors-name', index ? seriesMode ? 'Все серии' : 'Все авторы' : selectedName || (seriesMode ? 'Серия не выбрана' : 'Автор не выбран'));
@@ -137,7 +139,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     const info = el(root, 'details', 'book-authors-info');
     el(info, 'summary', '', 'Об оценках и подсчётах');
     el(info, 'p', '', seriesMode
-        ? 'Количество относится к произведениям в вашей библиотеке. Порядок частей берётся из номера в серии; части без номера показаны в конце. Прочитано — произведения с записью в истории чтений. Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений. Год и последнее чтение определяются по истории; даты до месяца или года сохраняют свою точность. Фильтры меняют список, показатели в шапке относятся ко всей коллекции серии или каталога.'
+        ? 'Количество относится к произведениям в вашей библиотеке. Порядок частей берётся из номера в серии; части без номера показаны в конце. Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений. Год и последнее чтение определяются по истории; даты до месяца или года сохраняют свою точность. Фильтры меняют список, показатели в шапке относятся ко всей коллекции серии или каталога.'
         : 'Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений в карточках. Баллы симпатии — сумма превышения оценок над 5. Строки отражают произведения выбранной категории и года. Год определяется по истории чтений; дата только до месяца или года сохраняет свою точность. Показатели в шапке относятся ко всей коллекции автора или библиотеки.');
     for (const [input, event] of [[search, 'input'], [year, 'change'], [sort, 'change']]) listen(input, event, draw);
     function el(parent, tag, cls, text) {
@@ -195,7 +197,9 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
             rows.forEach((row, i) => {
                 const card = el(grid, 'article', 'book-authors-row book-authors-person-row');
                 el(card, 'span', 'book-authors-row-number', String(i + 1).padStart(2, '0'));
-                const monogram = el(card, 'span', 'book-authors-row-monogram', seriesMode ? '≡' : initials(row.name)); monogram.setAttribute('aria-hidden', 'true');
+                if (!seriesMode) {
+                    const monogram = el(card, 'span', 'book-authors-row-monogram', initials(row.name)); monogram.setAttribute('aria-hidden', 'true');
+                }
                 const main = el(card, 'div', 'book-authors-row-main');
                 (seriesMode ? seriesLink : authorLink)(el(main, 'h3', 'book-authors-row-title'), row.name);
                 const meta = el(main, 'p', 'book-authors-row-meta');
@@ -206,7 +210,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 const chips = el(card, 'div', 'book-authors-chips');
                 chip(chips, 'В коллекции', row.count);
                 if (seriesMode) {
-                    chip(chips, 'Прочитано', row.read); chip(chips, 'Средняя', score(row.average), true);
+                    chip(chips, 'Средняя', score(row.average), true);
                     chip(chips, 'Последнее чтение', row.latest ? service.core.displayDate(row.latest) : '—');
                 } else {
                     chip(chips, 'Средняя', score(row.average), true); chip(chips, 'Любимые', row.favorites); chip(chips, 'Симпатия', row.points);
@@ -262,7 +266,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
             stats.replaceChildren();
             if (seriesMode && index) {
                 stat('Серий', aggregate(items, 'series').length); stat('Произведений', items.length);
-                stat('Прочитано', items.filter(item => item.history.length).length); stat('С оценкой', ratings.length);
+                stat('С оценкой', ratings.length);
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
             } else if (index) {
                 stat('Авторов', aggregate(items).length); stat('Произведений', items.length);
@@ -270,7 +274,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
             } else {
                 stat('В коллекции', items.length);
-                stat(seriesMode ? 'Прочитано' : 'Чтений', seriesMode ? items.filter(item => item.history.length).length : items.reduce((sum, item) => sum + item.history.length, 0));
+                if (!seriesMode) stat('Чтений', items.reduce((sum, item) => sum + item.history.length, 0));
                 stat('Средняя моя оценка', score(ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null));
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
                 const years = [...new Set(items.flatMap(item => item.years))].sort();

@@ -21,11 +21,38 @@ const compare = (a, b) => a.localeCompare(b, 'ru', { sensitivity: 'base', numeri
 const parts = [...seriesRecords].sort((a, b) => Number(a.fm.series_index) - Number(b.fm.series_index) || compare(a.fm.title, b.fm.title));
 const authors = [...new Set(seriesRecords.flatMap(record => Array.isArray(record.fm.authors) ? record.fm.authors : [record.fm.authors]))];
 const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:var(--background-primary);color:var(--text-normal);--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-accent:#9b561e;--interactive-accent:#9b561e;--font-interface:Arial}main{max-width:1100px;margin:auto;padding:24px;min-width:0}button,select{font:inherit;cursor:pointer}a{color:var(--text-accent)}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-accent:#efa76b;--interactive-accent:#efa76b}p{margin:12px 0}@media(max-width:500px){main{padding:16px}}`;
+// The installed gruvbox snippet's heading rules are intentionally retained here,
+// so this regression runs on other machines without reading their .obsidian folder.
+const gruvboxHeadings = `.cm-header-1,.markdown-preview-section h1{font-weight:900!important;font-size:2.2em!important;color:var(--text-title-h1)!important}.cm-header-2,.markdown-preview-section h2{font-weight:900!important;font-size:2em!important;color:var(--text-title-h2)!important}.cm-header-3,.markdown-preview-section h3{font-weight:900!important;font-size:1.8em!important;color:var(--text-title-h3)!important}`;
+const libraryCss = fs.readFileSync(path.join(root, '_system/books-library.css'), 'utf8');
+
+async function assertTypography(page, layout, mode) {
+    const metrics = await page.locator('.book-authors-ui').evaluate(ui => ({
+        width: ui.getBoundingClientRect().width,
+        nameSize: parseFloat(getComputedStyle(ui.querySelector('.book-authors-name')).fontSize),
+        sectionSize: parseFloat(getComputedStyle(ui.querySelector('.book-authors-section-heading h2')).fontSize),
+        rows: [...ui.querySelectorAll('.book-authors-row')].map(row => {
+            const title = row.querySelector('h3.book-authors-row-title'), style = getComputedStyle(title);
+            const marker = row.querySelector('.book-authors-row-monogram') || row.querySelector('.book-authors-row-number');
+            return { title: title.textContent, size: parseFloat(style.fontSize), marginTop: parseFloat(style.marginTop), topDelta: title.getBoundingClientRect().top - marker.getBoundingClientRect().top, mainColumn: getComputedStyle(title.parentElement).gridColumnStart };
+        })
+    }));
+    const context = `${mode}, ${JSON.stringify(layout)}`;
+    for (const row of metrics.rows) {
+        assert.equal(row.size, 15, `Row heading size: ${row.title}, ${context}`);
+        assert.equal(row.marginTop, 0, `Row heading top margin: ${row.title}, ${context}`);
+        assert(Math.abs(row.topDelta) <= 6, `Row title aligns with its marker: ${JSON.stringify(row)}, ${context}`);
+        if (mode === 'series-index' && metrics.width <= 620) assert.equal(row.mainColumn, '2', `Series row keeps the title in the second column: ${row.title}, ${context}`);
+    }
+    assert.equal(metrics.sectionSize, 21, `Section heading size: ${context}`);
+    const expectedNameSize = metrics.width <= 620 ? 29 : Math.min(43, Math.max(29, layout.width * .04));
+    assert(Math.abs(metrics.nameSize - expectedNameSize) <= .02, `Page heading size: ${metrics.nameSize}, expected ${expectedNameSize}, ${context}`);
+}
 
 function expectedStats(mode) {
     const items = mode === 'series' ? seriesRecords : records.filter(record => String(record.fm.series || '').trim());
     const ratings = items.filter(record => record.file.path.startsWith('Книги/Художественные/') && Number.isFinite(Number(record.fm.rating)) && Number(record.fm.rating) >= 1 && Number(record.fm.rating) <= 10).map(record => Number(record.fm.rating));
-    const shared = { 'Произведений': String(items.length), 'Прочитано': String(items.filter(record => record.history.length).length), 'Любимые 8–10': String(ratings.filter(value => value >= 8).length) };
+    const shared = { 'Произведений': String(items.length), 'Любимые 8–10': String(ratings.filter(value => value >= 8).length) };
     if (mode === 'series-index') return { ...shared, 'Серий': String(new Set(items.map(record => record.fm.series)).size), 'С оценкой': String(ratings.length) };
     const years = [...new Set(items.flatMap(record => record.history.map(entry => entry.date.slice(0, 4))))].sort();
     delete shared['Произведений'];
@@ -39,7 +66,7 @@ async function main() {
         for (const layout of [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1440, pane: 390 }]) for (const mode of ['series-index', 'series']) for (const theme of ['theme-light', 'theme-dark']) {
             const page = await browser.newPage({ viewport: { width: layout.width, height: 1100 } }), errors = [];
             page.on('pageerror', error => errors.push(error.message));
-            await page.setContent(`<style>${baseline}</style><body class="${theme}"><main class="markdown-preview-view"${layout.pane ? ' style="width:' + layout.pane + 'px"' : ''}><div class="inline-title">Прежний заголовок</div><div id="content"></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></main></body>`);
+            await page.setContent(`<style>${baseline}</style><style>${gruvboxHeadings}</style><style>${libraryCss}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered ${mode === 'series-index' ? 'books-library' : 'books-entity'}"${layout.pane ? ' style="width:' + layout.pane + 'px"' : ''}><div class="markdown-preview-sizer markdown-preview-section"><div class="inline-title">Прежний заголовок</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></div></main></body>`);
             await page.evaluate(async ({ source, css, records, mode, selectedSeries }) => {
                 const module = { exports: {} }; new Function('module', source)(module);
                 window.seriesCalls = []; window.linkCalls = []; window.renderCalls = []; window.subscriptions = 0;
@@ -57,7 +84,10 @@ async function main() {
 
             assert.equal(await page.locator('.inline-title').isVisible(), false);
             assert.equal(await page.locator('.book-authors-ui.book-series-ui').count(), 1);
+            assert.equal(await page.locator('.book-series-ui :is(.book-authors-monogram,.book-authors-row-monogram)').count(), 0, 'Series pages omit decorative monograms');
+            assert.doesNotMatch(await page.locator('.book-series-ui').innerText(), /прочитано/iu, 'Series pages omit the redundant read counter');
             const initial = await page.locator('.book-authors-row').count(); assert(initial > 0);
+            await assertTypography(page, layout, mode);
             const stats = await page.locator('.book-authors-stat').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.querySelector('.book-authors-stat-label').textContent, node.querySelector('.book-authors-stat-value').textContent])));
             assert.deepEqual(stats, expectedStats(mode));
             assert.equal(await page.evaluate(() => window.renderCalls.length), 0, 'The Base is not rendered before expansion');

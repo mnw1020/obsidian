@@ -6,10 +6,34 @@ function scan(folder){for(const entry of fs.readdirSync(folder,{withFileTypes:tr
 scan(path.join(root,'Художественные'));scan(path.join(root,'Non-fiction'));
 const source=fs.readFileSync(path.join(root,'_system/authors_ui.js'),'utf8'),css=fs.readFileSync(path.join(root,'_system/authors-ui.css'),'utf8');
 const baseline=`*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:var(--background-primary);color:var(--text-normal);--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-accent:#9b561e;--interactive-accent:#9b561e;--font-interface:Arial}main{max-width:1100px;margin:auto;padding:24px;min-width:0}button,select{font:inherit;cursor:pointer}a{color:var(--text-accent)}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-accent:#efa76b;--interactive-accent:#efa76b}p{margin:12px 0}@media(max-width:500px){main{padding:16px}}`;
+// Portable copy of the installed gruvbox heading overrides. Keep !important:
+// the widget must retain its own heading geometry inside a real preview section.
+const gruvboxHeadings=`.cm-header-1,.markdown-preview-section h1{font-weight:900!important;font-size:2.2em!important;color:var(--text-title-h1)!important}.cm-header-2,.markdown-preview-section h2{font-weight:900!important;font-size:2em!important;color:var(--text-title-h2)!important}.cm-header-3,.markdown-preview-section h3{font-weight:900!important;font-size:1.8em!important;color:var(--text-title-h3)!important}`;
+const libraryCss=fs.readFileSync(path.join(root,'_system/books-library.css'),'utf8');
+async function assertTypography(page,layout,mode){
+ const metrics=await page.locator('.book-authors-ui').evaluate(ui=>({
+  width:ui.getBoundingClientRect().width,
+  nameSize:parseFloat(getComputedStyle(ui.querySelector('.book-authors-name')).fontSize),
+  sectionSize:parseFloat(getComputedStyle(ui.querySelector('.book-authors-section-heading h2')).fontSize),
+  rows:[...ui.querySelectorAll('.book-authors-row')].map(row=>{
+   const title=row.querySelector('h3.book-authors-row-title'),style=getComputedStyle(title),marker=row.querySelector('.book-authors-row-monogram')||row.querySelector('.book-authors-row-number');
+   return{title:title.textContent,size:parseFloat(style.fontSize),marginTop:parseFloat(style.marginTop),topDelta:title.getBoundingClientRect().top-marker.getBoundingClientRect().top};
+  })
+ }));
+ const context=`${mode}, ${JSON.stringify(layout)}`;
+ for(const row of metrics.rows){
+  assert.equal(row.size,15,`Row heading size: ${row.title}, ${context}`);
+  assert.equal(row.marginTop,0,`Row heading top margin: ${row.title}, ${context}`);
+  assert(Math.abs(row.topDelta)<=6,`Row title aligns with its marker: ${JSON.stringify(row)}, ${context}`);
+ }
+ assert.equal(metrics.sectionSize,21,`Section heading size: ${context}`);
+ const expectedNameSize=metrics.width<=620?29:Math.min(43,Math.max(29,layout.width*.04));
+ assert(Math.abs(metrics.nameSize-expectedNameSize)<=.02,`Page heading size: ${metrics.nameSize}, expected ${expectedNameSize}, ${context}`);
+}
 async function main(){const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});let checks=0;try{
  for(const layout of [{width:320},{width:390},{width:1024},{width:1440,pane:390}])for(const mode of ['index','author'])for(const theme of ['theme-light','theme-dark']){
   const page=await browser.newPage({viewport:{width:layout.width,height:1100}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.setContent(`<style>${baseline}</style><body class="${theme}"><main class="markdown-preview-view"${layout.pane?' style="width:'+layout.pane+'px"':''}><div class="inline-title">Прежний заголовок</div><div id="content"></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></main></body>`);
+  await page.setContent(`<style>${baseline}</style><style>${gruvboxHeadings}</style><style>${libraryCss}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered ${mode==='index'?'books-library':'books-entity'}"${layout.pane?' style="width:'+layout.pane+'px"':''}><div class="markdown-preview-sizer markdown-preview-section"><div class="inline-title">Прежний заголовок</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></div></main></body>`);
   await page.evaluate(async({source,css,records,mode})=>{
    const m={exports:{}};new Function('module',source)(m);window.authorCalls=[];window.linkCalls=[];window.subscriptions=0;
    window.authorService={core:{displayDate:value=>value.split('-').reverse().join('.')},snapshot:async()=>records,subscribe:callback=>{window.refreshAuthors=callback;window.subscriptions++;return()=>window.subscriptions--;}};
@@ -19,6 +43,7 @@ async function main(){const browser=await chromium.launch({headless:true,executa
   },{source,css,records,mode});
   assert.equal(await page.locator('.inline-title').isVisible(),false);
   const initial=await page.locator('.book-authors-row').count();assert(initial>0);
+  await assertTypography(page,layout,mode);
   if(mode==='index'){
    await page.getByLabel('Поиск среди авторов',{exact:true}).fill('каганов');
    assert.equal(await page.locator('.book-authors-row').count(),1);
@@ -46,7 +71,10 @@ async function main(){const browser=await chromium.launch({headless:true,executa
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${mode},${theme},${JSON.stringify(layout)}`);
   const clipped=await page.locator('.book-authors-ui').evaluate(root=>[...root.querySelectorAll('input,select,.book-authors-chip,.book-authors-row-title')].filter(node=>node.getBoundingClientRect().right>root.getBoundingClientRect().right+1).map(node=>node.className));assert.deepEqual(clipped,[]);
   assert.deepEqual(errors,[]);
-  if(process.env.AUTHORS_SCREENSHOT_DIR && !layout.pane && (layout.width===390&&theme==='theme-light'||layout.width===1024&&theme==='theme-dark'))await page.screenshot({path:path.join(process.env.AUTHORS_SCREENSHOT_DIR,`authors-${mode}-${layout.width}.png`)});
+  if(process.env.AUTHORS_SCREENSHOT_DIR && !layout.pane && (layout.width===390&&theme==='theme-light'||layout.width===1024&&theme==='theme-dark')){
+   await page.evaluate(()=>window.scrollTo(0,0));
+   await page.screenshot({path:path.join(process.env.AUTHORS_SCREENSHOT_DIR,`authors-${mode}-${layout.width}.png`),fullPage:true});
+  }
   await page.evaluate(()=>{
     window.authorService.snapshot=async()=>{
       const records=await window.originalAuthorSnapshot();
