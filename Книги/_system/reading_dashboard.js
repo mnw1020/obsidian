@@ -369,7 +369,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         if (model.readings) {
             breakdown(types, model);
         } else element(types, "p", "За этот период чтения ещё не записаны.", "books-empty");
-        const readings = section("Прочитано за период", content, "readings");
+        const readings = section("История чтения за период", content, "readings");
         if (model.readings) table(readings, ["Дата", "Произведение", "Автор", "Тип", "Оценка", "Чтение"], model.readingRows.map(item => [service.core.displayDate(item.date), cell => link(cell, item, app), item.authors.join(", "), TYPE_LABELS[item.type], item.rating == null ? "—" : `${item.rating}/10`, item.number > 1 ? `№${item.number} · повторное` : "Первое"]));
         else element(readings, "p", "Пока нет записей за выбранный период.", "books-empty");
         const details = element(content, "div", undefined, "book-dashboard-details-grid");

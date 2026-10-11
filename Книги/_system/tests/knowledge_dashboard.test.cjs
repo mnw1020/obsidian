@@ -577,7 +577,7 @@ test('both read-only renderers work in home and full modes with native DOM contr
                 if (mode === 'home') {
                     assert.match(container.textContent, /Чтений в этом месяце/);
                     assert.match(container.textContent, /В этом месяце раньше/);
-                    assert.doesNotMatch(container.textContent, /Прочитано за период|Сбросить месяц/);
+                    assert.doesNotMatch(container.textContent, /История чтения за период|Сбросить месяц/);
                 } else {
                     assert.match(container.textContent, /1Чтений за период/);
                     assert.deepEqual(selects[0].children.map(option => option.value), ['', String(new Date().getFullYear()), '2024']);
@@ -610,7 +610,7 @@ test('both read-only renderers work in home and full modes with native DOM contr
                     assert.equal(selects[0].value, ''); assert.equal(selects[1].value, '');
                     assert.equal(selects[1].disabled, true);
                     assert.match(container.textContent, /Выписок без даты сохранения: 1/);
-                    assert.match(container.textContent, /Прочитано за период/);
+                    assert.match(container.textContent, /История чтения за период/);
                 }
             }
             handle.dispose();
