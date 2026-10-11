@@ -1,0 +1,143 @@
+const fs = require('node:fs'), path = require('node:path'), assert = require('node:assert/strict');
+const { chromium } = require('C:/Users/Mindwork/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { fromText } = require('./yaml_fixture.cjs'), core = require('../book_core.js')({ app: {}, obsidian: {} }), knowledge = require('../knowledge.js');
+const root = path.resolve(__dirname, '../..'), records = [], selectedSeries = 'Память о прошлом Земли';
+
+function scan(folder) {
+    for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+        const full = path.join(folder, entry.name);
+        if (entry.isDirectory()) scan(full);
+        else if (entry.name.endsWith('.md')) {
+            const text = fs.readFileSync(full, 'utf8'), fm = fromText(text);
+            if (fm.title && fm.authors) records.push({ fm, file: { path: 'Книги/' + path.relative(root, full).replaceAll('\\', '/'), basename: entry.name.slice(0, -3) }, history: core.parseHistory(text).entries, excerpts: knowledge.parseExcerpts(text) });
+        }
+    }
+}
+scan(path.join(root, 'Художественные')); scan(path.join(root, 'Non-fiction'));
+const source = fs.readFileSync(path.join(root, '_system/authors_ui.js'), 'utf8'), css = fs.readFileSync(path.join(root, '_system/authors-ui.css'), 'utf8');
+const seriesRecords = records.filter(record => record.fm.series === selectedSeries);
+assert(seriesRecords.length > 1, 'The real series fixture must contain several parts');
+const compare = (a, b) => a.localeCompare(b, 'ru', { sensitivity: 'base', numeric: true });
+const parts = [...seriesRecords].sort((a, b) => Number(a.fm.series_index) - Number(b.fm.series_index) || compare(a.fm.title, b.fm.title));
+const authors = [...new Set(seriesRecords.flatMap(record => Array.isArray(record.fm.authors) ? record.fm.authors : [record.fm.authors]))];
+const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 Arial;background:var(--background-primary);color:var(--text-normal);--background-primary:#faf9f6;--background-secondary:#efede7;--background-modifier-border:#d8d3c9;--text-muted:#716b62;--text-normal:#302e2a;--text-accent:#9b561e;--interactive-accent:#9b561e;--font-interface:Arial}main{max-width:1100px;margin:auto;padding:24px;min-width:0}button,select{font:inherit;cursor:pointer}a{color:var(--text-accent)}.theme-dark{--background-primary:#16181c;--background-secondary:#202328;--background-modifier-border:#3c3f44;--text-muted:#b4b8c2;--text-normal:#ececec;--text-accent:#efa76b;--interactive-accent:#efa76b}p{margin:12px 0}@media(max-width:500px){main{padding:16px}}`;
+
+function expectedStats(mode) {
+    const items = mode === 'series' ? seriesRecords : records.filter(record => String(record.fm.series || '').trim());
+    const ratings = items.filter(record => record.file.path.startsWith('Книги/Художественные/') && Number.isFinite(Number(record.fm.rating)) && Number(record.fm.rating) >= 1 && Number(record.fm.rating) <= 10).map(record => Number(record.fm.rating));
+    const shared = { 'Произведений': String(items.length), 'Прочитано': String(items.filter(record => record.history.length).length), 'Любимые 8–10': String(ratings.filter(value => value >= 8).length) };
+    if (mode === 'series-index') return { ...shared, 'Серий': String(new Set(items.map(record => record.fm.series)).size), 'С оценкой': String(ratings.length) };
+    const years = [...new Set(items.flatMap(record => record.history.map(entry => entry.date.slice(0, 4))))].sort();
+    delete shared['Произведений'];
+    return { ...shared, 'В коллекции': String(items.length), 'Средняя моя оценка': ratings.length ? (ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length).toFixed(1).replace('.', ',') : '—', 'Годы чтения': !years.length ? '—' : years[0] === years.at(-1) ? years[0] : `${years[0]}–${years.at(-1)}` };
+}
+
+async function main() {
+    const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+    let checks = 0;
+    try {
+        for (const layout of [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1440, pane: 390 }]) for (const mode of ['series-index', 'series']) for (const theme of ['theme-light', 'theme-dark']) {
+            const page = await browser.newPage({ viewport: { width: layout.width, height: 1100 } }), errors = [];
+            page.on('pageerror', error => errors.push(error.message));
+            await page.setContent(`<style>${baseline}</style><body class="${theme}"><main class="markdown-preview-view"${layout.pane ? ' style="width:' + layout.pane + 'px"' : ''}><div class="inline-title">Прежний заголовок</div><div id="content"></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></main></body>`);
+            await page.evaluate(async ({ source, css, records, mode, selectedSeries }) => {
+                const module = { exports: {} }; new Function('module', source)(module);
+                window.seriesCalls = []; window.linkCalls = []; window.renderCalls = []; window.subscriptions = 0;
+                window.seriesService = { core: { displayDate: value => value.split('-').reverse().join('.') }, snapshot: async () => records, subscribe: callback => {
+                    window.refreshSeries = callback; window.subscriptions++;
+                    let active = true; return () => { if (active) { active = false; window.subscriptions--; } };
+                } };
+                window.seriesComponent = { children: new Set(), disposers: [], register(callback) { this.disposers.push(callback); }, addChild(child) { this.children.add(child); return child; }, removeChild(child) { this.children.delete(child); child.unload(); } };
+                const app = { vault: { getAbstractFileByPath: path => ({ path }), read: async file => file.path.endsWith('.css') ? css : 'module.exports.getService=async()=>window.seriesService;' }, workspace: { openLinkText: (...args) => window.linkCalls.push(args) }, plugins: { plugins: { quickadd: { api: { executeChoice: async (...args) => window.seriesCalls.push(args) } } } } };
+                const obsidian = { Component: class { unload() { this.unloaded = true; } }, MarkdownRenderer: { render: async (_app, markdown, container, source, child) => { window.renderCalls.push({ markdown, source }); container.textContent = 'Таблица серии'; window.tableChild = child; } } };
+                window.originalSeriesSnapshot = window.seriesService.snapshot;
+                window.seriesHandle = await module.exports({ app, obsidian, dv: { container: document.querySelector('#content'), component: window.seriesComponent, current: () => ({ selected_series: selectedSeries, file: { path: 'Книги/_system/Серии/Память о прошлом Земли.md' } }) }, mode });
+            }, { source, css, records, mode, selectedSeries });
+
+            assert.equal(await page.locator('.inline-title').isVisible(), false);
+            assert.equal(await page.locator('.book-authors-ui.book-series-ui').count(), 1);
+            const initial = await page.locator('.book-authors-row').count(); assert(initial > 0);
+            const stats = await page.locator('.book-authors-stat').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.querySelector('.book-authors-stat-label').textContent, node.querySelector('.book-authors-stat-value').textContent])));
+            assert.deepEqual(stats, expectedStats(mode));
+            assert.equal(await page.evaluate(() => window.renderCalls.length), 0, 'The Base is not rendered before expansion');
+            const searchLabel = mode === 'series-index' ? 'Поиск среди серий' : 'Поиск среди произведений';
+            if (mode === 'series-index') {
+                await page.getByLabel(searchLabel, { exact: true }).fill(selectedSeries);
+                assert.equal(await page.locator('.book-authors-row').count(), 1);
+                await page.getByRole('link', { name: selectedSeries, exact: true }).click();
+                assert.deepEqual(await page.evaluate(() => window.seriesCalls[0]), ['Книги - Открыть серию', { series: selectedSeries }]);
+                await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+                await page.getByLabel('Сортировка', { exact: true }).selectOption('name');
+            } else {
+                assert.equal(await page.getByLabel('Сортировка', { exact: true }).inputValue(), 'order');
+                assert.deepEqual(await page.locator('.book-authors-row-title a').allTextContents(), parts.map(record => record.fm.title));
+                assert.deepEqual(await page.locator('.book-authors-row-number').allTextContents(), parts.map(record => String(record.fm.series_index).padStart(2, '0')));
+                assert.deepEqual((await page.locator('.book-series-authors a').allTextContents()).sort(), [...authors].sort());
+                const authorName = await page.locator('.book-series-authors a').first().textContent();
+                await page.locator('.book-series-authors a').first().click();
+                assert.deepEqual(await page.evaluate(() => window.seriesCalls[0]), ['Книги - Открыть автора', { author: authorName }]);
+                await page.getByLabel(searchLabel, { exact: true }).fill('шаровая молния');
+                assert.equal(await page.locator('.book-authors-row').count(), 1);
+                await page.locator('.book-authors-row-title a').click();
+                assert.match((await page.evaluate(() => window.linkCalls[0]))[0], /Шаровая молния$/u);
+                await page.getByLabel('Сортировка', { exact: true }).selectOption('name');
+                await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+                assert.equal(await page.getByLabel('Сортировка', { exact: true }).inputValue(), 'order');
+                const summary = page.getByText('Таблица и представления', { exact: true });
+                await summary.click();
+                await page.waitForFunction(() => window.renderCalls.length === 1);
+                assert.equal(await page.evaluate(() => window.renderCalls[0].markdown), '![[Книги/_system/_Книги.base#Серия]]');
+                assert.equal(await page.evaluate(() => window.seriesComponent.children.size), 1);
+                await summary.click(); await summary.click();
+                assert.equal(await page.evaluate(() => window.renderCalls.length), 1, 'Reopening reuses the existing Base component');
+            }
+
+            await page.getByRole('button', { name: 'Non-fiction', exact: true }).click();
+            if (mode === 'series') assert.equal(await page.locator('.book-authors-row').count(), 0);
+            await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+            assert.equal(await page.locator('.book-authors-row').count(), initial);
+            assert.equal(await page.getByLabel(searchLabel, { exact: true }).inputValue(), '');
+            const yearOptions = await page.getByLabel('Год чтения', { exact: true }).locator('option').evaluateAll(nodes => nodes.map(node => node.value));
+            const selectedYear = yearOptions.find(value => /^\d{4}$/u.test(value));
+            if (selectedYear) {
+                await page.getByLabel('Год чтения', { exact: true }).selectOption(selectedYear);
+                assert((await page.locator('.book-authors-row').count()) <= initial);
+                await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+                assert.equal(await page.getByLabel('Год чтения', { exact: true }).inputValue(), '');
+            }
+            await page.getByRole('button', { name: 'Любимые 8–10', exact: true }).click();
+            assert((await page.locator('.book-authors-row').count()) <= initial);
+            await page.getByRole('button', { name: 'Сбросить', exact: true }).click();
+            assert.equal(await page.locator('#personal').textContent(), 'Личные впечатления $& [[Ссылка]]');
+            assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${mode},${theme},${JSON.stringify(layout)}`);
+            const clipped = await page.locator('.book-series-ui').evaluate(root => [...root.querySelectorAll('input,select,.book-authors-chip,.book-authors-row-title')].filter(node => node.getBoundingClientRect().right > root.getBoundingClientRect().right + 1).map(node => node.className));
+            assert.deepEqual(clipped, []);
+            if (process.env.SERIES_SCREENSHOT_DIR && !layout.pane && (layout.width === 390 && theme === 'theme-light' || layout.width === 1024 && theme === 'theme-dark')) {
+                await page.evaluate(() => window.scrollTo(0, 0));
+                await page.screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, `series-${mode}-${layout.width}.png`) });
+            }
+
+            await page.evaluate(selectedSeries => {
+                window.seriesService.snapshot = async () => [...await window.originalSeriesSnapshot(), { file: { path: 'Книги/Художественные/Новая книга серии.md', basename: 'Новая книга серии' }, fm: { title: 'Новая книга серии', authors: ['Лю Цысинь'], series: selectedSeries, rating: 9, work_type: 'book' }, history: [{ date: '2026-10-05', number: 1, rating: 9 }], excerpts: [] }];
+                window.refreshSeries();
+            }, selectedSeries);
+            if (mode === 'series-index') {
+                await page.getByLabel(searchLabel, { exact: true }).fill(selectedSeries);
+                await page.waitForFunction(count => document.querySelector('.book-authors-chips strong')?.textContent === String(count), seriesRecords.length + 1);
+            } else {
+                await page.waitForFunction(count => document.querySelector('.book-authors-result-count')?.textContent === `Произведений: ${count}`, seriesRecords.length + 1);
+                assert.equal(await page.locator('.book-authors-row-title a').last().textContent(), 'Новая книга серии', 'A part without a series index appears last');
+            }
+            assert.equal(await page.locator('#personal').textContent(), 'Личные впечатления $& [[Ссылка]]');
+            assert((await page.evaluate(() => window.seriesComponent.disposers.length)) > 0, 'The view registers cleanup with Dataview');
+            await page.evaluate(() => window.seriesHandle.dispose());
+            assert.equal(await page.evaluate(() => window.subscriptions), 0);
+            assert.equal(await page.evaluate(() => window.seriesComponent.children.size), 0);
+            if (mode === 'series') assert.equal(await page.evaluate(() => window.tableChild.unloaded), true);
+            assert.deepEqual(errors, []);
+            checks++; await page.close();
+        }
+    } finally { await browser.close(); }
+    console.log(`${checks} series Chromium scenarios passed: real library, part order, search, filters, reset, QuickAdd, lazy Base, stats, automatic refresh, personal notes, themes, narrow panes and cleanup.`);
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

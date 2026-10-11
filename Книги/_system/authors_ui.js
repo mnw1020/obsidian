@@ -1,4 +1,4 @@
-// Author catalogue and permanent author pages. Rendering never writes book notes.
+// Shared author and series catalogues and permanent pages. Rendering never writes book notes.
 const TYPES = { book: 'Книга', novel: 'Роман', novella: 'Повесть', story: 'Рассказ', collection: 'Сборник', poem: 'Стихи', play: 'Пьеса', essay: 'Эссе', lecture: 'Лекция', article: 'Статья', other: 'Другое' };
 const values = value => [...new Set((Array.isArray(value) ? value : [value]).map(item => String(item ?? '').trim()).filter(Boolean))];
 const searchable = value => String(value ?? '').toLocaleLowerCase('ru').replace(/ё/g, 'е').trim();
@@ -9,22 +9,23 @@ function buildItems(records) {
         const rating = fiction && Number.isFinite(number) && number >= 1 && number <= 10 ? number : null;
         const history = record.history || [];
         const date = history.map(entry => entry.date).sort().at(-1) || '';
-        const title = String(fm.title || record.file.basename), authors = values(fm.authors), series = String(fm.series || '');
+        const title = String(fm.title || record.file.basename), authors = values(fm.authors), series = String(fm.series || '').trim();
         return { file: record.file, title, authors, fiction, rating, date, series, seriesIndex: fm.series_index,
             type: TYPES[fm.work_type] || (fiction ? 'Художественное' : 'Non-fiction'), history,
             years: [...new Set(history.map(entry => entry.date.slice(0, 4)))], excerpts: record.excerpts || [],
             search: searchable([title, ...authors, series].join(' ')), historyError: record.historyError || record.error };
     });
 }
-function aggregate(items) {
+function aggregate(items, dimension = 'author') {
     const map = new Map();
-    for (const item of items) for (const name of item.authors) {
+    for (const item of items) for (const name of dimension === 'series' ? values(item.series) : item.authors) {
         if (!map.has(name)) map.set(name, { name, items: [], ratings: [], favorites: 0, points: 0 });
         const row = map.get(name);
         row.items.push(item);
         if (item.rating !== null) { row.ratings.push(item.rating); row.favorites += Number(item.rating >= 8); row.points += Math.max(0, item.rating - 5); }
     }
-    return [...map.values()].map(row => ({ ...row, count: row.items.length,
+    return [...map.values()].map(row => ({ ...row, count: row.items.length, read: row.items.filter(item => item.history.length).length,
+        authors: values(row.items.flatMap(item => item.authors)),
         average: row.ratings.length ? row.ratings.reduce((sum, n) => sum + n, 0) / row.ratings.length : null,
         latest: row.items.map(item => item.date).sort().at(-1) || '', search: searchable([row.name, ...row.items.map(item => item.search)].join(' ')) }));
 }
@@ -35,31 +36,40 @@ function filterItems(items, { filter = 'all', year = '', query = '' } = {}) {
 }
 const score = value => value === null ? '—' : value.toFixed(1).replace('.', ',');
 const initials = name => name.split(/[\s-]+/).filter(Boolean).slice(0, 2).map(part => Array.from(part)[0]).join('').toLocaleUpperCase('ru');
+const partNumber = item => Number.isInteger(Number(item.seriesIndex)) && Number(item.seriesIndex) > 0 ? Number(item.seriesIndex) : Infinity;
 async function render({ dv, app, obsidian = {}, mode = 'index' }) {
-    const index = mode !== 'author';
+    const seriesMode = mode === 'series' || mode === 'series-index';
+    const index = mode === 'index' || mode === 'series-index';
     const source = dv.current?.()?.file?.path || '';
-    const author = index ? '' : String(dv.current?.()?.selected_author || '').trim();
-    const root = el(dv.container, 'section', 'book-authors-ui');
+    const selectedName = index ? '' : String(dv.current?.()?.[seriesMode ? 'selected_series' : 'selected_author'] || '').trim();
+    const catalogue = seriesMode ? 'Серии' : 'Авторы';
+    const root = el(dv.container, 'section', `book-authors-ui${seriesMode ? ' book-series-ui' : ''}`);
     const css = app.vault.getAbstractFileByPath('Книги/_system/authors-ui.css');
     if (css) el(root, 'style', '', await app.vault.read(css));
     const nav = el(root, 'nav', 'book-authors-nav');
     internal(nav, '← Библиотека', 'Книги/_index');
-    if (!index) internal(nav, 'Все авторы', 'Книги/_system/Авторы');
+    if (!index) internal(nav, seriesMode ? 'Все серии' : 'Все авторы', `Книги/_system/${catalogue}`);
+    if (seriesMode) internal(nav, 'Авторы', 'Книги/_system/Авторы');
     internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
     internal(nav, 'Цитаты', 'Книги/Цитаты');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
-    const monogram = el(identity, 'div', 'book-authors-monogram', index ? 'Аа' : initials(author) || 'А');
+    const monogram = el(identity, 'div', 'book-authors-monogram', seriesMode ? '≡' : index ? 'Аа' : initials(selectedName) || 'А');
     monogram.setAttribute('aria-hidden', 'true');
     const heading = el(identity, 'div', 'book-authors-heading');
-    el(heading, 'div', 'book-authors-eyebrow', `Библиотека / ${index ? 'Авторы' : 'Автор'}`);
-    el(heading, 'h1', 'book-authors-name', index ? 'Все авторы' : author || 'Автор не выбран');
-    el(heading, 'p', 'book-authors-subtitle', index ? 'Писатели, книги и ваши впечатления' : 'Произведения и ваши впечатления');
-    if (!index) internal(header, 'Выбрать автора', 'Книги/_system/Авторы', 'book-authors-change');
+    el(heading, 'div', 'book-authors-eyebrow', `Библиотека / ${index ? catalogue : seriesMode ? 'Серия' : 'Автор'}`);
+    el(heading, 'h1', 'book-authors-name', index ? seriesMode ? 'Все серии' : 'Все авторы' : selectedName || (seriesMode ? 'Серия не выбрана' : 'Автор не выбран'));
+    el(heading, 'p', 'book-authors-subtitle', seriesMode ? index ? 'Книжные циклы и ваши впечатления' : 'Порядок частей и ваши впечатления' : index ? 'Писатели, книги и ваши впечатления' : 'Произведения и ваши впечатления');
+    const seriesAuthors = seriesMode && !index ? el(heading, 'p', 'book-authors-subtitle book-series-authors') : null;
+    if (!index) {
+        const actions = seriesMode ? el(header, 'div', 'book-series-actions') : header;
+        if (seriesMode) commandLink(actions, 'Добавить произведение', 'Книги - Добавить книгу', null, null, 'book-authors-change book-series-add');
+        internal(actions, seriesMode ? 'Выбрать серию' : 'Выбрать автора', `Книги/_system/${catalogue}`, 'book-authors-change');
+    }
     const stats = el(root, 'div', 'book-authors-stats');
     const section = el(root, 'section', 'book-authors-collection');
     const sectionHead = el(section, 'div', 'book-authors-section-heading');
-    el(sectionHead, 'h2', '', index ? 'Авторы в коллекции' : 'Произведения');
+    el(sectionHead, 'h2', '', index ? seriesMode ? 'Серии в коллекции' : 'Авторы в коллекции' : 'Произведения');
     const count = el(sectionHead, 'span', 'book-authors-result-count', 'Загружаю…');
     count.setAttribute('aria-live', 'polite');
     const controls = el(section, 'div', 'book-authors-controls');
@@ -70,12 +80,14 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         input.setAttribute('aria-label', label);
         return input;
     }
-    const search = field(index ? 'Поиск среди авторов' : 'Поиск среди произведений', 'input', 'book-authors-search');
+    const search = field(index ? seriesMode ? 'Поиск среди серий' : 'Поиск среди авторов' : 'Поиск среди произведений', 'input', 'book-authors-search');
     search.type = 'search'; search.autocomplete = 'off';
-    search.placeholder = index ? 'Имя автора или название произведения' : 'Название произведения или серии';
+    search.placeholder = seriesMode ? index ? 'Серия, автор или название произведения' : 'Название произведения или автор' : index ? 'Имя автора или название произведения' : 'Название произведения или серии';
     const year = field('Год чтения', 'select', 'book-authors-year');
     const sort = field('Сортировка', 'select', 'book-authors-sort');
-    const options = index ? [['points', 'По симпатии'], ['count', 'Больше произведений'], ['rating', 'По средней оценке'], ['name', 'По алфавиту']]
+    const options = seriesMode ? index ? [['name', 'По алфавиту'], ['count', 'Больше произведений'], ['rating', 'По средней оценке'], ['recent', 'Недавно прочитанные']]
+        : [['order', 'По порядку частей'], ['recent', 'Недавно прочитанные'], ['rating', 'Сначала лучшие'], ['name', 'По алфавиту']]
+        : index ? [['points', 'По симпатии'], ['count', 'Больше произведений'], ['rating', 'По средней оценке'], ['name', 'По алфавиту']]
         : [['recent', 'Недавно прочитанные'], ['rating', 'Сначала лучшие'], ['name', 'По алфавиту'], ['series', 'По сериям']];
     for (const [value, label] of options) el(sort, 'option', '', label).value = value;
     sort.value = options[0][0];
@@ -114,7 +126,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
             }
             tableChild = new obsidian.Component();
             dv.component.addChild(tableChild);
-            try { await obsidian.MarkdownRenderer.render(app, '![[Книги/_system/_Книги.base#Автор]]', body, source, tableChild); }
+            try { await obsidian.MarkdownRenderer.render(app, `![[Книги/_system/_Книги.base#${seriesMode ? 'Серия' : 'Автор'}]]`, body, source, tableChild); }
             catch (problem) {
                 dv.component.removeChild?.(tableChild); tableChild = null;
                 body.textContent = `Не удалось показать таблицу: ${problem.message || problem}`;
@@ -124,7 +136,9 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     const error = el(root, 'p', 'book-authors-warning');
     const info = el(root, 'details', 'book-authors-info');
     el(info, 'summary', '', 'Об оценках и подсчётах');
-    el(info, 'p', '', 'Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений в карточках. Баллы симпатии — сумма превышения оценок над 5. Строки отражают произведения выбранной категории и года. Год определяется по истории чтений; дата только до месяца или года сохраняет свою точность. Показатели в шапке относятся ко всей коллекции автора или библиотеки.');
+    el(info, 'p', '', seriesMode
+        ? 'Количество относится к произведениям в вашей библиотеке. Порядок частей берётся из номера в серии; части без номера показаны в конце. Прочитано — произведения с записью в истории чтений. Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений. Год и последнее чтение определяются по истории; даты до месяца или года сохраняют свою точность. Фильтры меняют список, показатели в шапке относятся ко всей коллекции серии или каталога.'
+        : 'Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений в карточках. Баллы симпатии — сумма превышения оценок над 5. Строки отражают произведения выбранной категории и года. Год определяется по истории чтений; дата только до месяца или года сохраняет свою точность. Показатели в шапке относятся ко всей коллекции автора или библиотеки.');
     for (const [input, event] of [[search, 'input'], [year, 'change'], [sort, 'change']]) listen(input, event, draw);
     function el(parent, tag, cls, text) {
         const node = parent.ownerDocument.createElement(tag);
@@ -142,15 +156,24 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         });
         return anchor;
     }
-    function authorLink(parent, name) {
-        const anchor = el(parent, 'a', 'book-authors-author-link', name);
-        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent('Книги - Открыть автора') + '&value-author=' + encodeURIComponent(name).replace(/[!'()*]/g, char => '%' + char.charCodeAt(0).toString(16));
+    function commandLink(parent, label, choice, key, value, cls = '') {
+        const anchor = el(parent, 'a', cls, label);
+        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent(choice) + (key ? '&value-' + key + '=' + encodeURIComponent(value).replace(/[!'()*]/g, char => '%' + char.charCodeAt(0).toString(16)) : '');
         anchor.addEventListener('click', async event => {
             const api = app.plugins?.plugins?.quickadd?.api;
             if (!api?.executeChoice) return;
             event.preventDefault();
-            try { await api.executeChoice('Книги - Открыть автора', { author: name }); }
-            catch (problem) { if (!/cancel/i.test(String(problem.message || problem))) error.textContent = `Не удалось открыть автора: ${problem.message || problem}`; }
+            try { await api.executeChoice(choice, key ? { [key]: value } : {}); }
+            catch (problem) { if (!disposed && !/cancel/i.test(String(problem.message || problem))) error.textContent = `Не удалось выполнить действие: ${problem.message || problem}`; }
+        });
+        return anchor;
+    }
+    function authorLink(parent, name) { return commandLink(parent, name, 'Книги - Открыть автора', 'author', name, 'book-authors-author-link'); }
+    function seriesLink(parent, name) { return commandLink(parent, name, 'Книги - Открыть серию', 'series', name, 'book-series-link'); }
+    function authorLinks(parent, names) {
+        names.forEach((name, i) => {
+            if (i) parent.appendChild(parent.ownerDocument.createTextNode(' · '));
+            authorLink(parent, name);
         });
     }
     function stat(label, value) {
@@ -166,34 +189,46 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         const filtered = filterItems(items, { filter: activeFilter, year: year.value, query: index ? '' : search.value });
         const compare = (a, b) => a.localeCompare(b, 'ru', { sensitivity: 'base', numeric: true });
         if (index) {
-            const rows = aggregate(filtered).filter(row => !search.value || row.search.includes(searchable(search.value)));
-            rows.sort((a, b) => (sort.value === 'points' ? b.points - a.points : sort.value === 'count' ? b.count - a.count : sort.value === 'rating' ? (b.average ?? -1) - (a.average ?? -1) : 0) || compare(a.name, b.name));
-            count.textContent = `Авторов: ${rows.length}`;
+            const rows = aggregate(filtered, seriesMode ? 'series' : 'author').filter(row => !search.value || row.search.includes(searchable(search.value)));
+            rows.sort((a, b) => (sort.value === 'points' ? b.points - a.points : sort.value === 'count' ? b.count - a.count : sort.value === 'rating' ? (b.average ?? -1) - (a.average ?? -1) : sort.value === 'recent' ? compare(b.latest, a.latest) : 0) || compare(a.name, b.name));
+            count.textContent = `${seriesMode ? 'Серий' : 'Авторов'}: ${rows.length}`;
             rows.forEach((row, i) => {
                 const card = el(grid, 'article', 'book-authors-row book-authors-person-row');
                 el(card, 'span', 'book-authors-row-number', String(i + 1).padStart(2, '0'));
-                const monogram = el(card, 'span', 'book-authors-row-monogram', initials(row.name)); monogram.setAttribute('aria-hidden', 'true');
+                const monogram = el(card, 'span', 'book-authors-row-monogram', seriesMode ? '≡' : initials(row.name)); monogram.setAttribute('aria-hidden', 'true');
                 const main = el(card, 'div', 'book-authors-row-main');
-                authorLink(el(main, 'h3', 'book-authors-row-title'), row.name);
-                el(main, 'p', 'book-authors-row-meta', row.items.some(item => item.fiction) ? row.items.some(item => !item.fiction) ? 'Художественные · Non-fiction' : 'Художественные' : 'Non-fiction');
+                (seriesMode ? seriesLink : authorLink)(el(main, 'h3', 'book-authors-row-title'), row.name);
+                const meta = el(main, 'p', 'book-authors-row-meta');
+                if (seriesMode) authorLinks(meta, [...row.authors].sort(compare));
+                else meta.textContent = row.items.some(item => item.fiction) ? row.items.some(item => !item.fiction) ? 'Художественные · Non-fiction' : 'Художественные' : 'Non-fiction';
                 const examples = [...row.items].sort((a, b) => compare(b.date, a.date)).slice(0, 3).map(item => item.title).join(' · ');
                 el(main, 'p', 'book-authors-row-examples', examples);
                 const chips = el(card, 'div', 'book-authors-chips');
-                chip(chips, 'В коллекции', row.count); chip(chips, 'Средняя', score(row.average), true);
-                chip(chips, 'Любимые', row.favorites); chip(chips, 'Симпатия', row.points);
+                chip(chips, 'В коллекции', row.count);
+                if (seriesMode) {
+                    chip(chips, 'Прочитано', row.read); chip(chips, 'Средняя', score(row.average), true);
+                    chip(chips, 'Последнее чтение', row.latest ? service.core.displayDate(row.latest) : '—');
+                } else {
+                    chip(chips, 'Средняя', score(row.average), true); chip(chips, 'Любимые', row.favorites); chip(chips, 'Симпатия', row.points);
+                }
             });
             if (!rows.length) empty();
         } else {
-            filtered.sort((a, b) => (sort.value === 'recent' ? compare(b.date, a.date) : sort.value === 'rating' ? (b.rating ?? -1) - (a.rating ?? -1) : sort.value === 'series' ? compare(a.series || '\uffff', b.series || '\uffff') || (Number(a.seriesIndex) || 0) - (Number(b.seriesIndex) || 0) : 0) || compare(a.title, b.title));
+            filtered.sort((a, b) => (sort.value === 'order' ? partNumber(a) - partNumber(b) : sort.value === 'recent' ? compare(b.date, a.date) : sort.value === 'rating' ? (b.rating ?? -1) - (a.rating ?? -1) : sort.value === 'series' ? compare(a.series || '\uffff', b.series || '\uffff') || (Number(a.seriesIndex) || 0) - (Number(b.seriesIndex) || 0) : 0) || compare(a.title, b.title));
             count.textContent = `Произведений: ${filtered.length}`;
             filtered.forEach((item, i) => {
                 const card = el(grid, 'article', 'book-authors-row');
-                el(card, 'span', 'book-authors-row-number', String(i + 1).padStart(2, '0'));
+                const number = seriesMode ? partNumber(item) : i + 1;
+                const part = el(card, 'span', 'book-authors-row-number', Number.isFinite(number) ? String(number).padStart(2, '0') : '—');
+                if (seriesMode) part.setAttribute('aria-label', Number.isFinite(number) ? `Часть ${number}` : 'Без номера');
                 const main = el(card, 'div', 'book-authors-row-main');
                 internal(el(main, 'h3', 'book-authors-row-title'), item.title, item.file.path.replace(/\.md$/i, ''));
                 el(main, 'p', 'book-authors-row-meta', `${item.type} · ${item.fiction ? 'Художественное' : 'Non-fiction'} · ${item.date ? 'Читалось: ' + service.core.displayDate(item.date) : 'Дата чтения не записана'}`);
-                if (item.series) el(main, 'p', 'book-authors-row-examples', `Серия: ${item.series}${item.seriesIndex ? ' · №' + item.seriesIndex : ''}`);
-                if (item.authors.length > 1) el(main, 'p', 'book-authors-row-examples', `Авторы: ${item.authors.join(', ')}`);
+                if (seriesMode) authorLinks(el(main, 'p', 'book-authors-row-examples'), item.authors);
+                else {
+                    if (item.series) el(main, 'p', 'book-authors-row-examples', `Серия: ${item.series}${item.seriesIndex ? ' · №' + item.seriesIndex : ''}`);
+                    if (item.authors.length > 1) el(main, 'p', 'book-authors-row-examples', `Авторы: ${item.authors.join(', ')}`);
+                }
                 const chips = el(card, 'div', 'book-authors-chips');
                 chip(chips, 'Моя оценка', item.rating === null ? '—' : item.rating, true);
                 chip(chips, 'Чтений', item.history.length); chip(chips, 'Выписок', item.excerpts.length);
@@ -202,8 +237,8 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         }
         function empty() {
             const box = el(grid, 'div', 'book-authors-empty');
-            el(box, 'h3', '', items.length ? 'Ничего не найдено' : 'В коллекции пока нет произведений');
-            el(box, 'p', '', items.length ? 'Попробуйте другой запрос или сбросьте фильтры.' : 'Связанные произведения появятся здесь после добавления.');
+            el(box, 'h3', '', seriesMode && !index && !selectedName ? 'Серия не выбрана' : items.length ? 'Ничего не найдено' : 'В коллекции пока нет произведений');
+            el(box, 'p', '', seriesMode && !index && !selectedName ? 'Выберите серию в каталоге, чтобы увидеть её произведения.' : items.length ? 'Попробуйте другой запрос или сбросьте фильтры.' : 'Связанные произведения появятся здесь после добавления.');
         }
     }
     const file = app.vault.getAbstractFileByPath('Книги/_system/knowledge.js');
@@ -212,21 +247,30 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     try {
         const module = { exports: {} }; new Function('module', await app.vault.read(file))(module);
         service = await module.exports.getService({ app, obsidian });
-    } catch (problem) { count.textContent = `Не удалось загрузить авторов: ${problem.message || problem}`; return; }
+    } catch (problem) { count.textContent = `Не удалось загрузить ${seriesMode ? 'серии' : 'авторов'}: ${problem.message || problem}`; return; }
     async function reload() {
         const current = ++generation;
         try {
             const records = await service.snapshot();
             if (disposed || current !== generation) return;
-            items = buildItems(records).filter(item => index || item.authors.includes(author));
+            items = buildItems(records).filter(item => seriesMode ? Boolean(item.series) && (index || item.series === selectedName) : index || item.authors.includes(selectedName));
+            if (seriesAuthors) {
+                seriesAuthors.replaceChildren();
+                authorLinks(seriesAuthors, values(items.flatMap(item => item.authors)).sort((a, b) => a.localeCompare(b, 'ru')));
+            }
             const ratings = items.map(item => item.rating).filter(value => value !== null);
             stats.replaceChildren();
-            if (index) {
+            if (seriesMode && index) {
+                stat('Серий', aggregate(items, 'series').length); stat('Произведений', items.length);
+                stat('Прочитано', items.filter(item => item.history.length).length); stat('С оценкой', ratings.length);
+                stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
+            } else if (index) {
                 stat('Авторов', aggregate(items).length); stat('Произведений', items.length);
                 stat('Художественных', items.filter(item => item.fiction).length); stat('Non-fiction', items.filter(item => !item.fiction).length);
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
             } else {
-                stat('В коллекции', items.length); stat('Чтений', items.reduce((sum, item) => sum + item.history.length, 0));
+                stat('В коллекции', items.length);
+                stat(seriesMode ? 'Прочитано' : 'Чтений', seriesMode ? items.filter(item => item.history.length).length : items.reduce((sum, item) => sum + item.history.length, 0));
                 stat('Средняя моя оценка', score(ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null));
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
                 const years = [...new Set(items.flatMap(item => item.years))].sort();
@@ -241,7 +285,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
             const damaged = items.filter(item => item.historyError).length;
             error.textContent = damaged ? `Историй с ошибками: ${damaged}. Их чтения и годы не подменяются значениями карточек.` : '';
             draw();
-        } catch (problem) { if (!disposed) error.textContent = `Не удалось загрузить авторов: ${problem.message || problem}`; }
+        } catch (problem) { if (!disposed) error.textContent = `Не удалось загрузить ${seriesMode ? 'серии' : 'авторов'}: ${problem.message || problem}`; }
     }
     const unsubscribe = service.subscribe(() => { clearTimeout(timer); timer = setTimeout(reload, 200); });
     function dispose() {

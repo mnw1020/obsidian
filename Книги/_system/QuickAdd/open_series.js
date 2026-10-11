@@ -33,30 +33,15 @@ module.exports = async (params) => {
     const folder = "Книги/_system/Серии";
     if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
     const pagePath = normalizePath(`${folder}/${entityName(series)}.md`);
-    const books = core.snapshot().filter(({ fm }) => String(fm.series ?? "").trim() === series);
-    const read = books.filter(({ fm }) => Number(fm.read_count) > 0).length;
-    const choice = name => `obsidian://quickadd?choice=${encodeURIComponent(name)}`;
-    const generated = [
-        "<!-- BOOK-SERIES-GENERATED:START -->",
-        `# 🧩 ${series.replace(/\r?\n/g, " ")}`,
-        "",
-        `[[Книги/_index|← Библиотека]] · [🧩 Все серии](${choice("Книги - Серии")}) · [👥 Авторы](${choice("Книги - Авторы")}) · [[Книги/Цитаты|✒️ Выписки]]`,
-        "",
-        `[➕ Записать произведение в серии](${choice("Книги - Добавить книгу")})`,
-        "",
-        "> [!info] В библиотеке",
-        `> **Произведений:** ${books.length} · **Прочитано:** ${read}`,
-        "",
-        "Счётчик относится к карточкам в библиотеке, а не ко всем выпущенным частям серии.",
-        "",
-        "![[Книги/_system/_Книги.base#Серия]]",
-        "<!-- BOOK-SERIES-GENERATED:END -->"
-    ].join("\n");
+    const layoutFile = app.vault.getAbstractFileByPath("Книги/_system/series_pages.js");
+    if (!layoutFile) throw new Error("Модуль страниц серий не найден.");
+    const layout = { exports: {} };
+    new Function("module", await app.vault.read(layoutFile))(layout);
+    const generated = layout.exports.seriesRegion();
     const existing = app.vault.getAbstractFileByPath(pagePath);
     let page;
     if (existing) {
-        const region = /<!-- BOOK-SERIES-GENERATED:START -->[\s\S]*?<!-- BOOK-SERIES-GENERATED:END -->/;
-        const merge = content => region.test(content) ? content.replace(region, () => generated) : content.replace(/\s*$/, "\n\n") + generated + "\n";
+        const merge = layout.exports.mergeSeries;
         const original = await app.vault.read(existing);
         // Merge against the newest text inside the atomic Vault callback.
         if (merge(original) !== original) await app.vault.process(existing, merge);

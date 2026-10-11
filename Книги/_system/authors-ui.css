@@ -15,6 +15,11 @@
 .book-authors-ui h1.book-authors-name { font-size: clamp(29px,4vw,43px); font-weight: 650; margin: 9px 0 0; line-height: 1.12; overflow-wrap: anywhere; }
 .book-authors-ui .book-authors-subtitle { color: var(--authors-muted); margin: 9px 0 0; font-size: 14px; line-height: 1.4; }
 .book-authors-ui .book-authors-change { display: inline-flex; justify-content: center; align-items: center; min-height: 42px; border: 1px solid var(--authors-line); padding: 8px 14px; border-radius: 10px; font-size: 12px; text-decoration: none; color: var(--authors-accent); background: var(--authors-surface); }
+.book-series-ui .book-series-actions { display: flex; flex-direction: column; gap: 8px; }
+.book-series-ui .book-series-add { background: var(--authors-accent); border-color: var(--authors-accent); color: #251b11; font-weight: 650; }
+.book-series-ui :is(.book-series-authors,.book-authors-row-meta,.book-authors-row-examples) a { color: inherit; text-decoration: none; }
+.book-series-ui :is(.book-series-authors,.book-authors-row-meta,.book-authors-row-examples) a:hover { color: var(--authors-accent); text-decoration: underline; }
+.book-series-ui .book-authors-monogram { font-size: 44px; }
 .book-authors-ui .book-authors-stats { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 0; margin: 22px 0 36px; padding: 8px 0; }
 .book-authors-ui .book-authors-stat { display: flex; flex-direction: column; gap: 6px; padding: 0 18px; min-width: 0; border-left: 1px solid var(--authors-line); }
 .book-authors-ui .book-authors-stat:first-child { border-left: 0; padding-left: 0; }
@@ -52,6 +57,7 @@
 .book-authors-ui .book-authors-chip { display: flex; flex-direction: column; gap: 3px; padding: 7px; border: 1px solid var(--authors-line); border-radius: 6px; min-width: 0; }
 .book-authors-ui .book-authors-chip span { color: var(--authors-muted); font-size: 10px; overflow-wrap: anywhere; }
 .book-authors-ui .book-authors-chip strong { font-size: 14px; font-variant-numeric: tabular-nums; }
+.book-series-ui .book-authors-chip strong { overflow-wrap: anywhere; }
 .book-authors-ui .book-authors-chip.is-accent { border-color: color-mix(in srgb, var(--authors-accent) 60%, var(--authors-line)); background: color-mix(in srgb, var(--authors-accent) 10%, transparent); }
 .book-authors-ui .book-authors-chip.is-accent strong { color: var(--authors-accent); }
 .book-authors-ui .book-authors-empty { text-align: center; padding: 36px 20px; }
@@ -71,6 +77,8 @@
     .book-authors-ui .book-authors-header { display: flex; align-items: flex-start; flex-direction: column; gap: 18px; padding: 20px 0 24px; }
     .book-authors-ui .book-authors-identity { grid-template-columns: 55px minmax(0,1fr); gap: 16px; }
     .book-authors-ui .book-authors-monogram { height: 66px; font-size: 22px; border-radius: 12px; }
+    .book-series-ui .book-series-actions { flex-direction: row; flex-wrap: wrap; }
+    .book-series-ui .book-authors-monogram { font-size: 32px; }
     .book-authors-ui h1.book-authors-name { font-size: 29px; }
     .book-authors-ui .book-authors-subtitle { font-size: 13px; }
     .book-authors-ui .book-authors-stats { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 21px 0; margin: 22px 0 30px; }
