@@ -223,7 +223,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 if (seriesMode) part.setAttribute('aria-label', Number.isFinite(number) ? `Часть ${number}` : 'Без номера');
                 const main = el(card, 'div', 'book-authors-row-main');
                 internal(el(main, 'h3', 'book-authors-row-title'), item.title, item.file.path.replace(/\.md$/i, ''));
-                el(main, 'p', 'book-authors-row-meta', `${item.type} · ${item.fiction ? 'Художественное' : 'Non-fiction'} · ${item.date ? 'Читалось: ' + service.core.displayDate(item.date) : 'Дата чтения не записана'}`);
+                el(main, 'p', 'book-authors-row-meta', values([item.type, item.fiction ? 'Художественное' : 'Non-fiction', item.date ? 'Читалось: ' + service.core.displayDate(item.date) : 'Дата чтения не записана']).join(' · '));
                 if (seriesMode) authorLinks(el(main, 'p', 'book-authors-row-examples'), item.authors);
                 else {
                     if (item.series) el(main, 'p', 'book-authors-row-examples', `Серия: ${item.series}${item.seriesIndex ? ' · №' + item.seriesIndex : ''}`);

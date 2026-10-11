@@ -1,7 +1,7 @@
 // Validate every migration first, then replace presentation with recoverable originals.
 const fs = require('node:fs'), path = require('node:path'), pages = require('../series_pages.js');
 const root = path.resolve(__dirname, '../..'), backup = path.join(root, '_system/backups/series-redesign');
-const jobs = [{ file: path.join(root, '_system/Серии.md'), merge: pages.mergeOverview }];
+const jobs = [{ file: path.join(root, '_system/Серии.md'), merge: pages.mergeOverview }, { file: path.join(root, '_system/Серия.md'), merge: pages.mergePlaceholder }];
 const folder = path.join(root, '_system/Серии');
 if (fs.existsSync(folder)) for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
     if (entry.isFile() && entry.name.endsWith('.md')) jobs.push({ file: path.join(folder, entry.name), merge: pages.mergeSeries });

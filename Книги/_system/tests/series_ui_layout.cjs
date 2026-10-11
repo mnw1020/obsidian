@@ -50,6 +50,7 @@ async function main() {
                 window.seriesComponent = { children: new Set(), disposers: [], register(callback) { this.disposers.push(callback); }, addChild(child) { this.children.add(child); return child; }, removeChild(child) { this.children.delete(child); child.unload(); } };
                 const app = { vault: { getAbstractFileByPath: path => ({ path }), read: async file => file.path.endsWith('.css') ? css : 'module.exports.getService=async()=>window.seriesService;' }, workspace: { openLinkText: (...args) => window.linkCalls.push(args) }, plugins: { plugins: { quickadd: { api: { executeChoice: async (...args) => window.seriesCalls.push(args) } } } } };
                 const obsidian = { Component: class { unload() { this.unloaded = true; } }, MarkdownRenderer: { render: async (_app, markdown, container, source, child) => { window.renderCalls.push({ markdown, source }); container.textContent = 'Таблица серии'; window.tableChild = child; } } };
+                window.seriesFixture = { render: module.exports, app, obsidian };
                 window.originalSeriesSnapshot = window.seriesService.snapshot;
                 window.seriesHandle = await module.exports({ app, obsidian, dv: { container: document.querySelector('#content'), component: window.seriesComponent, current: () => ({ selected_series: selectedSeries, file: { path: 'Книги/_system/Серии/Память о прошлом Земли.md' } }) }, mode });
             }, { source, css, records, mode, selectedSeries });
@@ -114,7 +115,7 @@ async function main() {
             assert.deepEqual(clipped, []);
             if (process.env.SERIES_SCREENSHOT_DIR && !layout.pane && (layout.width === 390 && theme === 'theme-light' || layout.width === 1024 && theme === 'theme-dark')) {
                 await page.evaluate(() => window.scrollTo(0, 0));
-                await page.screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, `series-${mode}-${layout.width}.png`) });
+                await page.screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, `series-${mode}-${layout.width}.png`), fullPage: true });
             }
 
             await page.evaluate(selectedSeries => {
@@ -134,6 +135,20 @@ async function main() {
             assert.equal(await page.evaluate(() => window.subscriptions), 0);
             assert.equal(await page.evaluate(() => window.seriesComponent.children.size), 0);
             if (mode === 'series') assert.equal(await page.evaluate(() => window.tableChild.unloaded), true);
+            if (mode === 'series' && layout.width === 390 && theme === 'theme-light') {
+                await page.evaluate(async () => {
+                    document.querySelector('#content').replaceChildren();
+                    const { render, app, obsidian } = window.seriesFixture;
+                    window.emptySeriesHandle = await render({ app, obsidian, mode: 'series', dv: { container: document.querySelector('#content'), component: window.seriesComponent, current: () => ({ selected_series: '', file: { path: 'Книги/_system/Серии/Пустая.md' } }) } });
+                });
+                assert.equal(await page.locator('.book-authors-name').textContent(), 'Серия не выбрана');
+                assert.equal(await page.locator('.book-authors-row').count(), 0);
+                assert.equal(await page.locator('.book-authors-result-count').textContent(), 'Произведений: 0');
+                assert.equal(await page.getByRole('link', { name: 'Выбрать серию', exact: true }).getAttribute('data-href'), 'Книги/_system/Серии');
+                assert.equal(await page.locator('#personal').textContent(), 'Личные впечатления $& [[Ссылка]]');
+                await page.evaluate(() => window.emptySeriesHandle.dispose());
+                assert.equal(await page.evaluate(() => window.subscriptions), 0);
+            }
             assert.deepEqual(errors, []);
             checks++; await page.close();
         }

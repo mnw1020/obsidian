@@ -27,6 +27,15 @@ function mergeSeries(raw) {
 function overviewPage() {
     return '---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n';
 }
+function mergePlaceholder(raw) {
+    if (raw.includes('<!-- BOOK-SERIES-GENERATED:')) return mergeSeries(raw);
+    const legacy = ['# 🧩 Серия', '', '[[Книги/_index|← Библиотека]] · [Выбрать серию](obsidian://quickadd?choice=Книги%20-%20Открыть%20серию) · [Все серии](obsidian://quickadd?choice=Книги%20-%20Серии)', '', 'У каждой серии теперь своя постоянная страница. Открой серию по ссылке в каталоге или выбери её выше; личные заметки на её странице сохраняются при обновлении.'];
+    const escaped = legacy.map(line => line.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\r?\\n');
+    const matches = [...raw.matchAll(new RegExp('^' + escaped + '(?=\\r?\\n|$)', 'gm'))];
+    if (matches.length !== 1) throw new Error('Не распознана прежняя страница «Серия». Исходный текст сохранён.');
+    const match = matches[0];
+    return raw.slice(0, match.index) + seriesRegion().replace(/\n/g, newline(raw)) + raw.slice(match.index + match[0].length);
+}
 function legacyNav() {
     const command = (label, name) => `[${label}](obsidian://quickadd?choice=${encodeURIComponent(name)})`;
     return ['[[Книги/_index|← Библиотека]]', command('👥 Авторы', 'Книги - Авторы'), command('🧩 Серии', 'Книги - Серии'), command('🎬 Экранизации', 'Книги - Экранизации'), '[[Книги/Цитаты|✒️ Выписки]]', '[[Книги/_system/Проверка библиотеки|🔎 Проверка]]'].join(' · ');
@@ -65,4 +74,4 @@ function mergeOverview(raw) {
     const nl = newline(raw);
     return raw.slice(0, start) + overviewRegion().replace(/\n/g, nl) + nl + raw.slice(end);
 }
-module.exports = { seriesRegion, overviewPage, mergeSeries, mergeOverview };
+module.exports = { seriesRegion, overviewPage, mergeSeries, mergeOverview, mergePlaceholder };

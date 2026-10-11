@@ -31,6 +31,7 @@ makeFile('Книги/_index.md', fs.readFileSync(path.join(root,'_index.md'),'ut
 makeFile('Книги/_system/book_core.js',fs.readFileSync(path.join(root,'_system/book_core.js'),'utf8'));
 makeFile('Книги/_system/adaptations_ui.js',fs.readFileSync(path.join(root,'_system/adaptations_ui.js'),'utf8'));
 makeFile('Книги/_system/author_pages.js',fs.readFileSync(path.join(root,'_system/author_pages.js'),'utf8'));
+makeFile('Книги/_system/series_pages.js',fs.readFileSync(path.join(root,'_system/series_pages.js'),'utf8'));
 class Events {
   constructor(){this.handlers=[];}
   on(name,cb){const handle={emitter:this,name,cb};this.handlers.push(handle);return handle;}
@@ -172,6 +173,15 @@ async function main(){
  seriesA.text+=personal;
  await openSeries({...params,variables:{series:'Тёмные начала'}});
  assert.ok(seriesA.text.endsWith(personal),'series personal notes preserved');
+ seriesA.text=seriesA.text.replace('mode: "series"','mode: "broken"');
+ vault.process=async(file,fn)=>{if(file===seriesA)file.text+=concurrentText;return atomicProcess(file,fn);};
+ await openSeries({...params,variables:{series:'Тёмные начала'}});
+ assert.ok(seriesA.text.endsWith(concurrentText),'concurrent series notes preserved by atomic merge');
+ assert.match(seriesA.text,/mode: "series"/);
+ vault.process=atomicProcess;
+ const afterSeries=writes;
+ await openSeries({...params,variables:{series:'Тёмные начала'}});
+ assert.equal(writes,afterSeries,'unchanged series must not write');
  const lazy=require(path.join(root,'_system/lazy_base.js'));
  const actions=view(); await lazy({dv:actions.dv,app,obsidian,mode:'actions'});
  assert.equal(actions.dv.container.children[0].children.length,4);
