@@ -49,6 +49,27 @@ async function assertTypography(page, layout, mode) {
     assert(Math.abs(metrics.nameSize - expectedNameSize) <= .02, `Page heading size: ${metrics.nameSize}, expected ${expectedNameSize}, ${context}`);
 }
 
+async function assertInlineSeriesMetrics(page, layout) {
+    const metrics = await page.locator('.book-authors-person-row .book-authors-chip').evaluateAll(chips => chips.map(chip => {
+        const rect = chip.getBoundingClientRect(), style = getComputedStyle(chip);
+        return { text: chip.textContent, borders: ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'].map(key => parseFloat(style[key])),
+            parts: [...chip.querySelectorAll('span,strong')].map(node => {
+                const range = document.createRange(); range.selectNodeContents(node);
+                const textRect = range.getBoundingClientRect(), nodeStyle = getComputedStyle(node);
+                return { text: node.textContent, height: textRect.height, lineHeight: parseFloat(nodeStyle.lineHeight), nowrap: nodeStyle.whiteSpace, inside: textRect.left >= rect.left - 1 && textRect.right <= rect.right + 1 };
+            }) };
+    }));
+    for (const metric of metrics) {
+        assert.deepEqual(metric.borders, [0, 0, 0, 0], `Series metrics have no boxes: ${metric.text}, ${JSON.stringify(layout)}`);
+        for (const part of metric.parts) {
+            assert.equal(part.nowrap, 'nowrap', `Metric text stays intact: ${part.text}, ${JSON.stringify(layout)}`);
+            assert(part.height <= part.lineHeight + 1, `Metric text occupies one line: ${JSON.stringify(part)}, ${JSON.stringify(layout)}`);
+            assert(part.inside, `Metric text stays within its metric: ${part.text}, ${JSON.stringify(layout)}`);
+        }
+    }
+    if (layout.width === 688) assert((await page.locator('.book-authors-row').first().boundingBox()).height <= 110, 'The short Academy series row stays compact at 688px');
+}
+
 function expectedStats(mode) {
     const items = mode === 'series' ? seriesRecords : records.filter(record => String(record.fm.series || '').trim());
     const ratings = items.filter(record => record.file.path.startsWith('Книги/Художественные/') && Number.isFinite(Number(record.fm.rating)) && Number(record.fm.rating) >= 1 && Number(record.fm.rating) <= 10).map(record => Number(record.fm.rating));
@@ -63,10 +84,10 @@ async function main() {
     const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
     let checks = 0;
     try {
-        for (const layout of [{ width: 320 }, { width: 390 }, { width: 1024 }, { width: 1440, pane: 390 }]) for (const mode of ['series-index', 'series']) for (const theme of ['theme-light', 'theme-dark']) {
+        for (const layout of [{ width: 320 }, { width: 390 }, { width: 640 }, { width: 688 }, { width: 768 }, { width: 1024 }, { width: 1440, pane: 390 }]) for (const mode of ['series-index', 'series']) for (const theme of ['theme-light', 'theme-dark']) {
             const page = await browser.newPage({ viewport: { width: layout.width, height: 1100 } }), errors = [];
             page.on('pageerror', error => errors.push(error.message));
-            await page.setContent(`<style>${baseline}</style><style>${gruvboxHeadings}</style><style>${libraryCss}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered ${mode === 'series-index' ? 'books-library' : 'books-entity'}"${layout.pane ? ' style="width:' + layout.pane + 'px"' : ''}><div class="markdown-preview-sizer markdown-preview-section"><div class="inline-title">Прежний заголовок</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></div></main></body>`);
+            await page.setContent(`<style>${baseline}</style><style>${gruvboxHeadings}</style><style>${libraryCss}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered ${mode === 'series-index' ? 'books-library' : 'books-entity'}" style="${layout.pane ? 'width:' + layout.pane + 'px;' : ''}${mode === 'series-index' ? "--font-interface:'JetBrains Mono',monospace;" : ''}"><div class="markdown-preview-sizer markdown-preview-section"><div class="inline-title">Прежний заголовок</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><h2>Мои заметки</h2><p id="personal">Личные впечатления $& [[Ссылка]]</p></div></main></body>`);
             await page.evaluate(async ({ source, css, records, mode, selectedSeries }) => {
                 const module = { exports: {} }; new Function('module', source)(module);
                 window.seriesCalls = []; window.linkCalls = []; window.renderCalls = []; window.subscriptions = 0;
@@ -88,6 +109,10 @@ async function main() {
             assert.doesNotMatch(await page.locator('.book-series-ui').innerText(), /прочитано/iu, 'Series pages omit the redundant read counter');
             const initial = await page.locator('.book-authors-row').count(); assert(initial > 0);
             await assertTypography(page, layout, mode);
+            if (mode === 'series-index') {
+                await assertInlineSeriesMetrics(page, layout);
+                if (process.env.SERIES_SCREENSHOT_DIR && layout.width === 688 && theme === 'theme-dark') await page.locator('.book-authors-row').first().screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, 'series-row-688.png') });
+            }
             const stats = await page.locator('.book-authors-stat').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.querySelector('.book-authors-stat-label').textContent, node.querySelector('.book-authors-stat-value').textContent])));
             assert.deepEqual(stats, expectedStats(mode));
             assert.equal(await page.evaluate(() => window.renderCalls.length), 0, 'The Base is not rendered before expansion');
@@ -143,7 +168,7 @@ async function main() {
             assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${mode},${theme},${JSON.stringify(layout)}`);
             const clipped = await page.locator('.book-series-ui').evaluate(root => [...root.querySelectorAll('input,select,.book-authors-chip,.book-authors-row-title')].filter(node => node.getBoundingClientRect().right > root.getBoundingClientRect().right + 1).map(node => node.className));
             assert.deepEqual(clipped, []);
-            if (process.env.SERIES_SCREENSHOT_DIR && !layout.pane && (layout.width === 390 && theme === 'theme-light' || layout.width === 1024 && theme === 'theme-dark')) {
+            if (process.env.SERIES_SCREENSHOT_DIR && !layout.pane && (layout.width === 390 && theme === 'theme-light' || [688, 1024].includes(layout.width) && theme === 'theme-dark')) {
                 await page.evaluate(() => window.scrollTo(0, 0));
                 await page.screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, `series-${mode}-${layout.width}.png`), fullPage: true });
             }
