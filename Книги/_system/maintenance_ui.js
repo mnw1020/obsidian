@@ -5,7 +5,7 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
     const source = mode === 'journal' ? journalPath : 'Книги/_system/Проверка библиотеки.md';
     const stateKey = '_bookMaintenanceView';
     dv.component?.[stateKey]?.dispose();
-    let disposed = false, generation = 0, timer, busy = false, activeChild = null;
+    let disposed = false, generation = 0, activeVersion = 0, timer, busy = false, activeChild = null;
     const cleanups = [], children = new Set(), actions = [];
     const doc = dv.container.ownerDocument;
     function el(parent, tag, cls = '', text) {
@@ -18,11 +18,15 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
     root.dataset.mode = mode; root.dataset.ready = 'false';
     const handle = { dispose, reload };
     if (dv.component) { dv.component[stateKey] = handle; dv.component.register?.(dispose); }
+    if (disposed) return handle;
     const fileNames = ['authors-ui.css', 'maintenance-ui.css', 'maintenance_pages.js'];
     const files = fileNames.map(name => app.vault.getAbstractFileByPath('Книги/_system/' + name));
     if (files.some(file => !file)) { dispose(); throw new Error('Не найдены модули страниц обслуживания библиотеки.'); }
     const texts = await Promise.all(files.map(file => app.vault.read(file)));
     if (disposed) return handle;
+    if (!obsidian.MarkdownRenderer?.render) {
+        dispose(); throw new Error('Средство отображения Markdown недоступно. Данные страницы приведены ниже.');
+    }
     el(root, 'style', '', texts[0] + '\n' + texts[1]);
     const module = { exports: {} }; new Function('module', texts[2])(module);
     const pages = module.exports;
@@ -100,8 +104,7 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
         if (dv.component?.removeChild) dv.component.removeChild(child); else child.unload?.();
     }
     async function markdown(text, target, child) {
-        if (obsidian.MarkdownRenderer?.render) await obsidian.MarkdownRenderer.render(app, text, target, source, child || dv.component);
-        else el(target, 'p', '', text);
+        await obsidian.MarkdownRenderer.render(app, text, target, source, child || dv.component);
     }
     function sectionHeading(parent, title, count) {
         const row = el(parent, 'div', 'book-authors-section-heading');
@@ -118,6 +121,7 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
             if (disposed || version !== generation) return;
             const draft = doc.createElement('div');
             const model = mode === 'audit' ? pages.parseAudit(text) : pages.parseJournal(text);
+            if (mode === 'audit' && !model.sections.length) throw new Error('В отчёте нет разделов проверки. Запустите проверку библиотеки.');
             child = makeChild();
             if (mode === 'audit') {
                 const stats = el(draft, 'div', 'book-authors-stats');
@@ -140,8 +144,9 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
                     const body = el(details, 'div', 'book-maintenance-markdown');
                     let loaded = false;
                     const load = async () => {
-                        if (loaded || disposed || version !== generation) return;
+                        if (loaded || disposed || version !== generation && version !== activeVersion) return;
                         loaded = true;
+                        body.replaceChildren();
                         try { await markdown(section.markdown, body, child); }
                         catch (problem) { loaded = false; throw problem; }
                     };
@@ -168,8 +173,9 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
             }
             if (disposed || version !== generation) { release(child); return; }
             content.replaceChildren(...draft.childNodes);
-            release(activeChild); activeChild = child;
+            release(activeChild); activeChild = child; activeVersion = version;
             if (clearButton) { clearButton.dataset.empty = String(model.length === 0); clearButton.disabled = busy || model.length === 0; }
+            status.hidden = true;
             root.dataset.ready = 'true';
         } catch (problem) {
             release(child);

@@ -15,12 +15,12 @@ const baseline = `*{box-sizing:border-box}body{margin:0;font:16px/1.5 "JetBrains
 // Portable copy of the active gruvbox heading rules, including their cascade priority.
 const gruvboxHeadings = `.cm-header-1,.markdown-preview-section h1{font-weight:900!important;font-size:2.2em!important;color:var(--text-title-h1)!important}.cm-header-2,.markdown-preview-section h2{font-weight:900!important;font-size:2em!important;color:var(--text-title-h2)!important}.cm-header-3,.markdown-preview-section h3{font-weight:900!important;font-size:1.8em!important;color:var(--text-title-h3)!important}`;
 
-async function mount(browser, layout, mode, theme) {
+async function mount(browser, layout, mode, theme, options = {}) {
     const page = await browser.newPage({ viewport: { width: layout.width, height: 1100 } }), errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('dialog', dialog => dialog.accept());
     await page.setContent(`<style>${baseline}</style><style>${gruvboxHeadings}</style><style>${sources['Книги/_system/books-library.css']}</style><body class="${theme}"><main class="markdown-preview-view markdown-rendered books-library books-maintenance-page"><div class="markdown-preview-sizer markdown-preview-section"><div class="inline-title">Прежний заголовок</div><div class="el-pre"><div id="content" class="block-language-dataviewjs block-language-dataview"></div></div><div class="el-h1" id="native-title"><h1>Исходный заголовок</h1></div><div class="el-p" id="native-body"><p>Исходный Markdown отчёта или журнала</p></div></div></main></body>`);
-    await page.evaluate(async ({ sources, auditText, journalText, auditPath, journalPath, mode }) => {
+    await page.evaluate(async ({ sources, auditText, journalText, auditPath, journalPath, mode, missingRenderer }) => {
         class Events {
             constructor() { this.refs = new Set(); }
             on(name, callback) { const ref = { emitter: this, name, callback }; this.refs.add(ref); return ref; }
@@ -66,20 +66,23 @@ async function mount(browser, layout, mode, theme) {
         }
         const obsidian = { Component, normalizePath: path => path, Notice: class { constructor(message) { notices.push(String(message)); } }, MarkdownRenderer: { render: async (_app, markdown, container, source, child) => {
             renderCalls.push({ markdown, source, child });
+            if (window.fixture?.failNextMarkdown) { window.fixture.failNextMarkdown = false; container.append(document.createTextNode('Частично отображённый раздел')); throw new Error('Simulated Markdown failure'); }
             for (const line of String(markdown).split(/\r?\n/)) {
                 if (!line.trim() || /^\s*<!--/.test(line)) continue;
                 const heading = line.match(/^(#{1,6})\s+(.+)$/), node = document.createElement(heading ? 'h' + heading[1].length : line.startsWith('- ') ? 'li' : 'p');
                 inline(node, heading ? heading[2] : line.replace(/^[->]\s*/, '')); container.append(node);
             }
         } } };
+        if (missingRenderer) delete obsidian.MarkdownRenderer;
         const dv = { container: document.querySelector('#content'), component, current: () => ({ file: { path: sourcePath } }), paragraph: text => { const p = document.createElement('p'); p.textContent = text; document.querySelector('#content').append(p); } };
         window.fixture = { map, vault, metadataCache, app, component, components, processCalls, modifyCalls, choices, opened, renderCalls, notices,
             appendJournal() { const file = map.get(journalPath); file.text += '\n<!-- BOOK-LIBRARY-EVENT at="2026-10-12T19:30:00" normalization="false" structure="true" -->\n## 12.10.2026 19:30\n\n- Новое событие после очистки: [[Книги/Художественные/Не менять|Не менять]].\n'; vault.emit('modify', file); }
         };
         const module = { exports: {} }; new Function('module', sources['Книги/_system/maintenance_ui.js'])(module);
-        window.handle = await module.exports({ dv, app, obsidian, mode });
-    }, { sources, auditText, journalText, auditPath, journalPath, mode });
-    await page.waitForSelector('.book-maintenance-ui[data-ready="true"]');
+        try { window.handle = await module.exports({ dv, app, obsidian, mode }); }
+        catch (problem) { if (!missingRenderer) throw problem; window.fixture.initialError = String(problem.message || problem); }
+    }, { sources, auditText, journalText, auditPath, journalPath, mode, missingRenderer: Boolean(options.missingRenderer) });
+    if (!options.missingRenderer) await page.waitForSelector('.book-maintenance-ui[data-ready="true"]');
     return { page, errors };
 }
 
@@ -107,6 +110,40 @@ async function assertBounded(page, context) {
         }).map(node => ({ className: node.className, text: node.textContent.slice(0, 80) }));
     });
     assert.deepEqual(overflowing, [], context);
+}
+
+async function checkAuditFailures(browser) {
+    const { page, errors } = await mount(browser, { width: 688 }, 'audit', 'theme-dark');
+    await page.evaluate(async path => {
+        window.fixture.savedAudit = window.fixture.map.get(path); window.fixture.map.delete(path);
+        await window.handle.reload();
+    }, auditPath);
+    assert.equal(await page.locator('.book-maintenance-status').isVisible(), true, 'Failed refresh reports its error');
+    const oldSection = page.locator('.book-maintenance-section').filter({ has: page.locator('summary', { hasText: 'Возможные экранизации' }) });
+    await oldSection.locator('summary').click();
+    await page.waitForFunction(() => [...document.querySelectorAll('.book-maintenance-section')].some(section => section.querySelector('summary').textContent.includes('Возможные экранизации') && section.querySelector('a.internal-link')));
+    assert((await oldSection.locator('a.internal-link').count()) > 0, 'The previous snapshot keeps its lazy sections after a failed refresh');
+    await page.evaluate(async path => { window.fixture.map.set(path, window.fixture.savedAudit); await window.handle.reload(); }, auditPath);
+    assert.equal(await page.locator('.book-maintenance-status').isVisible(), false, 'Successful refresh hides the stale error');
+    const retry = page.locator('.book-maintenance-section').filter({ has: page.locator('summary', { hasText: 'Что проверяется' }) });
+    await page.evaluate(() => { window.fixture.failNextMarkdown = true; });
+    await retry.locator('summary').click();
+    await page.waitForFunction(() => [...document.querySelectorAll('.book-maintenance-section')].some(section => section.querySelector('summary').textContent.includes('Что проверяется') && section.textContent.includes('Simulated Markdown failure')));
+    await retry.locator('summary').click(); await retry.locator('summary').click();
+    await page.waitForFunction(() => [...document.querySelectorAll('.book-maintenance-section')].some(section => section.querySelector('summary').textContent.includes('Что проверяется') && section.textContent.includes('обязательные')));
+    assert.doesNotMatch(await retry.innerText(), /Не удалось показать раздел|Simulated Markdown failure|Частично отображённый раздел/u, 'Retry replaces the failed body');
+    await assertBounded(page, 'audit failed-refresh and lazy-retry at 688px');
+    await page.evaluate(() => { window.handle.dispose(); window.fixture.component.unload(); });
+    assert.equal(await page.evaluate(() => window.fixture.vault.refs.size), 0);
+    assert.deepEqual(errors, []); await page.close();
+
+    const missing = await mount(browser, { width: 688 }, 'audit', 'theme-dark', { missingRenderer: true });
+    assert.match(await missing.page.evaluate(() => window.fixture.initialError), /Markdown/u);
+    assert.equal(await missing.page.locator('.book-maintenance-ui').count(), 0, 'An unavailable Markdown renderer disposes the UI');
+    for (const selector of ['#native-title', '#native-body']) assert.equal(await missing.page.locator(selector).isVisible(), true, 'Native fallback stays visible without MarkdownRenderer');
+    await missing.page.evaluate(() => window.fixture.component.unload());
+    assert.equal(await missing.page.evaluate(() => window.fixture.vault.refs.size), 0);
+    assert.deepEqual(missing.errors, []); await missing.page.close();
 }
 
 async function main() {
@@ -141,6 +178,10 @@ async function main() {
                 assert.equal(await clear.isDisabled(), false);
                 await clear.click();
                 await page.waitForFunction(() => document.querySelector('.book-maintenance-clear')?.disabled === true && document.querySelectorAll('.book-maintenance-entry').length === 0);
+                if (process.env.MAINTENANCE_SCREENSHOT_DIR && layout.width === 688 && theme === 'theme-dark') {
+                    await page.evaluate(() => window.scrollTo(0, 0));
+                    await page.screenshot({ path: path.join(process.env.MAINTENANCE_SCREENSHOT_DIR, 'journal-empty-688.png'), fullPage: true });
+                }
                 assert.deepEqual(await page.evaluate(() => window.fixture.processCalls), [journalPath], 'Clearing uses one atomic journal process');
                 assert.deepEqual(await page.evaluate(() => window.fixture.modifyCalls), [], 'Clearing does not replace the journal through a stale read');
                 assert.equal(await page.evaluate(path => window.fixture.map.get(path).text, journalPath), helper.clearJournal(journalText));
@@ -159,7 +200,8 @@ async function main() {
             for (const selector of ['#native-title', '#native-body']) assert.equal(await page.locator(selector).isVisible(), true, 'Native fallback returns after cleanup');
             assert.deepEqual(errors, []); checks++; await page.close();
         }
+        await checkAuditFailures(browser);
     } finally { await browser.close(); }
-    console.log(`${checks} maintenance Chromium scenarios passed: audit actions and lazy links, journal entries/atomic clear/empty/append, theme typography, narrow panes and cleanup.`);
+    console.log(`${checks} maintenance Chromium scenarios and audit failure regressions passed: audit actions and lazy links, journal entries/atomic clear/empty/append, theme typography, narrow panes and cleanup.`);
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
