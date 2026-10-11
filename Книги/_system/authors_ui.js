@@ -205,8 +205,10 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 const meta = el(main, 'p', 'book-authors-row-meta');
                 if (seriesMode) authorLinks(meta, [...row.authors].sort(compare));
                 else meta.textContent = row.items.some(item => item.fiction) ? row.items.some(item => !item.fiction) ? 'Художественные · Non-fiction' : 'Художественные' : 'Non-fiction';
-                const examples = [...row.items].sort((a, b) => compare(b.date, a.date)).slice(0, 3).map(item => item.title).join(' · ');
-                el(main, 'p', 'book-authors-row-examples', examples);
+                if (!seriesMode) {
+                    const examples = [...row.items].sort((a, b) => compare(b.date, a.date)).slice(0, 3).map(item => item.title).join(' · ');
+                    el(main, 'p', 'book-authors-row-examples', examples);
+                }
                 const chips = el(card, 'div', 'book-authors-chips');
                 chip(chips, 'В коллекции', row.count);
                 if (seriesMode) {

@@ -50,24 +50,36 @@ async function assertTypography(page, layout, mode) {
 }
 
 async function assertCompactSeriesMetrics(page, layout) {
-    const metrics = await page.locator('.book-authors-person-row .book-authors-chip').evaluateAll(chips => chips.map(chip => {
-        const rect = chip.getBoundingClientRect(), style = getComputedStyle(chip);
-        return { text: chip.textContent, borders: ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'].map(key => parseFloat(style[key])),
-            parts: [...chip.querySelectorAll('span,strong')].map(node => {
-                const range = document.createRange(); range.selectNodeContents(node);
-                const textRect = range.getBoundingClientRect(), nodeStyle = getComputedStyle(node);
-                return { text: node.textContent, height: textRect.height, lineHeight: parseFloat(nodeStyle.lineHeight), nowrap: nodeStyle.whiteSpace, inside: textRect.left >= rect.left - 1 && textRect.right <= rect.right + 1 };
-            }) };
+    const rows = await page.locator('.book-authors-person-row').evaluateAll(rows => rows.map(row => {
+        const main = row.querySelector('.book-authors-row-main').getBoundingClientRect(), root = row.closest('.book-series-ui').getBoundingClientRect();
+        return { mainRight: main.right, metrics: [...row.querySelectorAll('.book-authors-chip')].map(chip => {
+            const rect = chip.getBoundingClientRect(), style = getComputedStyle(chip), value = chip.querySelector('strong'), range = document.createRange();
+            range.selectNodeContents(value);
+            const textRect = range.getBoundingClientRect(), valueStyle = getComputedStyle(value);
+            const labelRange = document.createRange(); labelRange.selectNodeContents(chip.querySelector('span'));
+            const labelRect = labelRange.getBoundingClientRect();
+            return { text: chip.textContent, width: rect.width, height: rect.height, left: rect.left, inRoot: rect.left >= root.left - 1 && rect.right <= root.right + 1,
+                borders: ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'].map(key => parseFloat(style[key])),
+                labelInside: labelRect.left >= rect.left - 1 && labelRect.right <= rect.right + 1 && labelRect.top >= rect.top - 1 && labelRect.bottom <= rect.bottom + 1,
+                value: { text: value.textContent, height: textRect.height, lineHeight: parseFloat(valueStyle.lineHeight), nowrap: valueStyle.whiteSpace, inside: textRect.left >= rect.left - 1 && textRect.right <= rect.right + 1 && textRect.top >= rect.top - 1 && textRect.bottom <= rect.bottom + 1 } };
+        }) };
     }));
-    for (const metric of metrics) {
-        assert.deepEqual(metric.borders, [1, 1, 1, 1], `Series metrics retain compact frames: ${metric.text}, ${JSON.stringify(layout)}`);
-        for (const part of metric.parts) {
-            assert.equal(part.nowrap, 'nowrap', `Metric text stays intact: ${part.text}, ${JSON.stringify(layout)}`);
-            assert(part.height <= part.lineHeight + 1, `Metric text occupies one line: ${JSON.stringify(part)}, ${JSON.stringify(layout)}`);
-            assert(part.inside, `Metric text stays within its metric: ${part.text}, ${JSON.stringify(layout)}`);
+    for (const row of rows) {
+        assert.equal(row.metrics.length, 3, 'Each series card has three metrics');
+        for (const metric of row.metrics) {
+            assert.deepEqual(metric.borders, [1, 1, 1, 1], `Series metrics retain frames: ${metric.text}, ${JSON.stringify(layout)}`);
+            assert(Math.abs(metric.width - metric.height) <= 1, `Series metrics are square: ${metric.text}, ${JSON.stringify(layout)}`);
+            assert(Math.abs(metric.width - row.metrics[0].width) <= 1 && Math.abs(metric.height - row.metrics[0].height) <= 1, 'The three squares have equal dimensions');
+            assert(metric.left >= row.mainRight - 1, `Series metrics stay to the right of the title and author: ${metric.text}, ${JSON.stringify(layout)}`);
+            assert(metric.inRoot, `Series metric stays within the root: ${metric.text}, ${JSON.stringify(layout)}`);
+            assert(metric.labelInside, `Metric label stays within its square: ${metric.text}, ${JSON.stringify(layout)}`);
+            const value = metric.value;
+            assert.equal(value.nowrap, 'nowrap', `Number or date stays intact: ${value.text}, ${JSON.stringify(layout)}`);
+            assert(value.height <= value.lineHeight + 1, `Number or date occupies one line: ${JSON.stringify(value)}, ${JSON.stringify(layout)}`);
+            assert(value.inside, `Number or date stays within its square: ${value.text}, ${JSON.stringify(layout)}`);
         }
     }
-    if (layout.width === 688) assert((await page.locator('.book-authors-row').first().boundingBox()).height <= 110, 'The short Academy series row stays compact at 688px');
+    if (layout.width === 688) assert((await page.locator('.book-authors-row').first().boundingBox()).height <= 110, 'The first series row stays compact at 688px');
 }
 
 function expectedStats(mode) {
@@ -110,6 +122,7 @@ async function main() {
             const initial = await page.locator('.book-authors-row').count(); assert(initial > 0);
             await assertTypography(page, layout, mode);
             if (mode === 'series-index') {
+                assert.equal(await page.locator('.book-authors-person-row .book-authors-row-examples').count(), 0, 'Series cards omit the list of book titles');
                 await assertCompactSeriesMetrics(page, layout);
                 if (process.env.SERIES_SCREENSHOT_DIR && layout.width === 688 && theme === 'theme-dark') await page.locator('.book-authors-row').first().screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, 'series-row-688.png') });
             }
@@ -180,6 +193,7 @@ async function main() {
             if (mode === 'series-index') {
                 await page.getByLabel(searchLabel, { exact: true }).fill(selectedSeries);
                 await page.waitForFunction(count => document.querySelector('.book-authors-chips strong')?.textContent === String(count), seriesRecords.length + 1);
+                await assertCompactSeriesMetrics(page, layout);
             } else {
                 await page.waitForFunction(count => document.querySelector('.book-authors-result-count')?.textContent === `Произведений: ${count}`, seriesRecords.length + 1);
                 assert.equal(await page.locator('.book-authors-row-title a').last().textContent(), 'Новая книга серии', 'A part without a series index appears last');
