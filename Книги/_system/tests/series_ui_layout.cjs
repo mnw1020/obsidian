@@ -49,7 +49,7 @@ async function assertTypography(page, layout, mode) {
     assert(Math.abs(metrics.nameSize - expectedNameSize) <= .02, `Page heading size: ${metrics.nameSize}, expected ${expectedNameSize}, ${context}`);
 }
 
-async function assertInlineSeriesMetrics(page, layout) {
+async function assertCompactSeriesMetrics(page, layout) {
     const metrics = await page.locator('.book-authors-person-row .book-authors-chip').evaluateAll(chips => chips.map(chip => {
         const rect = chip.getBoundingClientRect(), style = getComputedStyle(chip);
         return { text: chip.textContent, borders: ['borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth'].map(key => parseFloat(style[key])),
@@ -60,7 +60,7 @@ async function assertInlineSeriesMetrics(page, layout) {
             }) };
     }));
     for (const metric of metrics) {
-        assert.deepEqual(metric.borders, [0, 0, 0, 0], `Series metrics have no boxes: ${metric.text}, ${JSON.stringify(layout)}`);
+        assert.deepEqual(metric.borders, [1, 1, 1, 1], `Series metrics retain compact frames: ${metric.text}, ${JSON.stringify(layout)}`);
         for (const part of metric.parts) {
             assert.equal(part.nowrap, 'nowrap', `Metric text stays intact: ${part.text}, ${JSON.stringify(layout)}`);
             assert(part.height <= part.lineHeight + 1, `Metric text occupies one line: ${JSON.stringify(part)}, ${JSON.stringify(layout)}`);
@@ -110,7 +110,7 @@ async function main() {
             const initial = await page.locator('.book-authors-row').count(); assert(initial > 0);
             await assertTypography(page, layout, mode);
             if (mode === 'series-index') {
-                await assertInlineSeriesMetrics(page, layout);
+                await assertCompactSeriesMetrics(page, layout);
                 if (process.env.SERIES_SCREENSHOT_DIR && layout.width === 688 && theme === 'theme-dark') await page.locator('.book-authors-row').first().screenshot({ path: path.join(process.env.SERIES_SCREENSHOT_DIR, 'series-row-688.png') });
             }
             const stats = await page.locator('.book-authors-stat').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [node.querySelector('.book-authors-stat-label').textContent, node.querySelector('.book-authors-stat-value').textContent])));
