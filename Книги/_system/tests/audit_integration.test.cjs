@@ -15,6 +15,7 @@ function harness() {
         return entry;
     }
     const core = file('Книги/_system/book_core.js', fs.readFileSync(path.join(__dirname, '../book_core.js'), 'utf8'));
+    file('Книги/_system/maintenance_pages.js', fs.readFileSync(path.join(__dirname, '../maintenance_pages.js'), 'utf8'));
     const report = file(reportPath, 'Исходный отчёт');
     const home = file('Книги/_index.md', '<!-- BOOK-HOME-STATS:START -->Не менять<!-- BOOK-HOME-STATS:END -->');
     const books = ['Автор', 'автор'].map((author, i) => file(`Книги/Художественные/${i}.md`, `---\ntitle: "Книга ${i}"\nauthors: ["${author}"]\ndate: "2024-10"\nread_count: 1\nrating: 8\n---\n\n${history}`));
@@ -52,10 +53,14 @@ test('plain audit with author variants never prompts normalization or writes boo
     assert.match(h.report.text, /Варианты написания одного автора/);
     assert.equal(fromText(h.report.text).obsidianUIMode, 'preview');
     assert.deepEqual(fromText(h.report.text).cssclasses, ['books-library']);
+    assert.match(h.report.text, /mode: "audit"/);
+    assert.equal(h.report.text.split('<!-- BOOK-MAINTENANCE:START -->').length - 1, 1);
     assert.deepEqual(h.opened, [h.report.path]);
     h.report.text += '\nПредыдущее состояние отчёта.\n';
     await audit(h);
     assert.deepEqual(fromText(h.report.text).cssclasses, ['books-library'], 'report regeneration retains the palette scope');
+    assert.match(h.report.text, /mode: "audit"/);
+    assert.equal(h.report.text.split('<!-- BOOK-MAINTENANCE:START -->').length - 1, 1);
     assert.deepEqual([...h.books, h.home].map(file => file.text), originals);
 });
 
@@ -67,6 +72,29 @@ test('audit refuses to overwrite a concurrently changed service report and leave
     assert.deepEqual(h.mutations, []);
     assert.deepEqual(h.prompts, []);
     assert.deepEqual([...h.books, h.home].map(file => file.text), originals);
+});
+
+test('normalization creates and appends the decorated journal through the common storage path', async () => {
+    const h = harness(), pages = require('../maintenance_pages.js');
+    const journalPath = 'Книги/_system/Журнал изменений.md';
+    h.app.vault.process = async (entry, transform) => { const next = transform(entry.text); if (next !== entry.text) { h.mutations.push(entry.path); entry.text = next; } };
+    h.app.vault.create = async (filePath, text) => {
+        assert.equal(filePath, journalPath); assert.equal(h.app.vault.getAbstractFileByPath(filePath), undefined);
+        h.mutations.push(filePath); return h.file(filePath, text);
+    };
+    h.quickAddApi.suggester = async (labels, values) => values.includes('normalize') ? 'normalize' : values.includes('Автор') ? 'Автор' : values[0];
+    await audit({ ...h, variables: { bookNormalize: true } });
+    const journal = h.app.vault.getAbstractFileByPath(journalPath);
+    assert.ok(journal); assert.match(journal.text, /mode: "journal"/);
+    assert.match(journal.text, /normalization="true" structure="true"/);
+    assert.match(pages.parseJournal(journal.text)[0].markdown, /Автор: \*\*автор\*\* → \*\*Автор\*\*/);
+    assert.deepEqual(h.books.map(file => fromText(file.text).authors), [['Автор'], ['Автор']]);
+    journal.text = pages.clearJournal(journal.text);
+    h.books[1].text = h.books[1].text.replace('authors: ["Автор"]', 'authors: ["автор"]');
+    await audit({ ...h, variables: { bookNormalize: true } });
+    assert.equal(pages.parseJournal(journal.text).length, 1, 'normalization after clear adds just the new event');
+    assert.equal(journal.text.split('<!-- BOOK-MAINTENANCE:START -->').length - 1, 1);
+    assert.match(h.report.text, /mode: "audit"/);
 });
 
 function addFields(file, fields) {

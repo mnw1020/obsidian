@@ -579,25 +579,7 @@ module.exports = async (params) => {
 
     async function appendNormalizationJournal(entries) {
         if (!entries.length) return;
-        const now = new Date();
-        const pad = n => String(n).padStart(2, "0");
-        const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-        const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        let block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="true" structure="true" -->\n`;
-        block += `## ${stamp}\n\n`;
-        for (const entry of entries) {
-            block += `- ${entry.type}: **${entry.from}** → **${entry.to}**, изменено книг: **${entry.count}**.\n`;
-        }
-        block += "\n";
-
-        const path = normalizePath(CHANGELOG_PATH);
-        let file = app.vault.getAbstractFileByPath(path);
-        if (!file) {
-            const header = "# Журнал изменений\n\n[[Книги/_index|← Книги]] · [👥 Авторы](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%8B) · [🧩 Серии](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%A1%D0%B5%D1%80%D0%B8%D0%B8) · [🎬 Экранизации](obsidian://quickadd?choice=%D0%9A%D0%BD%D0%B8%D0%B3%D0%B8%20-%20%D0%AD%D0%BA%D1%80%D0%B0%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8) · [[Книги/_system/Проверка библиотеки|🔎 Проверка]] · [[Книги/_system/Журнал изменений|📜 Журнал]]\n\n> Автоматическая история обслуживания книжной базы.\n\n";
-            file = await app.vault.create(path, "---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n" + header + block);
-            return;
-        }
-        await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
+        await core.appendJournal(entries.map(entry => `${entry.type}: **${entry.from}** → **${entry.to}**, изменено книг: **${entry.count}**.`), true, true);
     }
 
     try {
@@ -1228,6 +1210,7 @@ module.exports = async (params) => {
     report += "- взаимность `related` ↔ `related` между книгами и карточками кино, включая связи внутри коллекции, и `continued_by` ↔ `continues` между книгами; новые пары добавляются явно в `RELATION_RULES`;\n";
     report += "- книги без `adaptations`, у которых найден фильм/сериал с очень похожим названием — только как подсказка, без автосвязи.\n";
 
+    report = await core.maintenancePage(report, "audit");
     const reportFile = await core.writeIfChanged(normalizePath(REPORT_PATH), report);
 
     new Notice(`Проверка завершена: ошибок ${errors.length + cinemaErrors.length + mutualErrors.length}, предупреждений ${warnings.length}`);

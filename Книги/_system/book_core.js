@@ -295,20 +295,41 @@ module.exports = ({ app, obsidian }) => {
         const updated = current.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block);
         if (updated !== current) await app.vault.process(home, data => data.replace(/<!-- BOOK-HOME-STATS:START -->[\s\S]*?<!-- BOOK-HOME-STATS:END -->/, block));
     }
+    let maintenanceLayout;
+    async function maintenancePages() {
+        const file = app.vault.getAbstractFileByPath("Книги/_system/maintenance_pages.js");
+        if (!file) return null;
+        if (!maintenanceLayout) {
+            const layout = { exports: {} };
+            new Function("module", await app.vault.read(file))(layout);
+            maintenanceLayout = layout.exports;
+        }
+        return maintenanceLayout;
+    }
+    async function maintenancePage(text, mode) {
+        const layout = await maintenancePages();
+        return layout ? layout.page(text, mode) : text;
+    }
     async function appendJournal(lines, structural = true, normalization = false) {
         if (!lines.length) return;
         const now = new Date(), pad = value => String(value).padStart(2, "0");
         const iso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
         const stamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
         const block = `<!-- BOOK-LIBRARY-EVENT at="${iso}" normalization="${normalization}" structure="${structural}" -->\n## ${stamp}\n\n` + lines.map(line => `- ${line}\n`).join("") + "\n";
+        const layout = await maintenancePages();
+        const decorate = text => layout ? layout.page(text, "journal") : text;
         let file = app.vault.getAbstractFileByPath(JOURNAL_PATH);
         if (!file) {
-            try { await app.vault.create(JOURNAL_PATH, `---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Журнал изменений\n\n[[Книги/_index|← Книги]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`); return; }
+            try { await app.vault.create(JOURNAL_PATH, decorate(`---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Журнал изменений\n\n[[Книги/_index|← Книги]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`)); return; }
             catch (error) { file = app.vault.getAbstractFileByPath(JOURNAL_PATH); if (!file) throw error; }
         }
-        await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
+        await app.vault.process(file, current => {
+            const nl = current.includes("\r\n") ? "\r\n" : "\n";
+            const separator = current.endsWith(nl + nl) ? "" : current.endsWith(nl) ? nl : nl + nl;
+            return decorate(current + separator + block.replace(/\n/g, nl));
+        });
     }
     return { getFrontmatter, remember, readFrontmatter, refreshFrontmatter, isCandidateBook, isBook, isFiction, books, snapshot, stats,
         listValues, displayDate, isValidDate, parseHistory, renderEntry, summary, patchSummary, patchProperties, updateFrontmatter, appendReading, editReading,
-        updateHomeStats, writeIfChanged, appendJournal, HISTORY_START, HISTORY_END, COMMENT_MARK };
+        updateHomeStats, writeIfChanged, maintenancePage, appendJournal, HISTORY_START, HISTORY_END, COMMENT_MARK };
 };
