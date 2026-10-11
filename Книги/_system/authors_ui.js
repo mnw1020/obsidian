@@ -61,12 +61,12 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     const heading = el(identity, 'div', 'book-authors-heading');
     el(heading, 'div', 'book-authors-eyebrow', `Библиотека / ${index ? catalogue : seriesMode ? 'Серия' : 'Автор'}`);
     el(heading, 'h1', 'book-authors-name', index ? seriesMode ? 'Все серии' : 'Все авторы' : selectedName || (seriesMode ? 'Серия не выбрана' : 'Автор не выбран'));
-    el(heading, 'p', 'book-authors-subtitle', seriesMode ? index ? 'Книжные циклы и ваши впечатления' : 'Порядок частей и ваши впечатления' : index ? 'Писатели, книги и ваши впечатления' : 'Произведения и ваши впечатления');
+    if (!seriesMode) el(heading, 'p', 'book-authors-subtitle', index ? 'Писатели, книги и ваши впечатления' : 'Произведения и ваши впечатления');
     const seriesAuthors = seriesMode && !index ? el(heading, 'p', 'book-authors-subtitle book-series-authors') : null;
     if (!index) {
         const actions = seriesMode ? el(header, 'div', 'book-series-actions') : header;
         if (seriesMode) commandLink(actions, 'Добавить произведение', 'Книги - Добавить книгу', null, null, 'book-authors-change book-series-add');
-        internal(actions, seriesMode ? 'Выбрать серию' : 'Выбрать автора', `Книги/_system/${catalogue}`, 'book-authors-change');
+        if (!seriesMode) internal(actions, 'Выбрать автора', `Книги/_system/${catalogue}`, 'book-authors-change');
     }
     const stats = el(root, 'div', 'book-authors-stats');
     const section = el(root, 'section', 'book-authors-collection');
@@ -136,11 +136,6 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         });
     }
     const error = el(root, 'p', 'book-authors-warning');
-    const info = el(root, 'details', 'book-authors-info');
-    el(info, 'summary', '', 'Об оценках и подсчётах');
-    el(info, 'p', '', seriesMode
-        ? 'Количество относится к произведениям в вашей библиотеке. Порядок частей берётся из номера в серии; части без номера показаны в конце. Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений. Год и последнее чтение определяются по истории; даты до месяца или года сохраняют свою точность. Фильтры меняют список, показатели в шапке относятся ко всей коллекции серии или каталога.'
-        : 'Средняя оценка и любимые 8–10 — по текущим оценкам художественных произведений в карточках. Баллы симпатии — сумма превышения оценок над 5. Строки отражают произведения выбранной категории и года. Год определяется по истории чтений; дата только до месяца или года сохраняет свою точность. Показатели в шапке относятся ко всей коллекции автора или библиотеки.');
     for (const [input, event] of [[search, 'input'], [year, 'change'], [sort, 'change']]) listen(input, event, draw);
     function el(parent, tag, cls, text) {
         const node = parent.ownerDocument.createElement(tag);
@@ -230,11 +225,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 const main = el(card, 'div', 'book-authors-row-main');
                 internal(el(main, 'h3', 'book-authors-row-title'), item.title, item.file.path.replace(/\.md$/i, ''));
                 el(main, 'p', 'book-authors-row-meta', values([item.type, item.fiction ? 'Художественное' : 'Non-fiction', item.date ? 'Читалось: ' + service.core.displayDate(item.date) : 'Дата чтения не записана']).join(' · '));
-                if (seriesMode) authorLinks(el(main, 'p', 'book-authors-row-examples'), item.authors);
-                else {
-                    if (item.series) el(main, 'p', 'book-authors-row-examples', `Серия: ${item.series}${item.seriesIndex ? ' · №' + item.seriesIndex : ''}`);
-                    if (item.authors.length > 1) el(main, 'p', 'book-authors-row-examples', `Авторы: ${item.authors.join(', ')}`);
-                }
+                if (!seriesMode && item.series) el(main, 'p', 'book-authors-row-examples', `Серия: ${item.series}${item.seriesIndex ? ' · №' + item.seriesIndex : ''}`);
                 const chips = el(card, 'div', 'book-authors-chips');
                 chip(chips, 'Моя оценка', item.rating === null ? '—' : item.rating, true);
                 chip(chips, 'Чтений', item.history.length); chip(chips, 'Выписок', item.excerpts.length);

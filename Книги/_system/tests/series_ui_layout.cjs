@@ -213,7 +213,7 @@ async function main() {
                 assert.equal(await page.locator('.book-authors-name').textContent(), 'Серия не выбрана');
                 assert.equal(await page.locator('.book-authors-row').count(), 0);
                 assert.equal(await page.locator('.book-authors-result-count').textContent(), 'Произведений: 0');
-                assert.equal(await page.getByRole('link', { name: 'Выбрать серию', exact: true }).getAttribute('data-href'), 'Книги/_system/Серии');
+                assert.equal(await page.getByRole('link', { name: 'Выбрать серию', exact: true }).count(), 0);
                 assert.equal(await page.locator('#personal').textContent(), 'Личные впечатления $& [[Ссылка]]');
                 await page.evaluate(() => window.emptySeriesHandle.dispose());
                 assert.equal(await page.evaluate(() => window.subscriptions), 0);
