@@ -1,0 +1,18 @@
+.kino-home-ui.kino-journal .kino-journal-description { max-width: 60ch; margin: 0 0 18px; color: var(--text-muted); font-size: .82em; line-height: 1.7; }
+.kino-home-ui.kino-journal .kino-home-actions { align-items: center; gap: 14px; }
+.kino-home-ui.kino-journal button.kino-home-action { font-size: .76em; }
+.kino-home-ui.kino-journal button:disabled { opacity: .45; cursor: default; }
+.kino-home-ui.kino-journal button:enabled:hover { border-color: var(--home-accent); background: var(--home-tint); }
+.kino-home-ui.kino-journal .kino-journal-total { color: var(--text-muted); font-size: .74em; }
+.kino-home-ui.kino-journal .kino-journal-count { color: var(--home-number-color); font-family: var(--home-numbers); font-variant-numeric: tabular-nums; }
+.kino-home-ui.kino-journal .kino-journal-status { margin: 16px 0 0; font-size: .78em; line-height: 1.6; color: var(--home-heading-color); overflow-wrap: anywhere; }
+.kino-home-ui.kino-journal .kino-journal-backup { display: inline-block; margin-top: 8px; font-size: .76em; }
+.kino-home-ui.kino-journal .kino-journal-entry>summary { font-size: 22px; }
+.kino-home-ui.kino-journal .kino-report-body { font-size: .83em; line-height: 1.7; overflow-wrap: anywhere; }
+.kino-home-ui.kino-journal .kino-report-body :is(p,ul,ol) { margin-block: 12px; }
+.kino-home-ui.kino-journal .kino-journal-fallback { white-space: pre-wrap; font: inherit; }
+.kino-home-ui.kino-journal .kino-journal-empty h2 { margin: 0 0 10px; border: 0; color: var(--home-heading-color) !important; font: 700 25px/1.3 var(--home-serif) !important; }
+.kino-home-ui.kino-journal .kino-journal-empty p { margin: 0; color: var(--text-muted); font-size: .82em; line-height: 1.7; }
+@container kino-report (max-width: 650px) {
+    .kino-home-ui.kino-journal .kino-journal-entry>summary { font-size: 20px; }
+}

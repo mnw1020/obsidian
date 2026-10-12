@@ -151,8 +151,13 @@ module.exports = async (params) => {
             file = await app.vault.create(path, await withKinoLayout(app, obsidian, `# Журнал изменений\n\n[[Кино/_index|← Кино]] · [[Кино/_system/Проверка кинотеки|🔎 Проверка]] · [[Кино/_system/Журнал изменений|📜 Журнал]]\n\n${block}`, "system"));
             return;
         }
-        const current = await app.vault.read(file);
-        await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
+        // Append to the latest source so a simultaneous cleanup cannot be overwritten.
+        if (typeof app.vault.process === 'function') {
+            await app.vault.process(file, current => current.replace(/\s*$/, "\n\n") + block);
+        } else {
+            const current = await app.vault.read(file);
+            await app.vault.modify(file, current.replace(/\s*$/, "\n\n") + block);
+        }
     }
 
     const changes = [];
@@ -198,6 +203,12 @@ module.exports = async (params) => {
 
 // Add the shared presentation without rewriting the generated note's data.
 async function withKinoLayout(app,obsidian,raw,kind){
+    const journalFile=app.vault.getAbstractFileByPath("Кино/_system/journal_ui.js");
+    if(journalFile){
+        const journalModule={exports:{}};
+        new Function("module",await app.vault.read(journalFile))(journalModule);
+        return journalModule.exports.ensureLayout(raw);
+    }
     const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
     if(!file)return raw;
     const module={exports:{}};
