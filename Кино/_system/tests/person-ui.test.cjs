@@ -191,7 +191,8 @@ test('short genre headings use available pane width and keep cinema colors under
                     })
                 };
             });
-            assert.deepEqual(contents,{overflow:false,outside:false,crowdedScores:false},`all entity content fits actual ${width}px pane`);
+            const outside=contents.outside?await page.locator('.kino-person').evaluate(root=>{const bounds=root.getBoundingClientRect();return [...root.querySelectorAll('*')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(el=>({tag:el.tagName,cls:el.className,text:el.textContent.slice(0,50),width:el.getBoundingClientRect().width,available:bounds.width}));}):[];
+            assert.deepEqual(contents,{overflow:false,outside:false,crowdedScores:false},`all entity content fits actual ${width}px pane: ${JSON.stringify(outside)}`);
             if(width===250||width===390)await page.locator('.markdown-preview-view').screenshot({path:path.join(previewDir,`header-genre-${width}.png`)});
         }
         for(const selected of ['Guillermo del Toro (Гильермо дель Торо)','AnIncrediblyLongUnbrokenPersonNameThatMustWrapInsideThePaneWithoutLosingText']){
@@ -208,6 +209,7 @@ test('actor/director/genre use compact full-width rows at 390/768/1440 without c
         for(const kind of ['actor','director','genre'])for(const width of [390,768,1440]){
             await page.setViewportSize({width,height:1000});await mount(page,kind);
             const geometry=await page.evaluate(()=>({
+                contentWidth:document.querySelector('.kino-person').clientWidth,
                 overflow:document.documentElement.scrollWidth>innerWidth,
                 clipped:[...document.querySelectorAll('.kino-person-card')].some(el=>el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1),
                 outside:[...document.querySelectorAll('.kino-person-card')].some(el=>{const r=el.getBoundingClientRect();return r.left<0||r.right>innerWidth+1;}),
@@ -225,7 +227,7 @@ test('actor/director/genre use compact full-width rows at 390/768/1440 without c
                 assert.equal(Math.round(geometry.rows[i].right),Math.round(geometry.rows[0].right));
             }
             const ordinary=geometry.rows.find(row=>row.title==='Багровый пик');
-            assert.ok(ordinary.height<=(width<520?145:100),`${kind} ${width}: ordinary row remains compact (${ordinary.height}px)`);
+            assert.ok(ordinary.height<=(geometry.contentWidth<=620?145:100),`${kind} ${width}: ordinary row remains compact (${ordinary.height}px)`);
             assert.ok(geometry.controls.length>=6);assert.ok(geometry.controls.every(c=>c.tab>=0&&!c.disabled));
             assert.equal(geometry.native,'none');assert.equal(geometry.original,'none');assert.notEqual(geometry.unrelated,'none');
             if(kind==='actor')assert.equal(await page.locator('.kino-person-card').last().innerText().then(text=>text.includes(fixtures[3].role)),true);

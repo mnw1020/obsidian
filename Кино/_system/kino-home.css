@@ -1,6 +1,6 @@
 /* Главная кинотеки: структура и типографика главной библиотеки. */
-.markdown-preview-view.kino-home-page { --file-line-width: 1080px; }
-.markdown-preview-view.kino-home-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: min(1080px,100%); margin-inline: auto; }
+.markdown-preview-view.kino-home-page { --file-line-width: 100%; }
+.markdown-preview-view.kino-home-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: none; margin-inline: auto; }
 .kino-home-page :is(.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .kino-home-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .markdown-preview-view.kino-home-page:has(.kino-home-ui.kino-home-ui[data-ready="true"]) .inline-title { display: none; }

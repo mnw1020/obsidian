@@ -69,9 +69,29 @@
     background: var(--kino-bg);
     color: var(--kino-text);
 }
-.kino-page .markdown-preview-sizer { max-width: 1080px; margin-inline: auto; }
-.kino-media .markdown-preview-sizer, .kino-season .markdown-preview-sizer,
-.kino-viewing .markdown-preview-sizer { max-width: 820px; }
+/* Fill the current pane in reading view and the editor, including split panes.
+   Actor/director/genre notes share kino-entity; runtime also marks person views. */
+:is(.markdown-preview-view, .markdown-source-view).kino-page {
+    --kino-page-width: 100%;
+    --file-line-width: 100%;
+    --line-width: 100%;
+    --max-width: 100%;
+}
+:is(.markdown-preview-view, .markdown-source-view).kino-page:is(.kino-entity, .kino-person-page) {
+    --kino-page-width: 80%;
+}
+.markdown-preview-view.kino-page > .markdown-preview-sizer,
+.markdown-source-view.mod-cm6.kino-page .cm-sizer {
+    box-sizing: border-box;
+    width: var(--kino-page-width) !important;
+    min-width: 0;
+    max-width: none !important;
+    margin-inline: auto !important;
+}
+.markdown-source-view.mod-cm6.kino-page :is(.cm-contentContainer, .cm-content) {
+    min-width: 0;
+    max-width: 100% !important;
+}
 .kino-page .markdown-preview-section { line-height: 1.75; }
 .kino-page p { overflow-wrap: anywhere; }
 .kino-page :is(h1, h2, h3, h4, h5, h6), .movies-dashboard :is(h1, h2, h3),
@@ -523,6 +543,8 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     .kino-page h3.kino-person-card-title { font-size: 14px !important; }
 }
 @container kino-entity (max-width: 280px) {
+    .kino-page .kino-person-identity { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .kino-page .kino-person-monogram { width: 55px; }
     .kino-page .kino-person-controls { grid-template-columns: minmax(0, 1fr); }
     .kino-page .kino-person-search, .kino-page .kino-person-year, .kino-page .kino-person-sort,
     .kino-page .kino-person-filters { grid-column: 1; grid-row: auto; }
@@ -540,10 +562,8 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     --history-line: color-mix(in srgb,var(--background-modifier-border) 70%,transparent);
     --history-tint: color-mix(in srgb,var(--history-accent) 8%,var(--background-primary));
     --history-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
-    --file-line-width: 1080px;
     container: kino-history / inline-size;
 }
-.kino-history-index .markdown-preview-sizer { width: 100%; min-width: 0; max-width: min(1080px,100%); }
 .kino-history-index :is(.inline-title,.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .kino-page.kino-history-index .callout[data-callout^="kino-history"] {
     --callout-color: 184,151,96;
