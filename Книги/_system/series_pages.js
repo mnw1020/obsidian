@@ -25,7 +25,7 @@ function mergeSeries(raw) {
     return raw + separator + seriesRegion().replace(/\n/g, nl) + nl;
 }
 function overviewPage() {
-    return '---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n';
+    return '---\ncssclasses:\n  - books-library\n  - books-catalog-page\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n';
 }
 function mergePlaceholder(raw) {
     if (raw.includes('<!-- BOOK-SERIES-GENERATED:')) return mergeSeries(raw);

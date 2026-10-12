@@ -5,16 +5,20 @@
     container-type: inline-size;
     container-name: book-note;
 }
-/* Every library page fills its pane in reading view and in the editor. */
+/* Library pages fill their pane; author, series and adaptation pages use 80%. */
 :is(.markdown-preview-view, .markdown-source-view):is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) {
     --file-line-width: 100% !important;
 }
 .markdown-preview-view:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) .markdown-preview-sizer,
 .markdown-source-view.mod-cm6:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) .cm-sizer {
-    width: 100% !important;
+    width: var(--books-page-width, 100%) !important;
     max-width: none !important;
     min-width: 0;
-    margin-inline: 0 !important;
+    margin-inline: var(--books-page-margin, 0) !important;
+}
+:is(.markdown-preview-view, .markdown-source-view):is(.books-entity, .books-catalog-page) {
+    --books-page-width: 80%;
+    --books-page-margin: auto;
 }
 .markdown-source-view.mod-cm6:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) :is(.cm-content, .cm-line) {
     max-width: none !important;

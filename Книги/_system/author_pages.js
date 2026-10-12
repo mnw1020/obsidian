@@ -17,7 +17,7 @@ function mergeAuthor(raw) {
     return replaceRegion(raw, START, END, authorRegion());
 }
 function overviewPage() {
-    return '---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n';
+    return '---\ncssclasses:\n  - books-library\n  - books-catalog-page\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n';
 }
 function mergeOverview(raw) {
     if (raw.includes(ALL_START) || raw.includes(ALL_END)) return replaceRegion(raw, ALL_START, ALL_END, overviewRegion());

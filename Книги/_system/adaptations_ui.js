@@ -80,7 +80,7 @@ function overviewRegion() {
         '    await m.exports({ dv, app, obsidian: typeof require === "function" ? require("obsidian") : {} });',
         '} else { dv.paragraph("Модуль экранизаций не найден. [[Книги/_index|← Библиотека]]"); }', '```', END].join('\n');
 }
-function overviewPage() { return '---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n'; }
+function overviewPage() { return '---\ncssclasses:\n  - books-library\n  - books-catalog-page\nobsidianUIMode: preview\n---\n\n' + overviewRegion() + '\n'; }
 function mergeOverview(raw) {
     const nl = raw.includes('\r\n') ? '\r\n' : '\n';
     if (raw.includes(START) || raw.includes(END)) {
