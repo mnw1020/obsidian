@@ -92,6 +92,9 @@
     min-width: 0;
     max-width: 100% !important;
 }
+.markdown-preview-view.kino-page:is(.kino-entity, .kino-person-page) > .markdown-preview-sizer {
+    padding-inline: 0;
+}
 .kino-page .markdown-preview-section { line-height: 1.75; }
 .kino-page p { overflow-wrap: anywhere; }
 .kino-page :is(h1, h2, h3, h4, h5, h6), .movies-dashboard :is(h1, h2, h3),

@@ -191,8 +191,7 @@ test('short genre headings use available pane width and keep cinema colors under
                     })
                 };
             });
-            const outside=contents.outside?await page.locator('.kino-person').evaluate(root=>{const bounds=root.getBoundingClientRect();return [...root.querySelectorAll('*')].filter(el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&(r.left<bounds.left-1||r.right>bounds.right+1);}).map(el=>({tag:el.tagName,cls:el.className,text:el.textContent.slice(0,50),width:el.getBoundingClientRect().width,available:bounds.width}));}):[];
-            assert.deepEqual(contents,{overflow:false,outside:false,crowdedScores:false},`all entity content fits actual ${width}px pane: ${JSON.stringify(outside)}`);
+            assert.deepEqual(contents,{overflow:false,outside:false,crowdedScores:false},`all entity content fits actual ${width}px pane`);
             if(width===250||width===390)await page.locator('.markdown-preview-view').screenshot({path:path.join(previewDir,`header-genre-${width}.png`)});
         }
         for(const selected of ['Guillermo del Toro (Гильермо дель Торо)','AnIncrediblyLongUnbrokenPersonNameThatMustWrapInsideThePaneWithoutLosingText']){
