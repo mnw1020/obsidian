@@ -2,9 +2,22 @@
 /* Individual books: an editorial header and quiet, readable diary. */
 .book-card {
     --book-card-accent: var(--text-accent);
-    --file-line-width: 820px;
     container-type: inline-size;
     container-name: book-note;
+}
+/* Every library page fills its pane in reading view and in the editor. */
+:is(.markdown-preview-view, .markdown-source-view):is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) {
+    --file-line-width: 100% !important;
+}
+.markdown-preview-view:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) .markdown-preview-sizer,
+.markdown-source-view.mod-cm6:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) .cm-sizer {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+    margin-inline: 0 !important;
+}
+.markdown-source-view.mod-cm6:is(.book-card, .books-library, .books-entity, .book-knowledge, .books-home-page, .books-reading-page, .book-poetry-page, .book-quotes-page, .book-quotes-tree-page) :is(.cm-content, .cm-line) {
+    max-width: none !important;
 }
 .book-card.markdown-preview-view .inline-title,
 .book-card.markdown-source-view .inline-title { display: none; }

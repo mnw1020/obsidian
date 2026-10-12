@@ -56,8 +56,8 @@
 
 /* The reading report shares the library's visual language; the compact home
    widget above keeps its own layout. */
-.markdown-preview-view.books-reading-page { --file-line-width: 1080px; }
-.markdown-preview-view.books-reading-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: min(1080px,100%); margin-inline: auto; }
+.markdown-preview-view.books-reading-page { --file-line-width: 100%; }
+.markdown-preview-view.books-reading-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
 .markdown-preview-view.books-reading-page :is(.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .markdown-preview-view.books-reading-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .markdown-preview-view.books-reading-page:has(.book-reading-dashboard.is-index[data-ready="true"]) .inline-title { display: none; }

@@ -1,5 +1,5 @@
-.markdown-preview-view.book-poetry-page { --file-line-width: 1080px; }
-.markdown-preview-view.book-poetry-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: min(1080px,100%); margin-inline: auto; }
+.markdown-preview-view.book-poetry-page { --file-line-width: 100%; }
+.markdown-preview-view.book-poetry-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
 .book-poetry-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 /* Original Markdown remains the fallback and can be revealed with “Все тексты”. */
 .markdown-preview-view.book-poetry-page:has(.book-poetry-ui[data-ready="true"]) :is(.metadata-container,.inline-title) { display: none; }
