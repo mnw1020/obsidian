@@ -252,7 +252,14 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     }
 
     if (!["dashboard", "system", "entity"].includes(kind)) {
-        const header = element(root, "header", "kino-card-header");
+        const header = element(root, "header", "kino-card-header" + (kind === "franchise" ? " kino-franchise-header" : ""));
+        if (kind === "franchise") {
+            const nav = element(header, "nav", "kino-franchise-nav");
+            nav.setAttribute("aria-label", "Разделы кинотеки");
+            for (const [path, label] of [["Кино/_index", "← Кинотека"], ["Кино/_Кино.base#Карточки", "Каталог"], ["Кино/_system/Итоги просмотров", "Итоги просмотров"]]) {
+                internalLink(nav, { path, display: label });
+            }
+        }
         const tags = values(fm.tags).map(value => text(value).replace(/^#/, ""));
         const type = kind === "media" ? tags.includes("serial") ? "Сериал" : "Фильм"
             : kind === "franchise" ? "Франшиза" : kind === "season" ? "Сезон" : kind === "roles" ? "Роли и создатели" : "Просмотр";
@@ -263,6 +270,10 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const original = text(fm["Название"]).trim();
         if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
         const meta = element(header, "div", "kino-card-meta");
+        if (kind === "franchise") {
+            const byPart = text(fm["Порядок"]).trim().toLowerCase() === "части";
+            element(meta, "span", "kino-franchise-order", "Порядок: " + (byPart ? "по номерам частей" : "по дате выхода"));
+        }
         if (kind === "media") {
             const year = text(fm["Релиз"]).match(/\d{4}/)?.[0];
             if (year) element(meta, "span", "kino-meta-chip", year);

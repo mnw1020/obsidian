@@ -140,6 +140,53 @@
 .kino-page blockquote p:last-child { margin-bottom: 0; }
 .kino-ui-root { margin: 8px 0 28px; min-width: 0; }
 .kino-ui-root:empty { display: none; }
+/* Franchise notes share the masthead, gold serif headings and framed tables of
+   the cinema's home and report pages. All Markdown and queries remain native. */
+.kino-page.kino-franchise {
+    --franchise-accent: #b89760;
+    --franchise-line: color-mix(in srgb,var(--kino-line) 70%,transparent);
+    --franchise-tint: color-mix(in srgb,var(--franchise-accent) 8%,var(--kino-bg));
+    --franchise-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+}
+.kino-page.kino-franchise .kino-franchise-header {
+    padding: 22px 28px 24px;
+    border: 1px solid var(--franchise-line);
+    border-top: 3px solid var(--franchise-accent);
+    border-radius: 4px 4px 12px 12px;
+    background: linear-gradient(120deg,var(--franchise-tint),var(--kino-bg) 75%);
+}
+.kino-page.kino-franchise .kino-franchise-nav { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 26px; font-size: .76em; }
+.kino-page.kino-franchise .kino-franchise-nav a { color: var(--kino-muted); text-decoration: none; overflow-wrap: anywhere; }
+.kino-page.kino-franchise .kino-franchise-nav a:hover { color: var(--franchise-accent); }
+.kino-page.kino-franchise .kino-franchise-header .kino-eyebrow { color: var(--franchise-accent); font-size: 10px; letter-spacing: .13em; }
+.kino-page.kino-franchise .kino-franchise-header h1.kino-card-title {
+    margin: 12px 0 18px !important;
+    color: var(--franchise-accent) !important;
+    font: 700 clamp(34px,4.5vw,56px)/1.1 var(--franchise-serif) !important;
+    letter-spacing: -.025em;
+}
+.kino-page.kino-franchise .kino-franchise-order { color: var(--kino-muted); font-size: .95em; }
+.kino-page.kino-franchise .kino-properties { margin: 18px 0 0; padding-inline: 18px; border: 1px solid var(--franchise-line); border-radius: 10px; }
+.kino-page.kino-franchise .kino-properties>summary { padding-block: 14px; }
+.kino-page.kino-franchise h2 {
+    padding-inline-start: 12px; border-inline-start: 3px solid var(--franchise-accent);
+    color: var(--franchise-accent) !important;
+    font: 700 27px/1.25 var(--franchise-serif) !important;
+    letter-spacing: -.015em;
+}
+.kino-page.kino-franchise .kino-table-wrap { border-color: var(--franchise-line); border-radius: 10px; background: var(--kino-bg); }
+.kino-page.kino-franchise .kino-table-wrap th { color: var(--franchise-accent); background: var(--franchise-tint); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
+.kino-page.kino-franchise .kino-table-wrap td { padding-block: 14px; }
+.kino-page.kino-franchise .kino-table-wrap td:not(:nth-child(2)) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kino-page.kino-franchise .kino-table-wrap td:first-child { color: var(--franchise-accent); font-family: var(--font-monospace); }
+.kino-page.kino-franchise .kino-table-wrap table.table-view-table>tbody>tr>td:first-child::before { content: none; }
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(2) { min-width: 190px; width: 100%; }
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(4) { color: var(--franchise-accent); font-weight: 600; }
+@media (max-width: 650px) {
+    .kino-page.kino-franchise .kino-franchise-header { padding: 18px; }
+    .kino-page.kino-franchise .kino-franchise-nav { gap: 8px 16px; margin-bottom: 22px; }
+    .kino-page.kino-franchise h2 { font-size: 24px !important; }
+}
 .kino-card-header { padding-top: 20px; padding-bottom: 22px; }
 .kino-eyebrow { color: var(--kino-accent); font-size: 11px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }
 .kino-page .kino-card-title { font-size: clamp(28px, 4.2vw, 46px) !important; margin: 12px 0 8px !important; overflow-wrap: anywhere; }

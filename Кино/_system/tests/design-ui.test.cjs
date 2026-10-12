@@ -291,21 +291,48 @@ test('shared renderer leases survive one embedded unload and preserve native cla
     } finally {await browser.close();}
 });
 
-test('franchise header hides only an exact duplicate original title and preserves headings and anchors',async()=>{
+test('franchise masthead, navigation, properties and table share the cinema style without changing notes or anchors',async()=>{
     const browser=await chromium.launch({channel:process.env.AI_TEST_BROWSER||'chrome',headless:true});
     try {
         const page=await browser.newPage({viewport:{width:390,height:950}});
-        const fixture={name:'Средиземье',path:'Кино/Франшизы/Средиземье.md',frontmatter:{tags:['franchise'],'Порядок':'выход'},notes:'# Средиземье\n\n## Общее впечатление\n\nМир, в который хочется возвращаться.\n\n## Произведения\n\n«Властелин колец» и «Хоббит».',table:true};
-        await mount(page,fixture,'franchise');await page.locator('.kino-duplicate-title').waitFor({state:'attached'});
-        await page.locator('.kino-duplicate-title').evaluate(el=>el.id='original-title-anchor');
-        assert.equal(await page.locator('.kino-duplicate-title').evaluate(el=>getComputedStyle(el).display),'none');
-        assert.equal(await page.locator('#original-title-anchor').textContent(),'Средиземье');assert.equal(await page.locator('.kino-card-title').textContent(),'Средиземье');
-        assert.equal(await page.locator('.personal-notes h2').count(),2);await page.screenshot({path:path.join(previewDir,'franchise-390.png'),fullPage:true});
-        await page.setViewportSize({width:1440,height:950});await page.screenshot({path:path.join(previewDir,'franchise-1440.png'),fullPage:true});
-        await page.evaluate(()=>window.kinoTest.dispose());assert.equal(await page.locator('.kino-duplicate-title').count(),0);assert.equal(await page.locator('#original-title-anchor').textContent(),'Средиземье');
+        const fixture={name:'Средиземье',path:'Кино/Франшизы/Средиземье.md',frontmatter:{tags:['franchise'],'Порядок':'выход','Личное поле':'Сохранить'},notes:'# Средиземье\n\n## Общее впечатление\n\nМир, в который хочется возвращаться.\n\n## Произведения\n\n«Властелин колец» и «Хоббит».',table:true};
+        const errors=[];page.on('pageerror',error=>errors.push(error.message));
+        for(const width of [390,1440]){
+            await page.setViewportSize({width,height:950});await mount(page,fixture,'franchise');await page.locator('.kino-duplicate-title').waitFor({state:'attached'});
+            await page.locator('.kino-duplicate-title').evaluate(el=>el.id='original-title-anchor');
+            await page.evaluate(()=>{
+                document.querySelector('.history').innerHTML='<table class="table-view-table"><thead><tr><th>Часть</th><th>Произведение</th><th>Релиз</th><th>Моя оценка</th><th>КП</th><th>IMDb</th></tr></thead><tbody><tr><td>1</td><td><a class="internal-link" data-href="Кино/Media/Хоббит">Хоббит: Нежданное путешествие</a></td><td>2012-12-12</td><td>8</td><td>7,9</td><td>7,8</td></tr><tr><td>2</td><td><a class="internal-link" data-href="Кино/Media/Властелин колец">Властелин колец: Возвращение короля</a></td><td>2003-12-17</td><td>9</td><td>8,7</td><td>9</td></tr></tbody></table>';
+            });
+            await page.waitForFunction(()=>document.querySelector('.history table').closest('.kino-table-wrap'));
+            assert.equal(await page.locator('.kino-duplicate-title').evaluate(el=>getComputedStyle(el).display),'none');
+            assert.equal(await page.locator('#original-title-anchor').textContent(),'Средиземье');assert.equal(await page.locator('.kino-card-title').textContent(),'Средиземье');
+            const header=page.locator('.kino-ui-root header'),nav=header.locator('nav a');
+            assert.deepEqual(await nav.evaluateAll(nodes=>nodes.map(node=>node.dataset.href)),['Кино/_index','Кино/_Кино.base#Карточки','Кино/_system/Итоги просмотров']);
+            assert.match(await header.textContent(),/по дате выхода/i);
+            await nav.nth(1).dispatchEvent('click',{ctrlKey:true});assert.deepEqual((await page.evaluate(()=>kinoTest.stats.links)).at(-1),['Кино/_Кино.base#Карточки',fixture.path,true]);
+            const title=await page.locator('.kino-card-title').evaluate(node=>({color:getComputedStyle(node).color,font:getComputedStyle(node).fontFamily}));
+            assert.equal(title.color,'rgb(184, 151, 96)');assert.match(title.font,/Palatino|Book Antiqua|Georgia/i);
+            assert.equal(await page.locator('.personal-notes h2').count(),2);assert.match(await page.locator('.personal-notes').textContent(),/Мир, в который хочется возвращаться/);
+            const properties=page.locator('.kino-properties');await properties.locator('summary').press('Enter');assert.equal(await properties.evaluate(node=>node.open),true);await properties.locator('.kino-property-list').waitFor();assert.match(await properties.textContent(),/Личное поле/);
+            await properties.locator('summary').press('Enter');assert.equal(await properties.evaluate(node=>node.open),false);
+            const geometry=await page.evaluate(()=>{
+                const view=document.querySelector('.markdown-preview-view'),sizer=view.querySelector('.markdown-preview-sizer');
+                return {pane:view.getBoundingClientRect().width,sizer:sizer.getBoundingClientRect().width,overflow:document.documentElement.scrollWidth>innerWidth,
+                    clipped:[...document.querySelectorAll('.kino-card-header,.kino-properties')].filter(node=>node.getClientRects().length&&node.scrollWidth>node.clientWidth+1).map(node=>node.className)};
+            });
+            assert.ok(Math.abs(geometry.pane-geometry.sizer)<1,'franchise uses full pane width');assert.equal(geometry.overflow,false);assert.deepEqual(geometry.clipped,[]);
+            assert.equal(await page.locator('.history table tbody tr').count(),2);assert.equal(await page.locator('.history table thead th').count(),6);
+            assert.equal(await page.locator('.personal-notes').textContent(),await page.evaluate(()=>{const original=document.createElement('div');original.innerHTML=kinoTest.notesBefore;return original.textContent;}));
+            await page.evaluate(()=>document.activeElement?.blur());
+            await page.screenshot({path:path.join(previewDir,'franchise-'+width+'.png'),fullPage:true});
+            await page.evaluate(()=>window.kinoTest.dispose());assert.equal(await page.locator('.kino-duplicate-title').count(),0);assert.equal(await page.locator('#original-title-anchor').textContent(),'Средиземье');
+            assert.equal(await page.evaluate(()=>kinoTest.stats.writes),0);
+        }
         await mount(page,{...fixture,notes:'# Личные заметки\n\n# Средиземье\n\nНи один заголовок не скрывается.'},'franchise');
         assert.equal(await page.locator('.kino-duplicate-title').count(),0);
+        await mount(page,{...fixture,frontmatter:{...fixture.frontmatter,'Порядок':'части'}},'franchise');assert.match(await page.locator('.kino-ui-root header').textContent(),/по номерам частей/i);
         await mount(page,fixture,'franchise',{source:true});await page.locator('.kino-duplicate-title').waitFor({state:'attached'});assert.notEqual(await page.locator('.kino-duplicate-title').evaluate(el=>getComputedStyle(el).display),'none');
+        assert.deepEqual(errors,[]);
     } finally {await browser.close();}
 });
 

@@ -1788,6 +1788,7 @@ async function wikiDescription(get, article) {
 
 async function ensureFranchise(app, ob, choice, id) {
     let file = app.vault.getAbstractFileByPath(choice.path);
+    const cardLayout = await loadCardLayout(app);
     const marker = "<!-- FRANCHISE:TABLE:v1 -->";
     const table = marker + "\n## Произведения\n\n```dataviewjs\n" + renderFranchise.toString() + "\nrenderFranchise(dv);\n```\n";
     if (file) {
@@ -1797,13 +1798,13 @@ async function ensureFranchise(app, ob, choice, id) {
         if (fm["imdb Id"] || fm["Фильм"] || fm["Сериал"] || tags.some(x=>["movies","serial","season","viewing"].includes(String(x).replace(/^#/,"")))) throw new Error("Выбранная страница не является франшизой.");
     } else {
         await ensureFolder(app,choice.path.split("/").slice(0,-1).join("/"));
-        file = await app.vault.create(choice.path,"---\nobsidianUIMode: preview\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table);
+        file = await app.vault.create(choice.path,cardLayout.ensureLayout("---\nobsidianUIMode: preview\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table, {kind:"franchise",parseYaml:ob.parseYaml}));
     }
     await app.vault.process(file,raw=>{
         if (!raw.includes(marker)) raw=raw.trimEnd()+"\n\n"+table;
         const sourceMarker=`<!-- FRANCHISE:SOURCE:${id} -->`;
         if (choice.url && !raw.includes(sourceMarker)) raw=raw.trimEnd()+`\n\n${sourceMarker}\nИсточник связи для IMDb ${id}: [${choice.origin}](${choice.url}).\n`;
-        return raw;
+        return cardLayout.ensureLayout(raw, {kind:"franchise",parseYaml:ob.parseYaml});
     });
 }
 

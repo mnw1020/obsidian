@@ -150,7 +150,8 @@ module.exports = async function editFranchise(params) {
         );
     } else {
         // Добавляем таблицу один раз; существующий текст и YAML страницы сохраняются.
-        await app.vault.process(page, text => text.includes(TABLE_MARKER) ? text : text.trimEnd() + "\n\n" + tableBlock());
+        const decorate = await kinoLayoutDecorator(app, obsidian, "franchise");
+        await app.vault.process(page, text => decorate(text.includes(TABLE_MARKER) ? text : text.trimEnd() + "\n\n" + tableBlock()));
     }
 
     await app.fileManager.processFrontMatter(file, fm => {
@@ -249,9 +250,12 @@ function renderFranchise(dv) {
 
 // Add the shared presentation without rewriting the generated note's data.
 async function withKinoLayout(app,obsidian,raw,kind){
+    return (await kinoLayoutDecorator(app,obsidian,kind))(raw);
+}
+async function kinoLayoutDecorator(app,obsidian,kind){
     const file=app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
-    if(!file)return raw;
+    if(!file)return raw=>raw;
     const module={exports:{}};
     new Function("module","exports",await app.vault.read(file))(module,module.exports);
-    return module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
+    return raw=>module.exports.ensureLayout(raw,{kind,parseYaml:obsidian?.parseYaml});
 }

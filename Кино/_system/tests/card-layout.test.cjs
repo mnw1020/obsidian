@@ -278,6 +278,33 @@ function privateFunctions(name, names, suffix = '') {
     return loaded.exports.__test;
 }
 
+test('franchise writers add shared layout while retaining custom YAML, personal notes, query and source markers',async()=>{
+    const mediaPath='Кино/Media/Test.md',franchisePath='Кино/Франшизы/Selected.md';
+    const {tableBlock}=privateFunctions('edit_franchise',['tableBlock']);
+    const query=tableBlock().replace(/\n/g,'\r\n');
+    const trailing='<!-- FRANCHISE:SOURCES:2026-09 -->\r\n## О связи произведений\r\n\r\nИсточник и [[Личная заметка#^anchor|связь]].\r\n';
+    const original=note({tags:['franchise'],Порядок:'части',cssclasses:['private-franchise'],aliases:['Мой цикл']},'# Selected\n\n## Общее впечатление\n\n'+personal+'\n\n'+tableBlock(),'\r\n')+'\r\n'+trailing;
+    const env=mockVault({[mediaPath]:note({tags:['movies'],Название:'Test'}),[franchisePath]:original},mediaPath);
+    env.quickAddApi.inputPrompt=async()=> '2';
+    const process=env.app.vault.process,newest='\r\nДополнительная личная строка, записанная во время выбора.\r\n';let calls=0;
+    env.app.vault.process=async(file,transform)=>{assert.equal(file.path,franchisePath);if(calls++===0)env.texts.set(franchisePath,env.texts.get(franchisePath)+newest);return process(file,transform);};
+    await require('../edit_franchise.js')(env);
+    const result=env.texts.get(franchisePath);assertLayout(result,'franchise');
+    assert.ok(result.includes(customYaml.replace(/\n/g,'\r\n')));assert.ok(result.includes(personal.replace(/\n/g,'\r\n')));assert.ok(result.includes(query.trimEnd()));assert.ok(result.includes(trailing));assert.ok(result.includes(newest.trim()));
+    assert.equal(count(result,'<!-- FRANCHISE:TABLE:v1 -->'),1);assert.equal(env.fields(franchisePath).Порядок,'части');assert.ok(env.fields(franchisePath).cssclasses.includes('private-franchise'));
+    assert.deepEqual(env.fields(franchisePath).aliases,['Мой цикл']);assert.equal(env.fields(mediaPath).Франшиза,'[[Кино/Франшизы/Selected]]');assert.equal(env.fields(mediaPath).Часть,2);
+    await require('../edit_franchise.js')(env);assert.equal(env.texts.get(franchisePath),result,'repeated selection never duplicates the interface or changes retained content');
+    const {ensureFranchise}=privateFunctions('Examples_Attachments_movies',['ensureFranchise']);
+    const choice={path:franchisePath,name:'Selected',url:'https://example.test/franchise',origin:'Тестовый источник'};
+    await ensureFranchise(env.app,env.obsidian,choice,'tt0000001');const withSource=env.texts.get(franchisePath);assertLayout(withSource,'franchise');
+    assert.ok(withSource.includes(query.trimEnd()));assert.ok(withSource.includes(personal.replace(/\n/g,'\r\n')));assert.ok(withSource.includes(trailing));assert.ok(withSource.includes(customYaml.replace(/\n/g,'\r\n')));assert.ok(withSource.includes(newest.trim()));
+    assert.equal(count(withSource,'<!-- FRANCHISE:TABLE:v1 -->'),1);assert.equal(count(withSource,'<!-- FRANCHISE:SOURCE:tt0000001 -->'),1);assert.ok(withSource.includes(choice.url));
+    await ensureFranchise(env.app,env.obsidian,choice,'tt0000001');assert.equal(env.texts.get(franchisePath),withSource,'same source is appended only once');
+    const freshPath='Кино/Франшизы/Fresh.md',fresh=mockVault({},mediaPath);
+    await ensureFranchise(fresh.app,fresh.obsidian,{...choice,path:freshPath,name:'Fresh'},'tt0000002');
+    assertLayout(fresh.texts.get(freshPath),'franchise');assert.equal(fresh.fields(freshPath).Порядок,'выход');assert.equal(count(fresh.texts.get(freshPath),'<!-- FRANCHISE:SOURCE:tt0000002 -->'),1);
+});
+
 for (const updater of ['Examples_Attachments_movies', 'update_kino_roles']) test('real role writer retains unknown YAML and private Markdown: ' + updater, async () => {
     const mediaPath = 'Кино/Media/Test.md', rolePath = 'Кино/_system/Роли/Test.роли.md';
     const oldRoles = note({ Название: 'Original', Актеры: ['Old Actor'], 'Роли актеров': ['Old role - Old Actor'], cssclasses: ['private-roles'] }, personal, '\r\n');
