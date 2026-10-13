@@ -117,12 +117,19 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         await markdown(text(content), holder, child);
         return holder;
     }
-    function score(parent, label, value, className, url) {
+    function score(parent, label, value, className, url, voteCount) {
         const n = number(value), box = element(parent, url ? "a" : "div", `kino-score ${className ?? ""}`);
         if (url) { box.href = url; box.target = "_blank"; box.rel = "noopener noreferrer"; }
         element(box, "span", "kino-score-label", label);
         const valueEl = element(box, "span", "kino-score-value", n == null ? "—" : String(Math.round(n * 10) / 10));
         if (n != null) element(valueEl, "span", "kino-score-scale", " / 10");
+        const votes = number(voteCount);
+        if (votes != null && Number.isInteger(votes) && votes >= 0) {
+            box.classList.add("kino-score-with-votes");
+            const count = element(box, "span", "kino-score-votes", votes.toLocaleString("ru-RU"));
+            count.title = `Количество голосов ${label}: ${count.textContent}`;
+            count.setAttribute("aria-label", count.title);
+        }
         return box;
     }
     function propertyDetails() {
@@ -296,8 +303,8 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             score(ratings, "Моя оценка", fm["Оценка"], "kino-score-personal");
             const imdb = text(fm["imdb Id"]).match(/^tt\d+$/)?.[0];
             const kp = text(fm["Кинопоиск ID"]).match(/^\d+$/)?.[0];
-            score(ratings, "IMDb", fm["Оценка Imdb"], "", imdb ? `https://www.imdb.com/title/${imdb}/` : null);
-            score(ratings, "Кинопоиск", fm["Оценка Кинопоиск"], "", kp ? `https://www.kinopoisk.ru/film/${kp}/` : null);
+            score(ratings, "IMDb", fm["Оценка Imdb"], "", imdb ? `https://www.imdb.com/title/${imdb}/` : null, fm["Количество голосов Imdb"]);
+            score(ratings, "Кинопоиск", fm["Оценка Кинопоиск"], "", kp ? `https://www.kinopoisk.ru/film/${kp}/` : null, fm["Количество голосов Кинопоиск"]);
             score(ratings, "Прогноз", fm["Прогноз оценки"], "kino-score-forecast").title = "Прогноз личной оценки из свойств карточки";
             if (present(fm["Описание"])) {
                 const synopsis = element(root, "section", "kino-synopsis");
