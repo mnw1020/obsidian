@@ -311,6 +311,14 @@ async function addMovieCore(params, settings, progress, handOff) {
     const existing = await findMovie(app, ob, movie.imdbID);
     if (existing) { await app.workspace.getLeaf(false).openFile(existing); new ob.Notice("Этот фильм уже есть в кинотеке."); return; }
 
+    status("жду выбор типа карточки…");
+    const mediaTag = await qa.suggester(
+        ["🎬 Фильм — movies", "📺 Сериал — serial"],
+        ["movies", "serial"],
+        "Что добавляем: фильм или сериал?"
+    );
+    if (!["movies", "serial"].includes(mediaTag)) return;
+
     // Точная связь API имеет приоритет перед Wikidata и поиском по названию.
     status("проверяю связь IMDb с Кинопоиском…");
     const wiki = await wikidata(get, movie.imdbID);
@@ -435,7 +443,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         actorNames,
         actorRoles: actorRoleValues,
         directorNames
-    });
+    }, mediaTag);
     handOff?.();
     return true;
 }
@@ -6463,7 +6471,7 @@ const CATALOG = {
 // Ожидаем только НОВУЮ карточку выбранного фильма, которую создаёт старый Template.
 // Никаких изменений существующих фильмов и самого шаблона.
 const pendingImports = new WeakMap();
-function watchTemplate(params, movie, title, description, franchise, progress, kinopoiskId, people) {
+function watchTemplate(params, movie, title, description, franchise, progress, kinopoiskId, people, mediaTag) {
     const {app, obsidian:ob} = params;
     pendingImports.get(app)?.();
     const previousFiles = new Set(app.vault.getMarkdownFiles());
@@ -6488,7 +6496,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
         try {
             const original = await app.vault.read(file);
             const replacement = patchTemplate(original, ob, movie.imdbID, description, franchise,
-                normalizeRelease(movie.Released), kinopoiskId, people);
+                normalizeRelease(movie.Released), kinopoiskId, people, mediaTag);
             if (replacement === null) return;
             // Перепроверяем путь: исходный файл обязан находиться среди созданных этим ожиданием.
             if (app.vault.getAbstractFileByPath(file.path) !== file) return;
@@ -6553,7 +6561,7 @@ function watchTemplate(params, movie, title, description, franchise, progress, k
     return cleanup;
 }
 
-function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoiskId, people = {}) {
+function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoiskId, people = {}, mediaTag) {
     const match = raw.match(/^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
     if (!match) return null;
     let yaml = match[2];
@@ -6586,6 +6594,11 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
     let fm;
     try { fm=ob.parseYaml(yaml); } catch { return null; }
     if (String(fm?.['imdb Id']) !== id) return null;
+    if (["movies", "serial"].includes(mediaTag)) {
+        const tags = (Array.isArray(fm.tags) ? fm.tags : [fm.tags]).filter(Boolean)
+            .filter(tag => !["movies", "serial"].includes(String(tag).replace(/^#/, "")));
+        set('tags', [...new Set([...tags, mediaTag])]);
+    }
     if (releaseDate !== undefined || Object.prototype.hasOwnProperty.call(fm, 'Релиз')) {
         set('Релиз', normalizeRelease(fm['Релиз']) || normalizeRelease(releaseDate));
     }
