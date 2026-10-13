@@ -132,6 +132,56 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         }
         return box;
     }
+    function forecastScore(parent) {
+        const value = number(fm["Прогноз оценки"]);
+        const box = element(parent, "button", "kino-score kino-score-forecast");
+        box.type = "button";
+        box.setAttribute("aria-haspopup", "dialog");
+        box.title = "Открыть сохранённый расчёт прогноза";
+        element(box, "span", "kino-score-label", "Прогноз");
+        const main = element(box, "span", "kino-score-value", value == null ? "—" : String(Math.round(value * 10) / 10));
+        if (value != null) element(main, "span", "kino-score-scale", " / 10");
+        const parts = element(box, "span", "kino-forecast-parts");
+        for (const [label, key] of [["По данным", "Прогноз по данным"], ["По сюжету", "Прогноз по сюжету"]]) {
+            const row = element(parts, "span", "kino-forecast-part");
+            element(row, "span", "", label);
+            const n = number(fm[key]);
+            element(row, "strong", "", n == null ? "—" : String(Math.round(n * 10) / 10));
+        }
+        const state = text(fm["Статус прогноза"]).trim();
+        if (state && !/^(?:готов|готово|завершён|завершен|complete|completed|ready)$/i.test(state)) {
+            element(box, "span", "kino-forecast-status", state);
+        }
+        element(box, "span", "kino-forecast-hint", "Как получен прогноз ↗");
+        let loading = false, dialog = null, openDetails = null;
+        cleanup(() => dialog?.close?.());
+        box.addEventListener("click", async () => {
+            if (disposed || loading || dialog?.isOpen?.()) return;
+            loading = true; box.setAttribute("aria-busy", "true");
+            try {
+                if (!openDetails) {
+                    const script = app.vault.getAbstractFileByPath("Кино/_system/forecast_details.js")
+                        ?? app.vault.getAbstractFileByPath("_system/forecast_details.js");
+                    if (!script) throw new Error("Модуль расчёта не найден: forecast_details.js");
+                    const loaded = { exports: {} };
+                    new Function("module", await app.vault.read(script))(loaded);
+                    openDetails = loaded.exports;
+                    if (typeof openDetails !== "function") throw new Error("Модуль расчёта недоступен");
+                }
+                if (disposed) return;
+                dialog = await openDetails({ app, obsidian, doc, sourcePath,
+                    reportReference: fm["Расчёт прогноза"], trigger: box, parent: root });
+            } catch (error) {
+                if (!disposed) {
+                    let message = root.querySelector(".kino-forecast-load-error");
+                    if (!message) message = element(root, "p", "kino-forecast-load-error");
+                    message.setAttribute("role", "alert");
+                    message.textContent = "Не удалось открыть расчёт: " + (error.message || error);
+                }
+            } finally { loading = false; box.removeAttribute("aria-busy"); }
+        });
+        return box;
+    }
     function propertyDetails() {
         const details = element(root, "details", "kino-details kino-properties");
         element(details, "summary", "", "Все свойства");
@@ -305,7 +355,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             const kp = text(fm["Кинопоиск ID"]).match(/^\d+$/)?.[0];
             score(ratings, "IMDb", fm["Оценка Imdb"], "", imdb ? `https://www.imdb.com/title/${imdb}/` : null, fm["Количество голосов Imdb"]);
             score(ratings, "Кинопоиск", fm["Оценка Кинопоиск"], "", kp ? `https://www.kinopoisk.ru/film/${kp}/` : null, fm["Количество голосов Кинопоиск"]);
-            score(ratings, "Прогноз", fm["Прогноз оценки"], "kino-score-forecast").title = "Прогноз личной оценки из свойств карточки";
+            forecastScore(ratings);
             if (present(fm["Описание"])) {
                 const synopsis = element(root, "section", "kino-synopsis");
                 element(synopsis, "h2", "kino-section-label", "О фильме".replace("фильме", tags.includes("serial") ? "сериале" : "фильме"));
