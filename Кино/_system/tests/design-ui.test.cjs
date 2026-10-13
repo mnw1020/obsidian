@@ -322,6 +322,7 @@ test('franchise masthead, navigation, properties and table share the cinema styl
             });
             assert.ok(Math.abs(geometry.pane-geometry.sizer)<1,'franchise uses full pane width');assert.equal(geometry.overflow,false);assert.deepEqual(geometry.clipped,[]);
             assert.equal(await page.locator('.history table tbody tr').count(),2);assert.equal(await page.locator('.history table thead th').count(),6);
+            assert.equal(await page.locator('.history table tbody td').first().evaluate(node=>getComputedStyle(node,'::before').content),'none','part values are not prefixed with unrelated row numbers');
             assert.equal(await page.locator('.personal-notes').textContent(),await page.evaluate(()=>{const original=document.createElement('div');original.innerHTML=kinoTest.notesBefore;return original.textContent;}));
             await page.evaluate(()=>document.activeElement?.blur());
             await page.screenshot({path:path.join(previewDir,'franchise-'+width+'.png'),fullPage:true});
