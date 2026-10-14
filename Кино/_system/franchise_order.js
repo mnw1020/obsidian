@@ -52,7 +52,8 @@ function canonicalPath({ app, value, sourcePath = "" }) {
 
 function releaseKey(value) {
     if (value?.toISODate) value = value.toISODate();
-    if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.getTime() : Infinity;
+    if (value instanceof Date) return Number.isFinite(value.getTime())
+        ? Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()) : Infinity;
     const text = String(value ?? "").trim();
     let year, month, day;
     let match = text.match(/^(\d{4})$/);
