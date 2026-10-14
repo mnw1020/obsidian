@@ -30,6 +30,12 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         weights: "Подобранные веса", effectiveWeights: "Веса доступных веток", plots: "Параметры сюжетных веток",
         models: "Модели", modelKey: "Ключ модели", modelVersion: "Версия модели", fitReason: "Правило подбора",
         plotParameterSelection: "Подбор параметров сюжетных веток", independentPlotTuning: "Отдельный подбор каждой сюжетной ветки",
+        reliability: "Точность источников и веса", method: "Правило весов", pairedCount: "Карточек с обоими проверенными прогнозами",
+        pairedGroupCount: "Групп произведений в проверке", minimumPairedCount: "Минимум карточек для выбора весов",
+        dataMae: "Средняя ошибка прогноза по данным (MAE)", plotMae: "Средняя ошибка прогноза по сюжету (MAE)",
+        dataRmse: "Ошибка прогноза по данным (RMSE)", plotRmse: "Ошибка прогноза по сюжету (RMSE)",
+        rawDataWeight: "Вес данных до ограничения", plotWeight: "Вес сюжета", minWeight: "Минимальный вес источника",
+        maxWeight: "Максимальный вес источника", rawWeights: "Веса до ограничения", fallbackReason: "Причина равных весов",
         data155: "По данным · 155", "plot-embeddinggemma": "По сюжету · EmbeddingGemma", embeddinggemma: "EmbeddingGemma"
     };
     const dataBranches = [["155", "По данным · 155"]];
@@ -109,6 +115,7 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
     }
     function finalPanel(panel, report) {
         const result = report.final ?? {}, data = report.data ?? {}, plot = report.plot ?? {};
+        const reliability = report.training?.parameters?.reliability ?? result.reliability;
         section(panel, "Итоговый прогноз");
         const summary = el(panel, "div", "kino-forecast-result");
         el(summary, "strong", "", fmt(result.prediction)); el(summary, "span", "kino-forecast-muted", " / 10");
@@ -130,7 +137,8 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         } else fields(panel, { "По данным": data.prediction, "По сюжету": plot.prediction, "Вес данных": result.dataWeight,
             "Вес сюжета": result.plotWeight, "Итог до округления": result.raw, "Итог после округления": result.prediction });
         section(panel, "Формула");
-        el(panel, "p", "kino-forecast-muted", "Итог объединяет прогнозы до округления с выбранными весами. Значение ограничивается диапазоном 1–10, затем округляется до десятых. Нулевой вес означает, что ветка показана отдельно и не влияет на итог.");
+        el(panel, "p", "kino-forecast-muted", "Итог объединяет прогнозы до округления с выбранными весами. Значение ограничивается диапазоном 1–10, затем округляется до десятых."
+            + (reliability ? " Если доступны оба прогноза, каждый получает не менее 25% и не более 75%. Если сюжет ещё не рассчитан, предварительный итог использует прогноз по данным." : " Нулевой вес означает, что ветка показана отдельно и не влияет на итог."));
         formula(panel, result.formula ?? "Итог = вес данных × прогноз по данным + вес сюжета × прогноз по сюжету; затем округление до десятых.");
         if (multiple(report)) {
             const terms = [...dataBranches.map(([key]) => ["data" + key, report.dataVariants?.[key]]),
@@ -142,6 +150,14 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
             formula(panel, `${fmt(result.dataWeight)} × ${fmt(data.raw)} + ${fmt(result.plotWeight)} × ${fmt(plot.raw)} = ${fmt(result.raw)} → ${fmt(result.prediction)}`);
         } else if (numeric(data.raw)) formula(panel, `${fmt(data.raw)} → ${fmt(result.prediction)}`);
         if (plot.reason) el(panel, "p", "kino-forecast-muted", "По сюжету: " + fmt(plot.reason));
+        if (reliability) {
+            section(panel, "Почему такие веса");
+            el(panel, "p", "kino-forecast-muted", "Точность источников проверяется на ваших личных оценках: для каждого проверяемого произведения его оценка и оценки той же группы IMDb / Кинопоиска исключаются из обучения. Сравниваются ошибки двух прогнозов на одном наборе карточек. Чем меньше средняя абсолютная ошибка (MAE), тем больше вес источника.");
+            el(panel, "p", "kino-forecast-muted", "Для этой карточки используются результаты внутренних проверок, выполненных без её внешней группы. Для нового произведения используются проверки по всей оценённой базе. Ограничение 25–75% сохраняет вклад обеих оценок; оно само по себе не гарантирует меньшую ошибку итогового прогноза.");
+            formula(panel, "Вес данных до ограничения = MAE сюжета / (MAE данных + MAE сюжета).\nВес данных = min(0,75; max(0,25; вес данных до ограничения)).\nВес сюжета = 1 − вес данных.\nИтог = вес данных × прогноз по данным + вес сюжета × прогноз по сюжету.\nЕсли проверено меньше 30 карточек с обоими прогнозами, используются веса 50/50.");
+            fields(panel, reliability, ["pairedCount", "pairedGroupCount", "minimumPairedCount", "dataMae", "plotMae", "dataRmse", "plotRmse", "rawDataWeight", "dataWeight", "plotWeight", "minWeight", "maxWeight", "fallbackReason", "formula"]);
+            el(panel, "p", "kino-forecast-muted", "При изменении ваших оценок веса будут проверены заново при следующем расчёте прогноза. Этот разбор хранит веса и значения, использованные для показанного итога; сам по себе просмотр окна ничего не пересчитывает.");
+        }
         section(panel, "Исходные данные карточки"); fields(panel, report.target ?? {});
         if (report.training) { section(panel, "Обучающая выборка и исключения"); fields(panel, report.training); }
         if (report.model) { section(panel, "Локальная модель сюжета"); fields(panel, report.model); }
@@ -170,7 +186,7 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         const plot = branchKey ? report.plotVariants?.[branchKey] ?? {} : report.plot ?? {};
         section(panel, branchLabel);
         el(panel, "p", "kino-forecast-muted", "Соседи выбраны по косинусному сходству смысловых векторов описаний. Для оценки используются только ваши оценки этих соседей.");
-        if (branchKey) el(panel, "p", "kino-forecast-muted", "Число соседей, температура и сглаживание подбираются для сюжетной ветки отдельно, по ошибке её прогноза. Затем подбираются веса данных и сюжета для итоговой оценки.");
+        if (branchKey) el(panel, "p", "kino-forecast-muted", "Число соседей, температура и сглаживание подбираются для сюжетной ветки отдельно, по ошибке её прогноза. Веса данных и сюжета для итоговой оценки рассчитываются по проверенной точности двух источников.");
         if (plot.reason) el(panel, "p", "kino-forecast-notice", fmt(plot.reason));
         if (plot.note) el(panel, "p", "kino-forecast-muted", fmt(plot.note));
         fields(panel, plot, ["prediction", "raw", "unbounded", "base", "correction", "sumWeights", "denominator", "parameters", "status", "shortDescription", "truncated", "tokenCount"]);
