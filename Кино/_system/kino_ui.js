@@ -156,7 +156,6 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         if (state && !/^(?:готов|готово|завершён|завершен|complete|completed|ready)$/i.test(state)) {
             element(box, "span", "kino-forecast-status", state);
         }
-        element(box, "span", "kino-forecast-hint", "Как получен прогноз ↗");
         let loading = false, dialog = null, openDetails = null;
         cleanup(() => dialog?.close?.());
         box.addEventListener("click", async () => {
