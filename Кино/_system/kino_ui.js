@@ -356,7 +356,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             meta.tabIndex = 0; meta.setAttribute("aria-label", "Релиз, просмотр, продолжительность и связь с книгой");
             const release = element(meta, "span", "kino-meta-chip", `Релиз: ${present(fm["Релиз"]) ? dateLabel(fm["Релиз"]) : "—"}`);
             if (present(fm["Релиз"]) && !/^\d{2}\.\d{2}\.\d{4}$/.test(dateLabel(fm["Релиз"]))) release.title = "Полная дата релиза в карточке не указана";
-            element(meta, "span", "kino-meta-chip", `Просмотрено ${present(fm["Просмотрено"]) ? dateLabel(fm["Просмотрено"]) : "—"}`);
+            element(meta, "span", "kino-meta-chip", `Просмотрено: ${present(fm["Просмотрено"]) ? dateLabel(fm["Просмотрено"]) : "—"}`);
             element(meta, "span", "kino-meta-chip", `Продолжительность: ${durationLabel(fm["Время"])}`);
             if (number(fm["Количество сезонов"]) != null) element(element(header, "div", "kino-card-extra-meta"), "span", "kino-meta-chip", `Сезонов: ${text(fm["Количество сезонов"])}`);
         } else {
