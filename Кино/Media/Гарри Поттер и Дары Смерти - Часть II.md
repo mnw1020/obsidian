@@ -22,8 +22,19 @@ poster: https://m.media-amazon.com/images/M/MV5BOTA1Mzc2N2ItZWRiNS00MjQzLTlmZDQt
 Франшиза: "[[Кино/Франшизы/Волшебный мир Гарри Поттера]]"
 Кинопоиск ID: "407636"
 Прогноз оценки: "8.1"
-
 cssclasses: ["kino-page","kino-media"]
+Прогноз по данным: "8.1"
+Прогноз по сюжету: "7.0"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/88f7279c51ee-eaf2d286dac316bdf4f2.json]]"
+Статус прогноза: "Готов"
+Дата прогноза: "2026-10-14T19:16:51.306Z"
+Версия прогноза: "kino-forecast-v4"
+
+
+
+
+
+
 ---
 
 <!-- KINO:UI:START -->

@@ -208,7 +208,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-score-personal .kino-score-value { color: var(--kino-accent); }
 .kino-score-scale { color: #8e8e88; font-size: 11px; font-weight: 400; }
 .kino-score.kino-score-with-votes {
-    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: 8px;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; align-content: start; column-gap: 8px;
 }
 .kino-score-with-votes .kino-score-label { grid-column: 1 / -1; }
 .kino-score-votes {
@@ -216,6 +216,69 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .kino-score-forecast { border-style: dashed; }
+.kino-page button.kino-score-forecast {
+    width: 100%; height: auto; min-height: 0; align-items: stretch; justify-content: flex-start;
+    text-align: left; font-family: var(--kino-font); box-shadow: none; cursor: pointer;
+    white-space: normal;
+}
+.kino-page button.kino-score-forecast:hover { border-color: var(--kino-accent); background: var(--kino-raised); }
+.kino-page button.kino-score-forecast[aria-busy="true"] { cursor: progress; }
+.kino-forecast-parts { display: grid; gap: 4px; margin-top: 2px; font-size: 10px; line-height: 1.45; color: var(--kino-muted); }
+.kino-forecast-part { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.kino-forecast-part strong { color: var(--kino-text); font-size: 12px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.kino-forecast-part > span { min-width: 0; overflow-wrap: anywhere; }
+.kino-forecast-part strong { flex: 0 0 auto; }
+.kino-forecast-status { font-size: 10px; line-height: 1.4; color: var(--kino-accent); overflow-wrap: anywhere; }
+.kino-forecast-hint { margin-top: auto; color: var(--kino-muted); font-size: 9px; line-height: 1.4; }
+.kino-forecast-load-error { color: var(--text-error); font-size: 12px; overflow-wrap: anywhere; }
+.kino-forecast-modal { width: min(1080px, 94vw); }
+.kino-forecast-modal .modal-content { min-width: 0; }
+.kino-forecast-details { min-width: 0; color: var(--kino-text); font-family: var(--kino-font); }
+.kino-forecast-details :is(h2, h3) { color: var(--kino-text); letter-spacing: -.015em; }
+.kino-forecast-details h3 { margin: 24px 0 12px; font-size: 16px; line-height: 1.4; }
+.kino-forecast-meta, .kino-forecast-muted { color: var(--kino-muted); font-size: 12px; line-height: 1.6; overflow-wrap: anywhere; }
+.kino-forecast-meta { margin: 0 0 16px; }
+.kino-forecast-tabs { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--kino-line); padding-bottom: 10px; }
+.kino-forecast-details button.kino-forecast-tab {
+    flex: 1; min-height: 38px; height: auto; padding: 8px 16px; border: 1px solid var(--kino-line);
+    border-radius: 8px; background: var(--kino-surface); color: var(--kino-muted); box-shadow: none; font: inherit; font-size: 13px;
+}
+.kino-forecast-details button.kino-forecast-tab[aria-selected="true"] { border-color: #997448; background: #302820; color: var(--kino-accent); }
+.kino-forecast-panel { padding-bottom: 12px; min-width: 0; }
+.kino-forecast-panel[hidden] { display: none; }
+.kino-forecast-result { font-size: 32px; font-variant-numeric: tabular-nums; line-height: 1.2; margin: 10px 0 18px; }
+.kino-forecast-result strong { color: var(--kino-accent); font-weight: 650; }
+.kino-forecast-notice { padding: 12px 15px; border: 1px solid #886645; border-radius: 8px; background: #2c251f; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.kino-forecast-fields { display: grid; grid-template-columns: minmax(130px, 36%) minmax(0, 1fr); margin: 0 0 12px; font-size: 12px; line-height: 1.6; }
+.kino-forecast-fields dt, .kino-forecast-fields dd { padding: 8px 0; margin: 0; min-width: 0; border-bottom: 1px solid var(--kino-line); overflow-wrap: anywhere; }
+.kino-forecast-fields dt { padding-right: 14px; color: var(--kino-muted); }
+.kino-forecast-fields dd { font-variant-numeric: tabular-nums; }
+.kino-forecast-fields dd > .kino-forecast-fields { grid-template-columns: minmax(90px, 40%) minmax(0, 1fr); margin: 0; }
+.kino-forecast-fields dd > .kino-forecast-fields :is(dt, dd) { padding-block: 4px; border: 0; }
+.kino-forecast-details pre.kino-forecast-formula { padding: 15px; border: 1px solid var(--kino-line); border-radius: 9px; background: var(--kino-bg); color: var(--kino-text); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; line-height: 1.8; }
+.kino-forecast-table-wrap { overflow: auto; max-width: 100%; border: 1px solid var(--kino-line); border-radius: 9px; margin: 12px 0 20px; }
+.kino-forecast-table { width: 100%; border-collapse: collapse; font-size: 11px; line-height: 1.5; }
+.kino-forecast-table caption { caption-side: bottom; text-align: left; padding: 10px 12px; }
+.kino-forecast-table :is(th, td) { padding: 10px 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--kino-line); }
+.kino-forecast-table th { background: var(--kino-surface); color: var(--kino-muted); font-weight: 550; white-space: nowrap; }
+.kino-forecast-table td { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kino-forecast-table td:nth-child(2) { min-width: 160px; max-width: 260px; white-space: normal; overflow-wrap: anywhere; }
+.kino-forecast-table tr:last-child td { border-bottom: 0; }
+.kino-forecast-components { min-width: 90px; max-width: 440px; }
+.kino-forecast-components[open] { min-width: 300px; white-space: normal; }
+.kino-forecast-components summary { cursor: pointer; color: var(--kino-accent); }
+.kino-forecast-inline { margin: 0 0 24px; padding: 20px; border: 1px solid var(--kino-line); border-radius: 12px; background: var(--kino-surface); }
+.kino-forecast-inline-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kino-forecast-inline-heading h2 { font-size: 18px !important; margin: 0 0 16px !important; }
+@media (max-width: 520px) {
+    .kino-forecast-modal { width: 96vw; max-width: 96vw; }
+    .kino-forecast-details button.kino-forecast-tab { padding: 8px 10px; }
+    .kino-forecast-fields { grid-template-columns: minmax(100px, 40%) minmax(0, 1fr); font-size: 11px; }
+    .kino-forecast-fields dd > .kino-forecast-fields { display: block; }
+    .kino-forecast-fields dd > .kino-forecast-fields dt { padding-top: 8px; }
+    .kino-forecast-fields dd > .kino-forecast-fields dt:first-child { padding-top: 0; }
+    .kino-forecast-inline { padding: 15px; }
+}
 .kino-synopsis { padding: 23px 25px; border: 1px solid var(--kino-line); background: var(--kino-surface); border-radius: 14px; margin: 0 0 20px; }
 .kino-page .kino-section-label { font-size: 11px !important; text-transform: uppercase; letter-spacing: .1em !important; color: var(--kino-muted) !important; margin: 0 0 12px !important; font-weight: 650; }
 .kino-synopsis-text { font-size: 15px; line-height: 1.8; }

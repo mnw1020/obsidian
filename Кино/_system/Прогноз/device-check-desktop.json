@@ -1,0 +1,33 @@
+{
+  "version": 4,
+  "date": "2026-10-14T19:35:51.941Z",
+  "platform": "desktop",
+  "passed": true,
+  "elapsedMs": 3010,
+  "models": {
+    "embeddinggemma": {
+      "label": "EmbeddingGemma 300M",
+      "revision": "5090578d9565bb06545b4552f76e6bc2c93e4a66",
+      "dimensions": 768,
+      "passed": true,
+      "elapsedMs": 3007,
+      "norms": [
+        0.999999999999999,
+        1.0000000000000009
+      ],
+      "error": null,
+      "lastProgress": {
+        "phase": "embedding"
+      }
+    }
+  },
+  "error": null,
+  "cancelled": false,
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) obsidian/1.14.4 Chrome/150.0.7871.250 Electron/43.7.7 Safari/537.36",
+    "origin": "app://obsidian.md",
+    "protocol": "app:",
+    "worker": "function",
+    "webAssembly": "object"
+  }
+}

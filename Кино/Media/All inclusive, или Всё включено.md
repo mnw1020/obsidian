@@ -22,9 +22,20 @@ imdb Id: tt1846473
 poster: https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGItN2VmNjk1NjBkYzRkXkEyXkFqcGc@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Всё включено]]"
 Кинопоиск ID: "521637"
-Прогноз оценки: "4.5"
-
+Прогноз оценки: "4.3"
 cssclasses: ["kino-page","kino-media"]
+Прогноз по данным: "4.3"
+Прогноз по сюжету: "5.4"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/ca7110b21fc1-4c19ba9ffe4b84702825.json]]"
+Статус прогноза: "Готов"
+Дата прогноза: "2026-10-14T19:16:50.349Z"
+Версия прогноза: "kino-forecast-v4"
+
+
+
+
+
+
 ---
 
 <!-- KINO:UI:START -->

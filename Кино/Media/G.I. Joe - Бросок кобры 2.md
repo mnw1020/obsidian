@@ -21,9 +21,20 @@ imdb Id: tt1583421
 poster: https://m.media-amazon.com/images/M/MV5BNzk5ODM0OTQ0N15BMl5BanBnXkFtZTcwODg2ODE4OA@@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/G.I. Joe]]"
 Кинопоиск ID: "494839"
-Прогноз оценки: "5.3"
-
+Прогноз оценки: "5.4"
 cssclasses: ["kino-page","kino-media"]
+Прогноз по данным: "5.4"
+Прогноз по сюжету: "6.2"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/b78a87349187-05626df17494f5605676.json]]"
+Статус прогноза: "Готов"
+Дата прогноза: "2026-10-14T19:16:50.377Z"
+Версия прогноза: "kino-forecast-v4"
+
+
+
+
+
+
 ---
 
 <!-- KINO:UI:START -->

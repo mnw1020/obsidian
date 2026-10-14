@@ -14,29 +14,29 @@ async function update(params) {
     const requested=params.scope || params.variables?.kinoRatingScope;
     const all=requested==='all' || (!requested && active?.path===AUDIT);
     const files=all?app.vault.getMarkdownFiles().filter(file=>isMedia(app,file)):isMedia(app,active)?[active]:[];
-    const result={total:files.length,updated:0,unchanged:0,failed:[],cancelled:false};
+    const result={total:files.length,updated:0,unchanged:0,complete:0,provisional:0,failed:[],cancelled:false};
     const notify=message=>{if(!params.suppressNotice&&obsidian.Notice)new obsidian.Notice(message,9000);};
     if (!files.length) {notify('Открой карточку фильма/сериала или «Проверку кинотеки».');return result;}
     const token={};app.__kinoRatingUpdate=token;
     let notice;
-    const progress=value=>{params.onProgress?.(value);notice?.setMessage((value.phase==='predicting'?'Расчёт прогнозов':'Запись прогнозов')+': '+value.completed+' / '+value.total);};
+    const phases={descriptions:'Дополнение сюжетов',model:'Загрузка локальной модели',embeddings:'Анализ сюжетов',training:'Подбор параметров',validating:'Проверка точности',trained:'Параметры подобраны',predicting:'Расчёт прогнозов',writing:'Запись прогнозов'};
+    const progress=value=>{params.onProgress?.(value);notice?.setMessage((phases[value.phase]||'Расчёт прогнозов')+(value.model?' · '+value.model:'')+(Number.isFinite(value.completed)?': '+value.completed+' / '+value.total:''));};
     try {
         if(!params.suppressNotice&&obsidian.Notice)notice=new obsidian.Notice('Обновление прогнозов: '+files.length+' карточек…',0);
         const script=app.vault.getAbstractFileByPath('Кино/_system/predict_rating.js');
         if(!script)throw Error('Не найден расчёт прогнозов');
         const mod={exports:{}};new Function('module',await app.vault.read(script))(mod);
-        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true});
+        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true,prepareDescriptions:params.prepareDescriptions!==false,retrain:all});
+        result.descriptions=estimates.descriptions;result.metrics=estimates.metrics;result.semanticError=estimates.semanticError;
         if(estimates.cancelled){result.cancelled=true;notify('Обновление отменено до записи прогнозов.');return result;}
         for(let index=0;index<estimates.results.length;index++) {
             if(params.shouldCancel?.()){result.cancelled=true;break;}
             const estimate=estimates.results[index];
             if(estimate.error){result.failed.push({path:estimate.file?.path||estimate.path,error:estimate.error});continue;}
             try {
-                const fm=app.metadataCache.getFileCache(estimate.file)?.frontmatter || {};
-                const old=fm['Прогноз оценки'];
-                const value=estimate.prediction.toFixed(1);
-                if(old!=null&&String(old).trim()!==''&&Number(String(old).replace(',','.'))===estimate.prediction)result.unchanged++;
-                else {await app.fileManager.processFrontMatter(estimate.file,frontmatter=>{frontmatter['Прогноз оценки']=value;});result.updated++;}
+                await mod.exports.persist({app,obsidian},estimate);
+                result.updated++;
+                if(estimate.report.final.provisional)result.provisional++;else result.complete++;
             }catch(error){result.failed.push({path:estimate.file.path,error:String(error?.message||error)});}
             progress({phase:'writing',completed:index+1,total:files.length});
             if((index+1)%5===0)await new Promise(resolve=>setTimeout(resolve,0));

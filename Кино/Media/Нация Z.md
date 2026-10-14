@@ -39,9 +39,20 @@ tags:
 imdb Id: tt3843168
 poster: https://m.media-amazon.com/images/M/MV5BYTc2YTJiZDItN2I4OS00M2MwLTlhZGYtNTM2ZjBjMDlkZjJlXkEyXkFqcGc@._V1_SX300.jpg
 Кинопоиск ID: "841371"
-Прогноз оценки: "5.9"
-
+Прогноз оценки: "6.0"
 cssclasses: ["kino-page","kino-media"]
+Прогноз по данным: "6.0"
+Прогноз по сюжету: "6.0"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/b1ec6e3f1f78-d4df364606f265fdf171.json]]"
+Статус прогноза: "Готов"
+Дата прогноза: "2026-10-14T19:16:53.285Z"
+Версия прогноза: "kino-forecast-v4"
+
+
+
+
+
+
 ---
 
 <!-- KINO:UI:START -->

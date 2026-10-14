@@ -1,4 +1,7 @@
 .obsidian
 
 # Local API credentials
-/Кино/_system/ai_settings.json
+#/Кино/_system/ai_settings.json
+
+# Модель рекоменаций - слишком большая(
+/Кино/_system/Прогноз/runtime/models/onnx-community/embeddinggemma-300m-ONNX/onnx/model_quantized.onnx_data

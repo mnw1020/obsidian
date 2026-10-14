@@ -68,9 +68,10 @@ async function render({dv,app,obsidian={}}) {
                 if(action==='ratings'){
                     stop.hidden=false;stop.disabled=false;
                     const update=await moduleAt('Кино/_system/update_ratings.js');
-                    const result=await update({app,obsidian,scope:'all',suppressNotice:true,shouldCancel:()=>cancelled||disposed,onProgress:p=>{if(!disposed)status.textContent=(p.phase==='predicting'?'Расчёт прогнозов':'Запись прогнозов')+': '+p.completed+' / '+p.total;}});
+                    const phases={descriptions:'Дополнение сюжетов',model:'Загрузка локальной модели',embeddings:'Анализ сюжетов',training:'Подбор параметров',validating:'Проверка точности',trained:'Параметры подобраны',predicting:'Расчёт прогнозов',writing:'Запись прогнозов'};
+                    const result=await update({app,obsidian,scope:'all',suppressNotice:true,shouldCancel:()=>cancelled||disposed,onProgress:p=>{if(!disposed)status.textContent=(phases[p.phase]||'Обновление прогнозов')+(Number.isFinite(p.completed)?': '+p.completed+' / '+p.total:'');}});
                     if(disposed)return;
-                    status.textContent=result.busy?'Обновление уже выполняется.':(result.cancelled?'Обновление остановлено. ':'Готово. ')+'Обновлено прогнозов: '+result.updated+' · Без изменений: '+result.unchanged+' · Ошибок: '+result.failed.length;
+                    status.textContent=result.busy?'Обновление уже выполняется.':(result.cancelled?'Обновление остановлено. ':'Готово. ')+'Обновлено: '+result.updated+' · Полных: '+(result.complete||0)+' · Предварительных: '+(result.provisional||0)+' · Ошибок: '+result.failed.length;
                     if(result.failed?.length){failureList.replaceChildren();for(const entry of result.failed){const item=el(failureList,'li');internal(item,entry.path,entry.path);el(item,'span','',': '+entry.error);}failures.hidden=false;}
                 }else{
                     const api=app.plugins?.plugins?.quickadd?.api;if(!api?.executeChoice)throw Error('Не найден QuickAdd');await api.executeChoice(action);if(!disposed)status.textContent='Готово.';
@@ -80,10 +81,10 @@ async function render({dv,app,obsidian={}}) {
         }
         for(const [label,choice,primary]of [['Проверить','Кино - Проверить кинотеку',true],['Обновить оценки','ratings',true],['Исправить безопасное','Кино - Исправить безопасное'],['Обновить роли','Кино - Обновить роли актёров']]){
             const button=el(actions,'button','kino-home-action'+(primary?' is-primary':''),label);button.type='button';buttons.push(button);
-            if(choice==='ratings'){button.dataset.action='ratings';button.title='Команда: QuickAdd: '+UPDATE+'\nНа этой странице — все карточки; в карточке — только текущая. Пересчитывает «Прогноз оценки» для аналитики рекомендаций.';}
+            if(choice==='ratings'){button.dataset.action='ratings';button.title='Команда: QuickAdd: '+UPDATE+'\nНа этой странице — все карточки; в карточке — только текущая. Обновляет прогноз по данным, прогноз по сюжету, итог и подробный разбор.';}
             listen(button,'click',()=>void run(choice));
         }
-        el(head,'p','kino-audit-description','Обновление оценок пересчитывает локальные прогнозы для аналитики рекомендаций. Личные оценки сохраняются.');
+        el(head,'p','kino-audit-description','Обновление оценок пересчитывает прогноз по данным, прогноз по сюжету и итог, затем сохраняет подробный разбор. Личные оценки сохраняются.');
         const content=el(root,'div','kino-audit-content');
         async function refresh(){const current=++generation;try{
             const file=app.vault.getAbstractFileByPath(PATH);if(!file)throw Error('Не найден отчёт проверки');const raw=await app.vault.read(file);if(disposed||current!==generation)return;

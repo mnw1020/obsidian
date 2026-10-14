@@ -1,4 +1,5 @@
-/* Shared reading-view presentation. This module never writes notes or settings. */
+/* Shared reading-view presentation. Saved reports are read-only; opening a
+   Kino page may resume the user's previously queued forecast work. */
 module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "media" }) {
     const container = dv?.container;
     if (!container?.ownerDocument) return;
@@ -136,14 +137,17 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const value = number(fm["Прогноз оценки"]);
         const box = element(parent, "button", "kino-score kino-score-forecast");
         box.type = "button";
-        box.setAttribute("aria-haspopup", "dialog");
+        if (obsidian.Modal) box.setAttribute("aria-haspopup", "dialog");
         box.title = "Открыть сохранённый расчёт прогноза";
         element(box, "span", "kino-score-label", "Прогноз");
         const main = element(box, "span", "kino-score-value", value == null ? "—" : String(Math.round(value * 10) / 10));
         if (value != null) element(main, "span", "kino-score-scale", " / 10");
         const parts = element(box, "span", "kino-forecast-parts");
-        for (const [label, key] of [["По данным", "Прогноз по данным"], ["По сюжету", "Прогноз по сюжету"]]) {
+        const currentSchema = /v4$/i.test(text(fm["Версия прогноза"]));
+        for (const [label, key] of [[currentSchema ? "По данным · 155" : "По данным", "Прогноз по данным"],
+            [currentSchema ? "По сюжету · Gemma" : "По сюжету", "Прогноз по сюжету"]]) {
             const row = element(parts, "span", "kino-forecast-part");
+            row.dataset.branch = key;
             element(row, "span", "", label);
             const n = number(fm[key]);
             element(row, "strong", "", n == null ? "—" : String(Math.round(n * 10) / 10));
@@ -171,6 +175,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                 if (disposed) return;
                 dialog = await openDetails({ app, obsidian, doc, sourcePath,
                     reportReference: fm["Расчёт прогноза"], trigger: box, parent: root });
+                if (disposed) dialog?.close?.();
             } catch (error) {
                 if (!disposed) {
                     let message = root.querySelector(".kino-forecast-load-error");
@@ -402,7 +407,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     // Wrap read-only tables, including those Dataview renders after this block.
     function wrapTables() {
         for (const table of view.querySelectorAll("table")) {
-            if (table.closest(".kino-table-wrap, .bases-view, .bases-table, .bases-cards, .cm-content")) continue;
+            if (table.closest(".kino-table-wrap, .kino-forecast-table-wrap, .bases-view, .bases-table, .bases-cards, .cm-content")) continue;
             const wrapper = doc.createElement("div"); wrapper.className = "kino-table-wrap";
             wrapper.tabIndex = 0; wrapper.setAttribute("role", "region");
             wrapper.setAttribute("aria-label", "Таблица с горизонтальной прокруткой");
@@ -421,6 +426,44 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         });
         observer.observe(view, { childList: true, subtree: true });
         cleanup(() => observer.disconnect());
+    }
+    // Check deferred work on normal Kino openings, even if cancellation happened
+    // before provisional scores were written. Empty queues never load the engine.
+    // The service owns the session limit, backfill lock and actual computation.
+    const resumeKey = Symbol.for("kino.forecast.ui-resume.v4");
+    const queueFile = ["media", "system", "dashboard"].includes(kind)
+        ? app.vault.getAbstractFileByPath("Кино/_system/Прогноз/queue.json")
+            ?? app.vault.getAbstractFileByPath("_system/Прогноз/queue.json") : null;
+    const provisional = /^Предварительный/i.test(text(fm["Статус прогноза"]).trim());
+    if (["media", "system", "dashboard"].includes(kind) && (provisional || queueFile)) {
+        Promise.resolve().then(async () => {
+            if (disposed || app.__kinoRatingUpdate || app.__kinoForecastResuming) return;
+            const state = app[resumeKey] && typeof app[resumeKey] === "object" ? app[resumeKey] : (app[resumeKey] = {});
+            if (state.running) return;
+            state.running = true;
+            try {
+                if (queueFile) {
+                    const stamp = queueFile.stat ? `${queueFile.path}:${queueFile.stat.mtime}:${queueFile.stat.size}` : null;
+                    if (stamp === null || stamp !== state.queueStamp) {
+                        const queue = JSON.parse(await app.vault.read(queueFile));
+                        state.queueHasWork = Boolean(queue?.entries && Object.keys(queue.entries).length);
+                        state.queueStamp = stamp;
+                    }
+                    if (!state.queueHasWork) return;
+                }
+                if (disposed || app.__kinoRatingUpdate || app.__kinoForecastResuming) return;
+                const script = app.vault.getAbstractFileByPath("Кино/_system/predict_rating.js")
+                    ?? app.vault.getAbstractFileByPath("_system/predict_rating.js");
+                if (!script) return;
+                const version = script.stat?.mtime ?? 0;
+                if (!state.api || state.version !== version) {
+                    const loaded = { exports: {} };
+                    new Function("module", await app.vault.read(script))(loaded);
+                    state.api = loaded.exports; state.version = version;
+                }
+                await state.api.resume?.({ app, obsidian });
+            } finally { state.running = false; }
+        }).catch(error => console.warn("Кино: продолжение отложенного прогноза", error));
     }
     return root;
 };

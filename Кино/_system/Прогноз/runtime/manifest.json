@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "model": {
+    "key": "embeddinggemma",
+    "label": "EmbeddingGemma 300M",
+    "id": "onnx-community/embeddinggemma-300m-ONNX",
+    "revision": "5090578d9565bb06545b4552f76e6bc2c93e4a66",
+    "dtype": "q8",
+    "dimensions": 768,
+    "libraryVersion": "3.8.1",
+    "onnxVersion": "1.22.0-dev.20250409-89f8206ba4",
+    "maxTokens": 512,
+    "prefix": "task: sentence similarity | query: ",
+    "pooling": "sentence_embedding",
+    "normalize": true
+  },
+  "models": [
+    {
+      "key": "embeddinggemma",
+      "label": "EmbeddingGemma 300M",
+      "id": "onnx-community/embeddinggemma-300m-ONNX",
+      "revision": "5090578d9565bb06545b4552f76e6bc2c93e4a66",
+      "dtype": "q8",
+      "dimensions": 768,
+      "libraryVersion": "3.8.1",
+      "onnxVersion": "1.22.0-dev.20250409-89f8206ba4",
+      "maxTokens": 512,
+      "prefix": "task: sentence similarity | query: ",
+      "pooling": "sentence_embedding",
+      "normalize": true
+    }
+  ],
+  "files": [
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/GEMMA-TERMS.html",
+      "bytes": 144334,
+      "sha256": "1153b7f24590a4734d34e612ae1d49d5d396967424bb5d4139327ac6d2ab381d",
+      "source": "https://ai.google.dev/gemma/terms"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/NOTICE",
+      "bytes": 156,
+      "sha256": "bfa31431440a36e50352dda590970e6727fc35c38e4df069d905eb13db2c54e4",
+      "source": "Gemma redistribution notice"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/README.md",
+      "bytes": 18721,
+      "sha256": "fa2c412692dbd5b7ccba2cf6d316b3b58c2642c64e50fa4eee1fc75d95629f0e",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/README.md"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/added_tokens.json",
+      "bytes": 35,
+      "sha256": "50b2f405ba56a26d4913fd772089992252d7f942123cc0a034d96424221ba946",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/added_tokens.json"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/config.json",
+      "bytes": 1765,
+      "sha256": "6e1f06404b7163e0325ed2ea3e6781cde50f4a50b31780a95ad0d30e8404d77b",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/config.json"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/generation_config.json",
+      "bytes": 133,
+      "sha256": "1fb1efd221c1ca88a736d1b36cb47d754c177677e222acb3b1e5424c5d664870",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/generation_config.json"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/onnx/model_quantized.onnx",
+      "bytes": 567874,
+      "sha256": "172efde319fe1542dc41f31be6154910b05b78f7a861c265c4600eec906bd6d8",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/onnx/model_quantized.onnx"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/onnx/model_quantized.onnx_data",
+      "bytes": 308890624,
+      "sha256": "705626e28e4c23c82ade34566b4197d97f534c12275fa406dfb71e9937d388c0",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/onnx/model_quantized.onnx_data"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/special_tokens_map.json",
+      "bytes": 662,
+      "sha256": "2f7b0adf4fb469770bb1490e3e35df87b1dc578246c5e7e6fc76ecf33213a397",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/special_tokens_map.json"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/tokenizer.json",
+      "bytes": 20323312,
+      "sha256": "4dda02faaf32bc91031dc8c88457ac272b00c1016cc679757d1c441b248b9c47",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/tokenizer.json"
+    },
+    {
+      "path": "models/onnx-community/embeddinggemma-300m-ONNX/tokenizer_config.json",
+      "bytes": 1156830,
+      "sha256": "3ca953eea6c3c9fcda9cf3df22949ff18b216f7c74bd6459230f3f1013953f3a",
+      "source": "https://huggingface.co/onnx-community/embeddinggemma-300m-ONNX/resolve/5090578d9565bb06545b4552f76e6bc2c93e4a66/tokenizer_config.json"
+    },
+    {
+      "path": "onnxruntime-web/LICENSE",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+      "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/89f8206ba4/LICENSE"
+    },
+    {
+      "path": "onnxruntime-web/ThirdPartyNotices.txt",
+      "bytes": 326866,
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc",
+      "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/89f8206ba4/ThirdPartyNotices.txt"
+    },
+    {
+      "path": "onnxruntime-web/ort-wasm-simd-threaded.jsep.mjs",
+      "bytes": 44484,
+      "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9",
+      "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.22.0-dev.20250409-89f8206ba4.tgz#package/dist/ort-wasm-simd-threaded.jsep.mjs"
+    },
+    {
+      "path": "onnxruntime-web/ort-wasm-simd-threaded.jsep.wasm",
+      "bytes": 21596019,
+      "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39",
+      "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.22.0-dev.20250409-89f8206ba4.tgz#package/dist/ort-wasm-simd-threaded.jsep.wasm"
+    },
+    {
+      "path": "transformers/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source": "https://registry.npmjs.org/@huggingface/transformers/-/transformers-3.8.1.tgz#package/LICENSE"
+    },
+    {
+      "path": "transformers/transformers.min.js",
+      "bytes": 888173,
+      "sha256": "aa5002b70e789798da263f5f99c62bd3e8fcd0c119258a493c40c180648365fa",
+      "source": "https://registry.npmjs.org/@huggingface/transformers/-/transformers-3.8.1.tgz#package/dist/transformers.min.js"
+    }
+  ]
+}
