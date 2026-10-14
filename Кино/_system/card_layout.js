@@ -3,6 +3,8 @@
 // Pure helpers: both QuickAdd and offline migration use the same lossless layout.
 const UI_START = "<!-- KINO:UI:START -->";
 const UI_END = "<!-- KINO:UI:END -->";
+const PROPERTIES_START = "<!-- KINO:PROPERTIES:START -->";
+const PROPERTIES_END = "<!-- KINO:PROPERTIES:END -->";
 const MARKERS = {
     seasons: ["<!-- SEASONS:START -->", "<!-- SEASONS:END -->"],
     viewings: ["<!-- KINO:VIEWINGS:START -->", "<!-- KINO:VIEWINGS:END -->"]
@@ -64,15 +66,23 @@ function regionPattern(start, end, global = false) {
     return new RegExp("^[ \\t]*" + escapeRegex(start) + "[ \\t]*\\r?\\n[\\s\\S]*?^[ \\t]*" + escapeRegex(end) + "[ \\t]*(?=\\r?$)", global ? "gm" : "m");
 }
 
-function uiBlock(kind, newline = "\n") {
-    return [UI_START, "```dataviewjs", "try {",
+function renderBlock(kind, start, end, newline) {
+    return [start, "```dataviewjs", "try {",
         '    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");',
         '    if (!file) throw new Error("Не найден интерфейс кинотеки");',
         "    const kinoModule = { exports: {} };",
         '    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);',
         "    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: " + JSON.stringify(kind) + " });",
         "} catch (error) {", '    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");',
-        '    console.warn("Кино: интерфейс", error);', "}", "```", UI_END].join(newline);
+        '    console.warn("Кино: интерфейс", error);', "}", "```", end].join(newline);
+}
+
+function uiBlock(kind, newline = "\n") {
+    return renderBlock(kind, UI_START, UI_END, newline);
+}
+
+function propertiesBlock(newline = "\n") {
+    return renderBlock("media-properties", PROPERTIES_START, PROPERTIES_END, newline);
 }
 
 function recommendationPattern() {
@@ -109,6 +119,7 @@ function ensureLayout(raw, { kind = "media", parseYaml } = {}) {
     const yaml = fieldBlock(styledYaml, "obsidianUIMode") ? styledYaml
         : "obsidianUIMode: preview" + newline + styledYaml;
     let body = parts.body.replace(regionPattern(UI_START, UI_END, true), "");
+    if (kind === "media") body = body.replace(regionPattern(PROPERTIES_START, PROPERTIES_END, true), "");
     body = dedupeRecommendations(body);
     const poster = kind === "media" ? String(fields.poster ?? "").trim() : "";
     const taken = takePoster(body, poster);
@@ -118,6 +129,7 @@ function ensureLayout(raw, { kind = "media", parseYaml } = {}) {
     result += newline + uiBlock(kind, newline);
     if (body) result += newline + newline + body;
     if (taken.image) result += newline + newline + taken.image;
+    if (kind === "media") result += newline + newline + propertiesBlock(newline);
     return result + newline;
 }
 
@@ -180,7 +192,8 @@ function rebuildCard(raw, generated, options = {}) {
 // Used when copying a legacy review to a new YAML comment. Unknown Markdown,
 // custom queries and block IDs are deliberately retained.
 function personalBody(body, poster = "") {
-    let result = String(body ?? "").replace(regionPattern(UI_START, UI_END, true), "").replace(recommendationPattern(), "");
+    let result = String(body ?? "").replace(regionPattern(UI_START, UI_END, true), "")
+        .replace(regionPattern(PROPERTIES_START, PROPERTIES_END, true), "").replace(recommendationPattern(), "");
     result = result.replace(/^<!-- KINO:ROLES:EMBED:V2 -->\r?\n<details[^>]*class=["']kino-roles-details["'][^>]*>[\s\S]*?<\/details>/gm, "");
     for (const pair of [...Object.values(MARKERS), ["<!-- VIEWINGS:START -->", "<!-- VIEWINGS:END -->"]]) result = result.replace(regionPattern(pair[0], pair[1], true), "");
     result = result.replace(legacyHistoryPattern(), "");
@@ -214,4 +227,5 @@ function mergeRoleCard(raw, generated, { parseYaml } = {}) {
         { kind: "roles", parseYaml });
 }
 
-module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, viewingHistory, personalBody, splitRaw, uiBlock, UI_START, UI_END, MARKERS };
+module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, viewingHistory, personalBody, splitRaw, uiBlock, propertiesBlock,
+    UI_START, UI_END, PROPERTIES_START, PROPERTIES_END, MARKERS };

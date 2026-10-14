@@ -19,6 +19,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         lease.count++; leases.set(cls, lease); ownedClasses.push(cls); view.classList.add(cls);
     }
     acquireClass("kino-page"); acquireClass(`kino-${kind}`);
+    if (["media", "media-properties"].includes(kind)) acquireClass("kino-has-properties");
     const root = element(container, "section", "kino-ui-root");
     root.dataset.kind = kind;
     let disposed = false;
@@ -94,6 +95,14 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     function dateLabel(value) {
         const raw = text(value).trim(), match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:T|$)/);
         return match ? `${match[3]}.${match[2]}.${match[1]}` : raw;
+    }
+    function durationLabel(value) {
+        if (!present(value)) return "—";
+        const raw = text(value).trim();
+        const clock = raw.match(/^(\d+):(\d{2})$/);
+        let minutes = clock && Number(clock[2]) < 60 ? Number(clock[1]) * 60 + Number(clock[2]) : null;
+        if (minutes == null && /^\d+(?:\s*(?:min|mins|minutes?|мин(?:ут[аы]?)?\.?))?$/i.test(raw)) minutes = Number(raw.match(/^\d+/)[0]);
+        return Number.isSafeInteger(minutes) && minutes > 0 ? `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}` : "—";
     }
     function entityLink(parent, name, choice) {
         if (linkParts(name)) return internalLink(parent, name);
@@ -204,7 +213,13 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         });
     }
 
-    async function relatedWorks() {
+    if (kind === "media-properties") {
+        root.classList.add("kino-ui-properties");
+        propertyDetails();
+        return root;
+    }
+
+    async function relatedWorks(actionParent) {
         let api = null;
         const moduleFile = app.vault.getAbstractFileByPath("Кино/_system/adaptation_links.js");
         if (moduleFile) {
@@ -213,7 +228,8 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         }
         if (disposed) return;
         const slot = element(root, "div", "kino-related-slot"), actions = element(root, "div", "kino-related-actions");
-        const add = element(actions, "button", "kino-related-add", "Связать с книгой"); add.type = "button";
+        actions.hidden = true;
+        const add = element(actionParent, "button", "kino-related-add kino-meta-link-book", "Связать с книгой"); add.type = "button";
         const message = element(actions, "p", "kino-related-message"); message.hidden = true; message.setAttribute("role", "status");
         let expanded = true, timer;
         function fallback() {
@@ -249,12 +265,12 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         draw();
         add.addEventListener("click", async () => {
             if (add.disabled || disposed) return;
-            add.disabled = true; message.hidden = true;
+            add.disabled = true; message.hidden = true; actions.hidden = true;
             try {
                 const quickAdd = app.plugins?.plugins?.quickadd?.api;
                 if (!quickAdd?.executeChoice) throw new Error("Включи QuickAdd для добавления связи.");
                 await quickAdd.executeChoice("Книги - Связать с кино", { adaptationRequest: { path: sourcePath, onLinked: draw } });
-            } catch (error) { if (!disposed) { message.hidden = false; message.textContent = "Не удалось добавить связь: " + (error.message || error); } }
+            } catch (error) { if (!disposed) { actions.hidden = false; message.hidden = false; message.textContent = "Не удалось добавить связь: " + (error.message || error); } }
             finally { if (!disposed) add.disabled = false; }
         });
         const schedule = changed => {
@@ -336,11 +352,13 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             element(meta, "span", "kino-franchise-order", "Порядок: " + (byPart ? "по номерам частей" : "по дате выхода"));
         }
         if (kind === "media") {
-            const year = text(fm["Релиз"]).match(/\d{4}/)?.[0];
-            if (year) element(meta, "span", "kino-meta-chip", year);
-            if (present(fm["Время"])) element(meta, "span", "kino-meta-chip", text(fm["Время"]));
-            if (number(fm["Количество сезонов"]) != null) element(meta, "span", "kino-meta-chip", `Сезонов: ${text(fm["Количество сезонов"])}`);
-            if (present(fm["Просмотрено"])) element(meta, "span", "kino-meta-chip kino-meta-muted", `Просмотрено ${dateLabel(fm["Просмотрено"])}`);
+            meta.classList.add("kino-media-meta");
+            meta.tabIndex = 0; meta.setAttribute("aria-label", "Релиз, просмотр, продолжительность и связь с книгой");
+            const release = element(meta, "span", "kino-meta-chip", `Релиз: ${present(fm["Релиз"]) ? dateLabel(fm["Релиз"]) : "—"}`);
+            if (present(fm["Релиз"]) && !/^\d{2}\.\d{2}\.\d{4}$/.test(dateLabel(fm["Релиз"]))) release.title = "Полная дата релиза в карточке не указана";
+            element(meta, "span", "kino-meta-chip", `Просмотрено ${present(fm["Просмотрено"]) ? dateLabel(fm["Просмотрено"]) : "—"}`);
+            element(meta, "span", "kino-meta-chip", `Продолжительность: ${durationLabel(fm["Время"])}`);
+            if (number(fm["Количество сезонов"]) != null) element(element(header, "div", "kino-card-extra-meta"), "span", "kino-meta-chip", `Сезонов: ${text(fm["Количество сезонов"])}`);
         } else {
             const related = kind === "roles" ? fm["Основная карточка"] : fm["Фильм"] ?? fm["Сериал"];
             if (related) internalLink(meta, related);
@@ -369,12 +387,12 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             for (const [key, label, choice] of [["Режисер", "Режиссёр", "Кино - Открыть режиссера"], ["Жанр", "Жанры", "Кино - Открыть жанр"], ["Франшиза", "Франшиза", null]]) {
                 const list = values(fm[key]).filter(present);
                 if (!list.length) continue;
-                const row = element(credits, "div", "kino-credit-row");
+                const row = element(credits, "div", "kino-credit-row" + (choice ? " kino-credit-row-featured" : ""));
                 element(row, "span", "kino-credit-label", label);
                 const links = element(row, "div", "kino-credit-values");
                 list.forEach(value => choice ? entityLink(links, value, choice) : internalLink(links, value));
             }
-            await relatedWorks();
+            await relatedWorks(meta);
         } else if (number(fm["Оценка"]) != null) {
             score(element(root, "div", "kino-scores kino-scores-single"), "Моя оценка", fm["Оценка"], "kino-score-personal");
         }
@@ -384,7 +402,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         element(notes, "h2", "kino-section-label", "Мои впечатления");
         await richText(notes, "kino-comment-text", fm["Комментарий"]);
     }
-    if (!["dashboard", "system", "entity"].includes(kind)) propertyDetails();
+    if (!["media", "dashboard", "system", "entity"].includes(kind)) propertyDetails();
     if (kind === "media") roleDetails();
     if (disposed) return;
     for (const [selector, cls] of [[".kino-card-title", "kino-has-card-title"], [".kino-properties", "kino-has-properties"]]) {
@@ -394,6 +412,17 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
 
     const duplicateTitles = new Set();
     cleanup(() => { for (const heading of duplicateTitles) heading.classList.remove("kino-duplicate-title"); });
+    const markedPosters = new Set();
+    cleanup(() => { for (const image of markedPosters) image.classList.remove("kino-card-poster"); });
+    function markPoster() {
+        if (kind !== "media" || !present(fm.poster)) return;
+        const poster = text(fm.poster).trim();
+        for (const image of view.querySelectorAll("img")) {
+            if (image.closest(".markdown-embed, .kino-ui-root") || image.classList.contains("kino-card-poster")) continue;
+            if (image.getAttribute("src") !== poster && image.getAttribute("data-src") !== poster) continue;
+            image.classList.add("kino-card-poster"); markedPosters.add(image);
+        }
+    }
     function markDuplicateTitle() {
         if (kind !== "franchise") return;
         const title = root.querySelector(".kino-card-title")?.textContent.trim();
@@ -414,6 +443,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         }
     }
     markDuplicateTitle();
+    markPoster();
     wrapTables();
     const Observer = doc.defaultView?.MutationObserver;
     if (Observer) {
@@ -421,7 +451,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const observer = new Observer(() => {
             if (queued || disposed) return;
             queued = true;
-            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); wrapTables(); } });
+            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); markPoster(); wrapTables(); } });
         });
         observer.observe(view, { childList: true, subtree: true });
         cleanup(() => observer.disconnect());
