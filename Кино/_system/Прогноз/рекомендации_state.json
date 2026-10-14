@@ -12,6 +12,6 @@
     "likeFilm": false,
     "tmdb": false,
     "openai": false,
-    "watched": false
+    "watched": true
   }
 }
