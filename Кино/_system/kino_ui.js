@@ -152,9 +152,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const main = element(box, "span", "kino-score-value", value == null ? "—" : String(Math.round(value * 10) / 10));
         if (value != null) element(main, "span", "kino-score-scale", " / 10");
         const parts = element(box, "span", "kino-forecast-parts");
-        const currentSchema = /v4$/i.test(text(fm["Версия прогноза"]));
-        for (const [label, key] of [[currentSchema ? "По данным · 155" : "По данным", "Прогноз по данным"],
-            [currentSchema ? "По сюжету · Gemma" : "По сюжету", "Прогноз по сюжету"]]) {
+        for (const [label, key] of [["По данным", "Прогноз по данным"], ["По сюжету", "Прогноз по сюжету"]]) {
             const row = element(parts, "span", "kino-forecast-part");
             row.dataset.branch = key;
             element(row, "span", "", label);
@@ -348,8 +346,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
         const meta = element(header, "div", "kino-card-meta");
         if (kind === "franchise") {
-            const byPart = text(fm["Порядок"]).trim().toLowerCase() === "части";
-            element(meta, "span", "kino-franchise-order", "Порядок: " + (byPart ? "по номерам частей" : "по дате выхода"));
+            element(meta, "span", "kino-franchise-order", "Порядок: по дате релиза");
         }
         if (kind === "media") {
             meta.classList.add("kino-media-meta");
@@ -383,14 +380,27 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                 element(synopsis, "h2", "kino-section-label", "О фильме".replace("фильме", tags.includes("serial") ? "сериале" : "фильме"));
                 await richText(synopsis, "kino-synopsis-text", fm["Описание"]);
             }
+            let franchiseOrder = null;
+            if (present(fm["Франшиза"])) {
+                const script = app.vault.getAbstractFileByPath("Кино/_system/franchise_order.js");
+                if (script) {
+                    try { const loaded = { exports: {} }; new Function("module", "exports", await app.vault.read(script))(loaded, loaded.exports); franchiseOrder = loaded.exports; }
+                    catch (error) { console.warn("Кино: порядок франшизы", error); }
+                }
+            }
             const credits = element(root, "div", "kino-credits");
             for (const [key, label, choice] of [["Режисер", "Режиссёр", "Кино - Открыть режиссера"], ["Жанр", "Жанры", "Кино - Открыть жанр"], ["Франшиза", "Франшиза", null]]) {
                 const list = values(fm[key]).filter(present);
                 if (!list.length) continue;
-                const row = element(credits, "div", "kino-credit-row" + (choice ? " kino-credit-row-featured" : ""));
+                const row = element(credits, "div", "kino-credit-row kino-credit-row-featured");
                 element(row, "span", "kino-credit-label", label);
                 const links = element(row, "div", "kino-credit-values");
-                list.forEach(value => choice ? entityLink(links, value, choice) : internalLink(links, value));
+                list.forEach(value => {
+                    if (choice) { entityLink(links, value, choice); return; }
+                    const ref = linkParts(value) ?? { path: text(value), label: text(value).split("/").pop().replace(/\.md$/i, "") };
+                    const part = franchiseOrder?.partNumber?.({ app, file, franchisePath: ref.path }) ?? number(fm["Часть"]);
+                    internalLink(links, { path: ref.path, display: ref.label + (Number.isInteger(part) && part > 0 ? ` (${part})` : "") });
+                });
             }
             await relatedWorks(meta);
         } else if (number(fm["Оценка"]) != null) {

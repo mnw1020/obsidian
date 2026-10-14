@@ -257,6 +257,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 }
 .kino-forecast-part { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .kino-forecast-part strong { color: var(--kino-text); font-size: 12px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.kino-page button.kino-score-forecast .kino-forecast-part strong { color: var(--kino-text) !important; }
 .kino-forecast-part > span { min-width: 0; white-space: nowrap; }
 .kino-forecast-part strong { flex: 0 0 auto; }
 .kino-forecast-status { grid-column: 1 / -1; font-size: 10px; line-height: 1.4; color: var(--kino-accent); overflow-wrap: anywhere; }

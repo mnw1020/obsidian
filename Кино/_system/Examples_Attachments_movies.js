@@ -436,7 +436,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         kinopoiskUrl: kp?.kp_id ? `https://www.kinopoisk.ru/${movie.Type === "series" ? "series" : "film"}/${kp.kp_id}/` : "",
         descriptionSource,
         franchiseLink: franchise.path ? `[[${franchise.path.replace(/\.md$/,"")}]]` : "",
-        franchisePart: franchise.part ?? ""
+        franchisePart: ""
     };
     status("создаю карточку из шаблона…");
     watchTemplate(params, movie, title, description, franchise, progress, kp?.kp_id || "", {
@@ -1797,8 +1797,8 @@ async function wikiDescription(get, article) {
 async function ensureFranchise(app, ob, choice, id) {
     let file = app.vault.getAbstractFileByPath(choice.path);
     const cardLayout = await loadCardLayout(app);
-    const marker = "<!-- FRANCHISE:TABLE:v1 -->";
-    const table = marker + "\n## Произведения\n\n```dataviewjs\n" + renderFranchise.toString() + "\nrenderFranchise(dv);\n```\n";
+    const order = await loadFranchiseOrder(app);
+    const table = order.tableBlock();
     if (file) {
         if (file.extension !== "md") throw new Error("Путь франшизы занят папкой.");
         const fm = await frontmatter(app, ob, file);
@@ -1809,62 +1809,20 @@ async function ensureFranchise(app, ob, choice, id) {
         file = await app.vault.create(choice.path,cardLayout.ensureLayout("---\nobsidianUIMode: preview\ntags:\n  - franchise\nПорядок: выход\n---\n\n# " + safeName(choice.name) + "\n\n## Общее впечатление\n\n" + table, {kind:"franchise",parseYaml:ob.parseYaml}));
     }
     await app.vault.process(file,raw=>{
-        if (!raw.includes(marker)) raw=raw.trimEnd()+"\n\n"+table;
+        raw = order.ensureTable(raw);
         const sourceMarker=`<!-- FRANCHISE:SOURCE:${id} -->`;
         if (choice.url && !raw.includes(sourceMarker)) raw=raw.trimEnd()+`\n\n${sourceMarker}\nИсточник связи для IMDb ${id}: [${choice.origin}](${choice.url}).\n`;
         return cardLayout.ensureLayout(raw, {kind:"franchise",parseYaml:ob.parseYaml});
     });
 }
 
-function renderFranchise(dv) {
-    const current = dv.current();
-    function number(value) {
-        if (value == null || String(value).trim() === "") return null;
-        const result = Number(String(value).replace(",", "."));
-        return Number.isFinite(result) ? result : null;
-    }
-    function release(value) {
-        if (value?.toMillis) return value.toMillis();
-        if (value instanceof Date) return value.getTime();
-        const text = String(value ?? "").trim();
-        if (/^\d{4}$/.test(text)) return Date.UTC(Number(text), 0, 1);
-        const ru = text.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-        const result = ru ? Date.UTC(Number(ru[3]), Number(ru[2]) - 1, Number(ru[1])) : Date.parse(text);
-        return Number.isFinite(result) ? result : Infinity;
-    }
-    function belongs(page) {
-        const refs = Array.isArray(page["Франшиза"]) ? page["Франшиза"] : [page["Франшиза"]];
-        return refs.some(ref => {
-            if (!ref) return false;
-            const path = typeof ref === "object" ? ref.path : String(ref).replace(/^\[\[/, "").replace(/\]\]$/, "").split("|")[0];
-            return path && dv.page(path)?.file.path === current.file.path;
-        });
-    }
-    const rows = dv.pages('"Кино/Media"').array().filter(page => {
-        if (["Просмотры", "Сезоны", "Франшизы"].some(folder => page.file.path.startsWith(`Кино/${folder}/`))) return false;
-        const tags = (Array.isArray(page.tags) ? page.tags : [page.tags]).filter(Boolean)
-            .map(tag => String(tag).replace(/^#/, ""));
-        return tags.some(tag => tag === "movies" || tag === "serial") && belongs(page);
-    });
-    const byPart = String(current["Порядок"] ?? "").toLowerCase() === "части";
-    rows.sort((a, b) => {
-        const dates = release(a["Релиз"]) - release(b["Релиз"]);
-        const parts = (number(a["Часть"]) ?? Infinity) - (number(b["Часть"]) ?? Infinity);
-        return (byPart ? (parts || dates) : (dates || parts)) || a.file.name.localeCompare(b.file.name, "ru");
-    });
-    dv.paragraph(`Произведений: ${rows.length}. Порядок: ${byPart ? "по номерам частей" : "по дате выхода"}.`);
-    if (!rows.length) {
-        dv.paragraph("Добавь произведения командой QuickAdd «Франшиза».");
-        return;
-    }
-    dv.table(["Часть", "Произведение", "Релиз", "Моя оценка", "КП", "IMDb"], rows.map(page => [
-        number(page["Часть"]) ?? "-", page.file.link, page["Релиз"] ?? "-",
-        number(page["Оценка"]) ?? "-", number(page["Оценка Кинопоиск"]) ?? "-",
-        number(page["Оценка Imdb"]) ?? "-"
-    ]));
+async function loadFranchiseOrder(app) {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/franchise_order.js");
+    if (!file) throw new Error("Не найден скрипт порядка франшиз.");
+    const module = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(module, module.exports);
+    return module.exports;
 }
-
-
 
 const CATALOG = {
   "tt0364146": [
@@ -6604,7 +6562,6 @@ function patchTemplate(raw, ob, id, description, franchise, releaseDate, kinopoi
     }
     if (franchise.path && !fm['Франшиза']) {
         set('Франшиза',`[[${franchise.path.replace(/\.md$/,'')}]]`);
-        if (franchise.part != null && fm['Часть'] == null) set('Часть',franchise.part);
     }
     return migrateEntities(match[1]+yaml+match[3]+raw.slice(match[0].length), ob);
 }
@@ -6709,10 +6666,15 @@ async function runRatingForecast(params,file) {
 }
 
 async function afterTemplateFranchise(params,movie,file) {
-    const {app,obsidian:ob,quickAddApi:qa}=params;
+    const {app,obsidian:ob}=params;
     if(app.vault.getAbstractFileByPath(file.path)!==file)return;
     const before=await frontmatter(app,ob,file);
-    if(before['imdb Id']!==movie.imdbID || before['Франшиза'])return;
+    if(before['imdb Id']!==movie.imdbID)return;
+    if(before['Франшиза']) {
+        const order=await loadFranchiseOrder(app);
+        await order.renumber({app,paths:before['Франшиза'],overrides:new Map([[file.path,before]])});
+        return;
+    }
     await app.workspace.getLeaf(false).openFile(file);
     const notice=new ob.Notice('Карточка создана. Проверяю франшизу…',0);
     let result;
@@ -6721,24 +6683,21 @@ async function afterTemplateFranchise(params,movie,file) {
     const {pages,proposals}=await franchiseInventory(app,ob,result.suggestions);
     const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status);
     if(!choice)return;
-    let part;
-    while(true) {
-        const value=await qa.inputPrompt('Номер части','Пусто - без номера');
-        if(value==null)return;
-        if(!value.trim()){part=null;break;}
-        const n=Number(value.replace(',','.'));
-        if(Number.isFinite(n)&&n>0){part=n;break;}
-    }
     // Пока открыт диалог, пользователь может поменять карточку вручную.
     const current=await frontmatter(app,ob,file);
     if(current['imdb Id']!==movie.imdbID || current['Франшиза'])return;
-    choice.part=part;
     await ensureFranchise(app,ob,choice,movie.imdbID);
+    let after;
     await app.fileManager.processFrontMatter(file,fm=>{
         if(fm['imdb Id']!==movie.imdbID || fm['Франшиза'])return;
         fm['Франшиза']=`[[${choice.path.replace(/\.md$/,'')}]]`;
-        if(part!=null && fm['Часть']==null)fm['Часть']=part;
+        delete fm['Часть'];
+        after={...fm};
     });
+    if(after) {
+        const order=await loadFranchiseOrder(app);
+        await order.renumber({app,paths:[choice.path],overrides:new Map([[file.path,after]])});
+    }
 }
 
 async function lookupFranchise(ob,id) {
