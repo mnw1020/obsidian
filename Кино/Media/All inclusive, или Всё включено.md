@@ -97,3 +97,18 @@ btn.onclick = async () => {
 ```
 
 ![](https://m.media-amazon.com/images/M/MV5BYWE1NTU4NzAtYzdiYy00M2U2LTk3MGItN2VmNjk1NjBkYzRkXkEyXkFqcGc@._V1_.jpg)
+
+<!-- KINO:PROPERTIES:START -->
+```dataviewjs
+try {
+    const file = app.vault.getAbstractFileByPath("Кино/_system/kino_ui.js");
+    if (!file) throw new Error("Не найден интерфейс кинотеки");
+    const kinoModule = { exports: {} };
+    new Function("module", "exports", await app.vault.read(file))(kinoModule, kinoModule.exports);
+    await kinoModule.exports({ dv, app, obsidian: typeof require === 'function' ? require('obsidian') : {}, kind: "media-properties" });
+} catch (error) {
+    dv.paragraph("Интерфейс кинотеки временно недоступен. Данные карточки сохранены.");
+    console.warn("Кино: интерфейс", error);
+}
+```
+<!-- KINO:PROPERTIES:END -->
