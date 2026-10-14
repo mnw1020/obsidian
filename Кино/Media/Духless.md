@@ -21,14 +21,14 @@ tags:
 imdb Id: tt1826660
 poster: https://m.media-amazon.com/images/M/MV5BNDk1NGJhOWQtZGNmMi00ZDI1LThiMmQtZjI3OGFhN2UyNzQwXkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "395372"
-Прогноз оценки: "6.0"
+Прогноз оценки: "6.1"
 cssclasses: ["kino-page","kino-media"]
 Прогноз по данным: "6.0"
 Прогноз по сюжету: "6.2"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/15ae1a1dd5ac-c25bd7fea93966857b77.json]]"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/15ae1a1dd5ac-5b01df893d1d8e1d905f.json]]"
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T19:16:51.963Z"
-Версия прогноза: "kino-forecast-v4"
+Дата прогноза: "2026-10-14T20:49:25.019Z"
+Версия прогноза: "kino-forecast-v5"
 
 
 

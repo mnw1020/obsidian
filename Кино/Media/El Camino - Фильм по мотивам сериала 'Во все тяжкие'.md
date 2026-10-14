@@ -22,14 +22,14 @@ imdb Id: tt9243946
 poster: https://m.media-amazon.com/images/M/MV5BYTYxMjI2YzUtODQ5Mi00M2JmLTlmNzItOTlkM2MyM2ExM2RlXkEyXkFqcGc@._V1_.jpg
 Кинопоиск ID: "1209193"
 Франшиза: "[[Кино/Франшизы/Во все тяжкие]]"
-Прогноз оценки: "6.7"
+Прогноз оценки: "6.5"
 cssclasses: ["kino-page","kino-media"]
 Прогноз по данным: "6.7"
 Прогноз по сюжету: "6.3"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/347bec310921-69da4748fa6067af8579.json]]"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/347bec310921-2ff23c2d0b32bbb59e1a.json]]"
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T19:16:50.368Z"
-Версия прогноза: "kino-forecast-v4"
+Дата прогноза: "2026-10-14T20:49:19.961Z"
+Версия прогноза: "kino-forecast-v5"
 
 
 

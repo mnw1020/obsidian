@@ -25,10 +25,10 @@ poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgt
 cssclasses: ["kino-page","kino-media"]
 Прогноз по данным: "6.1"
 Прогноз по сюжету: "6.2"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/1bb06bd135cf-5ed565412959e7b27466.json]]"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/1bb06bd135cf-a722fa07a7d5940084e3.json]]"
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T19:16:50.435Z"
-Версия прогноза: "kino-forecast-v4"
+Дата прогноза: "2026-10-14T20:49:20.172Z"
+Версия прогноза: "kino-forecast-v5"
 
 
 

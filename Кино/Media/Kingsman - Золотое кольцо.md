@@ -21,15 +21,15 @@ imdb Id: tt4649466
 poster: https://m.media-amazon.com/images/M/MV5BMjQ3OTgzMzY4NF5BMl5BanBnXkFtZTgwOTc4OTQyMzI@._V1_.jpg
 Франшиза: "[[Кино/Франшизы/Kingsman]]"
 Кинопоиск ID: "906654"
-Прогноз оценки: "6.4"
+Прогноз оценки: "6.1"
 
 cssclasses: ["kino-page","kino-media"]
 Прогноз по данным: "6.4"
 Прогноз по сюжету: "5.8"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/aaf165f40ec8-c602b9bbb273140557f5.json]]"
+Расчёт прогноза: "[[Кино/_system/Прогноз/reports/aaf165f40ec8-175ecca49f3a737507ae.json]]"
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T19:16:50.384Z"
-Версия прогноза: "kino-forecast-v4"
+Дата прогноза: "2026-10-14T20:49:20.016Z"
+Версия прогноза: "kino-forecast-v5"
 
 
 

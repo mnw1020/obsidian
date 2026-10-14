@@ -285,7 +285,12 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const ref = linkParts(fm["Роли файл"]);
         if (!ref) return;
         const details = element(parent, "div", "kino-roles-details");
-        const toggle = element(details, "button", "kino-roles-toggle", "Роли и создатели");
+        const heading = element(details, "div", "kino-roles-heading");
+        const label = element(heading, "span", "kino-credit-label", "Роли и актеры");
+        label.id = "kino-roles-label-" + Math.random().toString(36).slice(2);
+        const toggle = element(heading, "button", "kino-roles-toggle", "Показать");
+        toggle.id = "kino-roles-toggle-" + Math.random().toString(36).slice(2);
+        toggle.setAttribute("aria-labelledby", label.id + " " + toggle.id);
         toggle.type = "button"; toggle.setAttribute("aria-expanded", "false");
         const body = element(details, "div", "kino-details-body kino-roles-content");
         body.id = "kino-roles-" + Math.random().toString(36).slice(2);
@@ -301,6 +306,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         toggle.addEventListener("click", async () => {
             if (disposed) return;
             expanded = !expanded;
+            toggle.textContent = expanded ? "Скрыть" : "Показать";
             toggle.setAttribute("aria-expanded", String(expanded)); body.hidden = !expanded;
             if (!expanded) { release(); return; }
             if (child || disposed) return;
