@@ -137,7 +137,7 @@ async function render({ dv, app }) {
         root=el(dv.container,'section','kino-home-ui kino-report');state.root=root;
         el(root,'style','',css.join('\n'));
         const head=el(root,'header','kino-home-masthead');
-        const nav=el(head,'nav','kino-home-nav');internal(nav,'← Кинотека','Кино/_index.md');internal(nav,'Каталог','Кино/_Кино.base#Все');
+        const nav=el(head,'nav','kino-home-nav');internal(nav,'← Кинотека','Кино/_index.md');internal(nav,'Каталог','Кино/_system/_Кино.base#Все');
         el(head,'h1','kino-home-title','Итоги просмотров');
         const controls=el(head,'div','kino-report-controls');
         function select(label,options) { const wrap=el(controls,'label','',label);const sel=el(wrap,'select');sel.setAttribute('aria-label',label);for(const [value,text]of options){el(sel,'option','',text).value=value;}return sel; }

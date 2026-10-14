@@ -193,7 +193,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         el(heading, 'h1', 'kino-home-title', 'Кинотека');
         const actions = el(identity, 'div', 'kino-home-actions');
         for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
-        const catalogue = internal(actions, 'Открыть каталог', 'Кино/_Кино.base#Карточки', 'kino-home-action is-icon');
+        const catalogue = internal(actions, 'Открыть каталог', 'Кино/_system/_Кино.base#Карточки', 'kino-home-action is-icon');
         catalogue.setAttribute('aria-label', 'Открыть каталог'); catalogue.title = 'Открыть каталог';
         const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
         for (const [name, value] of Object.entries({ viewBox: '0 0 24 24', width: '20', height: '20', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', focusable: 'false' })) icon.setAttribute(name, value);
@@ -297,7 +297,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         el(viewsHeading, 'span', 'kino-home-fold-chevron').setAttribute('aria-hidden', 'true');
         rememberDetails(management, 'management'); rememberDetails(views, 'views');
         const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
-        for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_Кино.base#' + name);
+        for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_system/_Кино.base#' + name);
         const nativeViews = [];
         const viewsVisible = () => views.open && overviews.dataset.collapsed !== 'true';
         function nativeView(label, target, embedded = null) {
@@ -339,10 +339,10 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             listen(details, embedded ? 'kino-fold-change' : 'toggle', () => { if (!isOpen()) clear(); else void open(); });
             if (!embedded) nativeViews.push({ clear, open });
         }
-        nativeView('Последние просмотры', 'Кино/_Кино.base#Последние', recent);
-        nativeView('Последние просмотры', 'Кино/_Кино.base#Последние');
-        nativeView('Перепросмотры', 'Кино/_Кино.base#Перепросмотры');
-        nativeView('Последние сериалы', 'Кино/_Кино.base#Последние сериалы');
+        nativeView('Последние просмотры', 'Кино/_system/_Кино.base#Последние', recent);
+        nativeView('Последние просмотры', 'Кино/_system/_Кино.base#Последние');
+        nativeView('Перепросмотры', 'Кино/_system/_Кино.base#Перепросмотры');
+        nativeView('Последние сериалы', 'Кино/_system/_Кино.base#Последние сериалы');
         function syncViews() { for (const view of nativeViews) if (viewsVisible()) void view.open(); else view.clear(); }
         listen(views, 'toggle', syncViews);
         listen(overviews, 'kino-fold-change', syncViews);
