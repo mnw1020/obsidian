@@ -154,8 +154,13 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
             section(panel, "Почему такие веса");
             el(panel, "p", "kino-forecast-muted", "Точность источников проверяется на ваших личных оценках: для каждого проверяемого произведения его оценка и оценки той же группы IMDb / Кинопоиска исключаются из обучения. Сравниваются ошибки двух прогнозов на одном наборе карточек. Чем меньше средняя абсолютная ошибка (MAE), тем больше вес источника.");
             el(panel, "p", "kino-forecast-muted", "Для этой карточки используются результаты внутренних проверок, выполненных без её внешней группы. Для нового произведения используются проверки по всей оценённой базе. Ограничение 25–75% сохраняет вклад обеих оценок; оно само по себе не гарантирует меньшую ошибку итогового прогноза.");
-            formula(panel, "Вес данных до ограничения = MAE сюжета / (MAE данных + MAE сюжета).\nВес данных = min(0,75; max(0,25; вес данных до ограничения)).\nВес сюжета = 1 − вес данных.\nИтог = вес данных × прогноз по данным + вес сюжета × прогноз по сюжету.\nЕсли проверено меньше 30 карточек с обоими прогнозами, используются веса 50/50.");
+            formula(panel, "Вес данных до ограничения = MAE сюжета / (MAE данных + MAE сюжета).\nВес данных = min(0,75; max(0,25; вес данных до ограничения)).\nВес сюжета = 1 − вес данных.\nИтог = вес данных × прогноз по данным + вес сюжета × прогноз по сюжету.\nЕсли проверено меньше 30 карточек или 30 разных произведений с обоими прогнозами, либо сумма ошибок нулевая или недоступна, используются веса 50/50.");
             fields(panel, reliability, ["pairedCount", "pairedGroupCount", "minimumPairedCount", "dataMae", "plotMae", "dataRmse", "plotRmse", "rawDataWeight", "dataWeight", "plotWeight", "minWeight", "maxWeight", "fallbackReason", "formula"]);
+            const validation = report.training?.validation;
+            if (numeric(validation?.tuned?.mae) && numeric(validation?.data155?.mae) && validation.tuned.mae > validation.data155.mae) {
+                const error = value => fmt(Math.round(value * 1000) / 1000);
+                el(panel, "p", "kino-forecast-notice", `В общей независимой проверке средняя ошибка смеси — ${error(validation.tuned.mae)} балла, прогноза по данным — ${error(validation.data155.mae)}. Сейчас прогноз по данным точнее на этой проверке. Итог сохраняет вклад обоих источников по выбранному правилу весов.`);
+            }
             el(panel, "p", "kino-forecast-muted", "При изменении ваших оценок веса будут проверены заново при следующем расчёте прогноза. Этот разбор хранит веса и значения, использованные для показанного итога; сам по себе просмотр окна ничего не пересчитывает.");
         }
         section(panel, "Исходные данные карточки"); fields(panel, report.target ?? {});
@@ -186,7 +191,10 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         const plot = branchKey ? report.plotVariants?.[branchKey] ?? {} : report.plot ?? {};
         section(panel, branchLabel);
         el(panel, "p", "kino-forecast-muted", "Соседи выбраны по косинусному сходству смысловых векторов описаний. Для оценки используются только ваши оценки этих соседей.");
-        if (branchKey) el(panel, "p", "kino-forecast-muted", "Число соседей, температура и сглаживание подбираются для сюжетной ветки отдельно, по ошибке её прогноза. Веса данных и сюжета для итоговой оценки рассчитываются по проверенной точности двух источников.");
+        if (branchKey) el(panel, "p", "kino-forecast-muted", "Число соседей, температура и сглаживание подбираются для сюжетной ветки отдельно, по ошибке её прогноза. "
+            + (report.training?.parameters?.reliability ?? report.final?.reliability
+                ? "Веса данных и сюжета для итоговой оценки рассчитываются по проверенной точности двух источников."
+                : "Затем подбираются веса данных и сюжета для итоговой оценки."));
         if (plot.reason) el(panel, "p", "kino-forecast-notice", fmt(plot.reason));
         if (plot.note) el(panel, "p", "kino-forecast-muted", fmt(plot.note));
         fields(panel, plot, ["prediction", "raw", "unbounded", "base", "correction", "sumWeights", "denominator", "parameters", "status", "shortDescription", "truncated", "tokenCount"]);

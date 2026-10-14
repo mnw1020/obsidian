@@ -1,6 +1,6 @@
 /* One entry point for existing QuickAdd commands and all forecast consumers. */
 async function service(app) {
-    const key = Symbol.for('kino.forecast.service.v4');
+    const key = Symbol.for('kino.forecast.service.v5');
     const file = app.vault.getAbstractFileByPath('Кино/_system/forecast_service.js');
     if (!file) throw Error('Не найден forecast_service.js');
     const coreFile = app.vault.getAbstractFileByPath('Кино/_system/forecast_core.js');

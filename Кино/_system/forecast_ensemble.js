@@ -4,8 +4,8 @@
 
 const core = require("./forecast_core.js");
 const { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, MIN_PEERS, MIN_SIM } = core.ensembleInternals;
-const VERSION = 4;
-const ENGINE = "kino-data-gemma-forecasts-4.0.0";
+const VERSION = 5;
+const ENGINE = "kino-data-gemma-forecasts-5.0.0";
 const MODEL_KEYS = ["embeddinggemma"];
 const DATA_LIMITS = [155];
 const BRANCHES = [
@@ -16,8 +16,13 @@ const GRID = [];
 for (const k of [10, 20, 35, 55, 100, 155]) for (const temperature of [0.03, 0.07, 0.15])
     for (const smoothing of [0, 3, 10]) GRID.push({ k, temperature, smoothing });
 const DEFAULT_PLOT = { k: 20, temperature: 0.07, smoothing: 3 };
+const MIN_PAIRED_VALIDATION = 30;
+const MIN_BRANCH_WEIGHT = 0.25;
+const MAX_BRANCH_WEIGHT = 0.75;
+const RELIABILITY_FORMULA = "rawDataWeight = MAEplot / (MAEdata + MAEplot); dataWeight = clamp(rawDataWeight, 0.25, 0.75); plotWeight = 1 - dataWeight; fewer than 30 paired validation targets/identity groups or an invalid/zero error sum: 0.5 / 0.5";
 const equalWeights = () => Object.fromEntries(BRANCHES.map(({ id }) => [id, 1 / BRANCHES.length]));
-const defaults = () => ({ plots: Object.fromEntries(MODEL_KEYS.map(key => [key, { ...DEFAULT_PLOT }])), weights: equalWeights() });
+const defaultReliability = () => ({ method: "inverse-mae", pairedCount: 0, pairedGroupCount: 0, minimumPairedCount: MIN_PAIRED_VALIDATION, dataMae: null, plotMae: null, dataRmse: null, plotRmse: null, rawDataWeight: null, dataWeight: 0.5, plotWeight: 0.5, minWeight: MIN_BRANCH_WEIGHT, maxWeight: MAX_BRANCH_WEIGHT, rawWeights: null, weights: equalWeights(), formula: RELIABILITY_FORMULA, fallbackReason: "Параметры ещё не рассчитаны по независимым проверочным прогнозам; используются равные веса" });
+const defaults = () => ({ plots: Object.fromEntries(MODEL_KEYS.map(key => [key, { ...DEFAULT_PLOT }])), weights: equalWeights(), reliability: defaultReliability() });
 const tick = () => new Promise(resolve => setTimeout(resolve, 0));
 const checkCancelled = options => { if (options.shouldCancel?.()) { const error = new Error("Расчёт отменён; сохранённые прогнозы не изменены"); error.name = "AbortError"; throw error; } };
 const emptyScore = () => ({ count: 0, absolute: 0, squared: 0 });
@@ -29,7 +34,7 @@ const scoreResult = score => ({ count: score.count, mae: score.count ? score.abs
 
 function parametersFor(target, training, items) {
     const fallback = defaults();
-    const merged = value => ({ plots: Object.fromEntries(MODEL_KEYS.map(key => [key, { ...DEFAULT_PLOT, ...value?.plots?.[key] }])), weights: Object.fromEntries(BRANCHES.map(({ id }) => [id, value?.weights?.[id] ?? fallback.weights[id]])) });
+    const merged = value => ({ plots: Object.fromEntries(MODEL_KEYS.map(key => [key, { ...DEFAULT_PLOT, ...value?.plots?.[key] }])), weights: Object.fromEntries(BRANCHES.map(({ id }) => [id, value?.weights?.[id] ?? fallback.weights[id]])), reliability: value?.reliability || fallback.reliability });
     if (training?.outer) {
         const knownFolds = new Set();
         const remember = value => { if (Number.isInteger(value)) knownFolds.add(value); };
@@ -48,8 +53,8 @@ function parametersFor(target, training, items) {
     return { ...merged(training?.global?.parameters || training?.parameters), source: training?.global ? "all-rated-cross-validation" : "defaults", fitCount: training?.global?.fitCount ?? null };
 }
 
-/* Normalize only available branches. A missing model remains visible and marks
-   the result provisional even when its learned weight is zero. */
+/* Normalize only available branches. Both ready branches have positive learned
+   weights; a missing model remains visible and marks the result provisional. */
 function mix(values, suppliedWeights) {
     const weights = BRANCHES.map(({ id }) => Number.isFinite(suppliedWeights?.[id]) && suppliedWeights[id] >= 0 ? suppliedWeights[id] : 0);
     const weightSum = weights.reduce((sum, value) => sum + value, 0);
@@ -139,7 +144,7 @@ function forecast(items, target, vectorSets = {}, training = null, options = {})
         training: { count: peers.length, excludedGroup: target.group, globalMean: context.mean, parameters, validation: training?.metrics || null, fitCount: parameters.fitCount ?? training?.ratedCount ?? null },
         dataVariants, plotVariants, branches: BRANCHES.map((branch, i) => ({ ...branch, raw: values[i], prediction: rounded(values[i]), status: i < DATA_LIMITS.length ? "ready" : plotVariants[MODEL_KEYS[i - DATA_LIMITS.length]].status })),
         data: dataVariants[155], plot: plotVariants.embeddinggemma,
-        final: { ...mixed, prediction: rounded(mixed.raw), provisional, reason, formula: "clamp(Σ(effectiveWeight[branch] × branch.raw), 1, 10); effectiveWeight = fittedWeight / ΣavailableFittedWeights; if this sum is zero, use data155" }
+        final: { ...mixed, prediction: rounded(mixed.raw), provisional, reason, reliability: parameters.reliability, formula: "final.raw = clamp(dataWeight × data155.raw + plotWeight × plot.raw, 1, 10); weights are inverse-MAE reliability weights limited to 25–75%, before rounding. If a branch is unavailable, normalize weights across available branches and mark the result provisional." }
     };
     return report;
 }
@@ -180,35 +185,35 @@ function mixtureScore(weights, matrix, actual) {
     return { count: n, mae: n ? absolute / n : null, rmse: n ? Math.sqrt(squared / n) : null };
 }
 
-function betterMixture(candidate, best, neighborCosts) {
-    if (!best) return true;
-    const distance = weights => Math.abs(weights[0] - 0.5);
-    const cost = weights => weights.reduce((sum, weight, i) => sum + weight * neighborCosts[i], 0);
-    const a = [candidate.mae ?? Infinity, candidate.rmse ?? Infinity, distance(candidate.weights), cost(candidate.weights)];
-    const b = [best.mae ?? Infinity, best.rmse ?? Infinity, distance(best.weights), cost(best.weights)];
-    for (let i = 0; i < a.length; i++) { if (a[i] < b[i] - 1e-12) return true; if (a[i] > b[i] + 1e-12) return false; }
-    for (let i = 0; i < BRANCHES.length; i++) { if (candidate.weights[i] > best.weights[i] + 1e-12) return true; if (candidate.weights[i] < best.weights[i] - 1e-12) return false; }
-    return false;
-}
-
-async function tuneMixture(matrix, actual, plotParameters, options, label) {
-    const equal = [0.5, 0.5], equalScore = mixtureScore(equal, matrix, actual);
-    let plotAvailable = false;
-    for (let row = 0; row < actual.length; row++) if (Number.isFinite(matrix[row * 2 + 1])) { plotAvailable = true; break; }
-    let best = null, evaluated = 0;
-    const costs = [...DATA_LIMITS, ...MODEL_KEYS.map(key => plotParameters[key].k)];
-    for (let alpha = 0; alpha <= 20; alpha++) {
+async function tuneMixture(matrix, actual, records, options, label) {
+    const dataScore = emptyScore(), plotScore = emptyScore(), pairedGroups = new Set();
+    // Score both sources on exactly the same inner-held-out targets. Missing
+    // plots must not give the data branch an easier/different validation set.
+    for (let row = 0; row < actual.length; row++) {
         checkCancelled(options);
-        // Without plot validation evidence, do not learn a weight that would
-        // activate silently when a previously missing vector appears.
-        if (!plotAvailable && alpha !== 20) continue;
-        const weights = [alpha / 20, (20 - alpha) / 20];
-        const candidate = { ...mixtureScore(weights, matrix, actual), weights };
-        evaluated++;
-        if (betterMixture(candidate, best, costs)) best = candidate;
+        const data = matrix[row * 2], plot = matrix[row * 2 + 1];
+        if (!Number.isFinite(data) || !Number.isFinite(plot) || !Number.isFinite(actual[row])) continue;
+        scoreAdd(dataScore, data, actual[row]); scoreAdd(plotScore, plot, actual[row]);
+        if (records[row]?.group) pairedGroups.add(records[row].group);
     }
-    options.onProgress?.({ phase: "training", stage: `${label}: вес данных и сюжета`, completed: evaluated, total: plotAvailable ? 21 : 1 }); await tick();
-    return { weights: Object.fromEntries(BRANCHES.map(({ id }, i) => [id, best.weights[i]])), validation: { ...best, weights: undefined }, equal: equalScore, evaluatedMixtures: evaluated };
+    const data = scoreResult(dataScore), plot = scoreResult(plotScore), sum = data.mae + plot.mae;
+    const reliability = {
+        ...defaultReliability(), pairedCount: data.count, pairedGroupCount: pairedGroups.size,
+        dataMae: data.mae, plotMae: plot.mae, dataRmse: data.rmse, plotRmse: plot.rmse
+    };
+    if (data.count < MIN_PAIRED_VALIDATION || pairedGroups.size < MIN_PAIRED_VALIDATION) reliability.fallbackReason = `Недостаточно независимых пар проверочных прогнозов: ${data.count} карточек, ${pairedGroups.size} произведений; нужно не менее ${MIN_PAIRED_VALIDATION} произведений. Используются равные веса`;
+    else if (!Number.isFinite(sum) || sum <= 0) reliability.fallbackReason = "Сумма средних абсолютных ошибок равна нулю или недоступна; используются равные веса";
+    else {
+        reliability.rawDataWeight = plot.mae / sum;
+        reliability.rawWeights = { data155: reliability.rawDataWeight, "plot-embeddinggemma": 1 - reliability.rawDataWeight };
+        reliability.dataWeight = Math.min(MAX_BRANCH_WEIGHT, Math.max(MIN_BRANCH_WEIGHT, reliability.rawDataWeight));
+        reliability.plotWeight = 1 - reliability.dataWeight;
+        reliability.weights = { data155: reliability.dataWeight, "plot-embeddinggemma": reliability.plotWeight };
+        reliability.fallbackReason = null;
+    }
+    const weights = [reliability.dataWeight, reliability.plotWeight];
+    options.onProgress?.({ phase: "training", stage: `${label}: надёжность данных и сюжета`, completed: 1, total: 1 }); await tick();
+    return { weights: reliability.weights, reliability, validation: mixtureScore(weights, matrix, actual), equal: mixtureScore([0.5, 0.5], matrix, actual), evaluatedMixtures: 1 };
 }
 
 async function fitParameters(pool, prepared, options, label) {
@@ -225,7 +230,7 @@ async function fitParameters(pool, prepared, options, label) {
             const data = DATA_LIMITS.map(k => calculateData(target, context, ranking, false, k));
             const plots = Object.fromEntries(MODEL_KEYS.map(key => [key, plotGrid(context, ranks(target, modelCorpora[key], true))]));
             for (const key of MODEL_KEYS) for (let g = 0; g < GRID.length; g++) scoreAdd(plotScores[key][g], plots[key][g], target.rating);
-            records.push({ actual: target.rating, data, plots });
+            records.push({ group: target.group, actual: target.rating, data, plots });
             if (index % 16 === 0) { options.onProgress?.({ phase: "training", stage: `${label}: отдельные сюжетные модели`, fold: fold + 1, folds: 4, completed: index + 1, total: validation.length }); await tick(); }
         }
     }
@@ -239,8 +244,8 @@ async function fitParameters(pool, prepared, options, label) {
     }
     const matrix = new Float64Array(records.length * BRANCHES.length), actual = new Float64Array(records.length);
     for (let row = 0; row < records.length; row++) { const record = records[row]; actual[row] = record.actual; matrix.set([...record.data, ...MODEL_KEYS.map(key => bestIndices[key] < 0 ? NaN : record.plots[key][bestIndices[key]])], row * BRANCHES.length); }
-    const mixture = records.length ? await tuneMixture(matrix, actual, plots, options, label) : { weights: equalWeights(), validation: null, equal: null, evaluatedMixtures: 0 };
-    return { parameters: { plots, weights: mixture.weights }, validation: { plots: plotValidation, mixture: mixture.validation, equal: mixture.equal, evaluatedMixtures: mixture.evaluatedMixtures }, fitCount: pool.length, validationCount: records.length };
+    const mixture = await tuneMixture(matrix, actual, records, options, label);
+    return { parameters: { plots, weights: mixture.weights, reliability: mixture.reliability }, validation: { plots: plotValidation, mixture: mixture.validation, equal: mixture.equal, reliability: mixture.reliability, evaluatedMixtures: mixture.evaluatedMixtures }, fitCount: pool.length, validationCount: records.length };
 }
 
 async function train(items, vectorSets = {}, options = {}) {
@@ -249,7 +254,7 @@ async function train(items, vectorSets = {}, options = {}) {
     const training = {
         version: VERSION, engine: ENGINE, createdAt: new Date().toISOString(), ratedCount: pool.length, groupCount: new Set(pool.map(item => item.group)).size,
         folds: {}, groupFolds: {}, outer: {}, global: null, metrics: {},
-        crossValidation: { outerFolds: 5, innerFolds: 4, grouping: "connected IMDb/KP identity", split: "stable FNV-1a hash, label independent", selection: "Plot independently: MAE, RMSE, k, temperature, smoothing. Mixture: MAE, RMSE, distance to 50/50, weighted neighbor count.", grid: { dataNeighbors: DATA_LIMITS, plotNeighbors: [10, 20, 35, 55, 100, 155], temperature: [0.03, 0.07, 0.15], smoothing: [0, 3, 10], dataWeight: Array.from({ length: 21 }, (_, i) => i / 20) } }
+        crossValidation: { outerFolds: 5, innerFolds: 4, grouping: "connected IMDb/KP identity", split: "stable FNV-1a hash, label independent", selection: "Plot independently: MAE, RMSE, k, temperature, smoothing. Mixture: inverse MAE on paired inner-held-out predictions, each source limited to 25–75%; fewer than 30 paired targets/identity groups or invalid/zero errors: 50/50.", reliability: { method: "inverse-mae", minimumPairedCount: MIN_PAIRED_VALIDATION, minWeight: MIN_BRANCH_WEIGHT, maxWeight: MAX_BRANCH_WEIGHT, formula: RELIABILITY_FORMULA }, grid: { dataNeighbors: DATA_LIMITS, plotNeighbors: [10, 20, 35, 55, 100, 155], temperature: [0.03, 0.07, 0.15], smoothing: [0, 3, 10] } }
     };
     for (const target of pool) { training.folds[target.path] = core.foldFor(target.group); training.groupFolds[target.group] = core.foldFor(target.group); }
     const metricKeys = [...BRANCHES.map(branch => branch.id), "half", "tuned"];
@@ -273,7 +278,7 @@ async function train(items, vectorSets = {}, options = {}) {
     }
     training.global = await fitParameters(pool, prepared, options, "Параметры для новых карточек");
     training.metrics = Object.fromEntries(Object.entries(scores).map(([key, score]) => [key, scoreResult(score)]));
-    training.metrics.note = "Независимая внешняя проверка 5×4: оценки внешней группы не участвуют ни в обучении, ни в подборе сюжетных параметров или веса. EmbeddingGemma подбирается по собственной ошибке, даже при нулевом итоговом весе. Проверены все 21 веса данных от 0 до 1 с шагом 0,05, включая 50/50. Ошибки до округления. При отсутствии сюжета используется data155.";
+    training.metrics.note = "Независимая внешняя проверка 5×4: оценки внешней группы не участвуют ни в обучении, ни в подборе сюжетных параметров или веса. EmbeddingGemma подбирается по собственной ошибке. Веса источников обратно пропорциональны MAE на одних и тех же внутренних проверочных карточках и ограничены диапазоном 25–75%; при менее 30 парах/произведениях или нулевой/недоступной сумме ошибок используются 50/50. tuned означает эту смесь по надёжности, half — отдельное сравнение 50/50. Ошибки до округления. При отсутствии сюжета используется data155, результат предварительный. Улучшение относительно отдельного источника не гарантируется: его определяет только внешняя проверка.";
     options.onProgress?.({ phase: "trained", completed: 6, total: 6 });
     return training;
 }

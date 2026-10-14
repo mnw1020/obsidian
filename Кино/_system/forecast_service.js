@@ -1,6 +1,6 @@
 /* Shared forecast orchestration. Uses Vault APIs on desktop and Android. */
 const BASE = 'Кино/_system/Прогноз';
-const VERSION = 'kino-forecast-v4';
+const VERSION = 'kino-forecast-v5';
 const MODEL_KEYS = ['embeddinggemma'];
 const OBSOLETE_FIELDS = ['Прогноз данные 55', 'Прогноз данные 100', 'Прогноз данные 155', 'Прогноз E5-small', 'Прогноз E5-base', 'Прогноз EmbeddingGemma'];
 const states = new WeakMap();
@@ -92,6 +92,39 @@ async function itemsFor(app, state) {
         items.push(state.core.feature(file, fm, actors));
     }
     return state.core.assignGroups ? state.core.assignGroups(items) : items;
+}
+async function trainingFor(params, items, semantic, state) {
+    const {app} = params;
+    const previous = await readJson(app, `${BASE}/training.json`, null);
+    const rated = items.filter(item => Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 10);
+    // Only training inputs are fingerprinted: writing forecast fields must not
+    // trigger another calibration. Sorting makes vault enumeration irrelevant.
+    const inputFingerprint = await hash({
+        engine: state.engine.ENGINE, models: semantic.models,
+        rated: rated.map(item => ({...item, vectors: Object.fromEntries(MODEL_KEYS.map(key => [key,
+            semantic.vectors[key]?.[item.path] ? semantic.caches[key]?.entries?.[item.path]?.hash || null : null
+        ]))})).sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
+    });
+    const compatible = previous?.version === state.engine.VERSION && previous?.engine === state.engine.ENGINE
+        && JSON.stringify(previous.models) === JSON.stringify(semantic.models);
+    if (compatible && previous.inputFingerprint === inputFingerprint && !params.retrain) return previous;
+    abort(params);
+    if (rated.length < 40 || !MODEL_KEYS.every(key => Object.keys(semantic.vectors[key] || {}).length >= 30)) return null;
+    params.onProgress?.({phase: 'training', stage: 'Проверка точности по актуальным личным оценкам', completed: 0, total: 5});
+    const training = await state.engine.train(items, semantic.vectors, {onProgress: params.onProgress, shouldCancel: params.shouldCancel});
+    // Clearing a previously known personal rating must not switch that card
+    // from its withheld outer group to parameters selected on the whole base.
+    for (const item of items) if (Number.isInteger(previous?.folds?.[item.path])) {
+        const fold = state.core.foldFor(item.group);
+        training.folds[item.path] = fold;
+        training.groupFolds[item.group] = fold;
+    }
+    training.models = semantic.models;
+    training.inputFingerprint = inputFingerprint;
+    training.refresh = {trigger: 'training-input-change-or-explicit-retrain', checkedAt: new Date().toISOString(),
+        formula: 'Revalidate on the next forecast calculation when personal ratings, rated-card features, descriptions, vectors, model or engine change.'};
+    await writeJson(app, `${BASE}/training.json`, training);
+    return training;
 }
 async function enrich(params, files, state) {
     const {app, obsidian = {}} = params;
@@ -205,7 +238,8 @@ async function calculate(params) {
     const {app} = params, state = await coreFor(app);
     const requested = params.forecastFiles || [params.targetFile || app.workspace.getActiveFile()];
     const files = requested.filter(file => media(app, file));
-    const queue = await readJson(app, `${BASE}/queue.json`, {version: 4, entries: {}});
+    const queue = await readJson(app, `${BASE}/queue.json`, {version: 5, entries: {}});
+    queue.version = 5;
     for (const file of files) queue.entries[file.path] = {reason: 'Ожидает завершения расчёта', at: new Date().toISOString()};
     await writeJson(app, `${BASE}/queue.json`, queue);
     const descriptions = params.prepareDescriptions === false ? [] : await enrich(params, files, state);
@@ -214,16 +248,7 @@ async function calculate(params) {
     let semantic;
     try { semantic = await embeddings(params, items, state); }
     catch (error) { if (error.name === 'AbortError') return {results: [], cancelled: true, descriptions}; throw error; }
-    let training = await readJson(app, `${BASE}/training.json`, null);
-    if (training && JSON.stringify(training.models) !== JSON.stringify(semantic.models)) training = null;
-    if (!training || params.retrain) {
-        if (MODEL_KEYS.every(key => Object.keys(semantic.vectors[key]).length >= 30) && items.filter(item => Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 10).length >= 40) {
-            params.onProgress?.({phase: 'training', completed: 0, total: 5});
-            training = await state.engine.train(items, semantic.vectors, {onProgress: params.onProgress, shouldCancel: params.shouldCancel});
-            training.models = semantic.models;
-            await writeJson(app, `${BASE}/training.json`, training);
-        }
-    }
+    const training = await trainingFor(params, items, semantic, state);
     const inputHash = await hash(items.map(item => ({...item, description: undefined})));
     const results = [], byPath = new Map(items.map(item => [item.path, item]));
     for (let index = 0; index < files.length; index++) {
@@ -232,10 +257,11 @@ async function calculate(params) {
         try {
             const report = state.engine.forecast(items, target, semantic.vectors, training);
             if (report.error) throw Error(report.error);
-            report.version = 4;
+            report.version = state.engine.VERSION;
             report.models = semantic.models;
             report.model = semantic.models[0];
-            report.training = {...report.training, inputHash, parameterVersion: training?.version, parameterCreatedAt: training?.createdAt};
+            report.training = {...report.training, inputHash, parameterVersion: training?.version, parameterCreatedAt: training?.createdAt,
+                inputFingerprint: training?.inputFingerprint, refresh: training?.refresh};
             const descriptionHash = await hash(text(target.description));
             report.input = {descriptionHash, models: Object.fromEntries(MODEL_KEYS.map(key => {
                 const cached = semantic.caches[key].entries[file.path];
@@ -278,7 +304,8 @@ async function persist(params, estimate) {
     };
     const previousReportPath = text(fm['Расчёт прогноза']).replace(/^\[\[|\]\]$/g, '').split('|')[0];
     await app.fileManager.processFrontMatter(file, fm => { Object.assign(fm, fields); for (const key of OBSOLETE_FIELDS) delete fm[key]; });
-    const queue = await readJson(app, `${BASE}/queue.json`, {version: 4, entries: {}});
+    const queue = await readJson(app, `${BASE}/queue.json`, {version: 5, entries: {}});
+    queue.version = 5;
     if (report.final.provisional) queue.entries[file.path] = {reason: missing.join('; ') || report.final.reason, at: new Date().toISOString()};
     else delete queue.entries[file.path];
     await writeJson(app, `${BASE}/queue.json`, queue);
@@ -296,8 +323,7 @@ async function candidates(params) {
         {path: `candidate:${index}:${candidate.imdbId || candidate.kpId || candidate.ruTitle || ''}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'},
         {'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating, 'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId, 'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year, 'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description, tags: candidate.type === 'series' ? ['serial'] : ['movies']}, candidate.actors || []));
     const semantic = await embeddings(params, items, state, targets);
-    let training = await readJson(app, `${BASE}/training.json`, null);
-    if (training && JSON.stringify(training.models) !== JSON.stringify(semantic.models)) training = null;
+    const training = await trainingFor(params, items, semantic, state);
     return targets.map((target, index) => {
         const stored = Number(params.forecastCandidates[index].storedPrediction ?? params.forecastCandidates[index].local?.storedPrediction);
         if (Number.isFinite(stored) && stored >= 1 && stored <= 10) return stored;
@@ -333,5 +359,5 @@ module.exports = {
     persist: (params, estimate) => locked(params.app, () => persist(params, estimate)),
     candidates: params => locked(params.app, () => candidates(params)),
     resume: params => locked(params.app, () => resume(params)),
-    load, readJson, writeJson, hash, itemsFor, coreFor, media
+    load, readJson, writeJson, hash, itemsFor, coreFor, media, trainingFor
 };
