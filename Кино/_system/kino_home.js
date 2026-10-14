@@ -116,7 +116,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         root = el(dv.container, 'section', 'kino-home-ui'); root.dataset.ready = 'false';
         if (refresh) refresh.root = root;
         el(root, 'style', '', css);
-        const foldKey = 'kino.home.folds.v1:' + (app.vault.getName?.() || '') + ':' + source;
+        const foldKey = 'kino.home.folds.v2:' + (app.vault.getName?.() || '') + ':' + source;
         const memory = app.__kinoHomeFolds || (app.__kinoHomeFolds = Object.create(null));
         let folds = memory[foldKey] || {};
         try {
@@ -151,7 +151,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 for (const node of nodes) node.hidden = !expanded;
                 box.dispatchEvent(new doc.defaultView.Event('kino-fold-change'));
             }
-            drawFold(typeof folds[savedKey] === 'boolean' ? folds[savedKey] : key !== 'recent');
+            drawFold(typeof folds[savedKey] === 'boolean' ? folds[savedKey] : key === 'masthead');
             listen(button, 'click', () => {
                 const expanded = button.getAttribute('aria-expanded') !== 'true';
                 drawFold(expanded); saveFold(savedKey, expanded);
@@ -215,9 +215,11 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             el(head, 'h2', '', title); if (label) internal(head, label, target, 'kino-home-section-link');
             return { box, head, body: el(box, 'div', 'kino-home-widget') };
         }
+        const overviews = el(root, 'section', 'kino-home-panel kino-home-overviews'); el(overviews, 'h2', '', 'Обзор кинотеки');
+        const overviewBody = el(overviews, 'div', 'kino-home-overview-body');
         const recent = panel('Последние просмотры', 'kino-home-recent');
         el(recent.head, 'p', 'kino-home-caption', 'Последние 20 по дате просмотра');
-        const reading = panel('Просмотры в цифрах', 'kino-home-reading');
+        const reading = panel('Статистика', 'kino-home-reading');
         internal(reading.head, 'Итоги ↗', 'Кино/_system/Итоги просмотров', 'kino-home-section-link kino-home-report-link');
         const metrics = el(reading.body, 'div', 'kino-home-metrics'), metricValues = [];
         for (const [key, label] of [['month', 'В этом месяце'], ['year', 'В этом году'], ['reread', 'Пересмотрено за всё время']]) {
@@ -286,8 +288,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             if (!owner?.on) continue;
             for (const event of events) { const ref = owner.on(event, schedule); cleanups.push(() => owner.offref?.(ref)); }
         }
-        const overviews = el(root, 'section', 'kino-home-panel kino-home-overviews'); el(overviews, 'h2', '', 'Обзор кинотеки');
-        const overviewBody = el(overviews, 'div', 'kino-home-overview-body');
         const overviewLinks = el(overviewBody, 'div', 'kino-home-overview-links');
         for (const [label, description, choice] of [['Актёры', 'Фильмы и сериалы по актёрам', 'Кино - Открыть актера'], ['Режиссёры', 'Работы и личные оценки', 'Кино - Открыть режиссера'], ['Жанры', 'Истории по настроению', 'Кино - Открыть жанр']]) {
             const tile = el(overviewLinks, 'div', 'kino-home-overview'); command(tile, label, choice); el(tile, 'p', '', description);
@@ -349,7 +349,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const footer = el(root, 'footer', 'kino-home-footer');
         internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
         foldBlock(masthead, heading.querySelector('h1'), [nav, actions, stats], 'masthead', 'Кинотека');
-        for (const [block, key, label] of [[recent, 'recent', 'Последние просмотры'], [reading, 'reading', 'Просмотры в цифрах']]) {
+        for (const [block, key, label] of [[recent, 'recent', 'Последние просмотры'], [reading, 'reading', 'Статистика']]) {
             foldBlock(block.box, block.head.querySelector('h2'), [block.body, block.head.querySelector('.kino-home-caption')], key, label);
         }
         foldBlock(overviews, overviews.querySelector('h2'), [overviewBody], 'overview', 'Обзор кинотеки');

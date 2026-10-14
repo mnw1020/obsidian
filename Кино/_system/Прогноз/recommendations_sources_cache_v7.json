@@ -1020,6 +1020,62 @@
       ],
       "source": "kp-api"
     },
+    "4572": {
+      "at": 1792012383511,
+      "items": [
+        {
+          "kpId": "15270",
+          "ruTitle": "Армейская история",
+          "enTitle": "A Soldier's Story"
+        },
+        {
+          "kpId": "8155",
+          "ruTitle": "Генеральская дочь",
+          "enTitle": "The General's Daughter"
+        },
+        {
+          "kpId": "1588",
+          "ruTitle": "Несколько хороших парней",
+          "enTitle": "A Few Good Men"
+        },
+        {
+          "kpId": "697",
+          "ruTitle": "Особо тяжкие преступления",
+          "enTitle": "High Crimes"
+        },
+        {
+          "kpId": "47386",
+          "ruTitle": "Объединённая зона безопасности",
+          "enTitle": "Gongdonggyeongbiguyeok JSA"
+        },
+        {
+          "kpId": "5539",
+          "ruTitle": "Мужество в бою",
+          "enTitle": "Courage Under Fire"
+        },
+        {
+          "kpId": "178303",
+          "ruTitle": "В долине Эла",
+          "enTitle": "In the Valley of Elah"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "811",
+          "ruTitle": "Правила боя",
+          "enTitle": "Rules of Engagement"
+        },
+        {
+          "kpId": "340",
+          "ruTitle": "Подозрительные лица",
+          "enTitle": "The Usual Suspects"
+        }
+      ],
+      "source": "kp-api"
+    },
     "4901": {
       "at": 1790793256063,
       "items": [
@@ -2330,6 +2386,143 @@
       ],
       "source": "kp-api"
     },
+    "171922": {
+      "at": 1792012382848,
+      "items": [
+        {
+          "kpId": "409295",
+          "ruTitle": "Исходный код",
+          "enTitle": "Source Code"
+        },
+        {
+          "kpId": "1978",
+          "ruTitle": "11:14",
+          "enTitle": "11:14"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "309337",
+          "ruTitle": "Интернэшнл",
+          "enTitle": "The International"
+        },
+        {
+          "kpId": "31918",
+          "ruTitle": "Бобби",
+          "enTitle": "Bobby"
+        },
+        {
+          "kpId": "4268",
+          "ruTitle": "Глаза змеи",
+          "enTitle": "Snake Eyes"
+        },
+        {
+          "kpId": "388",
+          "ruTitle": "Расёмон",
+          "enTitle": "Rashomon"
+        },
+        {
+          "kpId": "4974",
+          "ruTitle": "На линии огня",
+          "enTitle": "In the Line of Fire"
+        },
+        {
+          "kpId": "474776",
+          "ruTitle": "4.3.2.1",
+          "enTitle": "4.3.2.1"
+        },
+        {
+          "kpId": "61297",
+          "ruTitle": "Столкновение",
+          "enTitle": "Crash"
+        },
+        {
+          "kpId": "489415",
+          "ruTitle": "Срочная доставка",
+          "enTitle": "Premium Rush"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "196707": {
+      "at": 1792012382616,
+      "items": [
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick"
+        },
+        {
+          "kpId": "6889",
+          "ruTitle": "Гнев",
+          "enTitle": "Man on Fire"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "1309596",
+          "ruTitle": "Никто",
+          "enTitle": "Nobody"
+        },
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two"
+        },
+        {
+          "kpId": "276598",
+          "ruTitle": "Драйв",
+          "enTitle": "Drive"
+        },
+        {
+          "kpId": "681662",
+          "ruTitle": "Человек ноября",
+          "enTitle": "The November Man"
+        },
+        {
+          "kpId": "712639",
+          "ruTitle": "Заложница 3",
+          "enTitle": "Taken 3"
+        },
+        {
+          "kpId": "484866",
+          "ruTitle": "Человек из ниоткуда",
+          "enTitle": "Ajeossi"
+        },
+        {
+          "kpId": "662469",
+          "ruTitle": "Ночной беглец",
+          "enTitle": "Run All Night"
+        }
+      ],
+      "source": "kp-api"
+    },
     "198938": {
       "at": 1791057531653,
       "items": [
@@ -2644,6 +2837,268 @@
       ],
       "source": "kp-api"
     },
+    "257898": {
+      "at": 1792012382413,
+      "items": [
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity"
+        },
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum"
+        },
+        {
+          "kpId": "3954",
+          "ruTitle": "Враг государства",
+          "enTitle": "Enemy of the State"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "171922",
+          "ruTitle": "Точка обстрела",
+          "enTitle": "Vantage Point"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy"
+        },
+        {
+          "kpId": "104901",
+          "ruTitle": "Хитмэн",
+          "enTitle": "Hitman"
+        },
+        {
+          "kpId": "17288",
+          "ruTitle": "Снайпер",
+          "enTitle": "Sniper"
+        },
+        {
+          "kpId": "683919",
+          "ruTitle": "Снайпер",
+          "enTitle": "American Sniper"
+        },
+        {
+          "kpId": "195608",
+          "ruTitle": "Макс Пэйн",
+          "enTitle": "Max Payne"
+        },
+        {
+          "kpId": "467553",
+          "ruTitle": "Мачете",
+          "enTitle": "Machete"
+        },
+        {
+          "kpId": "39259",
+          "ruTitle": "Профессионал",
+          "enTitle": "Le professionnel"
+        },
+        {
+          "kpId": "3915",
+          "ruTitle": "Беглец",
+          "enTitle": "The Fugitive"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "276376": {
+      "at": 1792012381731,
+      "items": [
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity"
+        },
+        {
+          "kpId": "6889",
+          "ruTitle": "Гнев",
+          "enTitle": "Man on Fire"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "463135",
+          "ruTitle": "Неизвестный",
+          "enTitle": "Unknown"
+        },
+        {
+          "kpId": "412258",
+          "ruTitle": "Возмездие",
+          "enTitle": "Edge of Darkness"
+        },
+        {
+          "kpId": "427202",
+          "ruTitle": "Из Парижа с любовью",
+          "enTitle": "From Paris with Love"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum"
+        },
+        {
+          "kpId": "389",
+          "ruTitle": "Леон",
+          "enTitle": "Léon"
+        },
+        {
+          "kpId": "2238",
+          "ruTitle": "Коммандос",
+          "enTitle": "Commando"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick"
+        },
+        {
+          "kpId": "606826",
+          "ruTitle": "Воздушный маршал",
+          "enTitle": "Non-Stop"
+        },
+        {
+          "kpId": "9544",
+          "ruTitle": "Крепкий орешек 4.0",
+          "enTitle": "Live Free or Die Hard"
+        },
+        {
+          "kpId": "470658",
+          "ruTitle": "22 пули: Бессмертный",
+          "enTitle": "L'immortel"
+        },
+        {
+          "kpId": "63778",
+          "ruTitle": "Сотовый",
+          "enTitle": "Cellular"
+        },
+        {
+          "kpId": "81522",
+          "ruTitle": "13-й район",
+          "enTitle": "Banlieue 13"
+        },
+        {
+          "kpId": "683516",
+          "ruTitle": "3 дня на убийство",
+          "enTitle": "3 Days to Kill"
+        },
+        {
+          "kpId": "546203",
+          "ruTitle": "Медальон",
+          "enTitle": "Stolen"
+        },
+        {
+          "kpId": "12522",
+          "ruTitle": "Расплата",
+          "enTitle": "Payback"
+        },
+        {
+          "kpId": "484866",
+          "ruTitle": "Человек из ниоткуда",
+          "enTitle": "Ajeossi"
+        },
+        {
+          "kpId": "256164",
+          "ruTitle": "Смертный приговор",
+          "enTitle": "Death Sentence"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "674295",
+          "ruTitle": "Тревожный вызов",
+          "enTitle": "The Call"
+        },
+        {
+          "kpId": "102610",
+          "ruTitle": "Рабство",
+          "enTitle": "Trade"
+        },
+        {
+          "kpId": "79564",
+          "ruTitle": "24 часа",
+          "enTitle": "24"
+        },
+        {
+          "kpId": "524631",
+          "ruTitle": "Экспат",
+          "enTitle": "Erased"
+        },
+        {
+          "kpId": "17661",
+          "ruTitle": "Каратель",
+          "enTitle": "The Punisher"
+        },
+        {
+          "kpId": "9543",
+          "ruTitle": "Заложник",
+          "enTitle": "Hostage"
+        },
+        {
+          "kpId": "471",
+          "ruTitle": "Крепкий орешек",
+          "enTitle": "Die Hard"
+        },
+        {
+          "kpId": "482151",
+          "ruTitle": "Доверие",
+          "enTitle": "Trust"
+        },
+        {
+          "kpId": "490287",
+          "ruTitle": "Отставник",
+          "enTitle": ""
+        },
+        {
+          "kpId": "427127",
+          "ruTitle": "Месть Гарри Брауна",
+          "enTitle": "Harry Brown"
+        },
+        {
+          "kpId": "1024879",
+          "ruTitle": "Мой сын",
+          "enTitle": "Mon garçon"
+        }
+      ],
+      "source": "kp-api"
+    },
     "283371": {
       "at": 1791057530034,
       "items": [
@@ -2772,6 +3227,192 @@
           "kpId": "732760",
           "ruTitle": "Выжить после",
           "enTitle": ""
+        }
+      ],
+      "source": "kp-api"
+    },
+    "406408": {
+      "at": 1792012383077,
+      "items": [
+        {
+          "kpId": "463686",
+          "ruTitle": "План побега",
+          "enTitle": "Escape Plan"
+        },
+        {
+          "kpId": "377",
+          "ruTitle": "Семь",
+          "enTitle": "Se7en"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "468958",
+          "ruTitle": "Три дня на побег",
+          "enTitle": "The Next Three Days"
+        },
+        {
+          "kpId": "64187",
+          "ruTitle": "Пила: Игра на выживание",
+          "enTitle": "Saw"
+        },
+        {
+          "kpId": "345",
+          "ruTitle": "Молчание ягнят",
+          "enTitle": "The Silence of the Lambs"
+        },
+        {
+          "kpId": "738",
+          "ruTitle": "Жизнь Дэвида Гейла",
+          "enTitle": "The Life of David Gale"
+        },
+        {
+          "kpId": "277537",
+          "ruTitle": "Декстер",
+          "enTitle": "Dexter"
+        },
+        {
+          "kpId": "461939",
+          "ruTitle": "Линкольн для адвоката",
+          "enTitle": "The Lincoln Lawyer"
+        },
+        {
+          "kpId": "220617",
+          "ruTitle": "Перелом",
+          "enTitle": "Fracture"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "258048",
+          "ruTitle": "Побег",
+          "enTitle": "Prison Break"
+        },
+        {
+          "kpId": "400582",
+          "ruTitle": "Опасные пассажиры поезда 123",
+          "enTitle": "The Taking of Pelham 123"
+        },
+        {
+          "kpId": "8091",
+          "ruTitle": "Охотники за разумом",
+          "enTitle": "Mindhunters"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter"
+        },
+        {
+          "kpId": "412258",
+          "ruTitle": "Возмездие",
+          "enTitle": "Edge of Darkness"
+        },
+        {
+          "kpId": "256164",
+          "ruTitle": "Смертный приговор",
+          "enTitle": "Death Sentence"
+        },
+        {
+          "kpId": "1965",
+          "ruTitle": "Время убивать",
+          "enTitle": "A Time to Kill"
+        },
+        {
+          "kpId": "430519",
+          "ruTitle": "Немыслимое",
+          "enTitle": "Unthinkable"
+        },
+        {
+          "kpId": "3915",
+          "ruTitle": "Беглец",
+          "enTitle": "The Fugitive"
+        },
+        {
+          "kpId": "6889",
+          "ruTitle": "Гнев",
+          "enTitle": "Man on Fire"
+        },
+        {
+          "kpId": "3954",
+          "ruTitle": "Враг государства",
+          "enTitle": "Enemy of the State"
+        },
+        {
+          "kpId": "406148",
+          "ruTitle": "Тетрадь смерти",
+          "enTitle": "Desu noto"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "417892",
+          "ruTitle": "Я плюю на ваши могилы",
+          "enTitle": "I Spit on Your Grave"
+        },
+        {
+          "kpId": "41442",
+          "ruTitle": "Ворошиловский стрелок",
+          "enTitle": ""
+        },
+        {
+          "kpId": "493222",
+          "ruTitle": "На грани",
+          "enTitle": "Man on a Ledge"
+        },
+        {
+          "kpId": "944098",
+          "ruTitle": "Три билборда на границе Эббинга, Миссури",
+          "enTitle": "Three Billboards Outside Ebbing, Missouri"
+        },
+        {
+          "kpId": "4540",
+          "ruTitle": "Переговорщик",
+          "enTitle": "The Negotiator"
+        },
+        {
+          "kpId": "645066",
+          "ruTitle": "Одним меньше",
+          "enTitle": "Dead Man Down"
+        },
+        {
+          "kpId": "464020",
+          "ruTitle": "Без компромиссов",
+          "enTitle": "Blitz"
+        },
+        {
+          "kpId": "395756",
+          "ruTitle": "Преступник",
+          "enTitle": "Felon"
+        },
+        {
+          "kpId": "326",
+          "ruTitle": "Побег из Шоушенка",
+          "enTitle": "The Shawshank Redemption"
+        },
+        {
+          "kpId": "17661",
+          "ruTitle": "Каратель",
+          "enTitle": "The Punisher"
+        },
+        {
+          "kpId": "430765",
+          "ruTitle": "7 дней",
+          "enTitle": "Les 7 jours du talion"
         }
       ],
       "source": "kp-api"
@@ -5092,6 +5733,27 @@
       ],
       "source": "kp-api"
     },
+    "566232": {
+      "at": 1792012383305,
+      "items": [
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "377",
+          "ruTitle": "Семь",
+          "enTitle": "Se7en"
+        }
+      ],
+      "source": "kp-api"
+    },
     "568687": {
       "at": 1790965844449,
       "items": [
@@ -5638,6 +6300,62 @@
       ],
       "source": "kp-api"
     },
+    "662359": {
+      "at": 1792012382198,
+      "items": [
+        {
+          "kpId": "519",
+          "ruTitle": "Человек дождя",
+          "enTitle": "Rain Man"
+        },
+        {
+          "kpId": "530",
+          "ruTitle": "Игры разума",
+          "enTitle": "A Beautiful Mind"
+        },
+        {
+          "kpId": "389",
+          "ruTitle": "Леон",
+          "enTitle": "Léon"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick"
+        },
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two"
+        },
+        {
+          "kpId": "1309596",
+          "ruTitle": "Никто",
+          "enTitle": "Nobody"
+        }
+      ],
+      "source": "kp-api"
+    },
     "673157": {
       "at": 1790965842475,
       "items": [
@@ -5995,6 +6713,127 @@
       ],
       "source": "kp-api"
     },
+    "762738": {
+      "at": 1792012381961,
+      "items": [
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant"
+        },
+        {
+          "kpId": "462656",
+          "ruTitle": "Убийца",
+          "enTitle": "The Killer"
+        },
+        {
+          "kpId": "558393",
+          "ruTitle": "Серый человек",
+          "enTitle": "The Gray Man"
+        },
+        {
+          "kpId": "1392550",
+          "ruTitle": "Быстрее пули",
+          "enTitle": "Bullet Train"
+        },
+        {
+          "kpId": "4413037",
+          "ruTitle": "Манкимэн",
+          "enTitle": "Monkey Man"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "104964",
+          "ruTitle": "Пристрели их",
+          "enTitle": "Shoot 'Em Up"
+        },
+        {
+          "kpId": "195615",
+          "ruTitle": "Механик",
+          "enTitle": "The Mechanic"
+        },
+        {
+          "kpId": "389",
+          "ruTitle": "Леон",
+          "enTitle": "Léon"
+        },
+        {
+          "kpId": "662469",
+          "ruTitle": "Ночной беглец",
+          "enTitle": "Run All Night"
+        },
+        {
+          "kpId": "1309596",
+          "ruTitle": "Никто",
+          "enTitle": "Nobody"
+        },
+        {
+          "kpId": "276598",
+          "ruTitle": "Драйв",
+          "enTitle": "Drive"
+        },
+        {
+          "kpId": "12522",
+          "ruTitle": "Расплата",
+          "enTitle": "Payback"
+        },
+        {
+          "kpId": "714564",
+          "ruTitle": "Взрывная блондинка",
+          "enTitle": "Atomic Blonde"
+        },
+        {
+          "kpId": "712639",
+          "ruTitle": "Заложница 3",
+          "enTitle": "Taken 3"
+        },
+        {
+          "kpId": "484866",
+          "ruTitle": "Человек из ниоткуда",
+          "enTitle": "Ajeossi"
+        },
+        {
+          "kpId": "1190387",
+          "ruTitle": "Тайлер Рейк: Операция по спасению",
+          "enTitle": "Extraction"
+        },
+        {
+          "kpId": "1023331",
+          "ruTitle": "Отель «Артемида»",
+          "enTitle": "Hotel Artemis"
+        },
+        {
+          "kpId": "1236634",
+          "ruTitle": "Пороховой коктейль",
+          "enTitle": "Gunpowder Milkshake"
+        },
+        {
+          "kpId": "1075556",
+          "ruTitle": "Полярный",
+          "enTitle": "Polar"
+        },
+        {
+          "kpId": "432868",
+          "ruTitle": "Месть",
+          "enTitle": "Fuk sau"
+        }
+      ],
+      "source": "kp-api"
+    },
     "805650": {
       "at": 1790971239845,
       "items": [
@@ -6042,6 +6881,103 @@
         }
       ],
       "diag": "КП: прямых похожих 6"
+    },
+    "817245": {
+      "at": 1792012380852,
+      "items": [
+        {
+          "kpId": "1209839",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Reacher",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "840294",
+          "ruTitle": "Великий уравнитель 2",
+          "enTitle": "The Equalizer 2",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "257898",
+          "ruTitle": "Стрелок",
+          "enTitle": "Shooter",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "455188",
+          "ruTitle": "Рыцарь дня",
+          "enTitle": "Knight and Day",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "171922",
+          "ruTitle": "Точка обстрела",
+          "enTitle": "Vantage Point",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "406408",
+          "ruTitle": "Законопослушный гражданин",
+          "enTitle": "Law Abiding Citizen",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "566232",
+          "ruTitle": "Я, Алекс Кросс",
+          "enTitle": "Alex Cross",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        },
+        {
+          "kpId": "4572",
+          "ruTitle": "База «Клейтон»",
+          "enTitle": "Basic",
+          "priority": 0.8,
+          "reason": "КП: похожие «Джек Ричер»"
+        }
+      ],
+      "diag": "КП: прямых похожих 5 · похожие «Джек Ричер»: 11"
     },
     "826373": {
       "at": 1790971241120,
@@ -6116,6 +7052,103 @@
           "kpId": "893880",
           "ruTitle": "Ледокол",
           "enTitle": ""
+        }
+      ],
+      "source": "kp-api"
+    },
+    "840294": {
+      "at": 1792012381294,
+      "items": [
+        {
+          "kpId": "885658",
+          "ruTitle": "Джон Уик 2",
+          "enTitle": "John Wick: Chapter Two"
+        },
+        {
+          "kpId": "1009536",
+          "ruTitle": "Джон Уик 3",
+          "enTitle": "John Wick: Chapter 3 - Parabellum"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "762738",
+          "ruTitle": "Джон Уик",
+          "enTitle": "John Wick"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "817245",
+          "ruTitle": "Джек Ричер 2: Никогда не возвращайся",
+          "enTitle": "Jack Reacher: Never Go Back"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "885658": {
+      "at": 1792012381508,
+      "items": [
+        {
+          "kpId": "1047492",
+          "ruTitle": "Балерина",
+          "enTitle": "Ballerina"
+        },
+        {
+          "kpId": "662359",
+          "ruTitle": "Расплата",
+          "enTitle": "The Accountant"
+        },
+        {
+          "kpId": "196707",
+          "ruTitle": "Великий уравнитель",
+          "enTitle": "The Equalizer"
+        },
+        {
+          "kpId": "714564",
+          "ruTitle": "Взрывная блондинка",
+          "enTitle": "Atomic Blonde"
+        },
+        {
+          "kpId": "669466",
+          "ruTitle": "Рейд 2",
+          "enTitle": "Serbuan maut 2: Berandal"
+        },
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "1309596",
+          "ruTitle": "Никто",
+          "enTitle": "Nobody"
+        },
+        {
+          "kpId": "276376",
+          "ruTitle": "Заложница",
+          "enTitle": "Taken"
+        },
+        {
+          "kpId": "840294",
+          "ruTitle": "Великий уравнитель 2",
+          "enTitle": "The Equalizer 2"
+        },
+        {
+          "kpId": "817245",
+          "ruTitle": "Джек Ричер 2: Никогда не возвращайся",
+          "enTitle": "Jack Reacher: Never Go Back"
+        },
+        {
+          "kpId": "1075556",
+          "ruTitle": "Полярный",
+          "enTitle": "Polar"
         }
       ],
       "source": "kp-api"
@@ -6345,6 +7378,27 @@
           "kpId": "271748",
           "ruTitle": "Герои",
           "enTitle": "Heroes"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "1209839": {
+      "at": 1792012381094,
+      "items": [
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher"
+        },
+        {
+          "kpId": "696973",
+          "ruTitle": "Банши",
+          "enTitle": "Banshee"
+        },
+        {
+          "kpId": "817245",
+          "ruTitle": "Джек Ричер 2: Никогда не возвращайся",
+          "enTitle": "Jack Reacher: Never Go Back"
         }
       ],
       "source": "kp-api"
@@ -6703,6 +7757,70 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "340": {
+      "at": 1792012388084,
+      "data": {
+        "kpId": "340",
+        "ruTitle": "Подозрительные лица",
+        "enTitle": "The Usual Suspects",
+        "year": "1995",
+        "description": "Если есть преступление, есть и мотив. Если проводится опознание, то по крайней мере есть один подозреваемый. Но это было необычное преступление. Пять преступников столкнулись в одном необычном месте и решили прокрутить одно дельце. Но некто более сильный и влиятельный, некто, чье имя пугает всех преступников мира, хочет, чтобы они поработали на него. Это не было обычным преступлением, и они — не просто подозрительные лица.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "если",
+          "есть",
+          "преступление",
+          "мотив",
+          "проводится",
+          "опознание",
+          "крайней",
+          "мере",
+          "один",
+          "подозреваемый",
+          "было",
+          "необычное",
+          "пять",
+          "преступников",
+          "столкнулись",
+          "одном",
+          "необычном",
+          "месте",
+          "решили",
+          "прокрутить",
+          "одно",
+          "дельце",
+          "некто",
+          "более",
+          "сильный",
+          "влиятельный",
+          "чье",
+          "имя",
+          "пугает",
+          "всех",
+          "мира",
+          "хочет",
+          "чтобы",
+          "поработали",
+          "него",
+          "обычным",
+          "преступлением",
+          "просто",
+          "подозрительные",
+          "лица"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -7172,6 +8290,52 @@
       },
       "source": "kp-api"
     },
+    "388": {
+      "at": 1792012388242,
+      "data": {
+        "kpId": "388",
+        "ruTitle": "Расёмон",
+        "enTitle": "Rashomon",
+        "year": "1950",
+        "description": "Древняя Япония. В лесу изнасилована женщина, а её муж убит. Есть четыре точки зрения на это происшествие, у каждого из четырех свидетелей — своя. Каждая сторона проливает свет на случившееся, добавляя дополнительные детали.",
+        "genres": [
+          "drama",
+          "crime"
+        ],
+        "descTokens": [
+          "древняя",
+          "япония",
+          "лесу",
+          "изнасилована",
+          "женщина",
+          "муж",
+          "убит",
+          "есть",
+          "четыре",
+          "точки",
+          "зрения",
+          "происшествие",
+          "каждого",
+          "четырех",
+          "свидетелей",
+          "своя",
+          "каждая",
+          "сторона",
+          "проливает",
+          "свет",
+          "случившееся",
+          "добавляя",
+          "дополнительные",
+          "детали"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "396": {
       "at": 1791057546991,
       "data": {
@@ -7522,6 +8686,69 @@
         "directors": [],
         "franchise": "",
         "kpRating": 8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "519": {
+      "at": 1792012391642,
+      "data": {
+        "kpId": "519",
+        "ruTitle": "Человек дождя",
+        "enTitle": "Rain Man",
+        "year": "1988",
+        "description": "Грубоватому и эгоистичному молодому человеку Чарли в наследство от отца достались лишь розовые кусты да «Бьюик» 1949 года, а львиная доля наследства уходит его брату-аутисту Раймонду. Задавшись целью отобрать «свою долю», Чарли похищает старшего брата. Но когда выясняет, что Раймонд обладает недюжими математическими способностями, памятью и внимательностью, решает использовать это в корыстных целях.",
+        "genres": [
+          "drama"
+        ],
+        "descTokens": [
+          "грубоватому",
+          "эгоистичному",
+          "молодому",
+          "человеку",
+          "чарли",
+          "наследство",
+          "отца",
+          "достались",
+          "лишь",
+          "розовые",
+          "кусты",
+          "бьюик",
+          "1949",
+          "года",
+          "львиная",
+          "доля",
+          "наследства",
+          "уходит",
+          "брату",
+          "аутисту",
+          "раймонду",
+          "задавшись",
+          "целью",
+          "отобрать",
+          "свою",
+          "долю",
+          "похищает",
+          "старшего",
+          "брата",
+          "когда",
+          "выясняет",
+          "раймонд",
+          "обладает",
+          "недюжими",
+          "математическими",
+          "способностями",
+          "памятью",
+          "внимательностью",
+          "решает",
+          "использовать",
+          "корыстных",
+          "целях"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.2,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -9216,6 +10443,59 @@
       },
       "source": "movie-planner"
     },
+    "1588": {
+      "at": 1792012386488,
+      "data": {
+        "kpId": "1588",
+        "ruTitle": "Несколько хороших парней",
+        "enTitle": "A Few Good Men",
+        "year": "1992",
+        "description": "Два морпеха предстают перед судом за незаконную расправу над своим товарищем. Участь защищать их выпадает молодому самоуверенному потомственному адвокату, который явно предпочитает бейсбол жестким играм закона. Однако дело оказывается не таким простым, как ему казалось.",
+        "genres": [
+          "thriller",
+          "drama"
+        ],
+        "descTokens": [
+          "два",
+          "морпеха",
+          "предстают",
+          "перед",
+          "судом",
+          "незаконную",
+          "расправу",
+          "над",
+          "своим",
+          "товарищем",
+          "участь",
+          "защищать",
+          "выпадает",
+          "молодому",
+          "самоуверенному",
+          "потомственному",
+          "адвокату",
+          "который",
+          "явно",
+          "предпочитает",
+          "бейсбол",
+          "жестким",
+          "играм",
+          "закона",
+          "однако",
+          "дело",
+          "оказывается",
+          "таким",
+          "простым",
+          "ему",
+          "казалось"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1594": {
       "at": 1790610500249,
       "data": {
@@ -9636,6 +10916,52 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "1965": {
+      "at": 1792012387162,
+      "data": {
+        "kpId": "1965",
+        "ruTitle": "Время убивать",
+        "enTitle": "A Time to Kill",
+        "year": "1996",
+        "description": "Зверски изнасилована десятилетняя девочка. Отец девочки расстреливает подонков.\n\nЕму грозит газовая камера. Сможет ли блестящий адвокат, не проигравший ни одного дела, добиться признания невиновности своего клиента?",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime"
+        ],
+        "descTokens": [
+          "зверски",
+          "изнасилована",
+          "десятилетняя",
+          "девочка",
+          "отец",
+          "девочки",
+          "расстреливает",
+          "подонков",
+          "ему",
+          "грозит",
+          "газовая",
+          "камера",
+          "сможет",
+          "блестящий",
+          "адвокат",
+          "проигравший",
+          "одного",
+          "дела",
+          "добиться",
+          "признания",
+          "невиновности",
+          "своего",
+          "клиента"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "1978": {
       "at": 1790793296078,
@@ -11626,6 +12952,58 @@
       },
       "source": "kp-api"
     },
+    "3915": {
+      "at": 1792012384222,
+      "data": {
+        "kpId": "3915",
+        "ruTitle": "Беглец",
+        "enTitle": "The Fugitive",
+        "year": "1993",
+        "description": "Доктор Ричард Кимбл, чикагский хирург, ложно обвинен в убийстве своей жены. Полный решимости доказать свою невиновность доктор совершает побег из тюрьмы. Он хочет сам привести своих преследователей - служителей закона - к настоящему убийце.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "доктор",
+          "ричард",
+          "кимбл",
+          "чикагский",
+          "хирург",
+          "ложно",
+          "обвинен",
+          "убийстве",
+          "своей",
+          "жены",
+          "полный",
+          "решимости",
+          "доказать",
+          "свою",
+          "невиновность",
+          "совершает",
+          "побег",
+          "тюрьмы",
+          "хочет",
+          "сам",
+          "привести",
+          "своих",
+          "преследователей",
+          "служителей",
+          "закона",
+          "настоящему",
+          "убийце"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "3995": {
       "at": 1791057547223,
       "data": {
@@ -12057,6 +13435,86 @@
       },
       "source": "kp-api"
     },
+    "4268": {
+      "at": 1792012389170,
+      "data": {
+        "kpId": "4268",
+        "ruTitle": "Глаза змеи",
+        "enTitle": "Snake Eyes",
+        "year": "1998",
+        "description": "Коррумпированный детектив из полиции Атлантик-Сити Рик Санторо приходит на боксерский матч, чтобы поболеть за любимого спортсмена. Там он встречает давнего друга Кевина Данна, который сообщает ему, что служит в охране министра обороны Чарльза Киркленда, также пришедшего на бокс. Во время одного из раундов неизвестный снайпер убивает министра. Полиция блокирует здание, заперев всех зрителей внутри до выяснения обстоятельств. Санторо хочет разобраться в случившемся. Для этого должен по крупицам восстановить события, произошедшие во время матча.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "коррумпированный",
+          "детектив",
+          "полиции",
+          "атлантик",
+          "сити",
+          "рик",
+          "санторо",
+          "приходит",
+          "боксерский",
+          "матч",
+          "чтобы",
+          "поболеть",
+          "любимого",
+          "спортсмена",
+          "там",
+          "встречает",
+          "давнего",
+          "друга",
+          "кевина",
+          "данна",
+          "который",
+          "сообщает",
+          "ему",
+          "служит",
+          "охране",
+          "министра",
+          "обороны",
+          "чарльза",
+          "киркленда",
+          "также",
+          "пришедшего",
+          "бокс",
+          "время",
+          "одного",
+          "раундов",
+          "неизвестный",
+          "снайпер",
+          "убивает",
+          "полиция",
+          "блокирует",
+          "здание",
+          "заперев",
+          "всех",
+          "зрителей",
+          "внутри",
+          "выяснения",
+          "обстоятельств",
+          "хочет",
+          "разобраться",
+          "случившемся",
+          "этого",
+          "должен",
+          "крупицам",
+          "восстановить",
+          "события",
+          "произошедшие",
+          "матча"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "4275": {
       "at": 1790613686293,
       "data": {
@@ -12312,6 +13770,91 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "4540": {
+      "at": 1792012390088,
+      "data": {
+        "kpId": "4540",
+        "ruTitle": "Переговорщик",
+        "enTitle": "The Negotiator",
+        "year": "1998",
+        "description": "Дэнни Ромэн — крутой и рисковый полицейский переговорщик с многолетним стажем. Однажды на вечеринке его друг и напарник Нэйтан рассказывает, что обладает информацией о копах и сотрудниках отдела внутренних расследований, замешанных в финансовых хищениях. Вскоре Нэйтана убивают, Дэнни становится главным подозреваемым, а в его доме находят доказательства вывода крупных денежных сумм на оффшорные счета. Решив докопаться до правды и очистить своё имя, он захватывает в заложники Терренса Нибаума из отдела внутренних расследований, о котором упоминал Нэйтан, и находящихся в офисе людей. А тем временем к зданию стягиваются силы полиции и спецназа.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "дэнни",
+          "ромэн",
+          "крутой",
+          "рисковый",
+          "полицейский",
+          "переговорщик",
+          "многолетним",
+          "стажем",
+          "однажды",
+          "вечеринке",
+          "друг",
+          "напарник",
+          "нэйтан",
+          "рассказывает",
+          "обладает",
+          "информацией",
+          "копах",
+          "сотрудниках",
+          "отдела",
+          "внутренних",
+          "расследований",
+          "замешанных",
+          "финансовых",
+          "хищениях",
+          "вскоре",
+          "нэйтана",
+          "убивают",
+          "становится",
+          "главным",
+          "подозреваемым",
+          "доме",
+          "находят",
+          "доказательства",
+          "вывода",
+          "крупных",
+          "денежных",
+          "сумм",
+          "оффшорные",
+          "счета",
+          "решив",
+          "докопаться",
+          "правды",
+          "очистить",
+          "свое",
+          "имя",
+          "захватывает",
+          "заложники",
+          "терренса",
+          "нибаума",
+          "котором",
+          "упоминал",
+          "находящихся",
+          "офисе",
+          "людей",
+          "тем",
+          "временем",
+          "зданию",
+          "стягиваются",
+          "силы",
+          "полиции",
+          "спецназа"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -12874,6 +14417,74 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "4974": {
+      "at": 1792012391428,
+      "data": {
+        "kpId": "4974",
+        "ruTitle": "На линии огня",
+        "enTitle": "In the Line of Fire",
+        "year": "1993",
+        "description": "В тот злополучный день, когда в Далласе был убит президент Кеннеди, Фрэнк Хорриган находился среди охраны. Воспоминания о невыполненной миссии уже много лет не дают ему спать спокойно.\nСпустя 30 лет маньяк-психопат, угрожающий убить президента, выбирает Фрэнка мишенью для преследования. И в этой опасной игре только сила воли решит, кто останется в живых…",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "тот",
+          "злополучный",
+          "день",
+          "когда",
+          "далласе",
+          "был",
+          "убит",
+          "президент",
+          "кеннеди",
+          "фрэнк",
+          "хорриган",
+          "находился",
+          "среди",
+          "охраны",
+          "воспоминания",
+          "невыполненной",
+          "миссии",
+          "уже",
+          "много",
+          "лет",
+          "дают",
+          "ему",
+          "спать",
+          "спокойно",
+          "спустя",
+          "маньяк",
+          "психопат",
+          "угрожающий",
+          "убить",
+          "президента",
+          "выбирает",
+          "фрэнка",
+          "мишенью",
+          "преследования",
+          "этой",
+          "опасной",
+          "игре",
+          "только",
+          "сила",
+          "воли",
+          "решит",
+          "кто",
+          "останется",
+          "живых"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "5011": {
       "at": 1790965155598,
@@ -13619,6 +15230,94 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "5539": {
+      "at": 1792012391862,
+      "data": {
+        "kpId": "5539",
+        "ruTitle": "Мужество в бою",
+        "enTitle": "Courage Under Fire",
+        "year": "1996",
+        "description": "Февраль 1991 года. Мир следит за войной в Персидском Заливе. Полковник Серлинг, командир танкового подразделения, совершает страшную ошибку во время ночной атаки, в результате чего погибают американские военнослужащие. Начальство решает замять это дело и отправляет Серлинга на бумажную работу в Пентагон.\n\nЕму поручают проверить, годится ли кандидат на Медаль Почета Конгресса, капитан Карен Уолден, для вручения этой награды за проявленное ею «мужество в бою». В ходе расследования честный служака натыкается на множество фактов, которые военное командование США хотело бы скрыть.",
+        "genres": [
+          "thriller",
+          "drama",
+          "детектив",
+          "action",
+          "военный"
+        ],
+        "descTokens": [
+          "февраль",
+          "1991",
+          "года",
+          "мир",
+          "следит",
+          "войной",
+          "персидском",
+          "заливе",
+          "полковник",
+          "серлинг",
+          "командир",
+          "танкового",
+          "подразделения",
+          "совершает",
+          "страшную",
+          "ошибку",
+          "время",
+          "ночной",
+          "атаки",
+          "результате",
+          "чего",
+          "погибают",
+          "американские",
+          "военнослужащие",
+          "начальство",
+          "решает",
+          "замять",
+          "дело",
+          "отправляет",
+          "серлинга",
+          "бумажную",
+          "работу",
+          "пентагон",
+          "ему",
+          "поручают",
+          "проверить",
+          "годится",
+          "кандидат",
+          "медаль",
+          "почета",
+          "конгресса",
+          "капитан",
+          "карен",
+          "уолден",
+          "вручения",
+          "этой",
+          "награды",
+          "проявленное",
+          "мужество",
+          "бою",
+          "ходе",
+          "расследования",
+          "честный",
+          "служака",
+          "натыкается",
+          "множество",
+          "фактов",
+          "которые",
+          "военное",
+          "командование",
+          "сша",
+          "хотело",
+          "скрыть"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -18056,6 +19755,66 @@
       },
       "source": "kp-api"
     },
+    "15270": {
+      "at": 1792012386287,
+      "data": {
+        "kpId": "15270",
+        "ruTitle": "Армейская история",
+        "enTitle": "A Soldier's Story",
+        "year": "1984",
+        "description": "Вторая мировая война. На американской военной базе ЧП: застрелен сержант- афроамериканец Уотерс. Расследование убийства поручено капитану Дэвенпорту, чернокожему армейскому юристу. Белые офицеры и черные солдаты поражены таким назначением. Приступив к допросам, Дэвенпорт быстро понимает, что на помощь в поисках истины ему не стоит рассчитывать...",
+        "genres": [
+          "drama",
+          "crime",
+          "детектив",
+          "военный"
+        ],
+        "descTokens": [
+          "вторая",
+          "мировая",
+          "война",
+          "американской",
+          "военной",
+          "базе",
+          "застрелен",
+          "сержант",
+          "афроамериканец",
+          "уотерс",
+          "расследование",
+          "убийства",
+          "поручено",
+          "капитану",
+          "дэвенпорту",
+          "чернокожему",
+          "армейскому",
+          "юристу",
+          "белые",
+          "офицеры",
+          "черные",
+          "солдаты",
+          "поражены",
+          "таким",
+          "назначением",
+          "приступив",
+          "допросам",
+          "дэвенпорт",
+          "быстро",
+          "понимает",
+          "помощь",
+          "поисках",
+          "истины",
+          "ему",
+          "стоит",
+          "рассчитывать"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "15530": {
       "at": 1790793290321,
       "data": {
@@ -18558,6 +20317,85 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "17288": {
+      "at": 1792012386694,
+      "data": {
+        "kpId": "17288",
+        "ruTitle": "Снайпер",
+        "enTitle": "Sniper",
+        "year": "1992",
+        "description": "Старший комендор-сержант Томас Бекетт — один из лучших снайперов, который постоянно работает в джунглях Панамы. После успешного выполнения очередного задания во время эвакуации от пули вражеского стрелка погибает наводчик Беккета. Вскоре Томасу поручают убрать панамского лидера повстанцев, который метит в президенты и тесно связан с главой крупного наркокартеля. В качестве наводчика к нему прикрепляют не имеющего боевого опыта молодого карьериста и мастера по спортивной стрельбе Ричарда Миллера из Агентства Национальной безопасности.",
+        "genres": [
+          "thriller",
+          "action"
+        ],
+        "descTokens": [
+          "старший",
+          "комендор",
+          "сержант",
+          "томас",
+          "бекетт",
+          "один",
+          "лучших",
+          "снайперов",
+          "который",
+          "постоянно",
+          "работает",
+          "джунглях",
+          "панамы",
+          "после",
+          "успешного",
+          "выполнения",
+          "очередного",
+          "задания",
+          "время",
+          "эвакуации",
+          "пули",
+          "вражеского",
+          "стрелка",
+          "погибает",
+          "наводчик",
+          "беккета",
+          "вскоре",
+          "томасу",
+          "поручают",
+          "убрать",
+          "панамского",
+          "лидера",
+          "повстанцев",
+          "метит",
+          "президенты",
+          "тесно",
+          "связан",
+          "главой",
+          "крупного",
+          "наркокартеля",
+          "качестве",
+          "наводчика",
+          "нему",
+          "прикрепляют",
+          "имеющего",
+          "боевого",
+          "опыта",
+          "молодого",
+          "карьериста",
+          "мастера",
+          "спортивной",
+          "стрельбе",
+          "ричарда",
+          "миллера",
+          "агентства",
+          "национальной",
+          "безопасности"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -19916,6 +21754,65 @@
       },
       "source": "kp-api"
     },
+    "31918": {
+      "at": 1792012387831,
+      "data": {
+        "kpId": "31918",
+        "ruTitle": "Бобби",
+        "enTitle": "Bobby",
+        "year": "2006",
+        "description": "1968 год, отель Амбассадор. Пока никто не знает, что здесь произойдёт убийство Роберта Ф. Кеннеди. Постояльцы и служащие гостиницы заняты своими личными проблемами, и кажется, что их жизненные пути никогда не пересекутся. Но это иллюзия: впереди героев, которые станут участниками трагедии, ждёт немало открытий и странных встреч.",
+        "genres": [
+          "drama",
+          "биография",
+          "история"
+        ],
+        "descTokens": [
+          "1968",
+          "год",
+          "отель",
+          "амбассадор",
+          "пока",
+          "никто",
+          "знает",
+          "здесь",
+          "произойдет",
+          "убийство",
+          "роберта",
+          "кеннеди",
+          "постояльцы",
+          "служащие",
+          "гостиницы",
+          "заняты",
+          "своими",
+          "личными",
+          "проблемами",
+          "кажется",
+          "жизненные",
+          "пути",
+          "никогда",
+          "пересекутся",
+          "иллюзия",
+          "впереди",
+          "героев",
+          "которые",
+          "станут",
+          "участниками",
+          "трагедии",
+          "ждет",
+          "немало",
+          "открытий",
+          "странных",
+          "встреч"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "32371": {
       "at": 1790360903932,
       "data": {
@@ -20329,6 +22226,81 @@
         "directors": [],
         "franchise": "",
         "kpRating": null,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "41442": {
+      "at": 1792012388714,
+      "data": {
+        "kpId": "41442",
+        "ruTitle": "Ворошиловский стрелок",
+        "enTitle": "",
+        "year": "1999",
+        "description": "Пенсионер, железнодорожник в отставке, скромно живёт со своей внучкой Катей. В соседнем доме постоянно собираются трое молодых бездельников, чувствующие себя безнаказанными хозяевами жизни. Однажды они хитростью заманили Катю к себе, где изнасиловали.\n\nПоначалу насильников арестовывают, однако отец одного из них — большой милицейский начальник — освобождает их. После безуспешных попыток наказать преступников законным путём, Иван Фёдорович посчитал своим долгом восстановить справедливость сам...",
+        "genres": [
+          "drama",
+          "crime"
+        ],
+        "descTokens": [
+          "пенсионер",
+          "железнодорожник",
+          "отставке",
+          "скромно",
+          "живет",
+          "своей",
+          "внучкой",
+          "катей",
+          "соседнем",
+          "доме",
+          "постоянно",
+          "собираются",
+          "трое",
+          "молодых",
+          "бездельников",
+          "чувствующие",
+          "себя",
+          "безнаказанными",
+          "хозяевами",
+          "жизни",
+          "однажды",
+          "хитростью",
+          "заманили",
+          "катю",
+          "себе",
+          "где",
+          "изнасиловали",
+          "поначалу",
+          "насильников",
+          "арестовывают",
+          "однако",
+          "отец",
+          "одного",
+          "них",
+          "большой",
+          "милицейский",
+          "начальник",
+          "освобождает",
+          "после",
+          "безуспешных",
+          "попыток",
+          "наказать",
+          "преступников",
+          "законным",
+          "путем",
+          "иван",
+          "федорович",
+          "посчитал",
+          "своим",
+          "долгом",
+          "восстановить",
+          "справедливость",
+          "сам"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -21157,6 +23129,52 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "47386": {
+      "at": 1792012390971,
+      "data": {
+        "kpId": "47386",
+        "ruTitle": "Объединённая зона безопасности",
+        "enTitle": "Gongdonggyeongbiguyeok JSA",
+        "year": "2000",
+        "description": "В деревне перемирия Пханмунджом, находящейся на границе Северной и Южной Корей в так называемой Объединенной зоне безопасности, происходит инцидент с погибшими с северной стороны и пострадавшими с южной. Разобраться в произошедшем приглашают представителя нейтральной стороны.",
+        "genres": [
+          "thriller",
+          "drama",
+          "детектив"
+        ],
+        "descTokens": [
+          "деревне",
+          "перемирия",
+          "пханмунджом",
+          "находящейся",
+          "границе",
+          "северной",
+          "южной",
+          "корей",
+          "так",
+          "называемой",
+          "объединенной",
+          "зоне",
+          "безопасности",
+          "происходит",
+          "инцидент",
+          "погибшими",
+          "стороны",
+          "пострадавшими",
+          "разобраться",
+          "произошедшем",
+          "приглашают",
+          "представителя",
+          "нейтральной"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -25562,6 +27580,66 @@
       },
       "source": "kp-api"
     },
+    "111543": {
+      "at": 1792012385327,
+      "data": {
+        "kpId": "111543",
+        "ruTitle": "Темный рыцарь",
+        "enTitle": "The Dark Knight",
+        "year": "2008",
+        "description": "Бэтмен поднимает ставки в войне с криминалом. С помощью лейтенанта Джима Гордона и прокурора Харви Дента он намерен очистить улицы Готэма от преступности. Сотрудничество оказывается эффективным, но скоро они обнаружат себя посреди хаоса, развязанного восходящим криминальным гением, известным напуганным горожанам под именем Джокер.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "бэтмен",
+          "поднимает",
+          "ставки",
+          "войне",
+          "криминалом",
+          "помощью",
+          "лейтенанта",
+          "джима",
+          "гордона",
+          "прокурора",
+          "харви",
+          "дента",
+          "намерен",
+          "очистить",
+          "улицы",
+          "готэма",
+          "преступности",
+          "сотрудничество",
+          "оказывается",
+          "эффективным",
+          "скоро",
+          "обнаружат",
+          "себя",
+          "посреди",
+          "хаоса",
+          "развязанного",
+          "восходящим",
+          "криминальным",
+          "гением",
+          "известным",
+          "напуганным",
+          "горожанам",
+          "под",
+          "именем",
+          "джокер"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.5,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "115674": {
       "at": 1791057536694,
       "data": {
@@ -25986,6 +28064,52 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "178303": {
+      "at": 1792012386945,
+      "data": {
+        "kpId": "178303",
+        "ruTitle": "В долине Эла",
+        "enTitle": "In the Valley of Elah",
+        "year": "2007",
+        "description": "Фильм повествует об офицере, чей сын-солдат немотивированно отправляется в самоволку вскоре после возвращения в Штаты из Ирака, и исчезает без следа. Местный полицейский детектив берется помочь офицеру в расследовании...",
+        "genres": [
+          "drama",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "повествует",
+          "офицере",
+          "чей",
+          "сын",
+          "солдат",
+          "немотивированно",
+          "отправляется",
+          "самоволку",
+          "вскоре",
+          "после",
+          "возвращения",
+          "штаты",
+          "ирака",
+          "исчезает",
+          "без",
+          "следа",
+          "местный",
+          "полицейский",
+          "детектив",
+          "берется",
+          "помочь",
+          "офицеру",
+          "расследовании"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -26818,6 +28942,38 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "220617": {
+      "at": 1792012387386,
+      "data": {
+        "kpId": "220617",
+        "ruTitle": "Перелом",
+        "enTitle": "Fracture",
+        "year": "2007",
+        "description": "Ассистент окружного прокурора оказывается втянут в хитроумную игру в «кошки-мышки».",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime"
+        ],
+        "descTokens": [
+          "ассистент",
+          "окружного",
+          "прокурора",
+          "оказывается",
+          "втянут",
+          "хитроумную",
+          "игру",
+          "кошки",
+          "мышки"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.7,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -29686,6 +31842,86 @@
       },
       "source": "kp-api"
     },
+    "309337": {
+      "at": 1792012387584,
+      "data": {
+        "kpId": "309337",
+        "ruTitle": "Интернэшнл",
+        "enTitle": "The International",
+        "year": "2009",
+        "description": "Берлин. Следователь Интерпола Льюис Сэлинджер и помощница окружного прокурора Манхэттена Элеонор Уитман расследуют преступления крупного международного банка. Льюис становится свидетелем смерти своего напарника после встречи с потенциальным свидетелем, однако вскрытие и руководители Льюиса говорят о сердечном приступе. Сэлинджер теряет веру в систему и решает самостоятельно допросить директора банка в Люксембурге, но на встречу приходит лишь его адвокат.\nЛьюис и Элеонор в тайне от начальства отправляются в Милан для встречи с Умберто Кальвини, политиком и торговцем оружием, но и он вскоре становится жертвой убийства.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "берлин",
+          "следователь",
+          "интерпола",
+          "льюис",
+          "сэлинджер",
+          "помощница",
+          "окружного",
+          "прокурора",
+          "манхэттена",
+          "элеонор",
+          "уитман",
+          "расследуют",
+          "преступления",
+          "крупного",
+          "международного",
+          "банка",
+          "становится",
+          "свидетелем",
+          "смерти",
+          "своего",
+          "напарника",
+          "после",
+          "встречи",
+          "потенциальным",
+          "однако",
+          "вскрытие",
+          "руководители",
+          "льюиса",
+          "говорят",
+          "сердечном",
+          "приступе",
+          "теряет",
+          "веру",
+          "систему",
+          "решает",
+          "самостоятельно",
+          "допросить",
+          "директора",
+          "люксембурге",
+          "встречу",
+          "приходит",
+          "лишь",
+          "адвокат",
+          "тайне",
+          "начальства",
+          "отправляются",
+          "милан",
+          "умберто",
+          "кальвини",
+          "политиком",
+          "торговцем",
+          "оружием",
+          "вскоре",
+          "жертвой",
+          "убийства"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "309402": {
       "at": 1790360905538,
       "data": {
@@ -31664,6 +33900,55 @@
       },
       "source": "kp-api"
     },
+    "406148": {
+      "at": 1792012388484,
+      "data": {
+        "kpId": "406148",
+        "ruTitle": "Тетрадь смерти",
+        "enTitle": "Desu noto",
+        "year": "2006",
+        "description": "Старшекласснику Лайту Ягами в руки попадает тетрадь синигами Рюка. Каждый человек, чьё имя записать в эту тетрадку, умрёт, поэтому Лайт решает бороться со злом на земле.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив",
+          "фэнтези",
+          "мультфильм",
+          "аниме"
+        ],
+        "descTokens": [
+          "старшекласснику",
+          "лайту",
+          "ягами",
+          "руки",
+          "попадает",
+          "тетрадь",
+          "синигами",
+          "рюка",
+          "каждый",
+          "человек",
+          "чье",
+          "имя",
+          "записать",
+          "эту",
+          "тетрадку",
+          "умрет",
+          "поэтому",
+          "лайт",
+          "решает",
+          "бороться",
+          "злом",
+          "земле"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.6,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "409338": {
       "at": 1790793316089,
       "data": {
@@ -32108,6 +34393,70 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "417892": {
+      "at": 1792012388943,
+      "data": {
+        "kpId": "417892",
+        "ruTitle": "Я плюю на ваши могилы",
+        "enTitle": "I Spit on Your Grave",
+        "year": "2010",
+        "description": "Молодая писательница Дженнифер снимает домик в глухом лесу, чтобы в уединении написать роман. Но издатель не дождется нового бестселлера… Четверо местных отморозков жестоко насилуют девушку и обрекают ее на мучительную смерть. Но Дженнифер сумела выжить и теперь ее единственная цель – месть. И месть эта будет столь ужасной, что бывшие насильники проклянут тот день, когда встретили ее впервые…",
+        "genres": [
+          "thriller",
+          "horror"
+        ],
+        "descTokens": [
+          "молодая",
+          "писательница",
+          "дженнифер",
+          "снимает",
+          "домик",
+          "глухом",
+          "лесу",
+          "чтобы",
+          "уединении",
+          "написать",
+          "роман",
+          "издатель",
+          "дождется",
+          "нового",
+          "бестселлера",
+          "четверо",
+          "местных",
+          "отморозков",
+          "жестоко",
+          "насилуют",
+          "девушку",
+          "обрекают",
+          "мучительную",
+          "смерть",
+          "сумела",
+          "выжить",
+          "теперь",
+          "единственная",
+          "цель",
+          "месть",
+          "эта",
+          "будет",
+          "столь",
+          "ужасной",
+          "бывшие",
+          "насильники",
+          "проклянут",
+          "тот",
+          "день",
+          "когда",
+          "встретили",
+          "впервые"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.3,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -33065,6 +35414,60 @@
       },
       "source": "movie-planner"
     },
+    "430519": {
+      "at": 1792012389386,
+      "data": {
+        "kpId": "430519",
+        "ruTitle": "Немыслимое",
+        "enTitle": "Unthinkable",
+        "year": "2009",
+        "description": "Военнослужащий американской армии Янгер принимает ислам и записывает видеообращение, в котором заявляет, что заложил три ядерных заряда в крупных городах Америки. Вскоре террорист попадает в руки сотрудников спецслужб, которые начинают жестоко пытать его, чтобы добыть информацию о нахождении зарядов.",
+        "genres": [
+          "thriller",
+          "drama"
+        ],
+        "descTokens": [
+          "военнослужащий",
+          "американской",
+          "армии",
+          "янгер",
+          "принимает",
+          "ислам",
+          "записывает",
+          "видеообращение",
+          "котором",
+          "заявляет",
+          "заложил",
+          "три",
+          "ядерных",
+          "заряда",
+          "крупных",
+          "городах",
+          "америки",
+          "вскоре",
+          "террорист",
+          "попадает",
+          "руки",
+          "сотрудников",
+          "спецслужб",
+          "которые",
+          "начинают",
+          "жестоко",
+          "пытать",
+          "чтобы",
+          "добыть",
+          "информацию",
+          "нахождении",
+          "зарядов"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "430638": {
       "at": 1791057547681,
       "data": {
@@ -33120,6 +35523,86 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "430765": {
+      "at": 1792012389612,
+      "data": {
+        "kpId": "430765",
+        "ruTitle": "7 дней",
+        "enTitle": "Les 7 jours du talion",
+        "year": "2010",
+        "description": "Хирург Бруно Хемель живёт в Драммонвилле с женой Сильвией и 8-летней дочерью Жасмин. Как и большинство счастливых семей они живут в мире и согласии до тех пор, пока одним осенним днём его дочь не находят изнасилованной и убитой. Убийцу немедленно арестовывают. Однако Бруно не находит покоя, и в его голове созревает план. Выкрасть «монстра» из рук полиции и сообщить им, что насильник и убийца будет подвергаться жесточайшим пыткам в течение 7 дней, после чего он будет убит. Как только это произойдёт, Бруно обещает сдаться властям.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "horror"
+        ],
+        "descTokens": [
+          "хирург",
+          "бруно",
+          "хемель",
+          "живет",
+          "драммонвилле",
+          "женой",
+          "сильвией",
+          "летней",
+          "дочерью",
+          "жасмин",
+          "большинство",
+          "счастливых",
+          "семей",
+          "живут",
+          "мире",
+          "согласии",
+          "тех",
+          "пор",
+          "пока",
+          "одним",
+          "осенним",
+          "днем",
+          "дочь",
+          "находят",
+          "изнасилованной",
+          "убитой",
+          "убийцу",
+          "немедленно",
+          "арестовывают",
+          "однако",
+          "находит",
+          "покоя",
+          "голове",
+          "созревает",
+          "план",
+          "выкрасть",
+          "монстра",
+          "рук",
+          "полиции",
+          "сообщить",
+          "насильник",
+          "убийца",
+          "будет",
+          "подвергаться",
+          "жесточайшим",
+          "пыткам",
+          "течение",
+          "дней",
+          "после",
+          "чего",
+          "убит",
+          "только",
+          "произойдет",
+          "обещает",
+          "сдаться",
+          "властям"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -33823,6 +36306,86 @@
       },
       "source": "kp-api"
     },
+    "461939": {
+      "at": 1792012390282,
+      "data": {
+        "kpId": "461939",
+        "ruTitle": "Линкольн для адвоката",
+        "enTitle": "The Lincoln Lawyer",
+        "year": "2011",
+        "description": "Мики Холлер — блестящий и удачливый адвокат из Лос-Анджелеса, чей яркий имидж и образ жизни отлично дополняет его любимая машина «Линкольн». Очередное дело — нападение богатого клиента Луи Руле на проститутку сначала казалось легким, и он без труда добился оправдательного приговора для подзащитного. Но вскоре Микки понимает, что его клиент скрывает правду. Пока Холлер пытается вывести Руле на чистую воду, его подставляют по-крупному, и теперь уже угроза тюремного заключения нависает над самим адвокатом.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "детектив"
+        ],
+        "descTokens": [
+          "мики",
+          "холлер",
+          "блестящий",
+          "удачливый",
+          "адвокат",
+          "лос",
+          "анджелеса",
+          "чей",
+          "яркий",
+          "имидж",
+          "образ",
+          "жизни",
+          "отлично",
+          "дополняет",
+          "любимая",
+          "машина",
+          "линкольн",
+          "очередное",
+          "дело",
+          "нападение",
+          "богатого",
+          "клиента",
+          "луи",
+          "руле",
+          "проститутку",
+          "сначала",
+          "казалось",
+          "легким",
+          "без",
+          "труда",
+          "добился",
+          "оправдательного",
+          "приговора",
+          "подзащитного",
+          "вскоре",
+          "микки",
+          "понимает",
+          "клиент",
+          "скрывает",
+          "правду",
+          "пока",
+          "пытается",
+          "вывести",
+          "чистую",
+          "воду",
+          "подставляют",
+          "крупному",
+          "теперь",
+          "уже",
+          "угроза",
+          "тюремного",
+          "заключения",
+          "нависает",
+          "над",
+          "самим",
+          "адвокатом"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "462168": {
       "at": 1790793330179,
       "data": {
@@ -34146,6 +36709,49 @@
       },
       "source": "kp-api"
     },
+    "462656": {
+      "at": 1792012390552,
+      "data": {
+        "kpId": "462656",
+        "ruTitle": "Убийца",
+        "enTitle": "The Killer",
+        "year": "2023",
+        "description": "Высококлассный наемный убийца, склонный к мизантропическому философствованию, поджидает жертву в Париже. Когда всё идёт не по плану, он сам рискует превратиться в мишень и отправляется разбираться с собственными заказчиками.",
+        "genres": [
+          "thriller",
+          "crime"
+        ],
+        "descTokens": [
+          "высококлассный",
+          "наемный",
+          "убийца",
+          "склонный",
+          "мизантропическому",
+          "философствованию",
+          "поджидает",
+          "жертву",
+          "париже",
+          "когда",
+          "все",
+          "идет",
+          "плану",
+          "сам",
+          "рискует",
+          "превратиться",
+          "мишень",
+          "отправляется",
+          "разбираться",
+          "собственными",
+          "заказчиками"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "462662": {
       "at": 1791397580986,
       "data": {
@@ -34303,6 +36909,65 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "464020": {
+      "at": 1792012390783,
+      "data": {
+        "kpId": "464020",
+        "ruTitle": "Без компромиссов",
+        "enTitle": "Blitz",
+        "year": "2011",
+        "description": "Семь или восемь? Не в граммах, а в полицейских!.. Именно этим вопросом задается лондонский маньяк, решивший прославиться. Выбрав себе для первых полос таблоидов звучный псевдоним Блиц и вооружившись молотком, Барри Вайс выходит на улицы. И теперь главному герою придется спасать свою шкуру и пытаться остановить сумасшедшего убийцу…",
+        "genres": [
+          "thriller",
+          "crime"
+        ],
+        "descTokens": [
+          "семь",
+          "восемь",
+          "граммах",
+          "полицейских",
+          "именно",
+          "этим",
+          "вопросом",
+          "задается",
+          "лондонский",
+          "маньяк",
+          "решивший",
+          "прославиться",
+          "выбрав",
+          "себе",
+          "первых",
+          "полос",
+          "таблоидов",
+          "звучный",
+          "псевдоним",
+          "блиц",
+          "вооружившись",
+          "молотком",
+          "барри",
+          "вайс",
+          "выходит",
+          "улицы",
+          "теперь",
+          "главному",
+          "герою",
+          "придется",
+          "спасать",
+          "свою",
+          "шкуру",
+          "пытаться",
+          "остановить",
+          "сумасшедшего",
+          "убийцу"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -35035,6 +37700,72 @@
         "franchise": "",
         "kpRating": 5.9,
         "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "474776": {
+      "at": 1792012391220,
+      "data": {
+        "kpId": "474776",
+        "ruTitle": "4.3.2.1",
+        "enTitle": "4.3.2.1",
+        "year": "2010",
+        "description": "В то время как Джоанн приходится работать в супермаркете, остальные поглощены своими приключениями: Кассандра стремится в Нью-Йорк, чтобы встретиться с другом из Интернета; Кэррис борется за права женщин, а Шэннон направляется на встречу с отцом. Но сама судьба сталкивает их отдельные миры и друг друга. У 4-х девушек всего 3 дня, которые они никогда не забудут и 2 города, которые они посетят, то есть... если они выживут.",
+        "genres": [
+          "thriller",
+          "crime",
+          "comedy"
+        ],
+        "descTokens": [
+          "время",
+          "джоанн",
+          "приходится",
+          "работать",
+          "супермаркете",
+          "остальные",
+          "поглощены",
+          "своими",
+          "приключениями",
+          "кассандра",
+          "стремится",
+          "нью",
+          "йорк",
+          "чтобы",
+          "встретиться",
+          "другом",
+          "интернета",
+          "кэррис",
+          "борется",
+          "права",
+          "женщин",
+          "шэннон",
+          "направляется",
+          "встречу",
+          "отцом",
+          "сама",
+          "судьба",
+          "сталкивает",
+          "отдельные",
+          "миры",
+          "друг",
+          "друга",
+          "девушек",
+          "всего",
+          "дня",
+          "которые",
+          "никогда",
+          "забудут",
+          "города",
+          "посетят",
+          "есть",
+          "если",
+          "выживут"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.3,
+        "type": "movie",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -37343,6 +40074,81 @@
       },
       "source": "kp-api"
     },
+    "558393": {
+      "at": 1792012392102,
+      "data": {
+        "kpId": "558393",
+        "ruTitle": "Серый человек",
+        "enTitle": "The Gray Man",
+        "year": "2022",
+        "description": "В 2003 году ЦРУ вербует отбывающего срок за убийство Курта Джентри, и тот становится так называемым серым человеком — спецагентом под кодовым именем Сьерра Шесть. 18 лет спустя, устранив очередную цель, он узнаёт, что только что убил бывшего Сьерра Четыре, и получает носитель с информацией, представляющей угрозу для секретной программы «Сьерра». Отказавшись передать карту начальству, Шесть сам становится мишенью не только для бывших коллег, но и для элитных наёмников, самый опасный из которых — отморозок Ллойд Хансен.",
+        "genres": [
+          "action"
+        ],
+        "descTokens": [
+          "2003",
+          "году",
+          "цру",
+          "вербует",
+          "отбывающего",
+          "срок",
+          "убийство",
+          "курта",
+          "джентри",
+          "тот",
+          "становится",
+          "так",
+          "называемым",
+          "серым",
+          "человеком",
+          "спецагентом",
+          "под",
+          "кодовым",
+          "именем",
+          "сьерра",
+          "шесть",
+          "лет",
+          "спустя",
+          "устранив",
+          "очередную",
+          "цель",
+          "узнает",
+          "только",
+          "убил",
+          "бывшего",
+          "четыре",
+          "получает",
+          "носитель",
+          "информацией",
+          "представляющей",
+          "угрозу",
+          "секретной",
+          "программы",
+          "отказавшись",
+          "передать",
+          "карту",
+          "начальству",
+          "сам",
+          "мишенью",
+          "бывших",
+          "коллег",
+          "элитных",
+          "наемников",
+          "самый",
+          "опасный",
+          "которых",
+          "отморозок",
+          "ллойд",
+          "хансен"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.5,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "561180": {
       "at": 1790794103261,
       "data": {
@@ -39365,6 +42171,47 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "662469": {
+      "at": 1792012384441,
+      "data": {
+        "kpId": "662469",
+        "ruTitle": "Ночной беглец",
+        "enTitle": "Run All Night",
+        "year": "2015",
+        "description": "Фильм расскажет историю киллера, вступившего в конфликт с бывшим боссом и в итоге вынужденного пуститься в бега, чтобы защитить свою семью от преследования мафией и властями.",
+        "genres": [
+          "drama",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "расскажет",
+          "историю",
+          "киллера",
+          "вступившего",
+          "конфликт",
+          "бывшим",
+          "боссом",
+          "итоге",
+          "вынужденного",
+          "пуститься",
+          "бега",
+          "чтобы",
+          "защитить",
+          "свою",
+          "семью",
+          "преследования",
+          "мафией",
+          "властями"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -42494,6 +45341,69 @@
       },
       "source": "kp-api"
     },
+    "840294": {
+      "at": 1792012383964,
+      "data": {
+        "kpId": "840294",
+        "ruTitle": "Великий уравнитель 2",
+        "enTitle": "The Equalizer 2",
+        "year": "2018",
+        "description": "Бывший спецагент Роберт Макколл продолжает помогать хорошим, по его мнению, людям и наказывать плохих. ЦРУ считает его погибшим, и только старый друг и бывшая коллега Сьюзан знает его тайну и периодически заходит в гости. Когда на очередном задании в Брюсселе Сьюзан убивают, пытаясь замаскировать это под ограбление, Макколл решает разобраться и отомстить всем причастным.",
+        "genres": [
+          "thriller",
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "бывший",
+          "спецагент",
+          "роберт",
+          "макколл",
+          "продолжает",
+          "помогать",
+          "хорошим",
+          "мнению",
+          "людям",
+          "наказывать",
+          "плохих",
+          "цру",
+          "считает",
+          "погибшим",
+          "только",
+          "старый",
+          "друг",
+          "бывшая",
+          "коллега",
+          "сьюзан",
+          "знает",
+          "тайну",
+          "периодически",
+          "заходит",
+          "гости",
+          "когда",
+          "очередном",
+          "задании",
+          "брюсселе",
+          "убивают",
+          "пытаясь",
+          "замаскировать",
+          "под",
+          "ограбление",
+          "решает",
+          "разобраться",
+          "отомстить",
+          "всем",
+          "причастным"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "841147": {
       "at": 1791057539895,
       "data": {
@@ -44227,6 +47137,58 @@
       },
       "source": "kp-api"
     },
+    "1009536": {
+      "at": 1792012384672,
+      "data": {
+        "kpId": "1009536",
+        "ruTitle": "Джон Уик 3",
+        "enTitle": "John Wick: Chapter 3 - Parabellum",
+        "year": "2019",
+        "description": "Суперкиллер Джон Уик после нарушения кодекса тайной гильдии ассасинов получает статус изгоя — экскомьюникадо. За его голову назначена цена в 14 миллионов долларов, и армия самых жестоких профессиональных убийц со всего мира открывает на него кровавую охоту.",
+        "genres": [
+          "thriller",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "суперкиллер",
+          "джон",
+          "уик",
+          "после",
+          "нарушения",
+          "кодекса",
+          "тайной",
+          "гильдии",
+          "ассасинов",
+          "получает",
+          "статус",
+          "изгоя",
+          "экскомьюникадо",
+          "голову",
+          "назначена",
+          "цена",
+          "миллионов",
+          "долларов",
+          "армия",
+          "самых",
+          "жестоких",
+          "профессиональных",
+          "убийц",
+          "всего",
+          "мира",
+          "открывает",
+          "него",
+          "кровавую",
+          "охоту"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1011685": {
       "at": 1790793833088,
       "data": {
@@ -44313,6 +47275,71 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "1023331": {
+      "at": 1792012384883,
+      "data": {
+        "kpId": "1023331",
+        "ruTitle": "Отель «Артемида»",
+        "enTitle": "Hotel Artemis",
+        "year": "2018",
+        "description": "В Лос-Анджелесе недалёкого будущего каждый уважающий себя преступник отправляется за медицинской помощью к суровой Медсестре, которая содержит отель «Артемида». Здесь члены особого клуба могут получить медпомощь и отдохнуть. Но парочка новых постояльцев приводит за собой местного криминального босса, желающего получить заветный предмет, случайно прихваченный в процессе ограбления.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "лос",
+          "анджелесе",
+          "недалекого",
+          "будущего",
+          "каждый",
+          "уважающий",
+          "себя",
+          "преступник",
+          "отправляется",
+          "медицинской",
+          "помощью",
+          "суровой",
+          "медсестре",
+          "которая",
+          "содержит",
+          "отель",
+          "артемида",
+          "здесь",
+          "члены",
+          "особого",
+          "клуба",
+          "могут",
+          "получить",
+          "медпомощь",
+          "отдохнуть",
+          "парочка",
+          "новых",
+          "постояльцев",
+          "приводит",
+          "собой",
+          "местного",
+          "криминального",
+          "босса",
+          "желающего",
+          "заветный",
+          "предмет",
+          "случайно",
+          "прихваченный",
+          "процессе",
+          "ограбления"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.2,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -44670,6 +47697,69 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "1047492": {
+      "at": 1792012385193,
+      "data": {
+        "kpId": "1047492",
+        "ruTitle": "Балерина",
+        "enTitle": "Ballerina",
+        "year": "2025",
+        "description": "Когда Ева была маленькой, вооруженные люди во главе с мужчиной по прозвищу Канцлер оставили её сиротой. Так девочка оказалась в криминальной семье «Русска рома» на попечении Директрисы нью-йоркской балетной школы, одновременно служащей академией наемных убийц. Не добившись успехов в балете, но боевые курсы окончив с отличием, Ева отправляется в Европу мстить за папу.",
+        "genres": [
+          "thriller",
+          "action"
+        ],
+        "descTokens": [
+          "когда",
+          "ева",
+          "была",
+          "маленькой",
+          "вооруженные",
+          "люди",
+          "главе",
+          "мужчиной",
+          "прозвищу",
+          "канцлер",
+          "оставили",
+          "сиротой",
+          "так",
+          "девочка",
+          "оказалась",
+          "криминальной",
+          "семье",
+          "русска",
+          "рома",
+          "попечении",
+          "директрисы",
+          "нью",
+          "йоркской",
+          "балетной",
+          "школы",
+          "одновременно",
+          "служащей",
+          "академией",
+          "наемных",
+          "убийц",
+          "добившись",
+          "успехов",
+          "балете",
+          "боевые",
+          "курсы",
+          "окончив",
+          "отличием",
+          "отправляется",
+          "европу",
+          "мстить",
+          "папу"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -45929,6 +49019,79 @@
       },
       "source": "movie-planner"
     },
+    "1190387": {
+      "at": 1792012385568,
+      "data": {
+        "kpId": "1190387",
+        "ruTitle": "Тайлер Рейк: Операция по спасению",
+        "enTitle": "Extraction",
+        "year": "2020",
+        "description": "Группировка наёмников берётся освободить из заложников сына сидящего в тюрьме индийского наркобарона. Подростка похитили конкуренты и держат его в столице Бангладеш Дакке — городе, состоящем из трущоб и практически полностью окружённом реками. Ответственное задание поручается бывшему военному Тайлеру Рейку. Он легко расправляется с вооружённой охраной и быстро освобождает пленника, но доставить парня в безопасное место и выбраться из города, где на тебя объявлена охота, оказывается не так-то просто.",
+        "genres": [
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "группировка",
+          "наемников",
+          "берется",
+          "освободить",
+          "заложников",
+          "сына",
+          "сидящего",
+          "тюрьме",
+          "индийского",
+          "наркобарона",
+          "подростка",
+          "похитили",
+          "конкуренты",
+          "держат",
+          "столице",
+          "бангладеш",
+          "дакке",
+          "городе",
+          "состоящем",
+          "трущоб",
+          "практически",
+          "полностью",
+          "окруженном",
+          "реками",
+          "ответственное",
+          "задание",
+          "поручается",
+          "бывшему",
+          "военному",
+          "тайлеру",
+          "рейку",
+          "легко",
+          "расправляется",
+          "вооруженной",
+          "охраной",
+          "быстро",
+          "освобождает",
+          "пленника",
+          "доставить",
+          "парня",
+          "безопасное",
+          "место",
+          "выбраться",
+          "города",
+          "где",
+          "тебя",
+          "объявлена",
+          "охота",
+          "оказывается",
+          "так",
+          "просто"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1198736": {
       "at": 1790793286086,
       "data": {
@@ -46048,6 +49211,59 @@
       },
       "source": "kp-api"
     },
+    "1209839": {
+      "at": 1792012383741,
+      "data": {
+        "kpId": "1209839",
+        "ruTitle": "Джек Ричер",
+        "enTitle": "Reacher",
+        "year": "2022",
+        "description": "Джек Ричер, бывший майор военной полиции, посещает небольшой городок, где его арестовывают по подозрению в убийстве. Вскоре местные полицейские понимают, что этот здоровяк с опасной внешностью совсем не тот, кого они ищут, и Ричер предлагает им помощь в поисках настоящих убийц.",
+        "genres": [
+          "crime",
+          "детектив",
+          "action"
+        ],
+        "descTokens": [
+          "джек",
+          "ричер",
+          "бывший",
+          "майор",
+          "военной",
+          "полиции",
+          "посещает",
+          "небольшой",
+          "городок",
+          "где",
+          "арестовывают",
+          "подозрению",
+          "убийстве",
+          "вскоре",
+          "местные",
+          "полицейские",
+          "понимают",
+          "этот",
+          "здоровяк",
+          "опасной",
+          "внешностью",
+          "совсем",
+          "тот",
+          "кого",
+          "ищут",
+          "предлагает",
+          "помощь",
+          "поисках",
+          "настоящих",
+          "убийц"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1214953": {
       "at": 1790793793203,
       "data": {
@@ -46115,6 +49331,82 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "1236634": {
+      "at": 1792012385800,
+      "data": {
+        "kpId": "1236634",
+        "ruTitle": "Пороховой коктейль",
+        "enTitle": "Gunpowder Milkshake",
+        "year": "2021",
+        "description": "Как когда-то и её мать, которую она не видела уже 15 лет, Сэм работает наёмной убийцей. Выполняя очередное задание, она жалеет восьмилетнюю девочку и решает защищать её любой ценой, даже если для этого ей придётся пойти против собственного босса. Когда на Сэм открывает охоту целая армия головорезов, в том числе глава преступной группировки, чьего сына она недавно убила, на помощь внезапно приходит мама и её бывшие напарницы, всегда готовые угостить врагов «пороховым коктейлем».",
+        "genres": [
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "когда",
+          "мать",
+          "которую",
+          "видела",
+          "уже",
+          "лет",
+          "сэм",
+          "работает",
+          "наемной",
+          "убийцей",
+          "выполняя",
+          "очередное",
+          "задание",
+          "жалеет",
+          "восьмилетнюю",
+          "девочку",
+          "решает",
+          "защищать",
+          "любой",
+          "ценой",
+          "даже",
+          "если",
+          "этого",
+          "придется",
+          "пойти",
+          "против",
+          "собственного",
+          "босса",
+          "открывает",
+          "охоту",
+          "целая",
+          "армия",
+          "головорезов",
+          "том",
+          "числе",
+          "глава",
+          "преступной",
+          "группировки",
+          "чьего",
+          "сына",
+          "недавно",
+          "убила",
+          "помощь",
+          "внезапно",
+          "приходит",
+          "мама",
+          "бывшие",
+          "напарницы",
+          "всегда",
+          "готовые",
+          "угостить",
+          "врагов",
+          "пороховым",
+          "коктейлем"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "1238506": {
       "at": 1791057541943,
@@ -46834,6 +50126,63 @@
       },
       "source": "movie-planner"
     },
+    "1392550": {
+      "at": 1792012386006,
+      "data": {
+        "kpId": "1392550",
+        "ruTitle": "Быстрее пули",
+        "enTitle": "Bullet Train",
+        "year": "2022",
+        "description": "Наёмник под кодовым именем Божья Коровка отправляется на новую миссию: вместо заболевшего коллеги он должен сесть в скоростной поезд Токио — Киото, выкрасть чемоданчик и сойти на промежуточной станции. Но выполнение простого задания сильно осложняется, когда выясняется, что состав просто кишит всевозможными киллерами.",
+        "genres": [
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "наемник",
+          "под",
+          "кодовым",
+          "именем",
+          "божья",
+          "коровка",
+          "отправляется",
+          "новую",
+          "миссию",
+          "вместо",
+          "заболевшего",
+          "коллеги",
+          "должен",
+          "сесть",
+          "скоростной",
+          "поезд",
+          "токио",
+          "киото",
+          "выкрасть",
+          "чемоданчик",
+          "сойти",
+          "промежуточной",
+          "станции",
+          "выполнение",
+          "простого",
+          "задания",
+          "сильно",
+          "осложняется",
+          "когда",
+          "выясняется",
+          "состав",
+          "просто",
+          "кишит",
+          "всевозможными",
+          "киллерами"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1396579": {
       "at": 1790883095062,
       "data": {
@@ -47385,6 +50734,62 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "4413037": {
+      "at": 1792012389854,
+      "data": {
+        "kpId": "4413037",
+        "ruTitle": "Манкимэн",
+        "enTitle": "Monkey Man",
+        "year": "2024",
+        "description": "Парень из трущоб перебивается участием в подпольных боях без правил. В детстве он стал свидетелем убийства матери коррумпированным полицейским, и с тех пор им движет только жажда мести. Получив работу на кухне элитного борделя, который посещает убийца, молодой мститель начинает действовать.",
+        "genres": [
+          "drama",
+          "crime",
+          "action"
+        ],
+        "descTokens": [
+          "парень",
+          "трущоб",
+          "перебивается",
+          "участием",
+          "подпольных",
+          "боях",
+          "без",
+          "правил",
+          "детстве",
+          "стал",
+          "свидетелем",
+          "убийства",
+          "матери",
+          "коррумпированным",
+          "полицейским",
+          "тех",
+          "пор",
+          "движет",
+          "только",
+          "жажда",
+          "мести",
+          "получив",
+          "работу",
+          "кухне",
+          "элитного",
+          "борделя",
+          "который",
+          "посещает",
+          "убийца",
+          "молодой",
+          "мститель",
+          "начинает",
+          "действовать"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -56078,6 +59483,1352 @@
       ],
       "parentCount": 6,
       "diag": "2-й уровень: 39 кандидатов от 6/6 прямых фильмов"
+    },
+    "817245": {
+      "at": 1792012383512,
+      "sourceVersion": 2,
+      "parentFingerprint": "1209839,840294,885658,276376,762738,662359,257898,196707,455188,171922,406408,566232,4572",
+      "items": [
+        {
+          "kpId": "417583",
+          "ruTitle": "Джек Ричер",
+          "enTitle": "Jack Reacher",
+          "hop": 2,
+          "viaTitle": "Джек Ричер",
+          "viaTitles": [
+            "Джек Ричер",
+            "Великий уравнитель 2",
+            "Джон Уик 2",
+            "Заложница",
+            "Джон Уик",
+            "Расплата",
+            "Стрелок",
+            "Великий уравнитель",
+            "Рыцарь дня",
+            "Точка обстрела",
+            "Законопослушный гражданин",
+            "Я, Алекс Кросс",
+            "База «Клейтон»"
+          ],
+          "votes": 13,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джек Ричер» (2-й уровень)"
+        },
+        {
+          "kpId": "1309596",
+          "ruTitle": "Никто",
+          "enTitle": "Nobody",
+          "hop": 2,
+          "viaTitle": "Джон Уик 2",
+          "viaTitles": [
+            "Джон Уик 2",
+            "Джон Уик",
+            "Расплата",
+            "Великий уравнитель"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик 2» (2-й уровень)"
+        },
+        {
+          "kpId": "389",
+          "ruTitle": "Леон",
+          "enTitle": "Léon",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Джон Уик",
+            "Расплата"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "484866",
+          "ruTitle": "Человек из ниоткуда",
+          "enTitle": "Ajeossi",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Джон Уик",
+            "Великий уравнитель"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "6889",
+          "ruTitle": "Гнев",
+          "enTitle": "Man on Fire",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Великий уравнитель",
+            "Законопослушный гражданин"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "1075556",
+          "ruTitle": "Полярный",
+          "enTitle": "Polar",
+          "hop": 2,
+          "viaTitle": "Джон Уик 2",
+          "viaTitles": [
+            "Джон Уик 2",
+            "Джон Уик"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик 2» (2-й уровень)"
+        },
+        {
+          "kpId": "12522",
+          "ruTitle": "Расплата",
+          "enTitle": "Payback",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Джон Уик"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "17661",
+          "ruTitle": "Каратель",
+          "enTitle": "The Punisher",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Законопослушный гражданин"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "256164",
+          "ruTitle": "Смертный приговор",
+          "enTitle": "Death Sentence",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Законопослушный гражданин"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "276598",
+          "ruTitle": "Драйв",
+          "enTitle": "Drive",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик",
+            "Великий уравнитель"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "377",
+          "ruTitle": "Семь",
+          "enTitle": "Se7en",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин",
+            "Я, Алекс Кросс"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "3915",
+          "ruTitle": "Беглец",
+          "enTitle": "The Fugitive",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок",
+            "Законопослушный гражданин"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "3954",
+          "ruTitle": "Враг государства",
+          "enTitle": "Enemy of the State",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок",
+            "Законопослушный гражданин"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "412258",
+          "ruTitle": "Возмездие",
+          "enTitle": "Edge of Darkness",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Законопослушный гражданин"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "41947",
+          "ruTitle": "Превосходство Борна",
+          "enTitle": "The Bourne Supremacy",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Стрелок"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "427202",
+          "ruTitle": "Из Парижа с любовью",
+          "enTitle": "From Paris with Love",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Рыцарь дня"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "619",
+          "ruTitle": "Идентификация Борна",
+          "enTitle": "The Bourne Identity",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Стрелок"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "662469",
+          "ruTitle": "Ночной беглец",
+          "enTitle": "Run All Night",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик",
+            "Великий уравнитель"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "712639",
+          "ruTitle": "Заложница 3",
+          "enTitle": "Taken 3",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик",
+            "Великий уравнитель"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "714564",
+          "ruTitle": "Взрывная блондинка",
+          "enTitle": "Atomic Blonde",
+          "hop": 2,
+          "viaTitle": "Джон Уик 2",
+          "viaTitles": [
+            "Джон Уик 2",
+            "Джон Уик"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик 2» (2-й уровень)"
+        },
+        {
+          "kpId": "87672",
+          "ruTitle": "Ультиматум Борна",
+          "enTitle": "The Bourne Ultimatum",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница",
+            "Стрелок"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "1009536",
+          "ruTitle": "Джон Уик 3",
+          "enTitle": "John Wick: Chapter 3 - Parabellum",
+          "hop": 2,
+          "viaTitle": "Великий уравнитель 2",
+          "viaTitles": [
+            "Великий уравнитель 2"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Великий уравнитель 2» (2-й уровень)"
+        },
+        {
+          "kpId": "1023331",
+          "ruTitle": "Отель «Артемида»",
+          "enTitle": "Hotel Artemis",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "1024879",
+          "ruTitle": "Мой сын",
+          "enTitle": "Mon garçon",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "102610",
+          "ruTitle": "Рабство",
+          "enTitle": "Trade",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "1047492",
+          "ruTitle": "Балерина",
+          "enTitle": "Ballerina",
+          "hop": 2,
+          "viaTitle": "Джон Уик 2",
+          "viaTitles": [
+            "Джон Уик 2"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик 2» (2-й уровень)"
+        },
+        {
+          "kpId": "104901",
+          "ruTitle": "Хитмэн",
+          "enTitle": "Hitman",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "104964",
+          "ruTitle": "Пристрели их",
+          "enTitle": "Shoot 'Em Up",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "1190387",
+          "ruTitle": "Тайлер Рейк: Операция по спасению",
+          "enTitle": "Extraction",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "12090",
+          "ruTitle": "Мистер и миссис Смит",
+          "enTitle": "Mr. & Mrs. Smith",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "12285",
+          "ruTitle": "Роман с камнем",
+          "enTitle": "Romancing the Stone",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "1236634",
+          "ruTitle": "Пороховой коктейль",
+          "enTitle": "Gunpowder Milkshake",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "1392550",
+          "ruTitle": "Быстрее пули",
+          "enTitle": "Bullet Train",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "15270",
+          "ruTitle": "Армейская история",
+          "enTitle": "A Soldier's Story",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "1588",
+          "ruTitle": "Несколько хороших парней",
+          "enTitle": "A Few Good Men",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "17288",
+          "ruTitle": "Снайпер",
+          "enTitle": "Sniper",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "178303",
+          "ruTitle": "В долине Эла",
+          "enTitle": "In the Valley of Elah",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "195608",
+          "ruTitle": "Макс Пэйн",
+          "enTitle": "Max Payne",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "195615",
+          "ruTitle": "Механик",
+          "enTitle": "The Mechanic",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "1965",
+          "ruTitle": "Время убивать",
+          "enTitle": "A Time to Kill",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "1978",
+          "ruTitle": "11:14",
+          "enTitle": "11:14",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "220617",
+          "ruTitle": "Перелом",
+          "enTitle": "Fracture",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "2219",
+          "ruTitle": "Правдивая ложь",
+          "enTitle": "True Lies",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "2238",
+          "ruTitle": "Коммандос",
+          "enTitle": "Commando",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "258048",
+          "ruTitle": "Побег",
+          "enTitle": "Prison Break",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "277537",
+          "ruTitle": "Декстер",
+          "enTitle": "Dexter",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "309337",
+          "ruTitle": "Интернэшнл",
+          "enTitle": "The International",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "31918",
+          "ruTitle": "Бобби",
+          "enTitle": "Bobby",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "326",
+          "ruTitle": "Побег из Шоушенка",
+          "enTitle": "The Shawshank Redemption",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "340",
+          "ruTitle": "Подозрительные лица",
+          "enTitle": "The Usual Suspects",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "3447",
+          "ruTitle": "Миссия: невыполнима 2",
+          "enTitle": "Mission: Impossible II",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "345",
+          "ruTitle": "Молчание ягнят",
+          "enTitle": "The Silence of the Lambs",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "388",
+          "ruTitle": "Расёмон",
+          "enTitle": "Rashomon",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "39259",
+          "ruTitle": "Профессионал",
+          "enTitle": "Le professionnel",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "395756",
+          "ruTitle": "Преступник",
+          "enTitle": "Felon",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "3961",
+          "ruTitle": "Миссия: невыполнима",
+          "enTitle": "Mission: Impossible",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "400582",
+          "ruTitle": "Опасные пассажиры поезда 123",
+          "enTitle": "The Taking of Pelham 123",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "406148",
+          "ruTitle": "Тетрадь смерти",
+          "enTitle": "Desu noto",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "409194",
+          "ruTitle": "Эволюция Борна",
+          "enTitle": "The Bourne Legacy",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "409295",
+          "ruTitle": "Исходный код",
+          "enTitle": "Source Code",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "41442",
+          "ruTitle": "Ворошиловский стрелок",
+          "enTitle": "",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "417892",
+          "ruTitle": "Я плюю на ваши могилы",
+          "enTitle": "I Spit on Your Grave",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "4268",
+          "ruTitle": "Глаза змеи",
+          "enTitle": "Snake Eyes",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "427127",
+          "ruTitle": "Месть Гарри Брауна",
+          "enTitle": "Harry Brown",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "428715",
+          "ruTitle": "Турист",
+          "enTitle": "The Tourist",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "429257",
+          "ruTitle": "Киллеры",
+          "enTitle": "Killers",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "430519",
+          "ruTitle": "Немыслимое",
+          "enTitle": "Unthinkable",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "430765",
+          "ruTitle": "7 дней",
+          "enTitle": "Les 7 jours du talion",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "432868",
+          "ruTitle": "Месть",
+          "enTitle": "Fuk sau",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "4413037",
+          "ruTitle": "Манкимэн",
+          "enTitle": "Monkey Man",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "450237",
+          "ruTitle": "РЭД",
+          "enTitle": "RED",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "4540",
+          "ruTitle": "Переговорщик",
+          "enTitle": "The Negotiator",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "461939",
+          "ruTitle": "Линкольн для адвоката",
+          "enTitle": "The Lincoln Lawyer",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "462656",
+          "ruTitle": "Убийца",
+          "enTitle": "The Killer",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "462662",
+          "ruTitle": "Охотник за головами",
+          "enTitle": "The Bounty Hunter",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "463135",
+          "ruTitle": "Неизвестный",
+          "enTitle": "Unknown",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "463686",
+          "ruTitle": "План побега",
+          "enTitle": "Escape Plan",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "464020",
+          "ruTitle": "Без компромиссов",
+          "enTitle": "Blitz",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "467553",
+          "ruTitle": "Мачете",
+          "enTitle": "Machete",
+          "hop": 2,
+          "viaTitle": "Стрелок",
+          "viaTitles": [
+            "Стрелок"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Стрелок» (2-й уровень)"
+        },
+        {
+          "kpId": "468958",
+          "ruTitle": "Три дня на побег",
+          "enTitle": "The Next Three Days",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "470658",
+          "ruTitle": "22 пули: Бессмертный",
+          "enTitle": "L'immortel",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "471",
+          "ruTitle": "Крепкий орешек",
+          "enTitle": "Die Hard",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "472362",
+          "ruTitle": "Миссия невыполнима: Протокол Фантом",
+          "enTitle": "Mission: Impossible - Ghost Protocol",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "47386",
+          "ruTitle": "Объединённая зона безопасности",
+          "enTitle": "Gongdonggyeongbiguyeok JSA",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "474776",
+          "ruTitle": "4.3.2.1",
+          "enTitle": "4.3.2.1",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "482151",
+          "ruTitle": "Доверие",
+          "enTitle": "Trust",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "4859941",
+          "ruTitle": "Без ответа",
+          "enTitle": "Ghosted",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "489415",
+          "ruTitle": "Срочная доставка",
+          "enTitle": "Premium Rush",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "490287",
+          "ruTitle": "Отставник",
+          "enTitle": "",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "493222",
+          "ruTitle": "На грани",
+          "enTitle": "Man on a Ledge",
+          "hop": 2,
+          "viaTitle": "Законопослушный гражданин",
+          "viaTitles": [
+            "Законопослушный гражданин"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Законопослушный гражданин» (2-й уровень)"
+        },
+        {
+          "kpId": "497233",
+          "ruTitle": "Значит, война",
+          "enTitle": "This Means War",
+          "priority": 0.62,
+          "reason": "КП: похож на «Рыцарь дня» (2-й уровень)",
+          "hop": 2,
+          "viaTitle": "Рыцарь дня",
+          "viaTitles": [
+            "Рыцарь дня"
+          ],
+          "votes": 1
+        },
+        {
+          "kpId": "4974",
+          "ruTitle": "На линии огня",
+          "enTitle": "In the Line of Fire",
+          "hop": 2,
+          "viaTitle": "Точка обстрела",
+          "viaTitles": [
+            "Точка обстрела"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Точка обстрела» (2-й уровень)"
+        },
+        {
+          "kpId": "519",
+          "ruTitle": "Человек дождя",
+          "enTitle": "Rain Man",
+          "hop": 2,
+          "viaTitle": "Расплата",
+          "viaTitles": [
+            "Расплата"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Расплата» (2-й уровень)"
+        },
+        {
+          "kpId": "524631",
+          "ruTitle": "Экспат",
+          "enTitle": "Erased",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "530",
+          "ruTitle": "Игры разума",
+          "enTitle": "A Beautiful Mind",
+          "hop": 2,
+          "viaTitle": "Расплата",
+          "viaTitles": [
+            "Расплата"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Расплата» (2-й уровень)"
+        },
+        {
+          "kpId": "546203",
+          "ruTitle": "Медальон",
+          "enTitle": "Stolen",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        },
+        {
+          "kpId": "5539",
+          "ruTitle": "Мужество в бою",
+          "enTitle": "Courage Under Fire",
+          "hop": 2,
+          "viaTitle": "База «Клейтон»",
+          "viaTitles": [
+            "База «Клейтон»"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «База «Клейтон»» (2-й уровень)"
+        },
+        {
+          "kpId": "558393",
+          "ruTitle": "Серый человек",
+          "enTitle": "The Gray Man",
+          "hop": 2,
+          "viaTitle": "Джон Уик",
+          "viaTitles": [
+            "Джон Уик"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Джон Уик» (2-й уровень)"
+        },
+        {
+          "kpId": "606826",
+          "ruTitle": "Воздушный маршал",
+          "enTitle": "Non-Stop",
+          "hop": 2,
+          "viaTitle": "Заложница",
+          "viaTitles": [
+            "Заложница"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Заложница» (2-й уровень)"
+        }
+      ],
+      "parentCount": 13,
+      "diag": "2-й уровень: 100 кандидатов от 13/13 прямых фильмов"
     },
     "4476433": {
       "at": 1790965155373,
