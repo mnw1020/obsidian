@@ -281,21 +281,28 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         }
         cleanup(() => clearTimeout(timer));
     }
-    function roleDetails() {
+    function roleDetails(parent) {
         const ref = linkParts(fm["Роли файл"]);
         if (!ref) return;
-        const details = element(root, "details", "kino-details kino-roles-details");
-        element(details, "summary", "", "Роли и создатели");
+        const details = element(parent, "div", "kino-roles-details");
+        const toggle = element(details, "button", "kino-roles-toggle", "Роли и создатели");
+        toggle.type = "button"; toggle.setAttribute("aria-expanded", "false");
         const body = element(details, "div", "kino-details-body kino-roles-content");
-        let child = null, token = 0;
+        body.id = "kino-roles-" + Math.random().toString(36).slice(2);
+        body.hidden = true; toggle.setAttribute("aria-controls", body.id);
+        let child = null, token = 0, expanded = false;
         function release() {
             token++;
             if (child) { dv.component.removeChild(child); child = null; }
             body.replaceChildren();
+            toggle.removeAttribute("aria-busy");
         }
         cleanup(release);
-        details.addEventListener("toggle", async () => {
-            if (!details.open) { release(); return; }
+        toggle.addEventListener("click", async () => {
+            if (disposed) return;
+            expanded = !expanded;
+            toggle.setAttribute("aria-expanded", String(expanded)); body.hidden = !expanded;
+            if (!expanded) { release(); return; }
             if (child || disposed) return;
             const request = ++token;
             const destination = app.metadataCache.getFirstLinkpathDest?.(ref.path, sourcePath)
@@ -312,6 +319,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             child = childComponent();
             const activeChild = child, content = element(body, "div", "kino-role-embed");
             content.setAttribute("aria-busy", "true");
+            toggle.setAttribute("aria-busy", "true");
             try {
                 await markdown(`![[${destination.path}]]`, content, activeChild);
                 if (disposed || request !== token) { content.remove(); return; }
@@ -322,7 +330,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                 content.replaceChildren();
                 element(content, "p", "kino-muted", "Не удалось загрузить роли. Открой файл по ссылке выше.");
                 content.title = String(error?.message ?? error);
-            }
+            } finally { if (request === token) toggle.removeAttribute("aria-busy"); }
         });
     }
 
@@ -402,6 +410,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                     internalLink(links, { path: ref.path, display: ref.label + (Number.isInteger(part) && part > 0 ? ` (${part})` : "") });
                 });
             }
+            roleDetails(credits);
             await relatedWorks(meta);
         } else if (number(fm["Оценка"]) != null) {
             score(element(root, "div", "kino-scores kino-scores-single"), "Моя оценка", fm["Оценка"], "kino-score-personal");
@@ -413,7 +422,6 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         await richText(notes, "kino-comment-text", fm["Комментарий"]);
     }
     if (!["media", "dashboard", "system", "entity"].includes(kind)) propertyDetails();
-    if (kind === "media") roleDetails();
     if (disposed) return;
     for (const [selector, cls] of [[".kino-card-title", "kino-has-card-title"], [".kino-properties", "kino-has-properties"]]) {
         if (root.querySelector(selector)) acquireClass(cls);
