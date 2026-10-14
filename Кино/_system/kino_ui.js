@@ -217,6 +217,45 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         return root;
     }
 
+    function recommendationAction(actionParent) {
+        if (disposed) return;
+        const button = element(actionParent, "button", "kino-meta-find-similar", "🔎 Найти похожие");
+        button.type = "button";
+        let timer;
+        cleanup(() => clearTimeout(timer));
+        button.addEventListener("click", async () => {
+            if (button.disabled || disposed) return;
+            clearTimeout(timer);
+            button.disabled = true; button.textContent = "⏳ Ищу…"; button.removeAttribute("title");
+            try {
+                const page = app.vault.getAbstractFileByPath("Кино/_system/Рекомендации.md");
+                if (!page) throw new Error("Не найдена страница рекомендаций.");
+                const folderPath = "Кино/_system/Прогноз";
+                const statePath = folderPath + "/рекомендации_state.json";
+                const payload = JSON.stringify({ reference: sourcePath, updatedAt: new Date().toISOString() }, null, 2);
+                const state = app.vault.getAbstractFileByPath(statePath);
+                if (state) {
+                    if (app.vault.process) await app.vault.process(state, () => payload);
+                    else await app.vault.modify(state, payload);
+                } else {
+                    if (!app.vault.getAbstractFileByPath(folderPath)) {
+                        try { await app.vault.createFolder(folderPath); }
+                        catch (error) { if (!app.vault.getAbstractFileByPath(folderPath)) throw error; }
+                    }
+                    await app.vault.create(statePath, payload);
+                }
+                if (!disposed) await app.workspace.getLeaf(false).openFile(page);
+                if (!disposed) { button.textContent = "🔎 Найти похожие"; button.disabled = false; }
+            } catch (error) {
+                if (disposed) return;
+                const reason = "Не удалось открыть рекомендации: " + (error.message || error);
+                button.textContent = "⚠ Ошибка"; button.title = reason; button.disabled = false;
+                if (obsidian.Notice) new obsidian.Notice(reason, 7000);
+                timer = setTimeout(() => { if (!disposed) button.textContent = "🔎 Найти похожие"; }, 3500);
+            }
+        });
+    }
+
     async function relatedWorks(actionParent) {
         let api = null;
         const moduleFile = app.vault.getAbstractFileByPath("Кино/_system/adaptation_links.js");
@@ -345,7 +384,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         if (kind === "franchise") {
             const nav = element(header, "nav", "kino-franchise-nav");
             nav.setAttribute("aria-label", "Разделы кинотеки");
-            for (const [path, label] of [["Кино/_index", "← Кинотека"], ["Кино/_Кино.base#Карточки", "Каталог"], ["Кино/_system/Итоги просмотров", "Итоги просмотров"]]) {
+            for (const [path, label] of [["Кино/_index", "← Кинотека"], ["Кино/_system/_Кино.base#Карточки", "Каталог"], ["Кино/_system/Итоги просмотров", "Итоги просмотров"]]) {
                 internalLink(nav, { path, display: label });
             }
         }
@@ -418,6 +457,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             }
             roleDetails(credits);
             await relatedWorks(meta);
+            recommendationAction(meta);
         } else if (number(fm["Оценка"]) != null) {
             score(element(root, "div", "kino-scores kino-scores-single"), "Моя оценка", fm["Оценка"], "kino-score-personal");
         }

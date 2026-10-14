@@ -86,7 +86,12 @@ function propertiesBlock(newline = "\n") {
 }
 
 function recommendationPattern() {
-    return /^<!-- KINO:RECOMMEND:BUTTON:V(?:1|2) -->[ \t]*\r?\n```dataviewjs[ \t]*\r?\n[\s\S]*?^```[ \t]*\r?$/gm;
+    return /^<!-- KINO:RECOMMEND:BUTTON:V(?:1|2) -->[ \t]*\r?\n```dataviewjs[ \t]*\r?\n[\s\S]*?^```[ \t]*(?=\r?$)/gm;
+}
+
+function removeRecommendationBlocks(raw) {
+    const parts = splitRaw(raw);
+    return parts.opening + parts.yaml + parts.closing + parts.body.replace(recommendationPattern(), "");
 }
 
 function dedupeRecommendations(body) {
@@ -120,7 +125,7 @@ function ensureLayout(raw, { kind = "media", parseYaml } = {}) {
         : "obsidianUIMode: preview" + newline + styledYaml;
     let body = parts.body.replace(regionPattern(UI_START, UI_END, true), "");
     if (kind === "media") body = body.replace(regionPattern(PROPERTIES_START, PROPERTIES_END, true), "");
-    body = dedupeRecommendations(body);
+    body = kind === "media" ? body.replace(recommendationPattern(), "") : dedupeRecommendations(body);
     const poster = kind === "media" ? String(fields.poster ?? "").trim() : "";
     const taken = takePoster(body, poster);
     body = taken.body.replace(/^(?:\r?\n)+/, "").replace(/(?:\r?\n)+$/, "");
@@ -227,5 +232,5 @@ function mergeRoleCard(raw, generated, { parseYaml } = {}) {
         { kind: "roles", parseYaml });
 }
 
-module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, viewingHistory, personalBody, splitRaw, uiBlock, propertiesBlock,
+module.exports = { ensureLayout, rebuildCard, mergeRoleCard, region, viewingHistory, personalBody, splitRaw, uiBlock, propertiesBlock, removeRecommendationBlocks,
     UI_START, UI_END, PROPERTIES_START, PROPERTIES_END, MARKERS };
