@@ -30,6 +30,16 @@ function sections(raw) {
     return [...body.matchAll(/^## ([^\n]+)\n([\s\S]*?)(?=^## |$(?![\s\S]))/gm)].map(match=>({title:match[1].replace(/^[^\p{L}\p{N}]+/u,'').trim(),body:match[2].trim()}));
 }
 async function render({dv,app,obsidian={}}) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const component=dv.component,doc=dv.container.ownerDocument,key='__kinoAudit';
     let state=component?.[key];
     if(!state){state={root:null,dispose:null,folds:{}};if(component){component[key]=state;const original=component.render;

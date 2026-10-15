@@ -1,5 +1,15 @@
 /* Actor/director/genre reading-view presentation. Input rows and notes are never modified. */
 module.exports = async function renderPerson({ dv, app, obsidian = {}, kind = "actor", selected, rows, baseSource = "" }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const container = dv?.container;
     if (!container?.ownerDocument) return;
     const doc = container.ownerDocument;

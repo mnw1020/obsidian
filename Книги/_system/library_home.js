@@ -1,5 +1,15 @@
 // A single home renderer; each existing widget owns its own lifecycle.
 module.exports = async ({ dv, app, obsidian = {} }) => {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const source = dv.current?.()?.file?.path || 'Книги/_index.md';
     // These widgets already subscribe to vault changes. Dataview's global
     // refresh must not clear and rebuild the whole page on every index update.

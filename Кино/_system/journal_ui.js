@@ -74,6 +74,16 @@ async function clearJournal(app) {
 }
 
 async function render({ dv, app, obsidian = {} }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const component = dv.component, doc = dv.container.ownerDocument, key = '__kinoJournal';
     const currentPath = dv.current?.()?.file?.path;
     const archived = typeof currentPath === 'string' && currentPath.startsWith(BACKUPS + '/journal-');

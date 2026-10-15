@@ -126,6 +126,16 @@ function table(parent, headings, rows) {
 }
 
 async function render({ dv, app, obsidian, mode = "index" }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const home = mode === "home", now = new Date();
     const currentYear = String(now.getFullYear()), currentMonth = String(now.getMonth() + 1).padStart(2, "0");
     let disposed = false, timer, generation = 0, records = [], signature = null, unsubscribe = () => {};

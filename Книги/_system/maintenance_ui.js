@@ -1,5 +1,15 @@
 // The Markdown below the loader remains a readable fallback and the source of the view.
 module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     if (!['audit', 'journal'].includes(mode)) throw new Error('Неизвестная страница обслуживания.');
     const journalPath = 'Книги/_system/Журнал изменений.md';
     const source = mode === 'journal' ? journalPath : 'Книги/_system/Проверка библиотеки.md';

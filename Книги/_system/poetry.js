@@ -55,6 +55,16 @@ function noun(count, forms) {
 }
 
 async function render({ dv, app, obsidian = {} }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const source = dv.current?.()?.file?.path || 'Книги/Стихи.md';
     let sourceFile = app.vault.getAbstractFileByPath(source);
     const cssFile = app.vault.getAbstractFileByPath('Книги/_system/poetry.css');

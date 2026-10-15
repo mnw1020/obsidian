@@ -53,6 +53,16 @@ function adaptationLinks({ app, file, fm }) {
 }
 
 async function render({ app, dv }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     // Bind every link to this rendered page, including in split panes.
     const source = dv.current()?.file?.path;
     const file = source && app.vault.getAbstractFileByPath(source);

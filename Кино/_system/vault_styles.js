@@ -1,5 +1,5 @@
 /* Global styles stored with their collections. No snippets or external requests. */
-module.exports = async function startVaultStyles({ app, document = globalThis.document, onError = console.error }) {
+async function startVaultStyles({ app, document = globalThis.document, onError = console.error }) {
     const paths = [
         'Кино/_system/movies-dashboard.css',
         'Книги/_system/bases-no-create.css',
@@ -8,10 +8,11 @@ module.exports = async function startVaultStyles({ app, document = globalThis.do
         'Кино/_system/kino-design.css'
     ];
     const sources = new Map(), documents = new Map(), timers = new Map(), generations = new Map(), listeners = [];
-    let disposed = false;
+    const attachedDocuments = new Set([document]);
+    let disposed = false, lastRetry = Date.now();
     function syncDocuments() {
         if (disposed) return;
-        const current = new Set([document]);
+        const current = new Set(attachedDocuments);
         app.workspace.iterateAllLeaves?.(leaf => { if (leaf.containerEl?.ownerDocument) current.add(leaf.containerEl.ownerDocument); });
         for (const [doc, nodes] of documents) if (doc.defaultView?.closed || !current.has(doc)) {
             for (const node of nodes.values()) node.remove();
@@ -80,5 +81,45 @@ module.exports = async function startVaultStyles({ app, document = globalThis.do
         generations.set(path, 1); return refresh(path, 1);
     }));
     syncDocuments();
-    return { dispose, paths: [...paths], loaded: [...sources.keys()] };
-};
+    return {
+        version: 2, dispose, paths: [...paths],
+        get loaded() { return [...sources.keys()]; },
+        get disposed() { return disposed; },
+        attachDocument(doc) { if (doc) attachedDocuments.add(doc); syncDocuments(); },
+        async retryMissing() {
+            if (disposed || Date.now() - lastRetry < 5000) return;
+            lastRetry = Date.now();
+            await Promise.all(paths.filter(path => !sources.has(path)).map(path => {
+                const generation = (generations.get(path) || 0) + 1;
+                generations.set(path, generation); return refresh(path, generation);
+            }));
+        }
+    };
+}
+
+// Dataview pages also enter here: Android does not have to start a custom
+// plugin before displaying the first book/movie. Keep one loader per app,
+// across repeated module evaluation, multiple cards and the startup plugin.
+const stateKey = Symbol.for('collections.folder-styles.v2');
+async function ensureVaultStyles(options) {
+    const { app, document = globalThis.document } = options;
+    let state = app[stateKey];
+    if (!state || state.controller?.disposed) {
+        const plugin = app.plugins?.plugins?.['book-preview-defaults'];
+        if (plugin?.collectionStyles && plugin.collectionStyles.version !== 2) plugin.collectionStyles.dispose();
+        state = { promise: null, controller: null };
+        app[stateKey] = state;
+        state.promise = startVaultStyles({ ...options, document }).then(controller => {
+            state.controller = controller;
+            if (plugin) plugin.collectionStyles = controller;
+            return controller;
+        }).catch(error => { if (app[stateKey] === state) delete app[stateKey]; throw error; });
+    }
+    const controller = await state.promise;
+    controller.attachDocument(document);
+    await controller.retryMissing();
+    return controller;
+}
+module.exports = ensureVaultStyles;
+module.exports.ensure = ensureVaultStyles;
+module.exports.start = startVaultStyles;

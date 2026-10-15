@@ -1,6 +1,16 @@
 /* Shared reading-view presentation. Saved reports are read-only; opening a
    Kino page may resume the user's previously queued forecast work. */
 module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "media" }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const container = dv?.container;
     if (!container?.ownerDocument) return;
     const doc = container.ownerDocument;

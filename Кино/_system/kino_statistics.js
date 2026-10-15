@@ -104,6 +104,16 @@ function build(data, { year = '', month = '', type = '' } = {}) {
 }
 
 async function render({ dv, app }) {
+    // Load collection CSS even when the startup plugin is unavailable on mobile.
+    try {
+        const styleFile = app.vault.getAbstractFileByPath("Кино/_system/vault_styles.js");
+        if (styleFile) {
+            const styles = { exports: {} };
+            new Function("module", await app.vault.read(styleFile))(styles);
+            await styles.exports({ app, document: dv.container.ownerDocument });
+        }
+    } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
+
     const component = dv.component, doc = dv.container.ownerDocument, source = dv.current?.()?.file?.path || 'Кино/_system/Итоги просмотров.md';
     const key = '__kinoStatistics';
     let state = component?.[key];
