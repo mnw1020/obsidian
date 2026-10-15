@@ -1,0 +1,11 @@
+/* Hide native Bases creation controls in existing and future views.
+   QuickAdd dialogs, view selection, filters and note editing stay available. */
+.bases-toolbar .bases-toolbar-item:has(svg.lucide-plus),
+.bases-toolbar .bases-toolbar-item.mod-new-entry,
+.bases-toolbar .bases-toolbar-new,
+.query-toolbar .query-toolbar-item:has(svg.lucide-plus),
+.query-toolbar .query-toolbar-item.mod-new-entry,
+.bases-table-footer-button,
+.bases-add-row-button {
+    display: none !important;
+}

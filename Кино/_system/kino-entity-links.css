@@ -1,0 +1,4 @@
+/* Links are rendered by the DataviewJS block under each card's YAML. */
+.kino-entity-links { margin: 0.6em 0 1.1em; }
+.kino-entity-links-row { margin: 0.18em 0; }
+.kino-entity-links-row strong { margin-right: 0.25em; }
