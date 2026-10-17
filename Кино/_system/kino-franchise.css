@@ -1,0 +1,58 @@
+/* The legacy franchise picker shares the cinema palette without styling other modals. */
+.modal.kino-franchise-modal {
+    --franchise-accent:#b89760;
+    --franchise-line:var(--background-modifier-border,#45413b);
+    --franchise-serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+    box-sizing:border-box;width:min(680px,94vw);max-width:94vw;max-height:92vh;padding:26px;
+    border:1px solid var(--franchise-line);border-top:3px solid var(--franchise-accent);border-radius:10px;
+    background:var(--background-primary);color:var(--text-normal);
+}
+.kino-franchise-modal .modal-content {margin:0;min-height:0;overflow:auto;overscroll-behavior:contain;}
+.kino-franchise-modal .kino-franchise-picker,.kino-franchise-modal .kino-franchise-picker * {box-sizing:border-box;}
+.kino-franchise-modal .kino-franchise-picker {display:flex;flex-direction:column;gap:20px;min-width:0;max-height:calc(92vh - 56px);}
+.kino-franchise-modal :is(.kino-franchise-picker-header,.kino-franchise-picker-suggestions,.kino-franchise-picker-create,.kino-franchise-picker-footer) {flex-shrink:0;}
+.kino-franchise-modal .kino-franchise-picker-eyebrow {margin:0 30px 7px 0;color:var(--franchise-accent);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;}
+.kino-franchise-modal h2.kino-franchise-picker-title {margin:0 26px 10px 0;border:0;padding:0;color:var(--franchise-accent);font:700 clamp(25px,4vw,32px)/1.16 var(--franchise-serif);overflow-wrap:anywhere;}
+.kino-franchise-modal .kino-franchise-picker-intro {margin:0;color:var(--text-muted);font-size:12px;line-height:1.65;}
+.kino-franchise-modal .kino-franchise-picker-suggestions {display:flex;flex-direction:column;gap:8px;max-height:140px;overflow:auto;}
+.kino-franchise-modal .kino-franchise-picker-suggestion {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border:1px solid color-mix(in srgb,var(--franchise-accent) 35%,var(--franchise-line));border-radius:7px;background:color-mix(in srgb,var(--franchise-accent) 5%,var(--background-primary));}
+.kino-franchise-modal .kino-franchise-picker-suggestion>div {display:flex;flex-direction:column;gap:3px;min-width:0;}
+.kino-franchise-modal .kino-franchise-picker-label {font-size:10px;color:var(--text-muted);}
+.kino-franchise-modal .kino-franchise-picker-suggestion strong {font-size:13px;font-weight:550;line-height:1.5;overflow-wrap:anywhere;}
+.kino-franchise-modal a.kino-franchise-picker-source {flex-shrink:0;color:var(--franchise-accent);font-size:11px;text-decoration:none;}
+.kino-franchise-modal a.kino-franchise-picker-source:hover {text-decoration:underline;}
+.kino-franchise-modal .kino-franchise-picker-field {display:flex;flex-direction:column;gap:8px;color:var(--text-muted);font-size:12px;}
+.kino-franchise-modal .kino-franchise-picker-create-row {display:flex;gap:9px;align-items:stretch;}
+.kino-franchise-modal .kino-franchise-picker input {min-width:0;height:40px;padding:9px 12px;border:1px solid var(--franchise-line);border-radius:6px;background:var(--background-primary);color:var(--text-normal);font:inherit;font-size:14px;box-shadow:none;}
+.kino-franchise-modal .kino-franchise-picker-create-row input {flex:1;}
+.kino-franchise-modal button.kino-franchise-picker-primary {flex-shrink:0;height:auto;min-height:40px;padding:8px 13px;border:1px solid var(--franchise-accent);border-radius:6px;background:color-mix(in srgb,var(--franchise-accent) 10%,var(--background-primary));color:var(--franchise-accent);font:inherit;font-size:12px;line-height:1.4;white-space:normal;box-shadow:none;}
+.kino-franchise-modal button.kino-franchise-picker-primary:hover {background:color-mix(in srgb,var(--franchise-accent) 17%,var(--background-primary));}
+.kino-franchise-modal .kino-franchise-picker-catalogue {display:flex;flex-direction:column;gap:10px;min-height:130px;flex:1 1 auto;}
+.kino-franchise-modal .kino-franchise-picker-catalogue-head {display:flex;align-items:baseline;gap:9px;}
+.kino-franchise-modal .kino-franchise-picker-catalogue-head h3 {margin:0;color:var(--franchise-accent);font:600 21px/1.2 var(--franchise-serif);}
+.kino-franchise-modal .kino-franchise-picker-count {color:var(--text-muted);font-size:11px;font-variant-numeric:tabular-nums;}
+.kino-franchise-modal input.kino-franchise-picker-search {width:100%;}
+.kino-franchise-modal .kino-franchise-picker-list {display:flex;flex-direction:column;gap:1px;min-height:65px;flex:1 1 auto;max-height:min(34vh,300px);overflow:auto;overscroll-behavior:contain;border:1px solid var(--franchise-line);border-radius:7px;scrollbar-width:thin;}
+.kino-franchise-modal button.kino-franchise-picker-item {display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:41px;height:auto;margin:0;padding:10px 12px;border:0;border-bottom:1px solid color-mix(in srgb,var(--franchise-line) 65%,transparent);border-radius:0;background:transparent;color:var(--text-normal);font:inherit;font-size:13px;line-height:1.5;text-align:left;white-space:normal;box-shadow:none;}
+.kino-franchise-modal button.kino-franchise-picker-item:last-child {border-bottom:0;}
+.kino-franchise-modal button.kino-franchise-picker-item:hover {background:color-mix(in srgb,var(--franchise-accent) 8%,var(--background-primary));}
+.kino-franchise-modal .kino-franchise-picker-item-name {min-width:0;overflow-wrap:anywhere;}
+.kino-franchise-modal .kino-franchise-picker-item.is-suggested .kino-franchise-picker-item-name {color:var(--franchise-accent);}
+.kino-franchise-modal .kino-franchise-picker-badge {flex-shrink:0;color:var(--text-muted);font-size:10px;}
+.kino-franchise-modal .kino-franchise-picker-item.is-suggested .kino-franchise-picker-badge {color:var(--franchise-accent);}
+.kino-franchise-modal .kino-franchise-picker-empty {margin:0;padding:16px 12px;color:var(--text-muted);font-size:12px;line-height:1.6;}
+.kino-franchise-modal .kino-franchise-picker-footer {display:flex;justify-content:flex-end;border-top:1px solid var(--franchise-line);padding-top:14px;}
+.kino-franchise-modal button.kino-franchise-picker-skip {height:auto;min-height:34px;padding:7px 11px;border:1px solid var(--franchise-line);border-radius:6px;background:transparent;color:var(--text-muted);font:inherit;font-size:12px;box-shadow:none;}
+.kino-franchise-modal button.kino-franchise-picker-skip:hover {border-color:var(--franchise-accent);color:var(--text-normal);}
+.kino-franchise-modal .kino-franchise-picker :is(input,button,a):focus-visible {outline:2px solid var(--franchise-accent);outline-offset:2px;}
+@media(max-width:480px) {
+    .modal.kino-franchise-modal {padding:19px 16px;max-height:94vh;}
+    .kino-franchise-modal .kino-franchise-picker {gap:17px;max-height:calc(94vh - 44px);}
+    .kino-franchise-modal .kino-franchise-picker-create-row {flex-direction:column;}
+    .kino-franchise-modal .kino-franchise-picker-create-row input {flex:auto;width:100%;}
+    .kino-franchise-modal button.kino-franchise-picker-primary {min-height:38px;}
+    .kino-franchise-modal button.kino-franchise-picker-item {align-items:flex-start;gap:8px;}
+    .kino-franchise-modal .kino-franchise-picker-badge {max-width:76px;text-align:right;white-space:normal;}
+    .kino-franchise-modal .kino-franchise-picker-list {max-height:31vh;}
+    .kino-franchise-modal .kino-franchise-picker-source {font-size:10px;}
+}

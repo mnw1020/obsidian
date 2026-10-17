@@ -6686,7 +6686,10 @@ async function afterTemplateFranchise(params,movie,file) {
     checkDialogCancel(signal);
     const {pages,proposals}=await franchiseInventory(app,ob,result.suggestions);
     checkDialogCancel(signal);
-    const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status,signal);
+    const styleFile=app.vault.getAbstractFileByPath('Кино/_system/kino-franchise.css');
+    const pickerCss=styleFile?await app.vault.read(styleFile):'';
+    checkDialogCancel(signal);
+    const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status,signal,pickerCss);
     checkDialogCancel(signal);
     if(!choice)return;
     // Пока открыт диалог, пользователь может поменять карточку вручную.
@@ -6778,26 +6781,38 @@ async function franchiseInventory(app,ob,suggestions) {
     return {pages:list,proposals};
 }
 
-function franchiseDialog(app,ob,title,pages,proposals,status,signal) {
+function franchiseDialog(app,ob,title,pages,proposals,status,signal,pickerCss='') {
     checkDialogCancel(signal);
     return new Promise(resolve=>{
         let picker;
         const abort=()=>picker?.close();
         class Picker extends ob.Modal {
-            constructor(){super(app);this.result=null;}
+            constructor(){super(app);this.result=null;this.modalEl?.classList.add('kino-franchise-modal');}
             onOpen(){
                 const el=this.contentEl;
-                el.createEl('h2',{text:`Франшиза: ${title}`});
-                el.createEl('p',{text:status});
-                for(const p of proposals) {
-                    const line=el.createEl('div');
-                    line.createEl('span',{text:p.path?`Подходит существующая: ${p.name} `:`Предложенное название: ${p.name} `});
-                    if(p.url)line.createEl('a',{text:'Источник',href:p.url,attr:{target:'_blank',rel:'noopener'}});
+                if(pickerCss)el.createEl('style',{text:pickerCss});
+                const panel=el.createEl('div',{cls:'kino-franchise-picker'});
+                const header=panel.createEl('header',{cls:'kino-franchise-picker-header'});
+                header.createEl('p',{cls:'kino-franchise-picker-eyebrow',text:'Франшиза'});
+                header.createEl('h2',{cls:'kino-franchise-picker-title',text:title});
+                header.createEl('p',{cls:'kino-franchise-picker-intro',text:status});
+                if(proposals.length){
+                    const suggestions=panel.createEl('section',{cls:'kino-franchise-picker-suggestions',attr:{'aria-label':'Предложения франшиз'}});
+                    for(const p of proposals){
+                        const line=suggestions.createEl('div',{cls:'kino-franchise-picker-suggestion'});
+                        const info=line.createEl('div');
+                        info.createEl('span',{cls:'kino-franchise-picker-label',text:p.path?'Есть в кинотеке':'Новая франшиза'});
+                        info.createEl('strong',{text:p.name});
+                        if(p.url)line.createEl('a',{cls:'kino-franchise-picker-source',text:'Источник ↗',href:p.url,attr:{target:'_blank',rel:'noopener noreferrer'}});
+                    }
                 }
-                el.createEl('p',{text:'Название новой франшизы (можно изменить):'});
-                const name=el.createEl('input',{type:'text'});
-                name.style.width='100%';name.value=proposals.find(x=>!x.path)?.name||proposals[0]?.name||'';
-                const create=el.createEl('button',{text:'Создать с этим названием'});
+                const createSection=panel.createEl('section',{cls:'kino-franchise-picker-create'});
+                const nameLabel=createSection.createEl('div',{cls:'kino-franchise-picker-field'});
+                nameLabel.createEl('span',{text:'Новая франшиза'});
+                const createRow=nameLabel.createEl('div',{cls:'kino-franchise-picker-create-row'});
+                const name=createRow.createEl('input',{type:'text',placeholder:'Название франшизы',attr:{'aria-label':'Название новой франшизы'}});
+                name.value=proposals.find(x=>!x.path)?.name||proposals[0]?.name||'';
+                const create=createRow.createEl('button',{cls:'kino-franchise-picker-primary',text:'Создать с этим названием',attr:{type:'button'}});
                 create.onclick=()=>{
                     const value=safeName(name.value);
                     if(!value){name.focus();return;}
@@ -6807,20 +6822,29 @@ function franchiseDialog(app,ob,title,pages,proposals,status,signal) {
                     const proposed=proposals.find(p=>normalized(p.name)===normalized(value));
                     this.select({...proposed,name:value,path:`${SERIES}/${value}.md`});
                 };
-                el.createEl('h3',{text:`Все существующие франшизы (${pages.length}), А–Я`});
-                const search=el.createEl('input',{type:'search',placeholder:'Поиск по списку'});search.style.width='100%';
-                const list=el.createEl('div');Object.assign(list.style,{maxHeight:'35vh',overflowY:'auto',display:'flex',flexDirection:'column',gap:'4px',marginTop:'8px'});
+                const catalogue=panel.createEl('section',{cls:'kino-franchise-picker-catalogue'});
+                const catalogueHead=catalogue.createEl('div',{cls:'kino-franchise-picker-catalogue-head'});
+                catalogueHead.createEl('h3',{text:'Из кинотеки'});
+                const count=catalogueHead.createEl('span',{cls:'kino-franchise-picker-count',text:String(pages.length)});
+                const search=catalogue.createEl('input',{cls:'kino-franchise-picker-search',type:'search',placeholder:'Найти франшизу…',attr:{'aria-label':'Поиск франшизы'}});
+                const list=catalogue.createEl('div',{cls:'kino-franchise-picker-list',attr:{'aria-label':'Существующие франшизы'}});
                 const render=()=>{
                     list.empty();
-                    for(const page of pages.filter(p=>normalized(p.name+' '+p.path).includes(normalized(search.value)))) {
+                    const matches=pages.filter(p=>normalized(p.name+' '+p.path).includes(normalized(search.value)));
+                    count.textContent=search.value?`${matches.length} / ${pages.length}`:String(pages.length);
+                    for(const page of matches){
                         const proposal=proposals.find(p=>p.path===page.path);
-                        const row=list.createEl('button',{text:`${page.name}${proposal?' ✓':''}${page.missing?' (создать страницу)':''}`});
-                        row.title=page.path;row.style.textAlign='left';
+                        const row=list.createEl('button',{cls:'kino-franchise-picker-item'+(proposal?' is-suggested':''),attr:{type:'button'}});
+                        row.createEl('span',{cls:'kino-franchise-picker-item-name',text:page.name});
+                        if(proposal||page.missing)row.createEl('span',{cls:'kino-franchise-picker-badge',text:page.missing?'Создать страницу':'Предложено'});
+                        row.title=page.path;
                         row.onclick=()=>this.select({...page,...proposal,name:page.name,path:page.path});
                     }
+                    if(!matches.length)list.createEl('p',{cls:'kino-franchise-picker-empty',text:'Франшиза не найдена. Можно создать новую выше.'});
                 };
                 search.oninput=render;render();
-                const skip=el.createEl('button',{text:'Оставить без франшизы'});skip.style.marginTop='12px';skip.onclick=()=>this.close();
+                const footer=panel.createEl('footer',{cls:'kino-franchise-picker-footer'});
+                const skip=footer.createEl('button',{cls:'kino-franchise-picker-skip',text:'Оставить без франшизы',attr:{type:'button'}});skip.onclick=()=>this.close();
             }
             select(choice){this.result=choice;this.close();}
             onClose(){signal?.removeEventListener('abort',abort);this.contentEl.empty();resolve(this.result);}
