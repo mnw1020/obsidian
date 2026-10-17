@@ -205,7 +205,11 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const actions = el(identity, 'div', 'kino-home-actions');
         const lookupButton = el(actions, 'button', 'kino-home-action is-primary', 'Добавить'); lookupButton.type = 'button';
         lookupButton.title = 'Добавить по ID Кинопоиска или IMDb';
-        for (const [text, choice] of [['Добавить просмотр','Добавить просмотр'],['Добавить сезон','Добавить сезон']]) command(actions,text,choice,'kino-home-action');
+        const addIcon=doc.createElementNS('http://www.w3.org/2000/svg','svg');
+        for(const [name,value]of Object.entries({class:'kino-home-action-icon',viewBox:'0 0 24 24',width:'14',height:'14',fill:'none',stroke:'currentColor','stroke-width':'1.8','stroke-linecap':'round','aria-hidden':'true',focusable:'false'}))addIcon.setAttribute(name,value);
+        const addPath=doc.createElementNS('http://www.w3.org/2000/svg','path');addPath.setAttribute('d','M12 5v14M5 12h14');addIcon.appendChild(addPath);lookupButton.prepend(addIcon);
+
+        for (const [text, choice] of [['...просмотр','Добавить просмотр'],['...сезон','Добавить сезон']]) command(actions,text,choice,'kino-home-action');
         let lookupDialog = null;
         cleanups.push(() => lookupDialog?.close());
         listen(lookupButton, 'click', async () => {

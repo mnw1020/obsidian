@@ -486,6 +486,22 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     }
     if (!Object.keys(fm).some(key => !["position", "file", "cssclasses", "obsidianUIMode"].includes(key))) acquireClass("kino-cosmetic-properties");
 
+    const franchiseProperties = kind === "franchise" ? root.querySelector(".kino-properties") : null;
+    let propertiesFooter = null;
+    if(franchiseProperties){
+        propertiesFooter=doc.createElement("section");
+        propertiesFooter.className="kino-ui-root kino-franchise-properties-footer";
+        propertiesFooter.appendChild(franchiseProperties);
+        cleanup(()=>propertiesFooter.remove());
+    }
+    function positionFranchiseProperties(){
+        if(!propertiesFooter)return;
+        const content=container.closest(".markdown-preview-sizer")||container.closest(".markdown-preview-section")||view;
+        const last=content.lastElementChild;
+        const pusher=last?.classList.contains("markdown-preview-pusher")?last:null;
+        if(pusher){if(propertiesFooter.nextElementSibling!==pusher)content.insertBefore(propertiesFooter,pusher);}
+        else if(content.lastElementChild!==propertiesFooter)content.appendChild(propertiesFooter);
+    }
     const duplicateTitles = new Set();
     cleanup(() => { for (const heading of duplicateTitles) heading.classList.remove("kino-duplicate-title"); });
     const markedPosters = new Set();
@@ -508,7 +524,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             const block = heading.closest(".el-h2") || heading;
             let next = block.nextElementSibling, hasContent = false;
             while (next) {
-                if (next.matches("h1, h2, .el-h1, .el-h2")) break;
+                if (next.matches("h1, h2, .el-h1, .el-h2, .kino-franchise-properties-footer")) break;
                 if (next.textContent.trim() || next.matches("img, video, audio, iframe, table, canvas, input, textarea, hr") || next.querySelector("img, video, audio, iframe, table, canvas, input, textarea, hr")) { hasContent = true; break; }
                 next = next.nextElementSibling;
             }
@@ -530,7 +546,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             block.classList.add("kino-franchise-section-start","kino-home-panel-head");franchisePanels.add(block);
             let next=block.nextElementSibling,last=block;
             while(next){
-                if(next.matches("h1,h2,.el-h1,.el-h2,.markdown-preview-pusher"))break;
+                if(next.matches("h1,h2,.el-h1,.el-h2,.markdown-preview-pusher,.kino-franchise-properties-footer"))break;
                 next.classList.add("kino-franchise-section-body");franchisePanels.add(next);last=next;next=next.nextElementSibling;
             }
             last.classList.add("kino-franchise-section-end");
@@ -555,6 +571,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             table.before(wrapper); wrapper.appendChild(table);
         }
     }
+    positionFranchiseProperties();
     markDuplicateTitle();
     markEmptyFranchiseSections();
     markFranchisePanels();
@@ -566,7 +583,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const observer = new Observer(() => {
             if (queued || disposed) return;
             queued = true;
-            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); markEmptyFranchiseSections(); markFranchisePanels(); markPoster(); wrapTables(); } });
+            Promise.resolve().then(() => { queued = false; if (!disposed) { positionFranchiseProperties(); markDuplicateTitle(); markEmptyFranchiseSections(); markFranchisePanels(); markPoster(); wrapTables(); } });
         });
         observer.observe(view, { childList: true, subtree: true });
         cleanup(() => observer.disconnect());
