@@ -140,52 +140,71 @@
 .kino-page blockquote p:last-child { margin-bottom: 0; }
 .kino-ui-root { margin: 8px 0 28px; min-width: 0; }
 .kino-ui-root:empty { display: none; }
-/* Franchise notes share the masthead, gold serif headings and framed tables of
-   the cinema's home and report pages. All Markdown and queries remain native. */
+/* Native franchise pages: compact masthead, collection caption and release table. */
 .kino-page.kino-franchise {
-    --franchise-accent: #b89760;
-    --franchise-line: color-mix(in srgb,var(--kino-line) 70%,transparent);
-    --franchise-tint: color-mix(in srgb,var(--franchise-accent) 8%,var(--kino-bg));
-    --franchise-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+    --franchise-accent:#b89760;
+    --franchise-line:color-mix(in srgb,var(--kino-line) 80%,transparent);
+    --franchise-tint:color-mix(in srgb,var(--franchise-accent) 6%,var(--kino-bg));
+    --franchise-serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+    --kino-accent:var(--franchise-accent);
+    --kino-accent-hover:#d2b17b;
 }
+.kino-page.kino-franchise .kino-ui-root[data-kind="franchise"] {margin:4px 0 8px;}
 .kino-page.kino-franchise .kino-franchise-header {
-    padding: 22px 28px 24px;
-    border: 1px solid var(--franchise-line);
-    border-top: 3px solid var(--franchise-accent);
-    border-radius: 4px 4px 12px 12px;
-    background: linear-gradient(120deg,var(--franchise-tint),var(--kino-bg) 75%);
+    padding:18px 24px 20px;border:1px solid var(--franchise-line);border-top:3px solid var(--franchise-accent);
+    border-radius:4px 4px 9px 9px;background:linear-gradient(115deg,var(--franchise-tint),var(--kino-bg) 85%);
 }
-.kino-page.kino-franchise .kino-franchise-nav { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 26px; font-size: .76em; }
-.kino-page.kino-franchise .kino-franchise-nav a { color: var(--kino-muted); text-decoration: none; overflow-wrap: anywhere; }
-.kino-page.kino-franchise .kino-franchise-nav a:hover { color: var(--franchise-accent); }
-.kino-page.kino-franchise .kino-franchise-header .kino-eyebrow { color: var(--franchise-accent); font-size: 10px; letter-spacing: .13em; }
+.kino-page.kino-franchise .kino-franchise-nav {display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:19px;font-size:11px;line-height:1.5;}
+.kino-page.kino-franchise .kino-franchise-nav a {color:var(--kino-muted);text-decoration:none;overflow-wrap:anywhere;}
+.kino-page.kino-franchise .kino-franchise-nav a:hover {color:var(--franchise-accent);}
+.kino-page.kino-franchise .kino-franchise-header .kino-eyebrow {color:var(--franchise-accent);font-size:10px;letter-spacing:.13em;}
 .kino-page.kino-franchise .kino-franchise-header h1.kino-card-title {
-    margin: 12px 0 18px !important;
-    color: var(--franchise-accent) !important;
-    font: 700 clamp(34px,4.5vw,56px)/1.1 var(--franchise-serif) !important;
-    letter-spacing: -.025em;
+    margin:8px 0 0!important;color:var(--franchise-accent)!important;
+    font:700 clamp(30px,4vw,46px)/1.12 var(--franchise-serif)!important;letter-spacing:-.025em;
 }
-.kino-page.kino-franchise .kino-franchise-order { color: var(--kino-muted); font-size: .95em; }
-.kino-page.kino-franchise .kino-properties { margin: 18px 0 0; padding-inline: 18px; border: 1px solid var(--franchise-line); border-radius: 10px; }
-.kino-page.kino-franchise .kino-properties>summary { padding-block: 14px; }
+.kino-page.kino-franchise .kino-franchise-header .kino-card-meta:empty {display:none;}
+.kino-page.kino-franchise .kino-properties {margin:7px 0 0;padding:0 2px;border:0;border-radius:0;background:transparent;}
+.kino-page.kino-franchise .kino-properties>summary {padding:8px 0;color:var(--kino-muted);font-size:11px;}
+.kino-page.kino-franchise .kino-properties[open] {padding-bottom:8px;border-bottom:1px solid var(--franchise-line);}
+.kino-page.kino-franchise .kino-properties-body {padding:8px 0;}
+.kino-page.kino-franchise .kino-franchise-empty-section,
+.kino-page.kino-franchise .el-h1:has(>.kino-duplicate-title) {
+    display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;
+    border:0!important;overflow:hidden;visibility:hidden;
+}
 .kino-page.kino-franchise h2 {
-    padding-inline-start: 12px; border-inline-start: 3px solid var(--franchise-accent);
-    color: var(--franchise-accent) !important;
-    font: 700 27px/1.25 var(--franchise-serif) !important;
-    letter-spacing: -.015em;
+    margin:24px 0 12px!important;padding:0 0 0 11px;border-inline-start:3px solid var(--franchise-accent);
+    color:var(--franchise-accent)!important;font:700 25px/1.25 var(--franchise-serif)!important;letter-spacing:-.015em;
 }
-.kino-page.kino-franchise .kino-table-wrap { border-color: var(--franchise-line); border-radius: 10px; background: var(--kino-bg); }
-.kino-page.kino-franchise .kino-table-wrap th { color: var(--franchise-accent); background: var(--franchise-tint); font-size: 11px; letter-spacing: .02em; white-space: nowrap; }
-.kino-page.kino-franchise .kino-table-wrap td { padding-block: 14px; }
-.kino-page.kino-franchise .kino-table-wrap td:not(:nth-child(2)) { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.kino-page.kino-franchise .kino-table-wrap td:first-child { color: var(--franchise-accent); font-family: var(--font-monospace); }
-.kino-page.kino-franchise .kino-table-wrap table.table-view-table>tbody>tr>td:first-child::before { content: none; }
-.kino-page.kino-franchise .kino-table-wrap td:nth-child(2) { min-width: 190px; width: 100%; }
-.kino-page.kino-franchise .kino-table-wrap td:nth-child(4) { color: var(--franchise-accent); font-weight: 600; }
-@media (max-width: 650px) {
-    .kino-page.kino-franchise .kino-franchise-header { padding: 18px; }
-    .kino-page.kino-franchise .kino-franchise-nav { gap: 8px 16px; margin-bottom: 22px; }
-    .kino-page.kino-franchise h2 { font-size: 24px !important; }
+.kino-page.kino-franchise h3 {color:var(--franchise-accent)!important;font:600 20px/1.3 var(--franchise-serif)!important;}
+.kino-page.kino-franchise .kino-franchise-collection-summary {display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 9px;margin:0 0 10px;color:var(--kino-muted);font-size:12px;line-height:1.5;}
+.kino-page.kino-franchise .kino-franchise-collection-count {color:var(--franchise-accent);font:500 23px/1.2 var(--font-monospace);}
+.kino-page.kino-franchise .kino-franchise-collection-years {margin-inline-start:7px;padding-inline-start:14px;border-inline-start:1px solid var(--franchise-line);font-variant-numeric:tabular-nums;}
+.kino-page.kino-franchise .kino-franchise-collection-order {margin-inline-start:auto;color:var(--kino-muted);font-size:11px;}
+.kino-page.kino-franchise .kino-table-wrap {margin:0 0 22px;border-color:var(--franchise-line);border-radius:8px;background:var(--kino-bg);}
+.kino-page.kino-franchise .kino-table-wrap table {min-width:600px;}
+.kino-page.kino-franchise .kino-table-wrap th {padding:11px 13px;color:var(--franchise-accent);background:var(--franchise-tint);font-size:11px;font-weight:550;letter-spacing:.01em;white-space:nowrap;}
+.kino-page.kino-franchise .kino-table-wrap td {padding:12px 13px;border-color:var(--franchise-line);vertical-align:middle;}
+.kino-page.kino-franchise .kino-table-wrap td:not(:nth-child(2)) {font-variant-numeric:tabular-nums;white-space:nowrap;}
+.kino-page.kino-franchise .kino-table-wrap td:first-child {width:58px;color:var(--kino-muted);font-family:var(--font-monospace);font-size:12px;}
+.kino-page.kino-franchise .kino-table-wrap table.table-view-table>tbody>tr>td:first-child::before {content:none;}
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(2) {min-width:220px;width:100%;}
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(2) a {color:var(--kino-text);font-weight:550;text-decoration:none;}
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(2) a:hover {color:var(--franchise-accent);text-decoration:underline;}
+.kino-page.kino-franchise .kino-table-wrap td:nth-child(4) {color:var(--franchise-accent);font-weight:650;}
+.kino-page.kino-franchise .kino-table-wrap tbody tr:hover {background:var(--franchise-tint);}
+.kino-page.kino-franchise .kino-table-wrap th .small-text {display:none;}
+.kino-page.kino-franchise :is(a,.internal-link) {color:var(--franchise-accent);}
+.kino-page.kino-franchise :is(a,.internal-link):hover {color:#d2b17b;}
+.kino-page.kino-franchise .el-h2.kino-franchise-empty-section+.el-h2 h2 {margin-top:12px!important;}
+.kino-page.kino-franchise :is(.markdown-preview-section>p,.el-p>p) {margin-block:10px 16px;font-size:13px;line-height:1.75;}
+.kino-page.kino-franchise :is(.markdown-preview-section>ul,.el-ul>ul) {padding-inline-start:20px;font-size:13px;line-height:1.9;}
+@media(max-width:650px) {
+    .kino-page.kino-franchise .kino-franchise-header {padding:16px 17px 18px;}
+    .kino-page.kino-franchise .kino-franchise-nav {gap:7px 14px;margin-bottom:16px;}
+    .kino-page.kino-franchise h2 {margin-top:21px!important;font-size:23px!important;}
+    .kino-page.kino-franchise .kino-franchise-collection-order {flex-basis:100%;margin-inline-start:0;font-size:10px;}
+    .kino-page.kino-franchise .kino-table-wrap td {padding:11px 12px;}
 }
 .kino-card-header { padding-top: 20px; padding-bottom: 22px; }
 .kino-eyebrow { color: var(--kino-accent); font-size: 11px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }

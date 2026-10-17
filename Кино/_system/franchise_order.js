@@ -150,7 +150,15 @@ function displayRelease(value) {
 async function render({ dv, app }) {
     const rows = ordered({ app, franchisePath: dv.current().file.path });
     const number = value => value == null || String(value).trim() === "" ? "—" : Number.isFinite(Number(value)) ? Number(value) : "—";
-    dv.paragraph(`Произведений: ${rows.length}. Порядок: по дате релиза.`);
+    const doc=dv.container.ownerDocument;
+    const summary=doc.createElement("div");summary.className="kino-franchise-collection-summary";
+    const count=doc.createElement("span");count.className="kino-franchise-collection-count";count.textContent=String(rows.length);
+    const label=doc.createElement("span"),last=rows.length%10,hundred=rows.length%100;label.textContent=hundred>=11&&hundred<=14?"произведений":last===1?"произведение":last>=2&&last<=4?"произведения":"произведений";
+    summary.append(count,label);
+    const years=rows.map(row=>String(row.frontmatter["Релиз"]??"").match(/(?:18|19|20)\d{2}/)?.[0]).filter(Boolean).sort();
+    if(years.length){const span=doc.createElement("span");span.className="kino-franchise-collection-years";span.textContent=years[0]===years[years.length-1]?years[0]:years[0]+"–"+years[years.length-1];summary.append(span);}
+    const order=doc.createElement("span");order.className="kino-franchise-collection-order";order.textContent="По дате релиза";summary.append(order);
+    dv.container.append(summary);
     if (!rows.length) { dv.paragraph("Добавь произведения командой QuickAdd «Франшиза»."); return; }
     dv.table(["Часть", "Произведение", "Релиз", "Моя оценка", "КП", "IMDb"], rows.map(({ file, frontmatter: fm, part }) => [
         part, dv.fileLink(file.path, false, file.basename), displayRelease(fm["Релиз"]),

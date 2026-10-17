@@ -408,9 +408,6 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const original = text(fm["Название"]).trim();
         if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
         const meta = element(header, "div", "kino-card-meta");
-        if (kind === "franchise") {
-            element(meta, "span", "kino-franchise-order", "Порядок: по дате релиза");
-        }
         if (kind === "media") {
             meta.classList.add("kino-media-meta");
             meta.tabIndex = 0; meta.setAttribute("aria-label", "Релиз, просмотр, продолжительность и связь с книгой");
@@ -497,6 +494,23 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             image.classList.add("kino-card-poster"); markedPosters.add(image);
         }
     }
+    const emptyFranchiseSections = new Set();
+    cleanup(() => { for (const block of emptyFranchiseSections) block.classList.remove("kino-franchise-empty-section"); });
+    function markEmptyFranchiseSections() {
+        if (kind !== "franchise") return;
+        for (const heading of view.querySelectorAll("h2")) {
+            if (heading.closest(".kino-ui-root, .markdown-embed") || heading.textContent.trim() !== "Общее впечатление") continue;
+            const block = heading.closest(".el-h2") || heading;
+            let next = block.nextElementSibling, hasContent = false;
+            while (next) {
+                if (next.matches("h1, h2, .el-h1, .el-h2")) break;
+                if (next.textContent.trim() || next.matches("img, video, audio, iframe, table, canvas, input, textarea, hr") || next.querySelector("img, video, audio, iframe, table, canvas, input, textarea, hr")) { hasContent = true; break; }
+                next = next.nextElementSibling;
+            }
+            block.classList.toggle("kino-franchise-empty-section", !hasContent);
+            if (hasContent) emptyFranchiseSections.delete(block); else emptyFranchiseSections.add(block);
+        }
+    }
     function markDuplicateTitle() {
         if (kind !== "franchise") return;
         const title = root.querySelector(".kino-card-title")?.textContent.trim();
@@ -517,6 +531,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         }
     }
     markDuplicateTitle();
+    markEmptyFranchiseSections();
     markPoster();
     wrapTables();
     const Observer = doc.defaultView?.MutationObserver;
@@ -525,7 +540,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const observer = new Observer(() => {
             if (queued || disposed) return;
             queued = true;
-            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); markPoster(); wrapTables(); } });
+            Promise.resolve().then(() => { queued = false; if (!disposed) { markDuplicateTitle(); markEmptyFranchiseSections(); markPoster(); wrapTables(); } });
         });
         observer.observe(view, { childList: true, subtree: true });
         cleanup(() => observer.disconnect());
