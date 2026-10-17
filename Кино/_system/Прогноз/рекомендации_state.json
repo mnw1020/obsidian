@@ -1,7 +1,17 @@
 {
   "reference": "Кино/Media/Человек-паук Новый день.md",
-  "updatedAt": "2026-10-17T20:47:42.674Z",
+  "updatedAt": "2026-10-17T20:52:09.070Z",
   "sourceSettings": {
-    "kp": false
+    "imdb": false,
+    "kp": false,
+    "movieTon": false,
+    "likeFilm": false,
+    "tmdb": false,
+    "openai": false,
+    "watched": false
+  },
+  "yearSettings": {
+    "start": "1888",
+    "end": "current"
   }
 }

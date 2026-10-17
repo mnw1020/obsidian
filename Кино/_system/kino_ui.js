@@ -421,7 +421,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             : header;
         element(titleParent, "h1", "kino-card-title" + (["franchise", "media"].includes(kind) ? " kino-home-title" : ""), title);
         const original = text(fm["Название"]).trim();
-        if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
+        if (kind === "media" && original && original !== title) element(titleParent, "p", "kino-original-title", original);
         const meta = element(header, "div", "kino-card-meta");
         if (kind === "media") {
             meta.classList.add("kino-media-meta");

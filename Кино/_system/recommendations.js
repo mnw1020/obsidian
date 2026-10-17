@@ -1103,10 +1103,20 @@ function recommendationYear(film){
 function filterRecommendationYears(rows,start,end){
     return rows.filter(film=>{const year=recommendationYear(film);return year===null||year>=start&&year<=end;});
 }
+async function makeRecommendationsPage(container){
+    const shared=app.vault.getAbstractFileByPath(`${ROOT}/_system/kino-home.css`);
+    const css=shared?await app.vault.read(shared):"";
+    const page=container.createDiv({cls:"kino-home-ui kino-recommendations-ui"});
+    if(css)page.createEl("style",{text:css});
+    const header=page.createEl("header",{cls:"kino-home-masthead"});
+    header.createEl("h1",{cls:"kino-home-title",text:"Рекомендации"});
+    return page;
+}
 function makeUi(container){
-    const box=container.createDiv({cls:"kino-recommendation-panel"});
-    box.createEl("div",{text:"Подбор фильмов",cls:"kino-panel-title"});
-    box.createEl("div",{text:"Выбери источники и диапазон лет",cls:"kino-panel-subtitle"});
+    const box=container.createDiv({cls:"kino-recommendation-panel kino-home-panel"});
+    const head=box.createDiv({cls:"kino-home-panel-head"});
+    head.createEl("h2",{text:"Подбор фильмов",cls:"kino-panel-title"});
+    head.createEl("p",{text:"Выбери источники и диапазон лет",cls:"kino-panel-subtitle kino-home-caption"});
     const actions=box.createDiv({cls:"kino-source-controls"});
     const aiPanel=box.createDiv({cls:"kino-ai-panel"});
     const filters=box.createDiv({cls:"kino-recommendation-filters"});
@@ -1475,6 +1485,7 @@ async function main(){
         if(!file)throw Error("Не найден модуль открытия рекомендаций.");
         const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);recommendationContextApi=mod.exports;
     }
+    const page=await makeRecommendationsPage(dv.container);
     // Saved JSON only supports buttons that were already rendered before this
     // update. New launches deliver the selection directly to the target leaf.
     const saved=app[Symbol.for("kino.recommendations.launch")]?await loadJson(STATE_PATH):null;
@@ -1485,8 +1496,8 @@ async function main(){
         if(dv.container.isConnected!==false&&recommendationContextApi.current({app,container:dv.container})===expectedContext){dv.container.replaceChildren();await main();}
     };
     if(!state?.reference){
-        dv.paragraph("Выбери фильм для новой подборки.");
-        const choose=dv.container.createEl("button",{text:"Выбрать фильм"});choose.type="button";
+        page.createEl("p",{text:"Выбери фильм для новой подборки."});
+        const choose=page.createEl("button",{text:"Выбрать фильм",cls:"kino-home-action"});choose.type="button";
         choose.addEventListener("click",async()=>{
             if(choose.disabled)return;choose.disabled=true;
             try{
@@ -1494,7 +1505,7 @@ async function main(){
                 if(!file)throw Error("Не найдено окно выбора фильма.");
                 const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);
                 await mod.exports({app,obsidian,doc:dv.container.ownerDocument,trigger:choose,sourcePath:dv.current()?.file?.path});
-            }catch(error){dv.paragraph(error.message||String(error));}finally{choose.disabled=false;}
+            }catch(error){page.createEl("p",{text:error.message||String(error)});}finally{choose.disabled=false;}
         });
         return;
     }
@@ -1504,12 +1515,12 @@ async function main(){
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
     const ref=referenceForState(state,items);
-    if(!ref){dv.paragraph("Не удалось определить выбранный фильм. Укажи ID на главной или открой рекомендации из карточки.");return;}
+    if(!ref){page.createEl("p",{text:"Не удалось определить выбранный фильм. Укажи ID на главной или открой рекомендации из карточки."});return;}
     
-    const head=dv.container.createDiv({cls:"kino-reference-header"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
+    const head=page.createDiv({cls:"kino-reference-header kino-home-panel-head"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
 
-    const ui=makeUi(dv.container);
-    const detailsHost=dv.container.createDiv({cls:"kino-recommendation-details"});detailsHost.hidden=true;
+    const ui=makeUi(page);
+    const detailsHost=page.createDiv({cls:"kino-recommendation-details"});detailsHost.hidden=true;
     let cache=null,kpReady=false,kpLoading=null,all=[];
     let seeds={items:[],diag:"ещё не загружено"},second={items:[],diag:""};
     const ensureCache=async()=>cache ||= (await loadJson(SOURCE_CACHE_PATH))||{similar:{},details:{}};
