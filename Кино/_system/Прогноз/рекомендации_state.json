@@ -2,8 +2,8 @@
   "reference": "kp:5494049",
   "updatedAt": "2026-10-17T18:48:59.919Z",
   "sourceSettings": {
-    "kp": true,
     "imdb": false,
+    "kp": false,
     "movieTon": false,
     "likeFilm": false,
     "tmdb": false,
@@ -97,5 +97,9 @@
     "personalRating": null,
     "partialCredits": false,
     "source": "Кинопоиск"
+  },
+  "yearSettings": {
+    "start": "1888",
+    "end": "current"
   }
 }
