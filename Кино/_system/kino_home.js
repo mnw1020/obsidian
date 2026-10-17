@@ -203,9 +203,9 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const heading = el(identity, 'div', 'kino-home-heading');
         el(heading, 'h1', 'kino-home-title', 'Кинотека');
         const actions = el(identity, 'div', 'kino-home-actions');
-        for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
-        const lookupButton = el(actions, 'button', 'kino-home-action', 'По ID Кинопоиска'); lookupButton.type = 'button';
-        lookupButton.title = 'Рекомендации или персональный прогноз по ID фильма';
+        const lookupButton = el(actions, 'button', 'kino-home-action is-primary', 'Добавить'); lookupButton.type = 'button';
+        lookupButton.title = 'Добавить по ID Кинопоиска или IMDb';
+        for (const [text, choice] of [['Добавить просмотр','Добавить просмотр'],['Добавить сезон','Добавить сезон']]) command(actions,text,choice,'kino-home-action');
         let lookupDialog = null;
         cleanups.push(() => lookupDialog?.close());
         listen(lookupButton, 'click', async () => {

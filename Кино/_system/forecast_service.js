@@ -335,11 +335,11 @@ async function candidates(params) {
 // queues it, or creates a saved report. The returned report lives in the dialog.
 async function preview(params) {
     const {app, forecastCandidate: candidate} = params;
-    if (!candidate || !/^\d{1,12}$/.test(text(candidate.kpId))) throw Error('Укажи корректный ID Кинопоиска');
+    if (!candidate || (!/^\d{1,12}$/.test(text(candidate.kpId)) && !/^tt\d{5,12}$/.test(text(candidate.imdbId)))) throw Error('Укажи корректный ID Кинопоиска или IMDb');
     const state = await coreFor(app), items = await itemsFor(app, state);
     abort(params);
     const target = items.find(item => item.path === candidate.localPath)
-        || state.core.feature({path: `preview:kp:${candidate.kpId}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'}, {
+        || state.core.feature({path: `preview:${candidate.kpId?'kp:'+candidate.kpId:'imdb:'+candidate.imdbId}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'}, {
             'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating,
             'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId,
             'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year,

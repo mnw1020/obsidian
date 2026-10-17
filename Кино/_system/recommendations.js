@@ -135,10 +135,12 @@ function referenceForState(state,items) {
     const local=items.find(x=>x.file.path===state?.reference);
     if(local)return local;
     const external=state?.externalReference;
-    if(!external || !/^\d{1,12}$/.test(String(external.kpId||'')) || state.reference!==`kp:${external.kpId}`)return null;
-    return items.find(x=>x.kpId===String(external.kpId)) || {
-        ...external,file:{path:`external:kp:${external.kpId}`,basename:external.ruTitle||external.enTitle||'Фильм'},
-        localPath:`external:kp:${external.kpId}`,rating:null,watched:false,storedPrediction:null,
+    if(!external)return null;
+    const identity=/^\d{1,12}$/.test(String(external.kpId||''))?`kp:${external.kpId}`:/^tt\d{5,12}$/.test(external.imdbId||'')?`imdb:${external.imdbId}`:'';
+    if(!identity||state.reference!==identity)return null;
+    return items.find(x=>(external.kpId&&x.kpId===String(external.kpId))||(external.imdbId&&x.imdbId===external.imdbId)) || {
+        ...external,file:{path:`external:${identity}`,basename:external.ruTitle||external.enTitle||'Фильм'},
+        localPath:`external:${identity}`,rating:null,watched:false,storedPrediction:null,
         genres:genreSet(external.genres),directors:new Set(arr(external.directors).map(norm).filter(Boolean)),
         descTokens:tokenSet(external.description||''),franchise:external.franchise||''
     };
