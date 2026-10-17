@@ -178,12 +178,10 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
         el(content,'h2','kino-lookup-title','Добавить в кинотеку');const dismiss=el(content,'button','kino-lookup-dismiss','×');dismiss.type='button';dismiss.setAttribute('aria-label','Закрыть');listen(dismiss,'click',close);listen(host,'cancel',event=>{event.preventDefault();close();});}
     el(content,'style','',css);
     const root=el(content,'div','kino-lookup');
-    el(root,'p','kino-lookup-intro','Выбери фильм или сериал, вставь ID и реши, что сделать дальше.');
     const form=el(root,'form','kino-lookup-form');
     const label=el(form,'label','kino-lookup-label','ID Кинопоиска или IMDb');
     const input=el(label,'input');input.type='text';input.placeholder='435 или tt0120689';input.autocomplete='off';input.spellcheck=false;input.maxLength=300;
     input.setAttribute('aria-label','ID Кинопоиска или IMDb');
-    const help=el(form,'p','kino-lookup-hint','Подойдут ID и ссылки. Enter — прогноз. Оценка нужна только для добавления.');help.id='kino-lookup-hint-'+Math.random().toString(36).slice(2);input.setAttribute('aria-describedby',help.id);
     const fields=el(form,'div','kino-lookup-fields');
     const typeLabel=el(fields,'label','kino-lookup-label','Что добавляем?');
     const typeInput=el(typeLabel,'select');typeInput.setAttribute('aria-label','Фильм или сериал');
@@ -191,10 +189,10 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
     const ratingLabel=el(fields,'label','kino-lookup-label','Твоя оценка');const ratingInput=el(ratingLabel,'input');ratingInput.type='text';ratingInput.inputMode='decimal';ratingInput.placeholder='От 1 до 10';ratingInput.setAttribute('aria-label','Личная оценка');
     const today=new Date();el(form,'p','kino-lookup-hint','Дата просмотра: '+today.toLocaleDateString('ru-RU')+' · сегодня');
     const actions=el(form,'div','kino-lookup-actions');
-    function action(label,description,kind){const b=el(actions,'button','kino-lookup-action is-'+kind);b.type='button';el(b,'strong','',label);el(b,'span','',description);return b;}
-    const recommendations=action('Рекомендации','Похожие фильмы и сериалы','recommendations');
-    const forecast=action('Прогноз','Оценка по моим предпочтениям','forecast');
-    const add=action('Добавить в базу','Сохранить и открыть карточку','add');
+    function action(label,kind){const b=el(actions,'button','kino-lookup-action is-'+kind,label);b.type='button';return b;}
+    const recommendations=action('Рекомендации','recommendations');
+    const forecast=action('Прогноз','forecast');
+    const add=action('Добавить','add');
     const status=el(root,'p','kino-lookup-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
     const progress=el(root,'progress','kino-lookup-progress');progress.hidden=true;progress.setAttribute('aria-label','Ход расчёта');
     const cancel=el(root,'button','kino-lookup-cancel','Остановить');cancel.type='button';cancel.hidden=true;

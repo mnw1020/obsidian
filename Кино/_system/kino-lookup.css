@@ -6,12 +6,10 @@
 .kino-lookup-modal .kino-lookup-intro { margin:0 0 24px; font-size:.88em; line-height:1.7; color:var(--text-muted); }
 .kino-lookup-modal .kino-lookup-label { display:flex; flex-direction:column; gap:9px; color:var(--text-muted); font-size:.82em; }
 .kino-lookup-modal .kino-lookup-label input { width:100%; min-width:0; height:46px; padding:10px 13px; border:1px solid var(--lookup-line); border-radius:7px; background:var(--background-primary); font-size:16px; color:var(--text-normal); }
-.kino-lookup-modal .kino-lookup-label input:focus { border-color:var(--lookup-accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--lookup-accent) 15%,transparent); outline:none; }
+.kino-lookup-modal .kino-lookup-label :is(input,select):focus { border-color:var(--lookup-accent); box-shadow:0 0 0 2px color-mix(in srgb,var(--lookup-accent) 15%,transparent); outline:none; }
 .kino-lookup-modal .kino-lookup-hint { margin:8px 0 20px; color:var(--text-muted); font-size:.73em; line-height:1.6; }
 .kino-lookup-modal .kino-lookup-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
-.kino-lookup-modal button.kino-lookup-action { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:7px; min-width:0; height:auto; min-height:84px; padding:16px; border:1px solid var(--lookup-line); border-radius:9px; background:var(--background-primary); color:var(--text-normal); box-shadow:none; white-space:normal; text-align:left; }
-.kino-lookup-modal button.kino-lookup-action strong { color:var(--lookup-accent); font:700 20px/1.3 var(--lookup-serif); }
-.kino-lookup-modal button.kino-lookup-action span { color:var(--text-muted); font-size:.75em; line-height:1.5; }
+.kino-lookup-modal button.kino-lookup-action { display:flex; align-items:center; justify-content:center; width:100%; min-width:0; height:38px; min-height:38px; padding:8px 12px; border:1px solid var(--lookup-line); border-radius:7px; background:var(--background-primary); color:var(--text-normal); font:inherit; font-size:13px; font-weight:500; line-height:1.4; box-shadow:none; white-space:nowrap; text-align:center; }
 .kino-lookup-modal button.kino-lookup-action:not(:disabled):hover { border-color:var(--lookup-accent); background:color-mix(in srgb,var(--lookup-accent) 7%,var(--background-primary)); }
 .kino-lookup-modal button.kino-lookup-action:disabled { opacity:.45; cursor:default; }
 .kino-lookup-modal .kino-lookup-status { min-height:1.5em; margin:16px 0 0; color:var(--text-muted); font-size:.8em; line-height:1.6; overflow-wrap:anywhere; }
@@ -40,8 +38,9 @@
 dialog.kino-lookup-modal { position:relative; box-sizing:border-box; padding:26px; max-height:90vh; overflow:auto; background:var(--background-primary); color:var(--text-normal); border-inline:1px solid var(--lookup-line); border-bottom:1px solid var(--lookup-line); border-radius:10px; }
 dialog.kino-lookup-modal::backdrop { background:rgb(0 0 0 / 65%); }
 .kino-lookup-modal .kino-lookup-dismiss { position:absolute; top:8px; right:8px; border:0; background:transparent; color:var(--text-muted); font-size:23px; }
-@media(max-width:480px) { .kino-lookup-modal .kino-lookup-actions { grid-template-columns:minmax(0,1fr); gap:9px; } .kino-lookup-modal button.kino-lookup-action { min-height:72px; padding:13px; } .kino-lookup-modal .kino-lookup-scores { gap:8px; } .kino-lookup-modal .kino-lookup-score { padding-inline-start:9px; } .kino-lookup-modal .kino-lookup-score strong { font-size:25px; } .kino-lookup-modal .kino-lookup-score.is-final strong { font-size:33px; } }
+@media(max-width:480px) { .kino-lookup-modal .kino-lookup-actions { grid-template-columns:minmax(0,1fr); gap:9px; } .kino-lookup-modal button.kino-lookup-action { height:40px; min-height:40px; padding:8px 12px; } .kino-lookup-modal .kino-lookup-scores { gap:8px; } .kino-lookup-modal .kino-lookup-score { padding-inline-start:9px; } .kino-lookup-modal .kino-lookup-score strong { font-size:25px; } .kino-lookup-modal .kino-lookup-score.is-final strong { font-size:33px; } }
 
 .kino-lookup-modal .kino-lookup-fields {display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
-.kino-lookup-modal .kino-lookup-label select {width:100%;height:42px;margin-top:8px;background:var(--background-primary);border:1px solid var(--lookup-line);border-radius:6px;padding:8px;color:var(--text-normal)}
-.kino-lookup-modal button.is-add {border-color:var(--lookup-accent);background:color-mix(in srgb,var(--lookup-accent) 9%,var(--background-primary))}
+.kino-lookup-modal .kino-lookup-fields .kino-lookup-label {min-width:0;line-height:1.4;}
+.kino-lookup-modal .kino-lookup-fields .kino-lookup-label :is(input,select) {display:block;width:100%;min-width:0;height:44px;min-height:44px;margin:0;padding:9px 12px;border:1px solid var(--lookup-line);border-radius:7px;background:var(--background-primary);color:var(--text-normal);font:inherit;font-size:16px;line-height:1.4;}
+
