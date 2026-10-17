@@ -32,8 +32,8 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
     if (["media", "media-properties"].includes(kind)) acquireClass("kino-has-properties");
     const root = element(container, "section", "kino-ui-root");
     root.dataset.kind = kind;
-    if (kind === "franchise") {
-        acquireClass("kino-home-ui");
+    if (["franchise", "media"].includes(kind)) {
+        if (kind === "franchise") acquireClass("kino-home-ui");
         const sharedCss=app.vault.getAbstractFileByPath("Кино/_system/kino-home.css");
         if(sharedCss)element(root,"style","",await app.vault.read(sharedCss));
     }
@@ -242,10 +242,13 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             if (button.disabled || disposed) return;
             clearTimeout(timer);
             button.disabled = true; button.textContent = "⏳ Ищу…"; button.removeAttribute("title");
-            const launchKey=Symbol.for("kino.recommendations.launch");let launchId=null;
             try {
                 const page = app.vault.getAbstractFileByPath("Кино/_system/Рекомендации.md");
                 if (!page) throw new Error("Не найдена страница рекомендаций.");
+                const contextFile = app.vault.getAbstractFileByPath("Кино/_system/recommendations_context.js");
+                if (!contextFile) throw new Error("Не найден модуль открытия рекомендаций.");
+                const contextModule = { exports: {} };
+                new Function("module", await app.vault.read(contextFile))(contextModule);
                 const folderPath = "Кино/_system/Прогноз";
                 const statePath = folderPath + "/рекомендации_state.json";
                 const selection={reference:sourcePath,updatedAt:new Date().toISOString(),sourceSettings:{kp:false}};
@@ -261,15 +264,11 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                     }
                     await app.vault.create(statePath, payload);
                 }
-                // Finish an explicit navigation even if saving the selection
-                // caused Dataview to replace the source card in the meantime.
-                launchId=selection.updatedAt;app[launchKey]=launchId;
-                const target=app.workspace.getLeaf(false);
-                await target.openFile(page,{active:true});
-                app.workspace.setActiveLeaf?.(target,{focus:true});
+                // The destination leaf owns the selection through Markdown/Dataview
+                // rerenders; saving JSON is persistence, not a navigation signal.
+                await contextModule.exports.open({app,state:selection,page,sourcePath});
                 if (!disposed) { button.textContent = "🔎 Найти похожие"; button.disabled = false; }
             } catch (error) {
-                if(launchId&&app[launchKey]===launchId)delete app[launchKey];
                 const reason = "Не удалось открыть рекомендации: " + (error.message || error);
                 if (obsidian.Notice) new obsidian.Notice(reason, 7000);
                 if (disposed) return;
@@ -414,10 +413,13 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         const tags = values(fm.tags).map(value => text(value).replace(/^#/, ""));
         const type = kind === "media" ? tags.includes("serial") ? "Сериал" : "Фильм"
             : kind === "franchise" ? "Франшиза" : kind === "season" ? "Сезон" : kind === "roles" ? "Роли и создатели" : "Просмотр";
-        element(header, "div", "kino-eyebrow", type);
+        if (kind !== "media") element(header, "div", "kino-eyebrow", type);
         const rawTitle = String(current.file?.name ?? file?.basename ?? "Кино");
         const title = kind === "roles" ? rawTitle.replace(/\.роли$/, "") : rawTitle;
-        element(header, "h1", "kino-card-title" + (kind === "franchise" ? " kino-home-title" : ""), title);
+        const titleParent = kind === "media"
+            ? element(element(header, "div", "kino-media-heading kino-home-ui"), "div", "kino-home-masthead")
+            : header;
+        element(titleParent, "h1", "kino-card-title" + (["franchise", "media"].includes(kind) ? " kino-home-title" : ""), title);
         const original = text(fm["Название"]).trim();
         if (kind === "media" && original && original !== title) element(header, "p", "kino-original-title", original);
         const meta = element(header, "div", "kino-card-meta");

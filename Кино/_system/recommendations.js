@@ -145,11 +145,6 @@ function referenceForState(state,items) {
         descTokens:tokenSet(external.description||''),franchise:external.franchise||''
     };
 }
-function consumeRecommendationLaunch(state) {
-    const key=Symbol.for('kino.recommendations.launch');
-    if(!app[key] || app[key]!==state?.updatedAt)return false;
-    delete app[key];return true;
-}
 async function loadJson(path) {
     const f=app.vault.getAbstractFileByPath(path); if(!f) return null;
     try { return JSON.parse(await app.vault.read(f)); } catch(_) { return null; }
@@ -1473,12 +1468,22 @@ async function openaiSourceRecommendations(ref,items,cache,settings){
     return {items:rows.filter(Boolean),diag:`${rows.filter(Boolean).length} похожих${result.cacheHit?" · из кэша":""}${result.partial?" · ответ обрезан, сохранены полностью полученные фильмы":""}`};
 }
 
+let recommendationContextApi;
 async function main(){
-    const saved=await loadJson(STATE_PATH),explicitOpen=consumeRecommendationLaunch(saved);
-    const viewsKey=Symbol.for("kino.recommendations.views.v2");
-    const views=app[viewsKey]||(app[viewsKey]=new WeakMap());
-    const previous=views.get(dv.container);
-    let state=explicitOpen?{...saved,sourceSettings:{...(saved?.sourceSettings||{}),kp:false}}:previous?.state;
+    if(!recommendationContextApi){
+        const file=app.vault.getAbstractFileByPath(`${ROOT}/_system/recommendations_context.js`);
+        if(!file)throw Error("Не найден модуль открытия рекомендаций.");
+        const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);recommendationContextApi=mod.exports;
+    }
+    // Saved JSON only supports buttons that were already rendered before this
+    // update. New launches deliver the selection directly to the target leaf.
+    const saved=app[Symbol.for("kino.recommendations.launch")]?await loadJson(STATE_PATH):null;
+    const context=recommendationContextApi.current({app,container:dv.container,saved});
+    const previous=context?.viewSession,explicitOpen=Boolean(context?.state&&!previous);
+    let state=previous?.state??context?.state;
+    if(context)context.refresh=async(expectedContext=context)=>{
+        if(dv.container.isConnected!==false&&recommendationContextApi.current({app,container:dv.container})===expectedContext){dv.container.replaceChildren();await main();}
+    };
     if(!state?.reference){
         dv.paragraph("Выбери фильм для новой подборки.");
         const choose=dv.container.createEl("button",{text:"Выбрать фильм"});choose.type="button";
@@ -1488,17 +1493,14 @@ async function main(){
                 const file=app.vault.getAbstractFileByPath(`${ROOT}/_system/kino_lookup.js`);
                 if(!file)throw Error("Не найдено окно выбора фильма.");
                 const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);
-                await mod.exports({app,obsidian,doc:dv.container.ownerDocument,trigger:choose,sourcePath:dv.current()?.file?.path,onRecommendationsOpened:async()=>{
-                    if(dv.container.isConnected!==false&&app[Symbol.for("kino.recommendations.launch")]){dv.container.replaceChildren();await main();}
-                }});
+                await mod.exports({app,obsidian,doc:dv.container.ownerDocument,trigger:choose,sourcePath:dv.current()?.file?.path});
             }catch(error){dv.paragraph(error.message||String(error));}finally{choose.disabled=false;}
         });
         return;
     }
     const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,token:{}};
-    views.set(dv.container,viewSession);
-    const isCurrent=()=>dv.container.isConnected!==false&&views.get(dv.container)===viewSession;
-    dv.component?.register?.(()=>{Promise.resolve().then(()=>{if(dv.container.isConnected===false&&views.get(dv.container)===viewSession)views.delete(dv.container);});});
+    context.viewSession=viewSession;
+    const isCurrent=()=>dv.container.isConnected!==false&&context.viewSession===viewSession&&recommendationContextApi.current({app,container:dv.container})===context;
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
     const ref=referenceForState(state,items);
@@ -1626,7 +1628,7 @@ async function main(){
     };
     const saveUiState=()=>{
         state={...state,yearSettings:{start:startYear.value,end:endYear.value},sourceSettings:{imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,openai:openaiCheckbox.checked,watched:checkbox.checked}};
-        viewSession.state=state;return saveJson(STATE_PATH,state);
+        context.state=state;viewSession.state=state;return saveJson(STATE_PATH,state);
     };
     const loadImdb=async()=>{
         if(imdbReady)return;

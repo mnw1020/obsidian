@@ -129,7 +129,8 @@
 .markdown-preview-view.kino-has-card-title > .markdown-preview-sizer > .inline-title,
 .markdown-preview-view.kino-has-card-title .inline-title,
 .markdown-preview-view.kino-dashboard .inline-title { display: none; }
-.markdown-preview-view.kino-has-properties .metadata-container { display: none; }
+/* Media notes already carry kino-media before their Dataview UI loads. */
+.markdown-preview-view:is(.kino-has-properties,.kino-media) .metadata-container { display: none; }
 .markdown-preview-view.kino-cosmetic-properties .metadata-container,
 .markdown-preview-view.kino-page .kino-duplicate-title { display: none; }
 /* Recommendations have their own Markdown heading and no editable page data.
@@ -214,6 +215,13 @@
 .kino-eyebrow { color: var(--kino-accent); font-size: 11px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase; }
 .kino-page .kino-card-title { font-size: clamp(28px, 4.2vw, 46px) !important; margin: 12px 0 8px !important; overflow-wrap: anywhere; }
 .kino-original-title { color: var(--kino-muted); font-size: 17px; margin: 0 0 17px; line-height: 1.5; }
+.kino-page.kino-media .kino-media-heading { margin-bottom: 14px; }
+.kino-page.kino-media .kino-media-heading .kino-home-masthead { padding: 24px 28px; }
+.kino-page.kino-media .kino-media-heading h1.kino-home-title { margin: 0 !important; }
+@container kino-media-card (max-width: 650px) {
+    .kino-page.kino-media .kino-media-heading .kino-home-masthead { padding: 20px; }
+    .kino-page.kino-media .kino-media-heading h1.kino-home-title { font-size: 34px !important; }
+}
 .kino-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--kino-muted); font-size: 13px; }
 .kino-meta-chip { display: inline-flex; padding: 4px 10px; background: var(--kino-surface); border: 1px solid var(--kino-line); border-radius: 6px; }
 .kino-meta-muted { background: transparent; border-color: transparent; padding-left: 0; }

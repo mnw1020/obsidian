@@ -151,9 +151,8 @@ async function openRecommendations({app,candidate,signal,sourcePath}) {
         const folder=BASE+'Прогноз';if(!app.vault.getAbstractFileByPath(folder))await app.vault.createFolder(folder);
         check(signal);await app.vault.create(STATE,content);
     }
-    check(signal);const key=Symbol.for('kino.recommendations.launch');app[key]=payload.updatedAt;
-    try { if(app.workspace.getLeaf)await app.workspace.getLeaf(false).openFile(page);else await app.workspace.openLinkText(page.path,sourcePath); }
-    catch(error){if(app[key]===payload.updatedAt)delete app[key];throw error;}
+    check(signal);const context=await load(app,'recommendations_context');
+    await context.open({app,state:payload,page,sourcePath});
     return payload;
 }
 async function load(app,name) {
