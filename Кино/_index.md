@@ -8,6 +8,7 @@ obsidianUIMode: preview
 ---
 
 ```dataviewjs
+// Поиск по ID Кинопоиска загружается только после нажатия кнопки.
 const file = app.vault.getAbstractFileByPath("Кино/_system/kino_home.js");
 if (file) {
     try {

@@ -317,6 +317,177 @@
       ],
       "diag": "КП: прямых похожих 30"
     },
+    "838": {
+      "at": 1792262941810,
+      "items": [
+        {
+          "kpId": "7145",
+          "ruTitle": "Супермен",
+          "enTitle": "Superman"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "439906",
+          "ruTitle": "Чёрная Молния",
+          "enTitle": ""
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "102151",
+          "ruTitle": "Хэнкок",
+          "enTitle": "Hancock"
+        },
+        {
+          "kpId": "411924",
+          "ruTitle": "Железный человек 2",
+          "enTitle": "Iron Man 2"
+        },
+        {
+          "kpId": "406294",
+          "ruTitle": "Зеленый Фонарь",
+          "enTitle": "Green Lantern"
+        },
+        {
+          "kpId": "298",
+          "ruTitle": "Люди Икс 2",
+          "enTitle": "X2"
+        },
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class"
+        },
+        {
+          "kpId": "419200",
+          "ruTitle": "Пипец",
+          "enTitle": "Kick-Ass"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "252667",
+          "ruTitle": "Человек из стали",
+          "enTitle": "Man of Steel"
+        },
+        {
+          "kpId": "255380",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil"
+        },
+        {
+          "kpId": "195496",
+          "ruTitle": "Человек-муравей",
+          "enTitle": "Ant-Man"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "437410",
+          "ruTitle": "Темный рыцарь: Возрождение легенды",
+          "enTitle": "The Dark Knight Rises"
+        },
+        {
+          "kpId": "23263",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "38903",
+          "ruTitle": "Суперсемейка",
+          "enTitle": "The Incredibles"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "104904",
+          "ruTitle": "Люди Икс: Начало. Росомаха",
+          "enTitle": "X-Men Origins: Wolverine"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "178557",
+          "ruTitle": "Фантастическая четверка: Вторжение Серебряного серфера",
+          "enTitle": "4: Rise of the Silver Surfer"
+        },
+        {
+          "kpId": "3523",
+          "ruTitle": "Женщина-кошка",
+          "enTitle": "Catwoman"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "462754",
+          "ruTitle": "Росомаха: Бессмертный",
+          "enTitle": "The Wolverine"
+        },
+        {
+          "kpId": "38472",
+          "ruTitle": "Возвращение Супермена",
+          "enTitle": "Superman Returns"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
+        }
+      ],
+      "source": "kp-api"
+    },
     "2022": {
       "at": 1790965843756,
       "items": [
@@ -642,6 +813,142 @@
           "kpId": "779060",
           "ruTitle": "Шпион: Операция под прикрытием",
           "enTitle": "Seupai"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "2898": {
+      "at": 1792262942046,
+      "items": [
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "411924",
+          "ruTitle": "Железный человек 2",
+          "enTitle": "Iron Man 2"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "47237",
+          "ruTitle": "Бэтмен: Начало",
+          "enTitle": "Batman Begins"
+        },
+        {
+          "kpId": "102151",
+          "ruTitle": "Хэнкок",
+          "enTitle": "Hancock"
+        },
+        {
+          "kpId": "23263",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "195496",
+          "ruTitle": "Человек-муравей",
+          "enTitle": "Ant-Man"
+        },
+        {
+          "kpId": "298",
+          "ruTitle": "Люди Икс 2",
+          "enTitle": "X2"
+        },
+        {
+          "kpId": "104904",
+          "ruTitle": "Люди Икс: Начало. Росомаха",
+          "enTitle": "X-Men Origins: Wolverine"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "178557",
+          "ruTitle": "Фантастическая четверка: Вторжение Серебряного серфера",
+          "enTitle": "4: Rise of the Silver Surfer"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "38903",
+          "ruTitle": "Суперсемейка",
+          "enTitle": "The Incredibles"
+        },
+        {
+          "kpId": "38472",
+          "ruTitle": "Возвращение Супермена",
+          "enTitle": "Superman Returns"
+        },
+        {
+          "kpId": "439906",
+          "ruTitle": "Чёрная Молния",
+          "enTitle": ""
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil"
         }
       ],
       "source": "kp-api"
@@ -2077,6 +2384,152 @@
       ],
       "source": "kp-api"
     },
+    "82441": {
+      "at": 1792262942273,
+      "items": [
+        {
+          "kpId": "1227967",
+          "ruTitle": "Веном 2",
+          "enTitle": "Venom: Let There Be Carnage"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
+        },
+        {
+          "kpId": "439906",
+          "ruTitle": "Чёрная Молния",
+          "enTitle": ""
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "411924",
+          "ruTitle": "Железный человек 2",
+          "enTitle": "Iron Man 2"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "61361",
+          "ruTitle": "Люди Икс: Последняя битва",
+          "enTitle": "X-Men: The Last Stand"
+        },
+        {
+          "kpId": "255380",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "23263",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "463634",
+          "ruTitle": "Веном",
+          "enTitle": "Venom"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "278273",
+          "ruTitle": "Чёрный лебедь",
+          "enTitle": "Black Swan"
+        },
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class"
+        },
+        {
+          "kpId": "178557",
+          "ruTitle": "Фантастическая четверка: Вторжение Серебряного серфера",
+          "enTitle": "4: Rise of the Silver Surfer"
+        },
+        {
+          "kpId": "104904",
+          "ruTitle": "Люди Икс: Начало. Росомаха",
+          "enTitle": "X-Men Origins: Wolverine"
+        },
+        {
+          "kpId": "298",
+          "ruTitle": "Люди Икс 2",
+          "enTitle": "X2"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk"
+        },
+        {
+          "kpId": "38472",
+          "ruTitle": "Возвращение Супермена",
+          "enTitle": "Superman Returns"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil"
+        },
+        {
+          "kpId": "251973",
+          "ruTitle": "Человек-паук: Злодеи атакуют",
+          "enTitle": "Spider-Man: The Ultimate Villain Showdown"
+        }
+      ],
+      "source": "kp-api"
+    },
     "93377": {
       "at": 1790793255400,
       "items": [
@@ -2274,6 +2727,107 @@
       ],
       "source": "kp-api"
     },
+    "95232": {
+      "at": 1792262943199,
+      "items": [
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "84960",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "251692",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "94686",
+          "ruTitle": "Люди Икс: Эволюция",
+          "enTitle": "X-Men: Evolution"
+        },
+        {
+          "kpId": "402967",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "387468",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "Spider-Man: The New Animated Series"
+        },
+        {
+          "kpId": "229687",
+          "ruTitle": "Непобедимый Спайдермен",
+          "enTitle": "Spider-Man Unlimited"
+        },
+        {
+          "kpId": "231225",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk"
+        },
+        {
+          "kpId": "574690",
+          "ruTitle": "Великий Человек-паук",
+          "enTitle": "Ultimate Spider-Man"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
+        },
+        {
+          "kpId": "397463",
+          "ruTitle": "Настоящий Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "445108",
+          "ruTitle": "Серебряный Сёрфер",
+          "enTitle": "Silver Surfer"
+        },
+        {
+          "kpId": "397484",
+          "ruTitle": "Грандиозный Человек-паук",
+          "enTitle": "The Spectacular Spider-Man"
+        }
+      ],
+      "source": "kp-api"
+    },
     "106279": {
       "at": 1790793256727,
       "items": [
@@ -2448,6 +3002,93 @@
           "kpId": "489415",
           "ruTitle": "Срочная доставка",
           "enTitle": "Premium Rush"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "195483": {
+      "at": 1792262950086,
+      "items": [
+        {
+          "kpId": "424994",
+          "ruTitle": "Лига справедливости",
+          "enTitle": "Justice League"
+        },
+        {
+          "kpId": "754532",
+          "ruTitle": "Лига справедливости: Парадокс источника конфликта",
+          "enTitle": "Justice League: The Flashpoint Paradox"
+        },
+        {
+          "kpId": "817506",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash"
+        },
+        {
+          "kpId": "1219177",
+          "ruTitle": "Человек-паук: Паутина вселенных",
+          "enTitle": "Spider-Man: Across the Spider-Verse"
+        },
+        {
+          "kpId": "1219909",
+          "ruTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "enTitle": "Doctor Strange in the Multiverse of Madness"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "195496": {
+      "at": 1792262947072,
+      "items": [
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "8139",
+          "ruTitle": "Дорогая, я уменьшил детей",
+          "enTitle": "Honey, I Shrunk the Kids"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "7110",
+          "ruTitle": "Внутреннее пространство",
+          "enTitle": "Innerspace"
+        },
+        {
+          "kpId": "471642",
+          "ruTitle": "Фантастическая четвёрка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "822708",
+          "ruTitle": "Первый мститель: Противостояние",
+          "enTitle": "Captain America: Civil War"
+        },
+        {
+          "kpId": "462360",
+          "ruTitle": "Дэдпул",
+          "enTitle": "Deadpool"
         }
       ],
       "source": "kp-api"
@@ -2923,6 +3564,177 @@
       ],
       "source": "kp-api"
     },
+    "263531": {
+      "at": 1792262944082,
+      "items": [
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "298",
+          "ruTitle": "Люди Икс 2",
+          "enTitle": "X2"
+        },
+        {
+          "kpId": "61361",
+          "ruTitle": "Люди Икс: Последняя битва",
+          "enTitle": "X-Men: The Last Stand"
+        },
+        {
+          "kpId": "252641",
+          "ruTitle": "Хранители",
+          "enTitle": "Watchmen"
+        },
+        {
+          "kpId": "178557",
+          "ruTitle": "Фантастическая четверка: Вторжение Серебряного серфера",
+          "enTitle": "4: Rise of the Silver Surfer"
+        },
+        {
+          "kpId": "437410",
+          "ruTitle": "Темный рыцарь: Возрождение легенды",
+          "enTitle": "The Dark Knight Rises"
+        },
+        {
+          "kpId": "452899",
+          "ruTitle": "Трансформеры 3: Тёмная сторона Луны",
+          "enTitle": "Transformers: Dark of the Moon"
+        },
+        {
+          "kpId": "23263",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "104904",
+          "ruTitle": "Люди Икс: Начало. Росомаха",
+          "enTitle": "X-Men Origins: Wolverine"
+        },
+        {
+          "kpId": "7975",
+          "ruTitle": "Лига выдающихся джентльменов",
+          "enTitle": "The League of Extraordinary Gentlemen"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "597687",
+          "ruTitle": "Люди Икс: Дни минувшего будущего",
+          "enTitle": "X-Men: Days of Future Past"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "47237",
+          "ruTitle": "Бэтмен: Начало",
+          "enTitle": "Batman Begins"
+        },
+        {
+          "kpId": "252667",
+          "ruTitle": "Человек из стали",
+          "enTitle": "Man of Steel"
+        },
+        {
+          "kpId": "466581",
+          "ruTitle": "Хранители снов",
+          "enTitle": "Rise of the Guardians"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil"
+        },
+        {
+          "kpId": "466844",
+          "ruTitle": "Морской бой",
+          "enTitle": "Battleship"
+        },
+        {
+          "kpId": "693126",
+          "ruTitle": "Город героев",
+          "enTitle": "Big Hero 6"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "571288",
+          "ruTitle": "Неудержимые 2",
+          "enTitle": "The Expendables 2"
+        },
+        {
+          "kpId": "424994",
+          "ruTitle": "Лига справедливости",
+          "enTitle": "Justice League"
+        },
+        {
+          "kpId": "406294",
+          "ruTitle": "Зеленый Фонарь",
+          "enTitle": "Green Lantern"
+        },
+        {
+          "kpId": "770631",
+          "ruTitle": "Бэтмен против Супермена: На заре справедливости",
+          "enTitle": "Batman v Superman: Dawn of Justice"
+        },
+        {
+          "kpId": "822709",
+          "ruTitle": "Тор: Рагнарёк",
+          "enTitle": "Thor: Ragnarok"
+        },
+        {
+          "kpId": "690594",
+          "ruTitle": "Короткометражка Marvel: Образец 47",
+          "enTitle": "Marvel One-Shot: Item 47"
+        },
+        {
+          "kpId": "468522",
+          "ruTitle": "Отряд самоубийц",
+          "enTitle": "Suicide Squad"
+        },
+        {
+          "kpId": "462754",
+          "ruTitle": "Росомаха: Бессмертный",
+          "enTitle": "The Wolverine"
+        }
+      ],
+      "source": "kp-api"
+    },
     "276376": {
       "at": 1792012381731,
       "items": [
@@ -3095,6 +3907,132 @@
           "kpId": "1024879",
           "ruTitle": "Мой сын",
           "enTitle": "Mon garçon"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "278217": {
+      "at": 1792262942509,
+      "items": [
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "47237",
+          "ruTitle": "Бэтмен: Начало",
+          "enTitle": "Batman Begins"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight"
+        },
+        {
+          "kpId": "437410",
+          "ruTitle": "Темный рыцарь: Возрождение легенды",
+          "enTitle": "The Dark Knight Rises"
+        },
+        {
+          "kpId": "411924",
+          "ruTitle": "Железный человек 2",
+          "enTitle": "Iron Man 2"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "255380",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk"
+        },
+        {
+          "kpId": "258941",
+          "ruTitle": "Тор",
+          "enTitle": "Thor"
+        },
+        {
+          "kpId": "252667",
+          "ruTitle": "Человек из стали",
+          "enTitle": "Man of Steel"
+        },
+        {
+          "kpId": "419200",
+          "ruTitle": "Пипец",
+          "enTitle": "Kick-Ass"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class"
+        },
+        {
+          "kpId": "195496",
+          "ruTitle": "Человек-муравей",
+          "enTitle": "Ant-Man"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk"
+        },
+        {
+          "kpId": "676266",
+          "ruTitle": "Первый мститель: Другая война",
+          "enTitle": "Captain America: The Winter Soldier"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
         }
       ],
       "source": "kp-api"
@@ -5810,6 +6748,42 @@
       ],
       "source": "kp-api"
     },
+    "574690": {
+      "at": 1792262946066,
+      "items": [
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "397484",
+          "ruTitle": "Грандиозный Человек-паук",
+          "enTitle": "The Spectacular Spider-Man"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "714433",
+          "ruTitle": "Команда «Мстители»",
+          "enTitle": "Avengers Assemble"
+        },
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        }
+      ],
+      "source": "kp-api"
+    },
     "575613": {
       "at": 1790965842836,
       "items": [
@@ -6055,6 +7029,77 @@
           "kpId": "20158",
           "ruTitle": "Земное ядро",
           "enTitle": "The Core"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "602409": {
+      "at": 1792262942734,
+      "items": [
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse"
+        },
+        {
+          "kpId": "822708",
+          "ruTitle": "Первый мститель: Противостояние",
+          "enTitle": "Captain America: Civil War"
+        },
+        {
+          "kpId": "841518",
+          "ruTitle": "Черепашки-ниндзя 2",
+          "enTitle": "Teenage Mutant Ninja Turtles: Out of the Shadows"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        },
+        {
+          "kpId": "770631",
+          "ruTitle": "Бэтмен против Супермена: На заре справедливости",
+          "enTitle": "Batman v Superman: Dawn of Justice"
         }
       ],
       "source": "kp-api"
@@ -6979,6 +8024,102 @@
       ],
       "diag": "КП: прямых похожих 5 · похожие «Джек Ричер»: 11"
     },
+    "822708": {
+      "at": 1792262945093,
+      "items": [
+        {
+          "kpId": "770631",
+          "ruTitle": "Бэтмен против Супермена: На заре справедливости",
+          "enTitle": "Batman v Superman: Dawn of Justice"
+        },
+        {
+          "kpId": "61361",
+          "ruTitle": "Люди Икс: Последняя битва",
+          "enTitle": "X-Men: The Last Stand"
+        },
+        {
+          "kpId": "843649",
+          "ruTitle": "Мстители: Война бесконечности",
+          "enTitle": "Avengers: Infinity War"
+        },
+        {
+          "kpId": "623250",
+          "ruTitle": "Чёрная Пантера",
+          "enTitle": "Black Panther"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men"
+        },
+        {
+          "kpId": "814016",
+          "ruTitle": "Люди Икс: Апокалипсис",
+          "enTitle": "X-Men: Apocalypse"
+        },
+        {
+          "kpId": "252641",
+          "ruTitle": "Хранители",
+          "enTitle": "Watchmen"
+        },
+        {
+          "kpId": "437410",
+          "ruTitle": "Темный рыцарь: Возрождение легенды",
+          "enTitle": "The Dark Knight Rises"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers"
+        },
+        {
+          "kpId": "679830",
+          "ruTitle": "Мстители: Эра Альтрона",
+          "enTitle": "Avengers: Age of Ultron"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "597687",
+          "ruTitle": "Люди Икс: Дни минувшего будущего",
+          "enTitle": "X-Men: Days of Future Past"
+        },
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "823956",
+          "ruTitle": "Чёрная Вдова",
+          "enTitle": "Black Widow"
+        },
+        {
+          "kpId": "195496",
+          "ruTitle": "Человек-муравей",
+          "enTitle": "Ant-Man"
+        }
+      ],
+      "source": "kp-api"
+    },
     "826373": {
       "at": 1790971241120,
       "items": [
@@ -7092,6 +8233,158 @@
       ],
       "source": "kp-api"
     },
+    "843649": {
+      "at": 1792262942970,
+      "items": [
+        {
+          "kpId": "822708",
+          "ruTitle": "Первый мститель: Противостояние",
+          "enTitle": "Captain America: Civil War"
+        },
+        {
+          "kpId": "689066",
+          "ruTitle": "Стражи Галактики",
+          "enTitle": "Guardians of the Galaxy"
+        },
+        {
+          "kpId": "822709",
+          "ruTitle": "Тор: Рагнарёк",
+          "enTitle": "Thor: Ragnarok"
+        },
+        {
+          "kpId": "841263",
+          "ruTitle": "Стражи Галактики. Часть 2",
+          "enTitle": "Guardians of the Galaxy Vol. 2"
+        },
+        {
+          "kpId": "424994",
+          "ruTitle": "Лига справедливости",
+          "enTitle": "Justice League"
+        },
+        {
+          "kpId": "595938",
+          "ruTitle": "Тор 2: Царство тьмы",
+          "enTitle": "Thor: The Dark World"
+        },
+        {
+          "kpId": "258941",
+          "ruTitle": "Тор",
+          "enTitle": "Thor"
+        },
+        {
+          "kpId": "623250",
+          "ruTitle": "Чёрная Пантера",
+          "enTitle": "Black Panther"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "409600",
+          "ruTitle": "Доктор Стрэндж",
+          "enTitle": "Doctor Strange"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three"
+        },
+        {
+          "kpId": "676266",
+          "ruTitle": "Первый мститель: Другая война",
+          "enTitle": "Captain America: The Winter Soldier"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "1387021",
+          "ruTitle": "Лига справедливости Зака Снайдера",
+          "enTitle": "Zack Snyder's Justice League"
+        },
+        {
+          "kpId": "823956",
+          "ruTitle": "Чёрная Вдова",
+          "enTitle": "Black Widow"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "843650": {
+      "at": 1792262948056,
+      "items": [
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        },
+        {
+          "kpId": "597687",
+          "ruTitle": "Люди Икс: Дни минувшего будущего",
+          "enTitle": "X-Men: Days of Future Past"
+        },
+        {
+          "kpId": "689066",
+          "ruTitle": "Стражи Галактики",
+          "enTitle": "Guardians of the Galaxy"
+        },
+        {
+          "kpId": "409600",
+          "ruTitle": "Доктор Стрэндж",
+          "enTitle": "Doctor Strange"
+        },
+        {
+          "kpId": "935940",
+          "ruTitle": "Человек-муравей и Оса",
+          "enTitle": "Ant-Man and the Wasp"
+        },
+        {
+          "kpId": "424994",
+          "ruTitle": "Лига справедливости",
+          "enTitle": "Justice League"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger"
+        },
+        {
+          "kpId": "1387021",
+          "ruTitle": "Лига справедливости Зака Снайдера",
+          "enTitle": "Zack Snyder's Justice League"
+        },
+        {
+          "kpId": "823956",
+          "ruTitle": "Чёрная Вдова",
+          "enTitle": "Black Widow"
+        }
+      ],
+      "source": "kp-api"
+    },
     "885658": {
       "at": 1792012381508,
       "items": [
@@ -7200,6 +8493,62 @@
           "kpId": "6871",
           "ruTitle": "Пляж",
           "enTitle": "The Beach"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "920265": {
+      "at": 1792262943437,
+      "items": [
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2"
+        },
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "4445150",
+          "ruTitle": "Аркейн",
+          "enTitle": "Arcane: League of Legends"
         }
       ],
       "source": "kp-api"
@@ -7382,6 +8731,42 @@
       ],
       "source": "kp-api"
     },
+    "1008444": {
+      "at": 1792262951068,
+      "items": [
+        {
+          "kpId": "195483",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash"
+        },
+        {
+          "kpId": "807682",
+          "ruTitle": "Логан",
+          "enTitle": "Logan"
+        },
+        {
+          "kpId": "1203039",
+          "ruTitle": "Локи",
+          "enTitle": "Loki"
+        },
+        {
+          "kpId": "1209736",
+          "ruTitle": "Жил-был Дэдпул",
+          "enTitle": "Once Upon A Deadpool"
+        },
+        {
+          "kpId": "1219909",
+          "ruTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "enTitle": "Doctor Strange in the Multiverse of Madness"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        }
+      ],
+      "source": "kp-api"
+    },
     "1209839": {
       "at": 1792012381094,
       "items": [
@@ -7399,6 +8784,94 @@
           "kpId": "817245",
           "ruTitle": "Джек Ричер 2: Никогда не возвращайся",
           "enTitle": "Jack Reacher: Never Go Back"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "1219177": {
+      "at": 1792262952068,
+      "items": [
+        {
+          "kpId": "195483",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash"
+        },
+        {
+          "kpId": "1203039",
+          "ruTitle": "Локи",
+          "enTitle": "Loki"
+        },
+        {
+          "kpId": "1219909",
+          "ruTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "enTitle": "Doctor Strange in the Multiverse of Madness"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "1219909": {
+      "at": 1792262953096,
+      "items": [
+        {
+          "kpId": "195483",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash"
+        },
+        {
+          "kpId": "1008444",
+          "ruTitle": "Дэдпул и Росомаха",
+          "enTitle": "Deadpool & Wolverine"
+        },
+        {
+          "kpId": "1203039",
+          "ruTitle": "Локи",
+          "enTitle": "Loki"
+        },
+        {
+          "kpId": "1203040",
+          "ruTitle": "Ванда/Вижн",
+          "enTitle": "WandaVision"
+        },
+        {
+          "kpId": "1261534",
+          "ruTitle": "Что, если...?",
+          "enTitle": "What If...?"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        },
+        {
+          "kpId": "1322324",
+          "ruTitle": "Всё везде и сразу",
+          "enTitle": "Everything Everywhere All at Once"
+        }
+      ],
+      "source": "kp-api"
+    },
+    "1227967": {
+      "at": 1792262949055,
+      "items": [
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3"
+        },
+        {
+          "kpId": "1100425",
+          "ruTitle": "Морбиус",
+          "enTitle": "Morbius"
         }
       ],
       "source": "kp-api"
@@ -7569,6 +9042,138 @@
         }
       ],
       "source": "kp-api"
+    },
+    "5494049": {
+      "at": 1792262941588,
+      "items": [
+        {
+          "kpId": "838",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "2898",
+          "ruTitle": "Человек-паук 2",
+          "enTitle": "Spider-Man 2",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "82441",
+          "ruTitle": "Человек-паук 3: Враг в отражении",
+          "enTitle": "Spider-Man 3",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "278217",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "The Amazing Spider-Man",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "602409",
+          "ruTitle": "Новый Человек-паук: Высокое напряжение",
+          "enTitle": "The Amazing Spider-Man 2",
+          "priority": 1,
+          "reason": "КП: похожий фильм"
+        },
+        {
+          "kpId": "843649",
+          "ruTitle": "Мстители: Война бесконечности",
+          "enTitle": "Avengers: Infinity War",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "95232",
+          "ruTitle": "Человек-паук",
+          "enTitle": "Spider-Man",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "920265",
+          "ruTitle": "Человек-паук: Через вселенные",
+          "enTitle": "Spider-Man: Into the Spider-Verse",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "263531",
+          "ruTitle": "Мстители",
+          "enTitle": "The Avengers",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "822708",
+          "ruTitle": "Первый мститель: Противостояние",
+          "enTitle": "Captain America: Civil War",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "574690",
+          "ruTitle": "Великий Человек-паук",
+          "enTitle": "Ultimate Spider-Man",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "195496",
+          "ruTitle": "Человек-муравей",
+          "enTitle": "Ant-Man",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Возвращение домой»"
+        },
+        {
+          "kpId": "843650",
+          "ruTitle": "Мстители: Финал",
+          "enTitle": "Avengers: Endgame",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Вдали от дома»"
+        },
+        {
+          "kpId": "1227967",
+          "ruTitle": "Веном 2",
+          "enTitle": "Venom: Let There Be Carnage",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Нет пути домой»"
+        },
+        {
+          "kpId": "195483",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Нет пути домой»"
+        },
+        {
+          "kpId": "1008444",
+          "ruTitle": "Дэдпул и Росомаха",
+          "enTitle": "Deadpool & Wolverine",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Нет пути домой»"
+        },
+        {
+          "kpId": "1219177",
+          "ruTitle": "Человек-паук: Паутина вселенных",
+          "enTitle": "Spider-Man: Across the Spider-Verse",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Нет пути домой»"
+        },
+        {
+          "kpId": "1219909",
+          "ruTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "enTitle": "Doctor Strange in the Multiverse of Madness",
+          "priority": 0.8,
+          "reason": "КП: похожие «Человек-паук: Нет пути домой»"
+        }
+      ],
+      "diag": "КП: прямых похожих 5 · похожие «Человек-паук: Возвращение домой»: 12 · похожие «Человек-паук: Вдали от дома»: 9 · похожие «Человек-паук: Нет пути домой»: 12"
     }
   },
   "details": {
@@ -9002,6 +10607,70 @@
       },
       "source": "kp-api"
     },
+    "648": {
+      "at": 1792262961103,
+      "data": {
+        "kpId": "648",
+        "ruTitle": "Сорвиголова",
+        "enTitle": "Daredevil",
+        "year": "2003",
+        "description": "Он живёт в мире вечной ночи, но эта темнота заполнена звуками и запахами, её можно попробовать на вкус и потрогать руками. Адвокат Мэтт Мердок слеп, но остальные органы чувств у него работают, как у супермена. Днём Мердок защищает униженных и оскорблённых в зале суда, а ночью превращается в супергероя в маске, восстанавливая справедливость на улицах города самыми радикальными методами.",
+        "genres": [
+          "crime",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "живет",
+          "мире",
+          "вечной",
+          "ночи",
+          "эта",
+          "темнота",
+          "заполнена",
+          "звуками",
+          "запахами",
+          "можно",
+          "попробовать",
+          "вкус",
+          "потрогать",
+          "руками",
+          "адвокат",
+          "мэтт",
+          "мердок",
+          "слеп",
+          "остальные",
+          "органы",
+          "чувств",
+          "него",
+          "работают",
+          "супермена",
+          "днем",
+          "защищает",
+          "униженных",
+          "оскорбленных",
+          "зале",
+          "суда",
+          "ночью",
+          "превращается",
+          "супергероя",
+          "маске",
+          "восстанавливая",
+          "справедливость",
+          "улицах",
+          "города",
+          "самыми",
+          "радикальными",
+          "методами"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "686": {
       "at": 1790613885453,
       "data": {
@@ -9841,6 +11510,82 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "838": {
+      "at": 1792262954105,
+      "data": {
+        "kpId": "838",
+        "ruTitle": "Человек-паук",
+        "enTitle": "Spider-Man",
+        "year": "2002",
+        "description": "Питер Паркер – обыкновенный школьник. Однажды он отправился с классом на экскурсию, где его кусает странный паук-мутант. Через время парень почувствовал в себе нечеловеческую силу и ловкость в движении, а главное – умение лазать по стенам и метать стальную паутину. Свои способности он направляет на защиту слабых. Так Питер становится настоящим супергероем по имени Человек-паук, который помогает людям и борется с преступностью. Но там, где есть супергерой, рано или поздно всегда объявляется и суперзлодей...",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "питер",
+          "паркер",
+          "обыкновенный",
+          "школьник",
+          "однажды",
+          "отправился",
+          "классом",
+          "экскурсию",
+          "где",
+          "кусает",
+          "странный",
+          "паук",
+          "мутант",
+          "через",
+          "время",
+          "парень",
+          "почувствовал",
+          "себе",
+          "нечеловеческую",
+          "силу",
+          "ловкость",
+          "движении",
+          "главное",
+          "умение",
+          "лазать",
+          "стенам",
+          "метать",
+          "стальную",
+          "паутину",
+          "свои",
+          "способности",
+          "направляет",
+          "защиту",
+          "слабых",
+          "так",
+          "становится",
+          "настоящим",
+          "супергероем",
+          "имени",
+          "человек",
+          "который",
+          "помогает",
+          "людям",
+          "борется",
+          "преступностью",
+          "там",
+          "есть",
+          "супергерой",
+          "рано",
+          "поздно",
+          "всегда",
+          "объявляется",
+          "суперзлодей"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -12030,6 +13775,67 @@
       },
       "source": "kp-api"
     },
+    "2898": {
+      "at": 1792262955156,
+      "data": {
+        "kpId": "2898",
+        "ruTitle": "Человек-паук 2",
+        "enTitle": "Spider-Man 2",
+        "year": "2004",
+        "description": "Тихоня Питер Паркер балансирует на грани двух своих жизней: супергероя Человека-паука и обычного студента колледжа. Его отношения со всеми, кто ему дорог, в опасности или зашли в тупик. А жизнь приготовила ему новое испытание. Он должен использовать все свои суперспособности, чтобы одолеть жестокого безумца доктора Отто Октавиуса.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "тихоня",
+          "питер",
+          "паркер",
+          "балансирует",
+          "грани",
+          "двух",
+          "своих",
+          "жизней",
+          "супергероя",
+          "человека",
+          "паука",
+          "обычного",
+          "студента",
+          "колледжа",
+          "отношения",
+          "всеми",
+          "кто",
+          "ему",
+          "дорог",
+          "опасности",
+          "зашли",
+          "тупик",
+          "жизнь",
+          "приготовила",
+          "новое",
+          "испытание",
+          "должен",
+          "использовать",
+          "все",
+          "свои",
+          "суперспособности",
+          "чтобы",
+          "одолеть",
+          "жестокого",
+          "безумца",
+          "доктора",
+          "отто",
+          "октавиуса"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "2899": {
       "at": 1791397584670,
       "data": {
@@ -12504,6 +14310,65 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "3523": {
+      "at": 1792262981086,
+      "data": {
+        "kpId": "3523",
+        "ruTitle": "Женщина-кошка",
+        "enTitle": "Catwoman",
+        "year": "2004",
+        "description": "Пейшинс Филипс работает дизайнером в крупной косметической компании, которая готовится выпустить на рынок новый продукт, замедляющий старение. Но у этой революционной новинки есть существенный недостаток, который компания тщательно скрывает и о котором случайно узнает Пэйшинс. Дальнейшие события меняют ее жизнь самым невероятным образом...",
+        "genres": [
+          "crime",
+          "action",
+          "фэнтези"
+        ],
+        "descTokens": [
+          "пейшинс",
+          "филипс",
+          "работает",
+          "дизайнером",
+          "крупной",
+          "косметической",
+          "компании",
+          "которая",
+          "готовится",
+          "выпустить",
+          "рынок",
+          "новый",
+          "продукт",
+          "замедляющий",
+          "старение",
+          "этой",
+          "революционной",
+          "новинки",
+          "есть",
+          "существенный",
+          "недостаток",
+          "который",
+          "компания",
+          "тщательно",
+          "скрывает",
+          "котором",
+          "случайно",
+          "узнает",
+          "пэйшинс",
+          "дальнейшие",
+          "события",
+          "меняют",
+          "жизнь",
+          "самым",
+          "невероятным",
+          "образом"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -16586,6 +18451,156 @@
       },
       "source": "kp-api"
     },
+    "7110": {
+      "at": 1792262990073,
+      "data": {
+        "kpId": "7110",
+        "ruTitle": "Внутреннее пространство",
+        "enTitle": "Innerspace",
+        "year": "1987",
+        "description": "Американский пилот лейтенант Так Пендлтон принимает участие в эксперименте, в процессе которого он очень сильно уменьшится в размерах и в летательном аппарате, похожем на подлодку, будет обследовать внутреннее пространство кролика. Но технотеррористы рушат все планы и похищают шприц, в котором находился миниатюрный Так.\n\nПо ошибке содержимое шприца попадает в ипохондрика Джека Паттера. Теперь террористы начинают охотиться за ничего не подозревающим Джеком. Единственная, кто ему может помочь, это девушка Така — журналистка Лидия.",
+        "genres": [
+          "thriller",
+          "sci-fi",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "американский",
+          "пилот",
+          "лейтенант",
+          "так",
+          "пендлтон",
+          "принимает",
+          "участие",
+          "эксперименте",
+          "процессе",
+          "которого",
+          "очень",
+          "сильно",
+          "уменьшится",
+          "размерах",
+          "летательном",
+          "аппарате",
+          "похожем",
+          "подлодку",
+          "будет",
+          "обследовать",
+          "внутреннее",
+          "пространство",
+          "кролика",
+          "технотеррористы",
+          "рушат",
+          "все",
+          "планы",
+          "похищают",
+          "шприц",
+          "котором",
+          "находился",
+          "миниатюрный",
+          "ошибке",
+          "содержимое",
+          "шприца",
+          "попадает",
+          "ипохондрика",
+          "джека",
+          "паттера",
+          "теперь",
+          "террористы",
+          "начинают",
+          "охотиться",
+          "ничего",
+          "подозревающим",
+          "джеком",
+          "единственная",
+          "кто",
+          "ему",
+          "может",
+          "помочь",
+          "девушка",
+          "така",
+          "журналистка",
+          "лидия"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "7145": {
+      "at": 1792262992066,
+      "data": {
+        "kpId": "7145",
+        "ruTitle": "Супермен",
+        "enTitle": "Superman",
+        "year": "1978",
+        "description": "Цивилизация планеты Криптон стоит на грани гибели. Ученый Джор-Эл, чтобы спасти своему ребенку жизнь, отправляет его на Землю. Маленький мальчик вырастает и открывает в себе неземные возможности. Он - Супермен!\nОгромная сила и способность летать помогают ему в борьбе с любыми проявлениями зла. И когда коварный злодей Лекс Лютор строит зловещие планы, угрожающие всему человечеству, только Супермен может помешать ему...",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "цивилизация",
+          "планеты",
+          "криптон",
+          "стоит",
+          "грани",
+          "гибели",
+          "ученый",
+          "джор",
+          "чтобы",
+          "спасти",
+          "своему",
+          "ребенку",
+          "жизнь",
+          "отправляет",
+          "землю",
+          "маленький",
+          "мальчик",
+          "вырастает",
+          "открывает",
+          "себе",
+          "неземные",
+          "возможности",
+          "супермен",
+          "огромная",
+          "сила",
+          "способность",
+          "летать",
+          "помогают",
+          "ему",
+          "борьбе",
+          "любыми",
+          "проявлениями",
+          "зла",
+          "когда",
+          "коварный",
+          "злодей",
+          "лекс",
+          "лютор",
+          "строит",
+          "зловещие",
+          "планы",
+          "угрожающие",
+          "всему",
+          "человечеству",
+          "только",
+          "может",
+          "помешать"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "7214": {
       "at": 1790613553938,
       "data": {
@@ -17122,6 +19137,167 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "7962": {
+      "at": 1792262962067,
+      "data": {
+        "kpId": "7962",
+        "ruTitle": "Халк",
+        "enTitle": "Hulk",
+        "year": "2003",
+        "description": "Доктор Брюс Бэннер (ученый, работающий над изобретением новой бомбы) подвергся воздействию гамма-лучей и превратился в Халка - существо невероятной физической силы, которое в состоянии ярости становится огромным зеленым монстром.\n\nЕго преследуют военные под предводительством генерала Росса, ему приходится бежать через всю страну. В конце концов, у него возникает любовная история с генеральской дочкой Бетти...",
+        "genres": [
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "доктор",
+          "брюс",
+          "бэннер",
+          "ученый",
+          "работающий",
+          "над",
+          "изобретением",
+          "новой",
+          "бомбы",
+          "подвергся",
+          "воздействию",
+          "гамма",
+          "лучей",
+          "превратился",
+          "халка",
+          "существо",
+          "невероятной",
+          "физической",
+          "силы",
+          "которое",
+          "состоянии",
+          "ярости",
+          "становится",
+          "огромным",
+          "зеленым",
+          "монстром",
+          "преследуют",
+          "военные",
+          "под",
+          "предводительством",
+          "генерала",
+          "росса",
+          "ему",
+          "приходится",
+          "бежать",
+          "через",
+          "всю",
+          "страну",
+          "конце",
+          "концов",
+          "него",
+          "возникает",
+          "любовная",
+          "история",
+          "генеральской",
+          "дочкой",
+          "бетти"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "7975": {
+      "at": 1792262994072,
+      "data": {
+        "kpId": "7975",
+        "ruTitle": "Лига выдающихся джентльменов",
+        "enTitle": "The League of Extraordinary Gentlemen",
+        "year": "2003",
+        "description": "Прославленный авантюрист Аллан Куотермейн вступает в борьбу с международным террористом по прозвищу Фантом и за собой ведёт целый выводок столь же примечательных джентльменов — капитана Немо, вампиршу Мину Харкер, человека-невидимку Родни Скиннера, тайного агента американского правительства Тома Сойера, бессмертного Дориана Грэя и доктора Джекила, время от времени перерождающегося в мистера Хайда. Дело в том, что Фантом собирается захватить бразды правления миром в свои руки, и для этого ему нужно поссорить нации между собой, развязав войну миров. А наши выдающиеся герои совместными усилиями должны обезвредить бандита...",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези"
+        ],
+        "descTokens": [
+          "прославленный",
+          "авантюрист",
+          "аллан",
+          "куотермейн",
+          "вступает",
+          "борьбу",
+          "международным",
+          "террористом",
+          "прозвищу",
+          "фантом",
+          "собой",
+          "ведет",
+          "целый",
+          "выводок",
+          "столь",
+          "примечательных",
+          "джентльменов",
+          "капитана",
+          "немо",
+          "вампиршу",
+          "мину",
+          "харкер",
+          "человека",
+          "невидимку",
+          "родни",
+          "скиннера",
+          "тайного",
+          "агента",
+          "американского",
+          "правительства",
+          "тома",
+          "сойера",
+          "бессмертного",
+          "дориана",
+          "грэя",
+          "доктора",
+          "джекила",
+          "время",
+          "времени",
+          "перерождающегося",
+          "мистера",
+          "хайда",
+          "дело",
+          "том",
+          "собирается",
+          "захватить",
+          "бразды",
+          "правления",
+          "миром",
+          "свои",
+          "руки",
+          "этого",
+          "ему",
+          "нужно",
+          "поссорить",
+          "нации",
+          "между",
+          "развязав",
+          "войну",
+          "миров",
+          "наши",
+          "выдающиеся",
+          "герои",
+          "совместными",
+          "усилиями",
+          "должны",
+          "обезвредить",
+          "бандита"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -22137,6 +24313,154 @@
       },
       "source": "kp-api"
     },
+    "38472": {
+      "at": 1792262964072,
+      "data": {
+        "kpId": "38472",
+        "ruTitle": "Возвращение Супермена",
+        "enTitle": "Superman Returns",
+        "year": "2006",
+        "description": "Возвратившись на Землю после своего многолетнего и загадочного отсутствия, Супермен обнаруживает, что его заклятый враг Лекс Лютор опять строит ему козни, а его возлюбленная Лоис Лэйн вроде бы уже устроила свою личную жизнь. Кроме того, Супермен понимает, что за то время, когда его не было, люди научились прекрасно обходиться без него.\n\nЧтобы защитить мир, который он любит, от катастрофических разрушений, Супермену приходится преодолевать огромные расстояния: он опускается в океанские глубины и поднимается на космические высоты…",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "возвратившись",
+          "землю",
+          "после",
+          "своего",
+          "многолетнего",
+          "загадочного",
+          "отсутствия",
+          "супермен",
+          "обнаруживает",
+          "заклятый",
+          "враг",
+          "лекс",
+          "лютор",
+          "опять",
+          "строит",
+          "ему",
+          "козни",
+          "возлюбленная",
+          "лоис",
+          "лэйн",
+          "вроде",
+          "уже",
+          "устроила",
+          "свою",
+          "личную",
+          "жизнь",
+          "кроме",
+          "того",
+          "понимает",
+          "время",
+          "когда",
+          "было",
+          "люди",
+          "научились",
+          "прекрасно",
+          "обходиться",
+          "без",
+          "него",
+          "чтобы",
+          "защитить",
+          "мир",
+          "который",
+          "любит",
+          "катастрофических",
+          "разрушений",
+          "супермену",
+          "приходится",
+          "преодолевать",
+          "огромные",
+          "расстояния",
+          "опускается",
+          "океанские",
+          "глубины",
+          "поднимается",
+          "космические",
+          "высоты"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "38903": {
+      "at": 1792262968075,
+      "data": {
+        "kpId": "38903",
+        "ruTitle": "Суперсемейка",
+        "enTitle": "The Incredibles",
+        "year": "2004",
+        "description": "История семьи супергероев, члены которой уже отошли от больших дел и предпочитают жить непримечательной жизнью обычных землян. Они обладают сверхъестественными способностями и относительно легко справлялись с мировым злом.\n\nНо в один прекрасный день папаше и его домочадцам приходится вновь облачиться в прорезиненные костюмы супергероев (а для этого нужно срочно сбросить лишние килограммы) и в очередной раз спасти человечество от таинственного злодея.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "история",
+          "семьи",
+          "супергероев",
+          "члены",
+          "которой",
+          "уже",
+          "отошли",
+          "больших",
+          "дел",
+          "предпочитают",
+          "жить",
+          "непримечательной",
+          "жизнью",
+          "обычных",
+          "землян",
+          "обладают",
+          "сверхъестественными",
+          "способностями",
+          "относительно",
+          "легко",
+          "справлялись",
+          "мировым",
+          "злом",
+          "один",
+          "прекрасный",
+          "день",
+          "папаше",
+          "домочадцам",
+          "приходится",
+          "вновь",
+          "облачиться",
+          "прорезиненные",
+          "костюмы",
+          "этого",
+          "нужно",
+          "срочно",
+          "сбросить",
+          "лишние",
+          "килограммы",
+          "очередной",
+          "раз",
+          "спасти",
+          "человечество",
+          "таинственного",
+          "злодея"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "39259": {
       "at": 1790610503038,
       "data": {
@@ -25428,6 +27752,118 @@
       },
       "source": "kp-api"
     },
+    "82441": {
+      "at": 1792262956071,
+      "data": {
+        "kpId": "82441",
+        "ruTitle": "Человек-паук 3: Враг в отражении",
+        "enTitle": "Spider-Man 3",
+        "year": "2007",
+        "description": "Прошло пять лет с тех пор, как Питер осознал, что «с Великой силой приходит Великая ответственность!», и три года с тех пор, как он отказался быть борцом за справедливость. Но сейчас кажется, Питер прекрасно научился жить несколькими жизнями. Он хорошо учится, Нью-Йорк признал его героем, отношения с Мэри Джейн прочные. Питер даже намеревается сделать ей предложение!\n\nНо к сожалению, его лучший друг Гарри Озборн по-прежнему считает, что именно Человек-паук несет ответственность за безвременную кончину его отца. Гарри намеревается отомстить ему в образе Нового Гоблина. В то же самое время на криминальной сцене Нью-Йорка появляется другой могущественный суперзлодей, известный как Песочный Человек.\n\nКогда Человек-паук надевает таинственный черный костюм, его темная, более мстительная сторона полностью поглощает его. Эти трансформации заставляют его встретиться с самым сильным противником ― с самим собой…",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "прошло",
+          "пять",
+          "лет",
+          "тех",
+          "пор",
+          "питер",
+          "осознал",
+          "великой",
+          "силой",
+          "приходит",
+          "великая",
+          "ответственность",
+          "три",
+          "года",
+          "отказался",
+          "быть",
+          "борцом",
+          "справедливость",
+          "сейчас",
+          "кажется",
+          "прекрасно",
+          "научился",
+          "жить",
+          "несколькими",
+          "жизнями",
+          "хорошо",
+          "учится",
+          "нью",
+          "йорк",
+          "признал",
+          "героем",
+          "отношения",
+          "мэри",
+          "джейн",
+          "прочные",
+          "даже",
+          "намеревается",
+          "сделать",
+          "предложение",
+          "сожалению",
+          "лучший",
+          "друг",
+          "гарри",
+          "озборн",
+          "прежнему",
+          "считает",
+          "именно",
+          "человек",
+          "паук",
+          "несет",
+          "безвременную",
+          "кончину",
+          "отца",
+          "отомстить",
+          "ему",
+          "образе",
+          "нового",
+          "гоблина",
+          "самое",
+          "время",
+          "криминальной",
+          "сцене",
+          "йорка",
+          "появляется",
+          "другой",
+          "могущественный",
+          "суперзлодей",
+          "известный",
+          "песочный",
+          "когда",
+          "надевает",
+          "таинственный",
+          "черный",
+          "костюм",
+          "темная",
+          "более",
+          "мстительная",
+          "сторона",
+          "полностью",
+          "поглощает",
+          "эти",
+          "трансформации",
+          "заставляют",
+          "встретиться",
+          "самым",
+          "сильным",
+          "противником",
+          "самим",
+          "собой"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.1,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "83793": {
       "at": 1790793708332,
       "data": {
@@ -25571,6 +28007,77 @@
         "franchise": "",
         "kpRating": 7,
         "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "84960": {
+      "at": 1792262997090,
+      "data": {
+        "kpId": "84960",
+        "ruTitle": "Люди Икс",
+        "enTitle": "X-Men",
+        "year": "1992",
+        "description": "Изменения грядут. Новая эра в развитии человечества началась. Это эра Детей Атома, хомо-супириарс, людей, обладающих странными и фантастическими способностями из-за своего измененного генетического кода. Многие из этих мутантов считают, что должны править миром, и что конфликт между ними и людьми неотвратим. Ненавидимые обществом, которое они поклялись защищать, другая группа мутантов стоит на защите мира от генетической войны. Они: Люди Икс.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "изменения",
+          "грядут",
+          "новая",
+          "эра",
+          "развитии",
+          "человечества",
+          "началась",
+          "детей",
+          "атома",
+          "хомо",
+          "супириарс",
+          "людей",
+          "обладающих",
+          "странными",
+          "фантастическими",
+          "способностями",
+          "своего",
+          "измененного",
+          "генетического",
+          "кода",
+          "многие",
+          "этих",
+          "мутантов",
+          "считают",
+          "должны",
+          "править",
+          "миром",
+          "конфликт",
+          "между",
+          "ними",
+          "людьми",
+          "неотвратим",
+          "ненавидимые",
+          "обществом",
+          "которое",
+          "поклялись",
+          "защищать",
+          "другая",
+          "группа",
+          "стоит",
+          "защите",
+          "мира",
+          "генетической",
+          "войны",
+          "люди",
+          "икс"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.9,
+        "type": "series",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -26197,6 +28704,118 @@
         "franchise": "",
         "kpRating": 5.9,
         "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "94686": {
+      "at": 1792262998145,
+      "data": {
+        "kpId": "94686",
+        "ruTitle": "Люди Икс: Эволюция",
+        "enTitle": "X-Men: Evolution",
+        "year": "2000",
+        "description": "Мутанты-герои. У них множество проблем, как и у обычных подростков. Но они наделены сверхъестественными способностями, которые помогут им спасти мир!",
+        "genres": [
+          "thriller",
+          "drama",
+          "мелодрама",
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "мутанты",
+          "герои",
+          "них",
+          "множество",
+          "проблем",
+          "обычных",
+          "подростков",
+          "наделены",
+          "сверхъестественными",
+          "способностями",
+          "которые",
+          "помогут",
+          "спасти",
+          "мир"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "95232": {
+      "at": 1792262957072,
+      "data": {
+        "kpId": "95232",
+        "ruTitle": "Человек-паук",
+        "enTitle": "Spider-Man",
+        "year": "1994",
+        "description": "Случайный укус радиоактивного паука на научной выставке даровал нескладному школьнику Питеру Паркеру невероятные паучьи способности. Когда грабитель убил его любимого дядю Бена, Питер решает использовать свои удивительные силы, чтобы защищать людей. Он навсегда запомнил слова своего дяди: «Чем больше сила, тем больше и ответственность!». Он становится Человеком-Пауком, бесстрашным героем в маске.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "случайный",
+          "укус",
+          "радиоактивного",
+          "паука",
+          "научной",
+          "выставке",
+          "даровал",
+          "нескладному",
+          "школьнику",
+          "питеру",
+          "паркеру",
+          "невероятные",
+          "паучьи",
+          "способности",
+          "когда",
+          "грабитель",
+          "убил",
+          "любимого",
+          "дядю",
+          "бена",
+          "питер",
+          "решает",
+          "использовать",
+          "свои",
+          "удивительные",
+          "силы",
+          "чтобы",
+          "защищать",
+          "людей",
+          "навсегда",
+          "запомнил",
+          "слова",
+          "своего",
+          "дяди",
+          "чем",
+          "больше",
+          "сила",
+          "тем",
+          "ответственность",
+          "становится",
+          "человеком",
+          "пауком",
+          "бесстрашным",
+          "героем",
+          "маске"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.3,
+        "type": "series",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -28979,6 +31598,129 @@
       },
       "source": "kp-api"
     },
+    "229687": {
+      "at": 1792262976074,
+      "data": {
+        "kpId": "229687",
+        "ruTitle": "Непобедимый Спайдермен",
+        "enTitle": "Spider-Man Unlimited",
+        "year": "1999",
+        "description": "На этот раз Питер Паркер отправляется на планету Анти-Земля, чтобы спасти ее от козней главных врагов Спайдермена - Желчного и Кровавого. Они пробрались на Солярис 1, которым управляет капитан Джон Джеймсон, сын Джей Джоны Джеймсона.",
+        "genres": [
+          "thriller",
+          "crime",
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "этот",
+          "раз",
+          "питер",
+          "паркер",
+          "отправляется",
+          "планету",
+          "анти",
+          "земля",
+          "чтобы",
+          "спасти",
+          "козней",
+          "главных",
+          "врагов",
+          "спайдермена",
+          "желчного",
+          "кровавого",
+          "пробрались",
+          "солярис",
+          "которым",
+          "управляет",
+          "капитан",
+          "джон",
+          "джеймсон",
+          "сын",
+          "джей",
+          "джоны",
+          "джеймсона"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.2,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "231225": {
+      "at": 1792262977062,
+      "data": {
+        "kpId": "231225",
+        "ruTitle": "Невероятный Халк",
+        "enTitle": "The Incredible Hulk",
+        "year": "1996",
+        "description": "В результате провала эксперимента по испытанию нового вида Гамма-бомбы, учёный Брюс Бэннер, превращается в неудержимого монстра. Превращение оказывается не долговременным, однако, чудовищное альтер-эго Бэннера продолжает давать о себе знать, в моменты вспышек гнева. С целью обеспечения гос. Безопасности военные начинают охоту на Бэннера. \n\nПреследуемый по всему миру, Бэннер, отчаянно пытается найти лекарство от мутации.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "результате",
+          "провала",
+          "эксперимента",
+          "испытанию",
+          "нового",
+          "вида",
+          "гамма",
+          "бомбы",
+          "ученый",
+          "брюс",
+          "бэннер",
+          "превращается",
+          "неудержимого",
+          "монстра",
+          "превращение",
+          "оказывается",
+          "долговременным",
+          "однако",
+          "чудовищное",
+          "альтер",
+          "эго",
+          "бэннера",
+          "продолжает",
+          "давать",
+          "себе",
+          "знать",
+          "моменты",
+          "вспышек",
+          "гнева",
+          "целью",
+          "обеспечения",
+          "гос",
+          "безопасности",
+          "военные",
+          "начинают",
+          "охоту",
+          "преследуемый",
+          "всему",
+          "миру",
+          "отчаянно",
+          "пытается",
+          "найти",
+          "лекарство",
+          "мутации"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.3,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "231902": {
       "at": 1790613913520,
       "data": {
@@ -29297,6 +32039,99 @@
       },
       "source": "movie-planner"
     },
+    "251692": {
+      "at": 1792262978059,
+      "data": {
+        "kpId": "251692",
+        "ruTitle": "Фантастическая четверка",
+        "enTitle": "Fantastic Four",
+        "year": "1994",
+        "description": "Мультсериал «Фантастическая четверка» снят по мотивам комиксов Марвел, повествующих о приключениях четырёх супергероев. Гениальный ученый Рид Ричардс планирует совершить испытательный полет космического корабля собственного изобретения.\n\nВ команду Ричардса входят Сью Шторм - его невеста, ее младший брат - Джонни и их общий друг, бывший летчик Военно-воздушных сил США - Бен Грим. Во время полета корабль попадает в космическую бурю и совершает вынужденную аварийную посадку на Землю. Никто из членов экипажа не пострадал, однако, вскоре выясняется, что вследствии поражения космическими лучами, их тела радикально меняются и приобретают уникальные способности.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "мультсериал",
+          "фантастическая",
+          "четверка",
+          "снят",
+          "мотивам",
+          "комиксов",
+          "марвел",
+          "повествующих",
+          "приключениях",
+          "четырех",
+          "супергероев",
+          "гениальный",
+          "ученый",
+          "рид",
+          "ричардс",
+          "планирует",
+          "совершить",
+          "испытательный",
+          "полет",
+          "космического",
+          "корабля",
+          "собственного",
+          "изобретения",
+          "команду",
+          "ричардса",
+          "входят",
+          "сью",
+          "шторм",
+          "невеста",
+          "младший",
+          "брат",
+          "джонни",
+          "общий",
+          "друг",
+          "бывший",
+          "летчик",
+          "военно",
+          "воздушных",
+          "сил",
+          "сша",
+          "бен",
+          "грим",
+          "время",
+          "полета",
+          "корабль",
+          "попадает",
+          "космическую",
+          "бурю",
+          "совершает",
+          "вынужденную",
+          "аварийную",
+          "посадку",
+          "землю",
+          "никто",
+          "членов",
+          "экипажа",
+          "пострадал",
+          "однако",
+          "вскоре",
+          "выясняется",
+          "вследствии",
+          "поражения",
+          "космическими",
+          "лучами",
+          "тела",
+          "радикально",
+          "меняются",
+          "приобретают",
+          "уникальные",
+          "способности"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.1,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "251790": {
       "at": 1790793300089,
       "data": {
@@ -29436,6 +32271,70 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "251973": {
+      "at": 1792262979064,
+      "data": {
+        "kpId": "251973",
+        "ruTitle": "Человек-паук: Злодеи атакуют",
+        "enTitle": "Spider-Man: The Ultimate Villain Showdown",
+        "year": "2002",
+        "description": "Человек-паук побеждает главного противника - Зеленого Гоблина - и еще целую банду своих самых непримиримых врагов! В научной лаборатории паук, случайно оказавшийся под радиоактивным лучом, кусает юного Питера Паркера за руку. Укус превращает школьника в человекообразного метателя паутины, наделяя его невероятной паучьей силой и звериным чутьём.",
+        "genres": [
+          "мелодрама",
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "человек",
+          "паук",
+          "побеждает",
+          "главного",
+          "противника",
+          "зеленого",
+          "гоблина",
+          "еще",
+          "целую",
+          "банду",
+          "своих",
+          "самых",
+          "непримиримых",
+          "врагов",
+          "научной",
+          "лаборатории",
+          "случайно",
+          "оказавшийся",
+          "под",
+          "радиоактивным",
+          "лучом",
+          "кусает",
+          "юного",
+          "питера",
+          "паркера",
+          "руку",
+          "укус",
+          "превращает",
+          "школьника",
+          "человекообразного",
+          "метателя",
+          "паутины",
+          "наделяя",
+          "невероятной",
+          "паучьей",
+          "силой",
+          "звериным",
+          "чутьем"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -29635,6 +32534,116 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "252641": {
+      "at": 1792262967070,
+      "data": {
+        "kpId": "252641",
+        "ruTitle": "Хранители",
+        "enTitle": "Watchmen",
+        "year": "2009",
+        "description": "Действие картины разворачивается в параллельной реальности, в Америке 1985 года. В этом мире супергерои стали частью повседневной жизни общества, а Часы Судного Дня, застыв в пяти минутах от полуночи, отсчитывают время до столкновения ведущих мировых держав. После убийства одного из своих прежних коллег Роршах – супергерой, никогда не снимающий маски, -  полон решимости свершить суд Линча. \n\nОн начинает расследование заговора, призванного уничтожить или дискредитировать всех супергероев прошлого и настоящего. Он собирает своих соратников – отставной легион борцов с преступностью, но лишь один из них обладает подлинной силой. Постепенно Роршах осознает пугающий масштаб заговора, связанного с общим прошлым героев и сулящего катастрофические последствия в будущем. Они хранят наш покой, но кто охранит нас от Хранителей?",
+        "genres": [
+          "drama",
+          "детектив",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "действие",
+          "картины",
+          "разворачивается",
+          "параллельной",
+          "реальности",
+          "америке",
+          "1985",
+          "года",
+          "этом",
+          "мире",
+          "супергерои",
+          "стали",
+          "частью",
+          "повседневной",
+          "жизни",
+          "общества",
+          "часы",
+          "судного",
+          "дня",
+          "застыв",
+          "пяти",
+          "минутах",
+          "полуночи",
+          "отсчитывают",
+          "время",
+          "столкновения",
+          "ведущих",
+          "мировых",
+          "держав",
+          "после",
+          "убийства",
+          "одного",
+          "своих",
+          "прежних",
+          "коллег",
+          "роршах",
+          "супергерой",
+          "никогда",
+          "снимающий",
+          "маски",
+          "полон",
+          "решимости",
+          "свершить",
+          "суд",
+          "линча",
+          "начинает",
+          "расследование",
+          "заговора",
+          "призванного",
+          "уничтожить",
+          "дискредитировать",
+          "всех",
+          "супергероев",
+          "прошлого",
+          "настоящего",
+          "собирает",
+          "соратников",
+          "отставной",
+          "легион",
+          "борцов",
+          "преступностью",
+          "лишь",
+          "один",
+          "них",
+          "обладает",
+          "подлинной",
+          "силой",
+          "постепенно",
+          "осознает",
+          "пугающий",
+          "масштаб",
+          "связанного",
+          "общим",
+          "прошлым",
+          "героев",
+          "сулящего",
+          "катастрофические",
+          "последствия",
+          "будущем",
+          "хранят",
+          "наш",
+          "покой",
+          "кто",
+          "охранит",
+          "нас",
+          "хранителей"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "252651": {
       "at": 1790613932120,
@@ -31324,6 +34333,46 @@
       },
       "source": "kp-api"
     },
+    "278273": {
+      "at": 1792262980086,
+      "data": {
+        "kpId": "278273",
+        "ruTitle": "Чёрный лебедь",
+        "enTitle": "Black Swan",
+        "year": "2010",
+        "description": "У примы балетного театра неожиданно появляется опасная конкурентка, способная отобрать у неё все партии. Соперничество усиливается по мере приближения ответственного выступления.",
+        "genres": [
+          "thriller",
+          "drama"
+        ],
+        "descTokens": [
+          "примы",
+          "балетного",
+          "театра",
+          "неожиданно",
+          "появляется",
+          "опасная",
+          "конкурентка",
+          "способная",
+          "отобрать",
+          "нее",
+          "все",
+          "партии",
+          "соперничество",
+          "усиливается",
+          "мере",
+          "приближения",
+          "ответственного",
+          "выступления"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "279600": {
       "at": 1790965158382,
       "data": {
@@ -32685,6 +35734,101 @@
       },
       "source": "kp-api"
     },
+    "387468": {
+      "at": 1792262982118,
+      "data": {
+        "kpId": "387468",
+        "ruTitle": "Новый Человек-паук",
+        "enTitle": "Spider-Man: The New Animated Series",
+        "year": "2003",
+        "description": "После укуса радиоактивного паука Питер Паркер обнаруживает, что обладает паучьей суперсилой. Надеясь, что эти новые возможности помогут ему разбогатеть и прославиться, он забывает о других и, отказавшись помочь полицейскому в поимке убегающего преступника становится причиной смерти своего дяди Бена.\nОсознав всю глубину своего падения, он решает использовать свои способности для борьбы с преступностью и становится супергероем Человеком-пауком. Питеру приходится совмещать борьбу с суперзлодеями со своей личной жизнью, работой фотокорреспондентом в Дейли Багл и противостоянием с главным редактором, утверждающим, что Человек-паук - это преступник, который должен сидеть в тюрьме.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "после",
+          "укуса",
+          "радиоактивного",
+          "паука",
+          "питер",
+          "паркер",
+          "обнаруживает",
+          "обладает",
+          "паучьей",
+          "суперсилой",
+          "надеясь",
+          "эти",
+          "новые",
+          "возможности",
+          "помогут",
+          "ему",
+          "разбогатеть",
+          "прославиться",
+          "забывает",
+          "других",
+          "отказавшись",
+          "помочь",
+          "полицейскому",
+          "поимке",
+          "убегающего",
+          "преступника",
+          "становится",
+          "причиной",
+          "смерти",
+          "своего",
+          "дяди",
+          "бена",
+          "осознав",
+          "всю",
+          "глубину",
+          "падения",
+          "решает",
+          "использовать",
+          "свои",
+          "способности",
+          "борьбы",
+          "преступностью",
+          "супергероем",
+          "человеком",
+          "пауком",
+          "питеру",
+          "приходится",
+          "совмещать",
+          "борьбу",
+          "суперзлодеями",
+          "своей",
+          "личной",
+          "жизнью",
+          "работой",
+          "фотокорреспондентом",
+          "дейли",
+          "багл",
+          "противостоянием",
+          "главным",
+          "редактором",
+          "утверждающим",
+          "человек",
+          "паук",
+          "преступник",
+          "который",
+          "должен",
+          "сидеть",
+          "тюрьме"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.9,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "388706": {
       "at": 1790793310319,
       "data": {
@@ -33045,6 +36189,213 @@
         "franchise": "",
         "kpRating": 7.2,
         "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "397463": {
+      "at": 1792262983080,
+      "data": {
+        "kpId": "397463",
+        "ruTitle": "Настоящий Человек-паук",
+        "enTitle": "Spider-Man",
+        "year": "1966",
+        "description": "В начале 1960-х скромный производитель комиксов Marvel с трудом конкурировал с компанией DC Comics, которой принадлежали права на Бэтмена и Супермена. Ситуацию круто изменил график Стэн Ли, который, как из черного ящика, извлек «Человека-Паука», «Невероятного Халка», «Людей Икс» и «Сорви-голову». Такого взлета популярности комиксов не было с конца тридцатых годов.\nПричем если тогда в ходу были сюжеты о героях, от природы наделенных сверхъестественными способностями, то персонажи нового поколения были обычными людьми, которых изменили жизненные обстоятельства. Так, Питер Паркер принял облик своего обидчика - ядовитого паука, едва не убившего его своим укусом. Среди героев Ли именно «человек-паук» стал объектом культа, версии его приключений бесперебойно множатся и по сей день, а интерес публики не утихает.\nПервый масштабный анимационный сериал по комиксам Ли вышел в 1967-69 годах и остается непревзойденным источником модной ныне эстетики ретро-футуризма. Теперь российский зритель может увидеть его собственными глазами.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "начале",
+          "1960",
+          "скромный",
+          "производитель",
+          "комиксов",
+          "marvel",
+          "трудом",
+          "конкурировал",
+          "компанией",
+          "comics",
+          "которой",
+          "принадлежали",
+          "права",
+          "бэтмена",
+          "супермена",
+          "ситуацию",
+          "круто",
+          "изменил",
+          "график",
+          "стэн",
+          "который",
+          "черного",
+          "ящика",
+          "извлек",
+          "человека",
+          "паука",
+          "невероятного",
+          "халка",
+          "людей",
+          "икс",
+          "сорви",
+          "голову",
+          "такого",
+          "взлета",
+          "популярности",
+          "было",
+          "конца",
+          "тридцатых",
+          "годов",
+          "причем",
+          "если",
+          "тогда",
+          "ходу",
+          "были",
+          "сюжеты",
+          "героях",
+          "природы",
+          "наделенных",
+          "сверхъестественными",
+          "способностями",
+          "персонажи",
+          "нового",
+          "поколения",
+          "обычными",
+          "людьми",
+          "которых",
+          "изменили",
+          "жизненные",
+          "обстоятельства",
+          "так",
+          "питер",
+          "паркер",
+          "принял",
+          "облик",
+          "своего",
+          "обидчика",
+          "ядовитого",
+          "едва",
+          "убившего",
+          "своим",
+          "укусом",
+          "среди",
+          "героев",
+          "именно",
+          "человек",
+          "паук",
+          "стал",
+          "объектом",
+          "культа",
+          "версии",
+          "приключений",
+          "бесперебойно",
+          "множатся",
+          "сей",
+          "день",
+          "интерес",
+          "публики",
+          "утихает",
+          "первый",
+          "масштабный",
+          "анимационный",
+          "комиксам",
+          "вышел",
+          "1967",
+          "годах",
+          "остается",
+          "непревзойденным",
+          "источником",
+          "модной",
+          "ныне",
+          "эстетики",
+          "ретро",
+          "футуризма",
+          "теперь",
+          "российский",
+          "зритель",
+          "может",
+          "увидеть",
+          "собственными",
+          "глазами"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.9,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "397484": {
+      "at": 1792262969095,
+      "data": {
+        "kpId": "397484",
+        "ruTitle": "Грандиозный Человек-паук",
+        "enTitle": "The Spectacular Spider-Man",
+        "year": "2008",
+        "description": "Случайный укус радиоактивного паука на научной выставке даровал нескладному школьнику Питеру Паркеру невероятные паучьи способности. Когда грабитель убил его любимого дядю Бена, Питер решает использовать свои удивительные силы, чтобы защищать людей. Он навсегда запомнил слова своего дяди: «Чем больше сила, тем больше и ответственность!». Он становится Человеком-Пауком, бесстрашным героем в маске.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "comedy",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "случайный",
+          "укус",
+          "радиоактивного",
+          "паука",
+          "научной",
+          "выставке",
+          "даровал",
+          "нескладному",
+          "школьнику",
+          "питеру",
+          "паркеру",
+          "невероятные",
+          "паучьи",
+          "способности",
+          "когда",
+          "грабитель",
+          "убил",
+          "любимого",
+          "дядю",
+          "бена",
+          "питер",
+          "решает",
+          "использовать",
+          "свои",
+          "удивительные",
+          "силы",
+          "чтобы",
+          "защищать",
+          "людей",
+          "навсегда",
+          "запомнил",
+          "слова",
+          "своего",
+          "дяди",
+          "чем",
+          "больше",
+          "сила",
+          "тем",
+          "ответственность",
+          "становится",
+          "человеком",
+          "пауком",
+          "бесстрашным",
+          "героем",
+          "маске"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.2,
+        "type": "series",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -33671,6 +37022,52 @@
       },
       "source": "kp-api"
     },
+    "402967": {
+      "at": 1792262984076,
+      "data": {
+        "kpId": "402967",
+        "ruTitle": "Железный человек",
+        "enTitle": "Iron Man",
+        "year": "1994",
+        "description": "С помощью разработанной им киберброни, поддерживающей его жизнь после мощнейшей сердечнососудистой дисфункции, индустриалист Тони Старк, защищает рубежи своей корпорации, а так же участвует в операциях секретной госорганизации S.H.I.E.L.D.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "помощью",
+          "разработанной",
+          "киберброни",
+          "поддерживающей",
+          "жизнь",
+          "после",
+          "мощнейшей",
+          "сердечнососудистой",
+          "дисфункции",
+          "индустриалист",
+          "тони",
+          "старк",
+          "защищает",
+          "рубежи",
+          "своей",
+          "корпорации",
+          "так",
+          "участвует",
+          "операциях",
+          "секретной",
+          "госорганизации"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "402981": {
       "at": 1790971244808,
       "data": {
@@ -33945,6 +37342,81 @@
         "franchise": "",
         "kpRating": 8.6,
         "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "406294": {
+      "at": 1792262970075,
+      "data": {
+        "kpId": "406294",
+        "ruTitle": "Зеленый Фонарь",
+        "enTitle": "Green Lantern",
+        "year": "2011",
+        "description": "Смелые защитники межгалактического закона, Корпус Зеленых фонарей, сумели обуздать злобного Параллакса, наводящего ужас и питающегося чужими страхами, но не надолго. Он снова набирает силу и направляется на Землю. Между тем впервые за всю историю в отряде Зеленых Фонарей появляется человек - летчик-испытатель Хэл Джордан. Чтобы победить Параллакса и спасти возлюбленную Кэрол Феррис, ему придется научиться управлять мощью специального кольца, дарующего сверхспособности, и преодолеть свои страхи.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "смелые",
+          "защитники",
+          "межгалактического",
+          "закона",
+          "корпус",
+          "зеленых",
+          "фонарей",
+          "сумели",
+          "обуздать",
+          "злобного",
+          "параллакса",
+          "наводящего",
+          "ужас",
+          "питающегося",
+          "чужими",
+          "страхами",
+          "надолго",
+          "снова",
+          "набирает",
+          "силу",
+          "направляется",
+          "землю",
+          "между",
+          "тем",
+          "впервые",
+          "всю",
+          "историю",
+          "отряде",
+          "появляется",
+          "человек",
+          "летчик",
+          "испытатель",
+          "хэл",
+          "джордан",
+          "чтобы",
+          "победить",
+          "спасти",
+          "возлюбленную",
+          "кэрол",
+          "феррис",
+          "ему",
+          "придется",
+          "научиться",
+          "управлять",
+          "мощью",
+          "специального",
+          "кольца",
+          "дарующего",
+          "сверхспособности",
+          "преодолеть",
+          "свои",
+          "страхи"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.9,
+        "type": "movie",
         "source": "kp-unofficial-api"
       },
       "source": "kp-api"
@@ -35785,6 +39257,252 @@
       },
       "source": "kp-api"
     },
+    "437410": {
+      "at": 1792262963078,
+      "data": {
+        "kpId": "437410",
+        "ruTitle": "Темный рыцарь: Возрождение легенды",
+        "enTitle": "The Dark Knight Rises",
+        "year": "2012",
+        "description": "Восемь лет назад Бэтмен растворился в ночи, превратившись из героя в беглеца. Приняв на себя вину за смерть прокурора Харви Дента, он пожертвовал всем. Вместе с комиссаром Гордоном они решили, что так будет лучше для всех. Пока преступность была раздавлена антикриминальным актом Дента, ложь действовала.\n\nТем не менее, еще опаснее становится появление нового врага Бэйна, чье лицо закрыто маской.  Он разворачивает в Готэме чудовищную деятельность, и это вынуждает Брюса Уэйна выйти из импровизированного изгнания. Однако даже надев свой костюм, Бэтмен может проиграть Бэйну. Но с появлением хитрой воровки по прозвищу Женщина — Кошка с загадочным прошлым всё меняется.",
+        "genres": [
+          "thriller",
+          "drama",
+          "crime",
+          "sci-fi",
+          "action"
+        ],
+        "descTokens": [
+          "восемь",
+          "лет",
+          "назад",
+          "бэтмен",
+          "растворился",
+          "ночи",
+          "превратившись",
+          "героя",
+          "беглеца",
+          "приняв",
+          "себя",
+          "вину",
+          "смерть",
+          "прокурора",
+          "харви",
+          "дента",
+          "пожертвовал",
+          "всем",
+          "вместе",
+          "комиссаром",
+          "гордоном",
+          "решили",
+          "так",
+          "будет",
+          "лучше",
+          "всех",
+          "пока",
+          "преступность",
+          "была",
+          "раздавлена",
+          "антикриминальным",
+          "актом",
+          "ложь",
+          "действовала",
+          "тем",
+          "менее",
+          "еще",
+          "опаснее",
+          "становится",
+          "появление",
+          "нового",
+          "врага",
+          "бэйна",
+          "чье",
+          "лицо",
+          "закрыто",
+          "маской",
+          "разворачивает",
+          "готэме",
+          "чудовищную",
+          "деятельность",
+          "вынуждает",
+          "брюса",
+          "уэйна",
+          "выйти",
+          "импровизированного",
+          "изгнания",
+          "однако",
+          "даже",
+          "надев",
+          "свой",
+          "костюм",
+          "может",
+          "проиграть",
+          "бэйну",
+          "появлением",
+          "хитрой",
+          "воровки",
+          "прозвищу",
+          "женщина",
+          "кошка",
+          "загадочным",
+          "прошлым",
+          "все",
+          "меняется"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "439906": {
+      "at": 1792262965092,
+      "data": {
+        "kpId": "439906",
+        "ruTitle": "Чёрная Молния",
+        "enTitle": "",
+        "year": "2009",
+        "description": "Двадцатилетний Дима Майков получает в подарок от отца старенький автомобиль ГАЗ-21 «Волга» и внезапно обнаруживает, что его машина летает, как настоящий истребитель. Дима  активно включается в бизнес по доставке цветов, проносясь над столичными пробками и наслаждаясь полётами, пока однажды беда не заставляет его по-другому взглянуть на мир. \n\nТеперь ему предстоит встать на защиту тех, кем он дорожит, и сразиться со Злом в небе над новогодней Москвой.",
+        "genres": [
+          "мелодрама",
+          "sci-fi",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "двадцатилетний",
+          "дима",
+          "майков",
+          "получает",
+          "подарок",
+          "отца",
+          "старенький",
+          "автомобиль",
+          "газ",
+          "волга",
+          "внезапно",
+          "обнаруживает",
+          "машина",
+          "летает",
+          "настоящий",
+          "истребитель",
+          "активно",
+          "включается",
+          "бизнес",
+          "доставке",
+          "цветов",
+          "проносясь",
+          "над",
+          "столичными",
+          "пробками",
+          "наслаждаясь",
+          "полетами",
+          "пока",
+          "однажды",
+          "беда",
+          "заставляет",
+          "другому",
+          "взглянуть",
+          "мир",
+          "теперь",
+          "ему",
+          "предстоит",
+          "встать",
+          "защиту",
+          "тех",
+          "кем",
+          "дорожит",
+          "сразиться",
+          "злом",
+          "небе",
+          "новогодней",
+          "москвой"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "445108": {
+      "at": 1792262986079,
+      "data": {
+        "kpId": "445108",
+        "ruTitle": "Серебряный Сёрфер",
+        "enTitle": "Silver Surfer",
+        "year": "1998",
+        "description": "Норрин Рад с планеты Зен-Ла, несущей идеи мира во вселенной, оказывается в руках могущественной космической силы, называемой Галактусом. Чтобы спасти свою планету от уничтожения, Норрин принимает решение стать герольдом Галактуса и искать тому новые миры для насыщения. Галактус стирает воспоминания Норрина Рада и дает ему часть своей космической силы. Так появляется Серебряный Сёрфер, чье предназначение - служить своему хозяину.",
+        "genres": [
+          "thriller",
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "норрин",
+          "рад",
+          "планеты",
+          "зен",
+          "несущей",
+          "идеи",
+          "мира",
+          "вселенной",
+          "оказывается",
+          "руках",
+          "могущественной",
+          "космической",
+          "силы",
+          "называемой",
+          "галактусом",
+          "чтобы",
+          "спасти",
+          "свою",
+          "планету",
+          "уничтожения",
+          "принимает",
+          "решение",
+          "стать",
+          "герольдом",
+          "галактуса",
+          "искать",
+          "тому",
+          "новые",
+          "миры",
+          "насыщения",
+          "галактус",
+          "стирает",
+          "воспоминания",
+          "норрина",
+          "рада",
+          "дает",
+          "ему",
+          "часть",
+          "своей",
+          "так",
+          "появляется",
+          "серебряный",
+          "серфер",
+          "чье",
+          "предназначение",
+          "служить",
+          "своему",
+          "хозяину"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.6,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "445186": {
       "at": 1790360905307,
       "data": {
@@ -37096,6 +40814,58 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "466581": {
+      "at": 1792262987119,
+      "data": {
+        "kpId": "466581",
+        "ruTitle": "Хранители снов",
+        "enTitle": "Rise of the Guardians",
+        "year": "2012",
+        "description": "Когда злой дух Кромешник посягает на самое дорогое – детские мечты, Северянин, Ледяной Джек, Кролик, Зубная Фея и Песочный Человек впервые объединяются, чтобы создать команду Хранителей снов...",
+        "genres": [
+          "drama",
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "comedy",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "когда",
+          "злой",
+          "дух",
+          "кромешник",
+          "посягает",
+          "самое",
+          "дорогое",
+          "детские",
+          "мечты",
+          "северянин",
+          "ледяной",
+          "джек",
+          "кролик",
+          "зубная",
+          "фея",
+          "песочный",
+          "человек",
+          "впервые",
+          "объединяются",
+          "чтобы",
+          "создать",
+          "команду",
+          "хранителей",
+          "снов"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -40307,6 +44077,54 @@
       },
       "source": "kp-api"
     },
+    "574690": {
+      "at": 1792262959096,
+      "data": {
+        "kpId": "574690",
+        "ruTitle": "Великий Человек-паук",
+        "enTitle": "Ultimate Spider-Man",
+        "year": "2012",
+        "description": "Ник Фьюри предлагает Человеку-пауку пройти тренировочный курс. В ходе обучения тот обзаводится командой из Люка Кейджа, Железного кулака, Новы и Белой тигрицы, и теперь ему выдают мотоцикл.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "comedy",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "ник",
+          "фьюри",
+          "предлагает",
+          "человеку",
+          "пауку",
+          "пройти",
+          "тренировочный",
+          "курс",
+          "ходе",
+          "обучения",
+          "тот",
+          "обзаводится",
+          "командой",
+          "люка",
+          "кейджа",
+          "железного",
+          "кулака",
+          "новы",
+          "белой",
+          "тигрицы",
+          "теперь",
+          "ему",
+          "выдают",
+          "мотоцикл"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "577673": {
       "at": 1790971246769,
       "data": {
@@ -42501,6 +46319,86 @@
       },
       "source": "kp-api"
     },
+    "676266": {
+      "at": 1792262971098,
+      "data": {
+        "kpId": "676266",
+        "ruTitle": "Первый мститель: Другая война",
+        "enTitle": "Captain America: The Winter Soldier",
+        "year": "2014",
+        "description": "После беспрецедентных событий, впервые собравших вместе команду Мстителей, Стив Роджерс, известный также как Капитан Америка, оседает в Вашингтоне и пытается приспособиться к жизни в современном мире. Но покой этому герою только снится – пытаясь помочь коллеге из агентства Щ.И.Т., Стив оказывается в центре событий, грозящих катастрофой мирового масштаба. Для того, чтобы разоблачить злодейский заговор, Капитан Америка объединяется с Черной вдовой. К ним также присоединяется новый соратник, известный как Сокол, однако никто из них даже не подозревает, на что способен новый враг.",
+        "genres": [
+          "thriller",
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "после",
+          "беспрецедентных",
+          "событий",
+          "впервые",
+          "собравших",
+          "вместе",
+          "команду",
+          "мстителей",
+          "стив",
+          "роджерс",
+          "известный",
+          "также",
+          "капитан",
+          "америка",
+          "оседает",
+          "вашингтоне",
+          "пытается",
+          "приспособиться",
+          "жизни",
+          "современном",
+          "мире",
+          "покой",
+          "этому",
+          "герою",
+          "только",
+          "снится",
+          "пытаясь",
+          "помочь",
+          "коллеге",
+          "агентства",
+          "оказывается",
+          "центре",
+          "грозящих",
+          "катастрофой",
+          "мирового",
+          "масштаба",
+          "того",
+          "чтобы",
+          "разоблачить",
+          "злодейский",
+          "заговор",
+          "объединяется",
+          "черной",
+          "вдовой",
+          "ним",
+          "присоединяется",
+          "новый",
+          "соратник",
+          "сокол",
+          "однако",
+          "никто",
+          "них",
+          "даже",
+          "подозревает",
+          "способен",
+          "враг"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "678233": {
       "at": 1790610510936,
       "data": {
@@ -42833,6 +46731,52 @@
       },
       "source": "movie-planner"
     },
+    "690594": {
+      "at": 1792262988064,
+      "data": {
+        "kpId": "690594",
+        "ruTitle": "Короткометражка Marvel: Образец 47",
+        "enTitle": "Marvel One-Shot: Item 47",
+        "year": "2012",
+        "description": "Пара нашла оружие Читаури, которое не заметили соответствующие службы после боя Мстителей с вторженцами. Они решают применить его, с чем вынуждены теперь бороться два агента Щ.И.Т.а.",
+        "genres": [
+          "drama",
+          "crime",
+          "sci-fi",
+          "приключения",
+          "action",
+          "короткометражка"
+        ],
+        "descTokens": [
+          "пара",
+          "нашла",
+          "оружие",
+          "читаури",
+          "которое",
+          "заметили",
+          "соответствующие",
+          "службы",
+          "после",
+          "боя",
+          "мстителей",
+          "вторженцами",
+          "решают",
+          "применить",
+          "чем",
+          "вынуждены",
+          "теперь",
+          "бороться",
+          "два",
+          "агента"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.5,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "692309": {
       "at": 1790965855415,
       "data": {
@@ -42921,6 +46865,75 @@
         "directors": [],
         "franchise": "",
         "kpRating": 6.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "693126": {
+      "at": 1792262989090,
+      "data": {
+        "kpId": "693126",
+        "ruTitle": "Город героев",
+        "enTitle": "Big Hero 6",
+        "year": "2014",
+        "description": "Юный Хиро Хамада — прирожденный изобретатель и гений конструирования роботов. Вместе со старшим братом Тадаши они воплощают в жизнь самые передовые идеи в Техническом университете города будущего Сан-Франсокио. После серии загадочных событий друзья оказываются в центре коварного заговора. Отчаявшись, Хиро решает использовать веселого и добродушного экспериментального робота Бэймакса, перепрограммировав его в неуязвимую боевую машину.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "comedy",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "юный",
+          "хиро",
+          "хамада",
+          "прирожденный",
+          "изобретатель",
+          "гений",
+          "конструирования",
+          "роботов",
+          "вместе",
+          "старшим",
+          "братом",
+          "тадаши",
+          "воплощают",
+          "жизнь",
+          "самые",
+          "передовые",
+          "идеи",
+          "техническом",
+          "университете",
+          "города",
+          "будущего",
+          "сан",
+          "франсокио",
+          "после",
+          "серии",
+          "загадочных",
+          "событий",
+          "друзья",
+          "оказываются",
+          "центре",
+          "коварного",
+          "заговора",
+          "отчаявшись",
+          "решает",
+          "использовать",
+          "веселого",
+          "добродушного",
+          "экспериментального",
+          "робота",
+          "бэймакса",
+          "перепрограммировав",
+          "неуязвимую",
+          "боевую",
+          "машину"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -43302,6 +47315,98 @@
         "directors": [],
         "franchise": "",
         "kpRating": 8.3,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "714433": {
+      "at": 1792262991071,
+      "data": {
+        "kpId": "714433",
+        "ruTitle": "Команда «Мстители»",
+        "enTitle": "Avengers Assemble",
+        "year": "2012",
+        "description": "Сериал воссоединит самую популярную команду супергероев: Железный Человек, Халк, Капитан Америка, Тор, Соколиный Глаз, Черная Вдова, а также новичок Сокол. Впервые в истории анимации команда соберется в таком составе. Ведомые Железным Человеком, герои тренируются и живут вместе в своей новой штаб-квартире в Башне Мстителей. Самый опасные злодеи планеты не имеют ни единого шанса, когда речь идет о Мстителях. Остановить Доктора Дума или отвоевать Асгард, защитить Нью-Йорк от армии Аттумы или победить вампиров Дракулы — Мстители должны работать в команде, чтобы победить.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "воссоединит",
+          "самую",
+          "популярную",
+          "команду",
+          "супергероев",
+          "железный",
+          "человек",
+          "халк",
+          "капитан",
+          "америка",
+          "тор",
+          "соколиный",
+          "глаз",
+          "черная",
+          "вдова",
+          "также",
+          "новичок",
+          "сокол",
+          "впервые",
+          "истории",
+          "анимации",
+          "команда",
+          "соберется",
+          "таком",
+          "составе",
+          "ведомые",
+          "железным",
+          "человеком",
+          "герои",
+          "тренируются",
+          "живут",
+          "вместе",
+          "своей",
+          "новой",
+          "штаб",
+          "квартире",
+          "башне",
+          "мстителей",
+          "самый",
+          "опасные",
+          "злодеи",
+          "планеты",
+          "имеют",
+          "единого",
+          "шанса",
+          "когда",
+          "речь",
+          "идет",
+          "мстителях",
+          "остановить",
+          "доктора",
+          "дума",
+          "отвоевать",
+          "асгард",
+          "защитить",
+          "нью",
+          "йорк",
+          "армии",
+          "аттумы",
+          "победить",
+          "вампиров",
+          "дракулы",
+          "мстители",
+          "должны",
+          "работать",
+          "команде",
+          "чтобы"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "series",
         "source": "kp-unofficial-api"
       },
@@ -43689,6 +47794,74 @@
         "directors": [],
         "franchise": "",
         "kpRating": 5.7,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "754532": {
+      "at": 1792262993061,
+      "data": {
+        "kpId": "754532",
+        "ruTitle": "Лига справедливости: Парадокс источника конфликта",
+        "enTitle": "Justice League: The Flashpoint Paradox",
+        "year": "2013",
+        "description": "Когда путешествие во времени позволяет Флэшу исправить несправедливость прошлого, ряд случайных событий оказывают влияние на параллельную вселенную, где Лига Справедливости так и не сформировалась. Объединившись с Бэтмэном и Киборгом из параллельной вселенной, Флэш пытается восстановить ход событий своего оригинального мира, в то время как новый мир разрывается в войне между амазонками Чудо-Женщины и атлантами Аквамэна.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "когда",
+          "путешествие",
+          "времени",
+          "позволяет",
+          "флэшу",
+          "исправить",
+          "несправедливость",
+          "прошлого",
+          "ряд",
+          "случайных",
+          "событий",
+          "оказывают",
+          "влияние",
+          "параллельную",
+          "вселенную",
+          "где",
+          "лига",
+          "справедливости",
+          "так",
+          "сформировалась",
+          "объединившись",
+          "бэтмэном",
+          "киборгом",
+          "параллельной",
+          "вселенной",
+          "флэш",
+          "пытается",
+          "восстановить",
+          "ход",
+          "своего",
+          "оригинального",
+          "мира",
+          "время",
+          "новый",
+          "мир",
+          "разрывается",
+          "войне",
+          "между",
+          "амазонками",
+          "чудо",
+          "женщины",
+          "атлантами",
+          "аквамэна"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -45030,6 +49203,89 @@
       },
       "source": "kp-api"
     },
+    "817506": {
+      "at": 1792262995086,
+      "data": {
+        "kpId": "817506",
+        "ruTitle": "Флэш",
+        "enTitle": "The Flash",
+        "year": "2014",
+        "description": "Когда Барри Аллен был маленьким, больше всего на свете ему хотелось быть супергероем — тем, кто превосходит лимиты человеческого организма и использует во благо данную ему силу. В одиннадцать лет он на собственном опыте узнал, что люди с необычными способностями действительно существуют: его мать была убита одним из таких людей. Повзрослев и став судмедэкспертом, Барри не отбросил мыслей о сверхлюдях и продолжал искать доказательства их существования, что не лучшим образом сказывалось на его репутации и общении с коллегами. Впрочем, однажды его усилия были вознаграждены.",
+        "genres": [
+          "drama",
+          "sci-fi",
+          "приключения",
+          "action"
+        ],
+        "descTokens": [
+          "когда",
+          "барри",
+          "аллен",
+          "был",
+          "маленьким",
+          "больше",
+          "всего",
+          "свете",
+          "ему",
+          "хотелось",
+          "быть",
+          "супергероем",
+          "тем",
+          "кто",
+          "превосходит",
+          "лимиты",
+          "человеческого",
+          "организма",
+          "использует",
+          "благо",
+          "данную",
+          "силу",
+          "одиннадцать",
+          "лет",
+          "собственном",
+          "опыте",
+          "узнал",
+          "люди",
+          "необычными",
+          "способностями",
+          "действительно",
+          "существуют",
+          "мать",
+          "была",
+          "убита",
+          "одним",
+          "таких",
+          "людей",
+          "повзрослев",
+          "став",
+          "судмедэкспертом",
+          "отбросил",
+          "мыслей",
+          "сверхлюдях",
+          "продолжал",
+          "искать",
+          "доказательства",
+          "существования",
+          "лучшим",
+          "образом",
+          "сказывалось",
+          "репутации",
+          "общении",
+          "коллегами",
+          "впрочем",
+          "однажды",
+          "усилия",
+          "были",
+          "вознаграждены"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.5,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "823275": {
       "at": 1790793983659,
       "data": {
@@ -45530,6 +49786,82 @@
         "directors": [],
         "franchise": "",
         "kpRating": 7.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "841263": {
+      "at": 1792262996097,
+      "data": {
+        "kpId": "841263",
+        "ruTitle": "Стражи Галактики. Часть 2",
+        "enTitle": "Guardians of the Galaxy Vol. 2",
+        "year": "2017",
+        "description": "Все в сборе: землянин Питер Квилл (Звездный Лорд), молчаливый громила Дракс, зеленокожая наемница Гамора, живое дерево Грут и говорящий енот. Герои не изменяют себе и с завидной регулярностью продолжают попадать в немыслимые ситуации, выпутываясь из них почти без ущерба (а иногда даже с пользой) для окружающих. На этот раз им предстоит раскрыть одну из самых главных тайн во всей Галактике: кто же на самом деле отец Питера Квилла?",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "все",
+          "сборе",
+          "землянин",
+          "питер",
+          "квилл",
+          "звездный",
+          "лорд",
+          "молчаливый",
+          "громила",
+          "дракс",
+          "зеленокожая",
+          "наемница",
+          "гамора",
+          "живое",
+          "дерево",
+          "грут",
+          "говорящий",
+          "енот",
+          "герои",
+          "изменяют",
+          "себе",
+          "завидной",
+          "регулярностью",
+          "продолжают",
+          "попадать",
+          "немыслимые",
+          "ситуации",
+          "выпутываясь",
+          "них",
+          "почти",
+          "без",
+          "ущерба",
+          "иногда",
+          "даже",
+          "пользой",
+          "окружающих",
+          "этот",
+          "раз",
+          "предстоит",
+          "раскрыть",
+          "одну",
+          "самых",
+          "главных",
+          "тайн",
+          "всей",
+          "галактике",
+          "кто",
+          "самом",
+          "деле",
+          "отец",
+          "питера",
+          "квилла"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
         "type": "movie",
         "source": "kp-unofficial-api"
       },
@@ -46180,6 +50512,79 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "920265": {
+      "at": 1792262958087,
+      "data": {
+        "kpId": "920265",
+        "ruTitle": "Человек-паук: Через вселенные",
+        "enTitle": "Spider-Man: Into the Spider-Verse",
+        "year": "2018",
+        "description": "Мы всё знаем о Питере Паркере. Он спас город, влюбился, а потом спасал город снова и снова… Но все это – в нашем измерении. А что если в результате работы гигантского коллайдера откроется окно из одного измерения в другое? Найдется ли в нем свой Человек-паук? И как он будет выглядеть? Приготовьтесь к тому, что в разных вселенных могут быть разные Люди-пауки и однажды им придется собраться вместе для борьбы с почти непобедимым врагом.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "comedy",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "все",
+          "знаем",
+          "питере",
+          "паркере",
+          "спас",
+          "город",
+          "влюбился",
+          "потом",
+          "спасал",
+          "снова",
+          "нашем",
+          "измерении",
+          "если",
+          "результате",
+          "работы",
+          "гигантского",
+          "коллайдера",
+          "откроется",
+          "окно",
+          "одного",
+          "измерения",
+          "другое",
+          "найдется",
+          "нем",
+          "свой",
+          "человек",
+          "паук",
+          "будет",
+          "выглядеть",
+          "приготовьтесь",
+          "тому",
+          "разных",
+          "вселенных",
+          "могут",
+          "быть",
+          "разные",
+          "люди",
+          "пауки",
+          "однажды",
+          "придется",
+          "собраться",
+          "вместе",
+          "борьбы",
+          "почти",
+          "непобедимым",
+          "врагом"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.2,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "927950": {
       "at": 1790883103956,
@@ -48180,6 +52585,63 @@
       },
       "source": "movie-planner"
     },
+    "1100425": {
+      "at": 1792262972079,
+      "data": {
+        "kpId": "1100425",
+        "ruTitle": "Морбиус",
+        "enTitle": "Morbius",
+        "year": "2022",
+        "description": "Майкл Морбиус с детства страдает от редкого заболевания крови и всю сознательную жизнь посвятил поискам лекарства. В какой-то момент Майкл видит возможное спасение в крови летучих мышей и решается на рискованный эксперимент. Опыт вызывает неожиданную реакцию — он меняет тело Морбиуса, превращая его в кровожадного монстра.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "фэнтези",
+          "horror"
+        ],
+        "descTokens": [
+          "майкл",
+          "морбиус",
+          "детства",
+          "страдает",
+          "редкого",
+          "заболевания",
+          "крови",
+          "всю",
+          "сознательную",
+          "жизнь",
+          "посвятил",
+          "поискам",
+          "лекарства",
+          "какой",
+          "момент",
+          "видит",
+          "возможное",
+          "спасение",
+          "летучих",
+          "мышей",
+          "решается",
+          "рискованный",
+          "эксперимент",
+          "опыт",
+          "вызывает",
+          "неожиданную",
+          "реакцию",
+          "меняет",
+          "тело",
+          "морбиуса",
+          "превращая",
+          "кровожадного",
+          "монстра"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 5.6,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1115099": {
       "at": 1790613907234,
       "data": {
@@ -49211,6 +53673,84 @@
       },
       "source": "kp-api"
     },
+    "1203040": {
+      "at": 1792262973086,
+      "data": {
+        "kpId": "1203040",
+        "ruTitle": "Ванда/Вижн",
+        "enTitle": "WandaVision",
+        "year": "2021",
+        "description": "Ванда и Вижн — молодожены, живущие в идиллическом городке Вествью. Поначалу жизнь героев кажется им идеальной, но постепенно они понимают, что это не так.",
+        "genres": [
+          "drama",
+          "мелодрама",
+          "детектив",
+          "sci-fi",
+          "action",
+          "фэнтези",
+          "comedy"
+        ],
+        "descTokens": [
+          "ванда",
+          "вижн",
+          "молодожены",
+          "живущие",
+          "идиллическом",
+          "городке",
+          "вествью",
+          "поначалу",
+          "жизнь",
+          "героев",
+          "кажется",
+          "идеальной",
+          "постепенно",
+          "понимают",
+          "так"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.4,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "1209736": {
+      "at": 1792262974072,
+      "data": {
+        "kpId": "1209736",
+        "ruTitle": "Жил-был Дэдпул",
+        "enTitle": "Once Upon A Deadpool",
+        "year": "2018",
+        "description": "Смягчённая версия фильма «Дэдпул 2» о наемнике-мутанте и его бесшабашной команде, которая встаёт на защиту одного проблемного подростка.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "comedy"
+        ],
+        "descTokens": [
+          "смягченная",
+          "версия",
+          "дэдпул",
+          "наемнике",
+          "мутанте",
+          "бесшабашной",
+          "команде",
+          "которая",
+          "встает",
+          "защиту",
+          "одного",
+          "проблемного",
+          "подростка"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.4,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
     "1209839": {
       "at": 1792012383741,
       "data": {
@@ -49310,6 +53850,74 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "1219177": {
+      "at": 1792262960085,
+      "data": {
+        "kpId": "1219177",
+        "ruTitle": "Человек-паук: Паутина вселенных",
+        "enTitle": "Spider-Man: Across the Spider-Verse",
+        "year": "2023",
+        "description": "После воссоединения с Гвен Стейси дружелюбный сосед Человек-Паук попадает из Бруклина в Мультивселенную, где встречает команду Паучков, защищающих само её существование. Пытаясь справиться с новой угрозой, Майлз сталкивается с Пауками из других вселенных. Настаёт момент, когда ему необходимо решить, что значит быть героем, спасающим тех, кого любишь больше всего.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "фэнтези",
+          "мультфильм",
+          "семейный"
+        ],
+        "descTokens": [
+          "после",
+          "воссоединения",
+          "гвен",
+          "стейси",
+          "дружелюбный",
+          "сосед",
+          "человек",
+          "паук",
+          "попадает",
+          "бруклина",
+          "мультивселенную",
+          "где",
+          "встречает",
+          "команду",
+          "паучков",
+          "защищающих",
+          "само",
+          "существование",
+          "пытаясь",
+          "справиться",
+          "новой",
+          "угрозой",
+          "майлз",
+          "сталкивается",
+          "пауками",
+          "других",
+          "вселенных",
+          "настает",
+          "момент",
+          "когда",
+          "ему",
+          "необходимо",
+          "решить",
+          "значит",
+          "быть",
+          "героем",
+          "спасающим",
+          "тех",
+          "кого",
+          "любишь",
+          "больше",
+          "всего"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.3,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "1225406": {
       "at": 1790794101334,
@@ -49514,6 +54122,41 @@
         "directors": [],
         "franchise": "",
         "kpRating": 8.2,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
+    },
+    "1261534": {
+      "at": 1792262975092,
+      "data": {
+        "kpId": "1261534",
+        "ruTitle": "Что, если...?",
+        "enTitle": "What If...?",
+        "year": "2021",
+        "description": "Создатели сериала представляют, что будет, если изменить некоторые важные моменты из жизни персонажей Marvel.",
+        "genres": [
+          "sci-fi",
+          "приключения",
+          "action",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "создатели",
+          "представляют",
+          "будет",
+          "если",
+          "изменить",
+          "некоторые",
+          "важные",
+          "моменты",
+          "жизни",
+          "персонажей",
+          "marvel"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 6.8,
         "type": "series",
         "source": "kp-unofficial-api"
       },
@@ -50104,6 +54747,59 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "1387021": {
+      "at": 1792262966091,
+      "data": {
+        "kpId": "1387021",
+        "ruTitle": "Лига справедливости Зака Снайдера",
+        "enTitle": "Zack Snyder's Justice League",
+        "year": "2021",
+        "description": "Вдохновившись самопожертвованием Супермена, Брюс Уэйн вновь обретает веру в человечество. Он заручается поддержкой новой союзницы Дианы Принс, чтобы сразиться с ещё более могущественным противником. Бэтмен и Чудо-женщина набирают команду сверхлюдей для борьбы с пробудившейся угрозой.",
+        "genres": [
+          "sci-fi",
+          "action",
+          "фэнтези"
+        ],
+        "descTokens": [
+          "вдохновившись",
+          "самопожертвованием",
+          "супермена",
+          "брюс",
+          "уэйн",
+          "вновь",
+          "обретает",
+          "веру",
+          "человечество",
+          "заручается",
+          "поддержкой",
+          "новой",
+          "союзницы",
+          "дианы",
+          "принс",
+          "чтобы",
+          "сразиться",
+          "еще",
+          "более",
+          "могущественным",
+          "противником",
+          "бэтмен",
+          "чудо",
+          "женщина",
+          "набирают",
+          "команду",
+          "сверхлюдей",
+          "борьбы",
+          "пробудившейся",
+          "угрозой"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 7.8,
+        "type": "movie",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "1391700": {
       "at": 1790613968999,
@@ -50872,6 +55568,52 @@
         "source": "movie-planner"
       },
       "source": "movie-planner"
+    },
+    "4445150": {
+      "at": 1792262985063,
+      "data": {
+        "kpId": "4445150",
+        "ruTitle": "Аркейн",
+        "enTitle": "Arcane: League of Legends",
+        "year": "2021",
+        "description": "История разворачивается в утопическом краю Пилтовер и жестоком подземном мире Заун и рассказывает о становлении двух легендарных чемпионов Лиги и о той силе, что разведёт их по разные стороны баррикад.",
+        "genres": [
+          "drama",
+          "sci-fi",
+          "action",
+          "фэнтези",
+          "мультфильм"
+        ],
+        "descTokens": [
+          "история",
+          "разворачивается",
+          "утопическом",
+          "краю",
+          "пилтовер",
+          "жестоком",
+          "подземном",
+          "мире",
+          "заун",
+          "рассказывает",
+          "становлении",
+          "двух",
+          "легендарных",
+          "чемпионов",
+          "лиги",
+          "той",
+          "силе",
+          "разведет",
+          "разные",
+          "стороны",
+          "баррикад"
+        ],
+        "directors": [],
+        "franchise": "",
+        "kpRating": 8.7,
+        "type": "series",
+        "source": "kp-unofficial-api"
+      },
+      "source": "kp-api"
     },
     "4449144": {
       "at": 1790610505350,
@@ -61328,6 +66070,1220 @@
       ],
       "parentCount": 6,
       "diag": "2-й уровень: 36 кандидатов от 6/6 прямых фильмов"
+    },
+    "5494049": {
+      "at": 1792262953096,
+      "sourceVersion": 2,
+      "parentFingerprint": "838,2898,82441,278217,602409,843649,95232,920265,263531,822708,574690,195496,843650,1227967,195483,1008444,1219177,1219909",
+      "items": [
+        {
+          "kpId": "690593",
+          "ruTitle": "Человек-паук: Возвращение домой",
+          "enTitle": "Spider-Man: Homecoming",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Новый Человек-паук: Высокое напряжение",
+            "Мстители: Война бесконечности",
+            "Человек-паук: Через вселенные",
+            "Первый мститель: Противостояние",
+            "Великий Человек-паук",
+            "Человек-муравей"
+          ],
+          "votes": 11,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "1008445",
+          "ruTitle": "Человек-паук: Вдали от дома",
+          "enTitle": "Spider-Man: Far from Home",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Новый Человек-паук: Высокое напряжение",
+            "Мстители: Война бесконечности",
+            "Человек-паук: Через вселенные",
+            "Мстители: Финал"
+          ],
+          "votes": 9,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "1309570",
+          "ruTitle": "Человек-паук: Нет пути домой",
+          "enTitle": "Spider-Man: No Way Home",
+          "hop": 2,
+          "viaTitle": "Новый Человек-паук: Высокое напряжение",
+          "viaTitles": [
+            "Новый Человек-паук: Высокое напряжение",
+            "Человек-паук: Через вселенные",
+            "Мстители: Финал",
+            "Веном 2",
+            "Флэш",
+            "Дэдпул и Росомаха",
+            "Человек-паук: Паутина вселенных",
+            "Доктор Стрэндж: В мультивселенной безумия"
+          ],
+          "votes": 8,
+          "priority": 0.62,
+          "reason": "КП: похож на «Новый Человек-паук: Высокое напряжение» (2-й уровень)"
+        },
+        {
+          "kpId": "160946",
+          "ruTitle": "Первый мститель",
+          "enTitle": "Captain America: The First Avenger",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители: Война бесконечности",
+            "Мстители: Финал"
+          ],
+          "votes": 6,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "462762",
+          "ruTitle": "Железный человек 3",
+          "enTitle": "Iron Man Three",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Новый Человек-паук: Высокое напряжение",
+            "Мстители: Война бесконечности"
+          ],
+          "votes": 6,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "61237",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители: Война бесконечности",
+            "Мстители: Финал"
+          ],
+          "votes": 6,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "111543",
+          "ruTitle": "Темный рыцарь",
+          "enTitle": "The Dark Knight",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "462358",
+          "ruTitle": "Люди Икс: Первый класс",
+          "enTitle": "X-Men: First Class",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "648",
+          "ruTitle": "Сорвиголова",
+          "enTitle": "Daredevil",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "7962",
+          "ruTitle": "Халк",
+          "enTitle": "Hulk",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "886",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Мстители",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 5,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "104904",
+          "ruTitle": "Люди Икс: Начало. Росомаха",
+          "enTitle": "X-Men Origins: Wolverine",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Мстители"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "178557",
+          "ruTitle": "Фантастическая четверка: Вторжение Серебряного серфера",
+          "enTitle": "4: Rise of the Silver Surfer",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Мстители"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "23263",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Мстители"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "298",
+          "ruTitle": "Люди Икс 2",
+          "enTitle": "X2",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Мстители"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "411924",
+          "ruTitle": "Железный человек 2",
+          "enTitle": "Iron Man 2",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "424994",
+          "ruTitle": "Лига справедливости",
+          "enTitle": "Justice League",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Мстители",
+            "Мстители: Финал",
+            "Флэш"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "437410",
+          "ruTitle": "Темный рыцарь: Возрождение легенды",
+          "enTitle": "The Dark Knight Rises",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Новый Человек-паук",
+            "Мстители",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 4,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "1203039",
+          "ruTitle": "Локи",
+          "enTitle": "Loki",
+          "hop": 2,
+          "viaTitle": "Дэдпул и Росомаха",
+          "viaTitles": [
+            "Дэдпул и Росомаха",
+            "Человек-паук: Паутина вселенных",
+            "Доктор Стрэндж: В мультивселенной безумия"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Дэдпул и Росомаха» (2-й уровень)"
+        },
+        {
+          "kpId": "252667",
+          "ruTitle": "Человек из стали",
+          "enTitle": "Man of Steel",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "255380",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 3: Враг в отражении",
+            "Новый Человек-паук"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "38472",
+          "ruTitle": "Возвращение Супермена",
+          "enTitle": "Superman Returns",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "439906",
+          "ruTitle": "Чёрная Молния",
+          "enTitle": "",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2",
+            "Человек-паук 3: Враг в отражении"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "47237",
+          "ruTitle": "Бэтмен: Начало",
+          "enTitle": "Batman Begins",
+          "hop": 2,
+          "viaTitle": "Человек-паук 2",
+          "viaTitles": [
+            "Человек-паук 2",
+            "Новый Человек-паук",
+            "Мстители"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук 2» (2-й уровень)"
+        },
+        {
+          "kpId": "597687",
+          "ruTitle": "Люди Икс: Дни минувшего будущего",
+          "enTitle": "X-Men: Days of Future Past",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители",
+            "Первый мститель: Противостояние",
+            "Мстители: Финал"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "61361",
+          "ruTitle": "Люди Икс: Последняя битва",
+          "enTitle": "X-Men: The Last Stand",
+          "hop": 2,
+          "viaTitle": "Человек-паук 3: Враг в отражении",
+          "viaTitles": [
+            "Человек-паук 3: Враг в отражении",
+            "Мстители",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук 3: Враг в отражении» (2-й уровень)"
+        },
+        {
+          "kpId": "770631",
+          "ruTitle": "Бэтмен против Супермена: На заре справедливости",
+          "enTitle": "Batman v Superman: Dawn of Justice",
+          "hop": 2,
+          "viaTitle": "Новый Человек-паук: Высокое напряжение",
+          "viaTitles": [
+            "Новый Человек-паук: Высокое напряжение",
+            "Мстители",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Новый Человек-паук: Высокое напряжение» (2-й уровень)"
+        },
+        {
+          "kpId": "823956",
+          "ruTitle": "Чёрная Вдова",
+          "enTitle": "Black Widow",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Первый мститель: Противостояние",
+            "Мстители: Финал"
+          ],
+          "votes": 3,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "102151",
+          "ruTitle": "Хэнкок",
+          "enTitle": "Hancock",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "1387021",
+          "ruTitle": "Лига справедливости Зака Снайдера",
+          "enTitle": "Zack Snyder's Justice League",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Мстители: Финал"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "252641",
+          "ruTitle": "Хранители",
+          "enTitle": "Watchmen",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "258941",
+          "ruTitle": "Тор",
+          "enTitle": "Thor",
+          "hop": 2,
+          "viaTitle": "Новый Человек-паук",
+          "viaTitles": [
+            "Новый Человек-паук",
+            "Мстители: Война бесконечности"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Новый Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "38903",
+          "ruTitle": "Суперсемейка",
+          "enTitle": "The Incredibles",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Человек-паук 2"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "397484",
+          "ruTitle": "Грандиозный Человек-паук",
+          "enTitle": "The Spectacular Spider-Man",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Великий Человек-паук"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "406294",
+          "ruTitle": "Зеленый Фонарь",
+          "enTitle": "Green Lantern",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Мстители"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "409600",
+          "ruTitle": "Доктор Стрэндж",
+          "enTitle": "Doctor Strange",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Мстители: Финал"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "419200",
+          "ruTitle": "Пипец",
+          "enTitle": "Kick-Ass",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Новый Человек-паук"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "462754",
+          "ruTitle": "Росомаха: Бессмертный",
+          "enTitle": "The Wolverine",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук",
+            "Мстители"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "623250",
+          "ruTitle": "Чёрная Пантера",
+          "enTitle": "Black Panther",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "676266",
+          "ruTitle": "Первый мститель: Другая война",
+          "enTitle": "Captain America: The Winter Soldier",
+          "hop": 2,
+          "viaTitle": "Новый Человек-паук",
+          "viaTitles": [
+            "Новый Человек-паук",
+            "Мстители: Война бесконечности"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Новый Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "689066",
+          "ruTitle": "Стражи Галактики",
+          "enTitle": "Guardians of the Galaxy",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Мстители: Финал"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "822709",
+          "ruTitle": "Тор: Рагнарёк",
+          "enTitle": "Thor: Ragnarok",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности",
+            "Мстители"
+          ],
+          "votes": 2,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "1100425",
+          "ruTitle": "Морбиус",
+          "enTitle": "Morbius",
+          "hop": 2,
+          "viaTitle": "Веном 2",
+          "viaTitles": [
+            "Веном 2"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Веном 2» (2-й уровень)"
+        },
+        {
+          "kpId": "1203040",
+          "ruTitle": "Ванда/Вижн",
+          "enTitle": "WandaVision",
+          "hop": 2,
+          "viaTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "viaTitles": [
+            "Доктор Стрэндж: В мультивселенной безумия"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Доктор Стрэндж: В мультивселенной безумия» (2-й уровень)"
+        },
+        {
+          "kpId": "1209736",
+          "ruTitle": "Жил-был Дэдпул",
+          "enTitle": "Once Upon A Deadpool",
+          "hop": 2,
+          "viaTitle": "Дэдпул и Росомаха",
+          "viaTitles": [
+            "Дэдпул и Росомаха"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Дэдпул и Росомаха» (2-й уровень)"
+        },
+        {
+          "kpId": "1261534",
+          "ruTitle": "Что, если...?",
+          "enTitle": "What If...?",
+          "hop": 2,
+          "viaTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "viaTitles": [
+            "Доктор Стрэндж: В мультивселенной безумия"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Доктор Стрэндж: В мультивселенной безумия» (2-й уровень)"
+        },
+        {
+          "kpId": "1322324",
+          "ruTitle": "Всё везде и сразу",
+          "enTitle": "Everything Everywhere All at Once",
+          "hop": 2,
+          "viaTitle": "Доктор Стрэндж: В мультивселенной безумия",
+          "viaTitles": [
+            "Доктор Стрэндж: В мультивселенной безумия"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Доктор Стрэндж: В мультивселенной безумия» (2-й уровень)"
+        },
+        {
+          "kpId": "229687",
+          "ruTitle": "Непобедимый Спайдермен",
+          "enTitle": "Spider-Man Unlimited",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "231225",
+          "ruTitle": "Невероятный Халк",
+          "enTitle": "The Incredible Hulk",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "251692",
+          "ruTitle": "Фантастическая четверка",
+          "enTitle": "Fantastic Four",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "251973",
+          "ruTitle": "Человек-паук: Злодеи атакуют",
+          "enTitle": "Spider-Man: The Ultimate Villain Showdown",
+          "hop": 2,
+          "viaTitle": "Человек-паук 3: Враг в отражении",
+          "viaTitles": [
+            "Человек-паук 3: Враг в отражении"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук 3: Враг в отражении» (2-й уровень)"
+        },
+        {
+          "kpId": "278273",
+          "ruTitle": "Чёрный лебедь",
+          "enTitle": "Black Swan",
+          "hop": 2,
+          "viaTitle": "Человек-паук 3: Враг в отражении",
+          "viaTitles": [
+            "Человек-паук 3: Враг в отражении"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук 3: Враг в отражении» (2-й уровень)"
+        },
+        {
+          "kpId": "3523",
+          "ruTitle": "Женщина-кошка",
+          "enTitle": "Catwoman",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "387468",
+          "ruTitle": "Новый Человек-паук",
+          "enTitle": "Spider-Man: The New Animated Series",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "397463",
+          "ruTitle": "Настоящий Человек-паук",
+          "enTitle": "Spider-Man",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "402967",
+          "ruTitle": "Железный человек",
+          "enTitle": "Iron Man",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "4445150",
+          "ruTitle": "Аркейн",
+          "enTitle": "Arcane: League of Legends",
+          "hop": 2,
+          "viaTitle": "Человек-паук: Через вселенные",
+          "viaTitles": [
+            "Человек-паук: Через вселенные"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук: Через вселенные» (2-й уровень)"
+        },
+        {
+          "kpId": "445108",
+          "ruTitle": "Серебряный Сёрфер",
+          "enTitle": "Silver Surfer",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "452899",
+          "ruTitle": "Трансформеры 3: Тёмная сторона Луны",
+          "enTitle": "Transformers: Dark of the Moon",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "462360",
+          "ruTitle": "Дэдпул",
+          "enTitle": "Deadpool",
+          "hop": 2,
+          "viaTitle": "Человек-муравей",
+          "viaTitles": [
+            "Человек-муравей"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-муравей» (2-й уровень)"
+        },
+        {
+          "kpId": "463634",
+          "ruTitle": "Веном",
+          "enTitle": "Venom",
+          "hop": 2,
+          "viaTitle": "Человек-паук 3: Враг в отражении",
+          "viaTitles": [
+            "Человек-паук 3: Враг в отражении"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук 3: Враг в отражении» (2-й уровень)"
+        },
+        {
+          "kpId": "466581",
+          "ruTitle": "Хранители снов",
+          "enTitle": "Rise of the Guardians",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "466844",
+          "ruTitle": "Морской бой",
+          "enTitle": "Battleship",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "468522",
+          "ruTitle": "Отряд самоубийц",
+          "enTitle": "Suicide Squad",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "471642",
+          "ruTitle": "Фантастическая четвёрка",
+          "enTitle": "Fantastic Four",
+          "hop": 2,
+          "viaTitle": "Человек-муравей",
+          "viaTitles": [
+            "Человек-муравей"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-муравей» (2-й уровень)"
+        },
+        {
+          "kpId": "571288",
+          "ruTitle": "Неудержимые 2",
+          "enTitle": "The Expendables 2",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "595938",
+          "ruTitle": "Тор 2: Царство тьмы",
+          "enTitle": "Thor: The Dark World",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "679830",
+          "ruTitle": "Мстители: Эра Альтрона",
+          "enTitle": "Avengers: Age of Ultron",
+          "hop": 2,
+          "viaTitle": "Первый мститель: Противостояние",
+          "viaTitles": [
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Первый мститель: Противостояние» (2-й уровень)"
+        },
+        {
+          "kpId": "690594",
+          "ruTitle": "Короткометражка Marvel: Образец 47",
+          "enTitle": "Marvel One-Shot: Item 47",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "693126",
+          "ruTitle": "Город героев",
+          "enTitle": "Big Hero 6",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "7110",
+          "ruTitle": "Внутреннее пространство",
+          "enTitle": "Innerspace",
+          "hop": 2,
+          "viaTitle": "Человек-муравей",
+          "viaTitles": [
+            "Человек-муравей"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-муравей» (2-й уровень)"
+        },
+        {
+          "kpId": "714433",
+          "ruTitle": "Команда «Мстители»",
+          "enTitle": "Avengers Assemble",
+          "hop": 2,
+          "viaTitle": "Великий Человек-паук",
+          "viaTitles": [
+            "Великий Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Великий Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "7145",
+          "ruTitle": "Супермен",
+          "enTitle": "Superman",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "754532",
+          "ruTitle": "Лига справедливости: Парадокс источника конфликта",
+          "enTitle": "Justice League: The Flashpoint Paradox",
+          "hop": 2,
+          "viaTitle": "Флэш",
+          "viaTitles": [
+            "Флэш"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Флэш» (2-й уровень)"
+        },
+        {
+          "kpId": "7975",
+          "ruTitle": "Лига выдающихся джентльменов",
+          "enTitle": "The League of Extraordinary Gentlemen",
+          "hop": 2,
+          "viaTitle": "Мстители",
+          "viaTitles": [
+            "Мстители"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители» (2-й уровень)"
+        },
+        {
+          "kpId": "807682",
+          "ruTitle": "Логан",
+          "enTitle": "Logan",
+          "hop": 2,
+          "viaTitle": "Дэдпул и Росомаха",
+          "viaTitles": [
+            "Дэдпул и Росомаха"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Дэдпул и Росомаха» (2-й уровень)"
+        },
+        {
+          "kpId": "8139",
+          "ruTitle": "Дорогая, я уменьшил детей",
+          "enTitle": "Honey, I Shrunk the Kids",
+          "hop": 2,
+          "viaTitle": "Человек-муравей",
+          "viaTitles": [
+            "Человек-муравей"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-муравей» (2-й уровень)"
+        },
+        {
+          "kpId": "814016",
+          "ruTitle": "Люди Икс: Апокалипсис",
+          "enTitle": "X-Men: Apocalypse",
+          "hop": 2,
+          "viaTitle": "Первый мститель: Противостояние",
+          "viaTitles": [
+            "Первый мститель: Противостояние"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Первый мститель: Противостояние» (2-й уровень)"
+        },
+        {
+          "kpId": "817506",
+          "ruTitle": "Флэш",
+          "enTitle": "The Flash",
+          "hop": 2,
+          "viaTitle": "Флэш",
+          "viaTitles": [
+            "Флэш"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Флэш» (2-й уровень)"
+        },
+        {
+          "kpId": "841263",
+          "ruTitle": "Стражи Галактики. Часть 2",
+          "enTitle": "Guardians of the Galaxy Vol. 2",
+          "hop": 2,
+          "viaTitle": "Мстители: Война бесконечности",
+          "viaTitles": [
+            "Мстители: Война бесконечности"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Война бесконечности» (2-й уровень)"
+        },
+        {
+          "kpId": "841518",
+          "ruTitle": "Черепашки-ниндзя 2",
+          "enTitle": "Teenage Mutant Ninja Turtles: Out of the Shadows",
+          "hop": 2,
+          "viaTitle": "Новый Человек-паук: Высокое напряжение",
+          "viaTitles": [
+            "Новый Человек-паук: Высокое напряжение"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Новый Человек-паук: Высокое напряжение» (2-й уровень)"
+        },
+        {
+          "kpId": "84960",
+          "ruTitle": "Люди Икс",
+          "enTitle": "X-Men",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        },
+        {
+          "kpId": "935940",
+          "ruTitle": "Человек-муравей и Оса",
+          "enTitle": "Ant-Man and the Wasp",
+          "hop": 2,
+          "viaTitle": "Мстители: Финал",
+          "viaTitles": [
+            "Мстители: Финал"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Мстители: Финал» (2-й уровень)"
+        },
+        {
+          "kpId": "94686",
+          "ruTitle": "Люди Икс: Эволюция",
+          "enTitle": "X-Men: Evolution",
+          "hop": 2,
+          "viaTitle": "Человек-паук",
+          "viaTitles": [
+            "Человек-паук"
+          ],
+          "votes": 1,
+          "priority": 0.62,
+          "reason": "КП: похож на «Человек-паук» (2-й уровень)"
+        }
+      ],
+      "parentCount": 18,
+      "diag": "2-й уровень: 84 кандидатов от 18/18 прямых фильмов"
     }
   },
   "movieTonSimilar": {

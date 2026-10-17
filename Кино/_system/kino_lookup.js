@@ -178,6 +178,7 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
         if(candidate.partialCredits)el(result,'p','kino-lookup-note','Состав актёров и режиссёры недоступны; учтены остальные признаки фильма.');
         const more=el(result,'button','kino-lookup-more','Как получен прогноз');more.type='button';
         listen(more,'click',async()=>{more.disabled=true;try{const open=await load(app,'forecast_details');if(!closed){details=await open({app,obsidian,doc,sourcePath:candidate.localPath||sourcePath,snapshot:report,trigger:more,parent:result});if(closed)details.close();}}catch(error){message(error.message||String(error),true);}finally{more.disabled=false;}});
+        doc.defaultView.requestAnimationFrame(()=>{if(!closed)result.scrollIntoView({block:'nearest'});});
     }
     async function submit(kind){
         if(closed||busy)return;const id=parseId(input.value);if(!id){message('Введи числовой ID или ссылку на фильм/сериал Кинопоиска.',true);input.focus();return;}
