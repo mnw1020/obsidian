@@ -227,6 +227,22 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
         listen(more,'click',async()=>{more.disabled=true;try{const open=await load(app,'forecast_details');if(!closed){details=await open({app,obsidian,doc,sourcePath:candidate.localPath||sourcePath,snapshot:report,trigger:more,parent:result});if(closed)details.close();}}catch(error){message(error.message||String(error),true);}finally{more.disabled=false;}});
         doc.defaultView.requestAnimationFrame(()=>{if(!closed)result.scrollIntoView({block:'nearest'});});
     }
+    function requestInput(prompt,signal){
+        check(signal);message(prompt.description||prompt.title);progress.hidden=true;
+        const block=el(root,'div','kino-lookup-question');
+        const label=el(block,'label','kino-lookup-label',prompt.title);
+        const field=el(label,prompt.options?'select':'input');field.setAttribute('aria-label',prompt.title);
+        if(prompt.options){prompt.options.forEach((text,i)=>{const option=el(field,'option','',text);option.value=String(i);});}
+        else {field.type='text';field.value=prompt.value||'';}
+        const next=el(block,'button','kino-lookup-more','Продолжить');next.type='button';field.focus();
+        return new Promise((resolve,reject)=>{
+            function cleanup(){signal?.removeEventListener('abort',abort);next.removeEventListener('click',done);field.removeEventListener('keydown',enter);block.remove();}
+            function done(){const value=field.value;cleanup();progress.hidden=false;resolve(value);}
+            function abort(){cleanup();reject(abortError());}
+            function enter(event){if(event.key==='Enter'){event.preventDefault();done();}}
+            next.addEventListener('click',done);field.addEventListener('keydown',enter);signal?.addEventListener('abort',abort,{once:true});
+        });
+    }
     async function submit(kind){
         if(closed||busy)return;const identity=parseIdentity(input.value);const id=identity?identity.provider+':'+identity.id:'';if(!identity){message('Введи ID Кинопоиска, IMDb или ссылку на фильм/сериал.',true);input.focus();return;}
         const existing=kind==='add'?findExisting(app,identity):null;
@@ -237,16 +253,18 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
         busy=true;operation=new AbortController();const signal=operation.signal;cancel.disabled=false;updateButtons();progress.removeAttribute('value');result.hidden=true;
         message('Проверяю кинотеку…');
         try{
-            const candidate=resolved?.id===id?resolved.candidate:await resolveFilm({app,obsidian,identity,type:typeInput.value,signal,onProgress});check(signal);resolved={id,candidate};
             if(kind==='add'){
-                const importer=await load(app,'kino_import');check(signal);
-                const imported=await importer({app,obsidian,candidate,type:typeInput.value,rating,signal,onProgress,findExisting});
+                const legacy=await load(app,'Examples_Attachments_movies');check(signal);
+                if(typeof legacy.addFromDialog!=='function')throw Error('Старый скрипт добавления не загружен.');
+                const imported=await legacy.addFromDialog({app,obsidian,query:input.value,type:typeInput.value,rating,signal,onProgress,findExisting,requestInput});
                 if(!closed){if(imported.warning&&obsidian.Notice)new obsidian.Notice(imported.warning,8000);message(imported.warning||'Готово. Открываю карточку…');await app.workspace.getLeaf(false).openFile(imported.file);close();}
-            }
-            else if(kind==='recommendations'){message('Открываю рекомендации…');await openRecommendations({app,candidate,signal,sourcePath});close();}
+            }else{
+                const candidate=resolved?.id===id?resolved.candidate:await resolveFilm({app,obsidian,identity,type:typeInput.value,signal,onProgress});check(signal);resolved={id,candidate};
+            if(kind==='recommendations'){message('Открываю рекомендации…');await openRecommendations({app,candidate,signal,sourcePath});close();}
             else{onProgress({stage:'Готовлю персональный прогноз…'});const predictor=await load(app,'predict_rating');check(signal);
                 const value=await predictor.preview({app,obsidian,forecastCandidate:candidate,shouldCancel:()=>signal.aborted,onProgress});check(signal);
                 if(!closed){showResult(candidate,value);message('Прогноз готов. Карточки и личные оценки не изменены.');}
+            }
             }
         }catch(error){if(!closed)message(error.name==='AbortError'?'Действие остановлено.':error.message||String(error),error.name!=='AbortError');}
         finally{operation?.abort();busy=false;operation=null;if(!closed)updateButtons();}

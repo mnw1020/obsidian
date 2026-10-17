@@ -946,7 +946,7 @@ async function getJson(ob, base, params = {}) {
             const data = response.json;
             if (data?.Response === "False" || data?.error) return null;
             return data;
-        } catch { cooldown.set(host,Date.now()+2500); return null; }
+        } catch (error) { if(error?.name==='AbortError')throw error; cooldown.set(host,Date.now()+2500); return null; }
         finally { clearTimeout(timer); }
     }
     return null;
@@ -984,7 +984,8 @@ async function kpApiJson(ob, path, params = {}) {
             }
             if (response.status !== 200) return null;
             return response.json || null;
-        } catch {
+        } catch (error) {
+            if(error?.name==='AbortError')throw error;
             cooldown.set(hostKey, Date.now() + 1500);
             failures[KP_API_BASE] = { status: 0, until: Date.now() + 30000 };
             return null;
@@ -1082,7 +1083,8 @@ async function getText(ob, url, headers = {}) {
             }
             if (response.status !== 200) return "";
             return String(response.text || "");
-        } catch {
+        } catch (error) {
+            if(error?.name==='AbortError')throw error;
             cooldown.set(host, Date.now() + 2500);
         } finally {
             clearTimeout(timer);
@@ -1126,7 +1128,8 @@ async function postJson(ob, url, body, headers = {}) {
             if (response.status !== 200) return null;
             if (response.json && typeof response.json === "object") return response.json;
             return JSON.parse(String(response.text || "{}"));
-        } catch {
+        } catch (error) {
+            if(error?.name==='AbortError')throw error;
             cooldown.set(host, Date.now() + 2500);
         } finally {
             clearTimeout(timer);
@@ -7071,10 +7074,15 @@ async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal
     const variables={...prepared.variables,'Оценка':rating};
     const lists=new Set(['genreLinks','directorLink','actorLinks','actorRoleLinks']);
     const numerics=new Set(['Оценка','imdbRating','kinopoiskRating','kinopoiskVotes','imdbVotesNumber']);
-    const raw=String(await app.vault.read(template))
+    const templateRaw=String(await app.vault.read(template));
+    const parts=templateRaw.match(/^(\ufeff?---\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))([\s\S]*)$/);
+    if(!parts)throw new Error('В существующем шаблоне нет свойств YAML.');
+    const yaml=parts[2]
         .replace(/"\{\{VALUE:([^}]+)\}\}"/gi,(_,key)=>JSON.stringify(String(variables[key]??'')))
         .replace(/\{\{VALUE:([^}]+)\}\}/gi,(_,key)=>lists.has(key)?String(variables[key]||' []'):JSON.stringify(numerics.has(key)?number(variables[key]):variables[key]??null))
         .replace(/\{\{DATE:[^}]+\}\}/gi,dialogDate());
+    const body=parts[4].replace(/\{\{VALUE:([^}]+)\}\}/gi,(_,key)=>String(variables[key]??''));
+    const raw=parts[1]+yaml+parts[3]+body;
     if(/\{\{[^}]+\}\}/.test(raw))throw new Error('В шаблоне остались незаполненные поля.');
     const patched=patchTemplate(raw,ob,movie.imdbID,description,franchise,normalizeRelease(movie.Released),kinopoiskId,people,mediaTag);
     if(patched===null)throw new Error('Старый скрипт не смог проверить карточку из шаблона.');
@@ -7088,6 +7096,8 @@ async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal
     checkDialogCancel(signal);onProgress({stage:'Сохраняю по существующему шаблону…'});
     await makeFolders(app,path);
     const file=await app.vault.create(path,cardLayout.ensureLayout(patched,{kind:'media',parseYaml:ob.parseYaml}));
+    const known=app[Symbol.for('kino.import.created')]||(app[Symbol.for('kino.import.created')]=new Map());
+    if(kinopoiskId)known.set('kp:'+kinopoiskId,file.path);if(movie.imdbID)known.set('imdb:'+movie.imdbID,file.path);
     // Complete both files once saving has started, including on cancellation.
     let warning='';
     try{
@@ -7095,13 +7105,11 @@ async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal
         const rolePath=await writeRoleFile(app,ob,file,movie,kinopoiskId,people);
         const update=text=>cardLayout.ensureLayout(ensureRoleEmbed(text,rolePath),{kind:'media',parseYaml:ob.parseYaml});
         if(app.vault.process)await app.vault.process(file,update);else await app.vault.modify(file,update(await app.vault.read(file)));
-    }catch(error){throw new Error('Карточка сохранена, но заполнение ролей не завершено: '+error.message);}
-    const known=app[Symbol.for('kino.import.created')]||(app[Symbol.for('kino.import.created')]=new Map());
-    if(kinopoiskId)known.set('kp:'+kinopoiskId,file.path);if(movie.imdbID)known.set('imdb:'+movie.imdbID,file.path);
+    }catch(error){return {file,warning:'Карточка сохранена, но заполнение ролей не завершено: '+error.message+'. Запусти проверку кинотеки.'};}
     try{
         onProgress({stage:'Готовлю прогноз для готовой карточки…'});checkDialogCancel(signal);
         const deadline=Date.now()+10000;
-        while(!app.metadataCache.getFileCache(file)?.frontmatter?.tags){checkDialogCancel(signal);if(Date.now()>deadline)throw new Error('Прогноз можно повторить после индексации.');await new Promise(resolve=>setTimeout(resolve,100));}
+        while(!app.metadataCache.getFileCache(file)?.frontmatter?.tags || !Object.prototype.hasOwnProperty.call(app.metadataCache.getFileCache(app.vault.getAbstractFileByPath(roleFilePath(file)))?.frontmatter||{},'Актеры')){checkDialogCancel(signal);if(Date.now()>deadline)throw new Error('Прогноз можно повторить после индексации.');await new Promise(resolve=>setTimeout(resolve,100));}
         const predictorFile=app.vault.getAbstractFileByPath(RATING_PREDICTOR);
         if(!predictorFile)throw new Error('Не найден скрипт прогноза.');
         const loaded={exports:{}};new Function('module','exports',await app.vault.read(predictorFile))(loaded,loaded.exports);
