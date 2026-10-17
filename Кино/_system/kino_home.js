@@ -304,7 +304,16 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         rememberDetails(management, 'management');
         const viewLinks = el(overviewBody, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
         viewLinks.appendChild(catalogue);
-        for (const [label, name] of [['Таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_system/_Кино.base#' + name);
+        const tableView = internal(viewLinks, 'Таблица', 'Кино/_system/_Кино.base#Все', 'kino-home-action is-icon');
+        tableView.setAttribute('aria-label', 'Таблица'); tableView.title = 'Таблица';
+        const tableIcon = icon.cloneNode(false);
+        const tableShape = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+        tableShape.setAttribute('d', 'M3 9h18M3 15h18M8 3v18');
+        const tableFrame = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        for (const [name, value] of Object.entries({ x: '3', y: '3', width: '18', height: '18', rx: '1.5' })) tableFrame.setAttribute(name, value);
+        tableIcon.setAttribute('stroke-width', '1.6');
+        tableIcon.append(tableFrame, tableShape); tableView.replaceChildren(tableIcon);
+        for (const [label, name] of [['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_system/_Кино.base#' + name);
         const nativeViews = [];
         const viewsVisible = () => overviews.dataset.collapsed !== 'true';
         function nativeView(label, target) {
@@ -350,12 +359,14 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         function syncViews() { for (const view of nativeViews) if (viewsVisible()) void view.open(); else view.clear(); }
         listen(overviews, 'kino-fold-change', syncViews);
         root.appendChild(management);
-        const footer = el(root, 'footer', 'kino-home-footer');
-        internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
+        const footer = el(root, 'details', 'kino-home-footer');
+        el(footer, 'summary', '', 'Служебные ссылки');
+        rememberDetails(footer, 'footer');
+        const footerLinks = el(footer, 'div', 'kino-home-footer-links');
+        internal(footerLinks, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footerLinks, 'Журнал изменений', 'Кино/_system/Журнал изменений');
         foldBlock(masthead, heading.querySelector('h1'), [nav, actions, stats], 'masthead', 'Кинотека');
         foldBlock(reading.box, reading.head.querySelector('h2'), [reading.body], 'reading', 'Статистика');
         foldBlock(overviews, overviews.querySelector('h2'), [overviewBody], 'overview', 'Обзор кинотеки');
-        foldBlock(footer, footer, [...footer.querySelectorAll('a')], 'footer', 'Служебные ссылки');
         if (!disposed) root.dataset.ready = 'true';
         return { dispose };
     } catch (problem) { dispose(); throw problem; }
