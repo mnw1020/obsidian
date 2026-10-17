@@ -6668,7 +6668,8 @@ async function runRatingForecast(params,file) {
 }
 
 async function afterTemplateFranchise(params,movie,file) {
-    const {app,obsidian:ob}=params;
+    const {app,obsidian:ob}=params,signal=params.dialogSignal;
+    checkDialogCancel(signal);
     if(app.vault.getAbstractFileByPath(file.path)!==file)return;
     const before=await frontmatter(app,ob,file);
     if(before['imdb Id']!==movie.imdbID)return;
@@ -6677,13 +6678,16 @@ async function afterTemplateFranchise(params,movie,file) {
         await order.renumber({app,paths:before['Франшиза'],overrides:new Map([[file.path,before]])});
         return;
     }
-    await app.workspace.getLeaf(false).openFile(file);
+    if(!params.fromDialog)await app.workspace.getLeaf(false).openFile(file);
     const notice=new ob.Notice('Карточка создана. Проверяю франшизу…',0);
     let result;
     try { result=await lookupFranchise(ob,movie.imdbID); }
     finally { notice.hide?.(); }
+    checkDialogCancel(signal);
     const {pages,proposals}=await franchiseInventory(app,ob,result.suggestions);
-    const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status);
+    checkDialogCancel(signal);
+    const choice=await franchiseDialog(app,ob,file.basename,pages,proposals,result.status,signal);
+    checkDialogCancel(signal);
     if(!choice)return;
     // Пока открыт диалог, пользователь может поменять карточку вручную.
     const current=await frontmatter(app,ob,file);
@@ -6774,8 +6778,11 @@ async function franchiseInventory(app,ob,suggestions) {
     return {pages:list,proposals};
 }
 
-function franchiseDialog(app,ob,title,pages,proposals,status) {
+function franchiseDialog(app,ob,title,pages,proposals,status,signal) {
+    checkDialogCancel(signal);
     return new Promise(resolve=>{
+        let picker;
+        const abort=()=>picker?.close();
         class Picker extends ob.Modal {
             constructor(){super(app);this.result=null;}
             onOpen(){
@@ -6816,9 +6823,9 @@ function franchiseDialog(app,ob,title,pages,proposals,status) {
                 const skip=el.createEl('button',{text:'Оставить без франшизы'});skip.style.marginTop='12px';skip.onclick=()=>this.close();
             }
             select(choice){this.result=choice;this.close();}
-            onClose(){this.contentEl.empty();resolve(this.result);}
+            onClose(){signal?.removeEventListener('abort',abort);this.contentEl.empty();resolve(this.result);}
         }
-        new Picker().open();
+        picker=new Picker();signal?.addEventListener('abort',abort,{once:true});picker.open();
     });
 }
 
@@ -7059,7 +7066,7 @@ async function addFromDialog({app,obsidian:ob={},query,type,rating,signal,onProg
         checkDialogCancel(signal);
         if(prepared?.existing)return {file:prepared.existing,existing:true};
         if(!prepared?.variables)throw new Error(lastNotice||'Не удалось подготовить карточку. Проверь ID и настройки старого скрипта.');
-        return await savePreparedFromDialog({app,obsidian:ob,prepared,rating,signal,onProgress,findExisting});
+        return await savePreparedFromDialog({app,obsidian:legacyOb,prepared,rating,signal,onProgress,findExisting});
     }finally{release();}
 }
 async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal,onProgress=()=>{},findExisting}) {
@@ -7107,14 +7114,23 @@ async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal
         if(app.vault.process)await app.vault.process(file,update);else await app.vault.modify(file,update(await app.vault.read(file)));
     }catch(error){return {file,warning:'Карточка сохранена, но заполнение ролей не завершено: '+error.message+'. Запусти проверку кинотеки.'};}
     try{
+        onProgress({stage:'Проверяю франшизу…'});checkDialogCancel(signal);
+        await afterTemplateFranchise({app,obsidian:ob,fromDialog:true,dialogSignal:signal},movie,file);
+    }catch(error){warning='Карточка сохранена. '+(error.name==='AbortError'?'Выбор франшизы остановлен.':'Не удалось завершить выбор франшизы: '+error.message);}
+    try{
         onProgress({stage:'Готовлю прогноз для готовой карточки…'});checkDialogCancel(signal);
-        const deadline=Date.now()+10000;
-        while(!app.metadataCache.getFileCache(file)?.frontmatter?.tags || !Object.prototype.hasOwnProperty.call(app.metadataCache.getFileCache(app.vault.getAbstractFileByPath(roleFilePath(file)))?.frontmatter||{},'Актеры')){checkDialogCancel(signal);if(Date.now()>deadline)throw new Error('Прогноз можно повторить после индексации.');await new Promise(resolve=>setTimeout(resolve,100));}
+        const expectedFm=await frontmatter(app,ob,file),deadline=Date.now()+10000;
+        const indexed=()=>{
+            const cached=app.metadataCache.getFileCache(file)?.frontmatter;
+            return cached?.tags && ['Роли файл','Франшиза','Часть'].every(key=>JSON.stringify(cached[key]??null)===JSON.stringify(expectedFm[key]??null))
+                && Object.prototype.hasOwnProperty.call(app.metadataCache.getFileCache(app.vault.getAbstractFileByPath(roleFilePath(file)))?.frontmatter||{},'Актеры');
+        };
+        while(!indexed()){checkDialogCancel(signal);if(Date.now()>deadline)throw new Error('Прогноз можно повторить после индексации.');await new Promise(resolve=>setTimeout(resolve,100));}
         const predictorFile=app.vault.getAbstractFileByPath(RATING_PREDICTOR);
         if(!predictorFile)throw new Error('Не найден скрипт прогноза.');
         const loaded={exports:{}};new Function('module','exports',await app.vault.read(predictorFile))(loaded,loaded.exports);
         const estimate=await loaded.exports({app,obsidian:ob,targetFile:file,onProgress,shouldCancel:()=>signal?.aborted,suppressNotice:true,prepareDescriptions:false});
         if(!estimate)throw new Error('Прогноз пока недоступен; расчёт можно повторить из карточки.');
-    }catch(error){warning='Карточка сохранена. '+(error.name==='AbortError'?'Расчёт прогноза остановлен.':error.message);}
+    }catch(error){warning=(warning?warning+' ':'Карточка сохранена. ')+(error.name==='AbortError'?'Расчёт прогноза остановлен.':error.message);}
     return {file,warning};
 }
