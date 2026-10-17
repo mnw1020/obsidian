@@ -198,7 +198,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         const masthead = el(root, 'header', 'kino-home-masthead');
         const nav = el(masthead, 'nav', 'kino-home-nav'); nav.setAttribute('aria-label', 'Разделы кинотеки');
-        for (const [text, target] of [['Рекомендации', 'Кино/_system/Рекомендации'], ['Аналитика', 'Кино/_system/Аналитика прогнозов'], ['Инструкция', 'Кино/_system/README']]) internal(nav, text, target);
+        for (const [text, target] of [['Аналитика', 'Кино/_system/Аналитика прогнозов'], ['Инструкция', 'Кино/_system/README']]) internal(nav, text, target);
         const identity = el(masthead, 'div', 'kino-home-identity');
         const heading = el(identity, 'div', 'kino-home-heading');
         el(heading, 'h1', 'kino-home-title', 'Кинотека');

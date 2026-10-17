@@ -242,6 +242,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             if (button.disabled || disposed) return;
             clearTimeout(timer);
             button.disabled = true; button.textContent = "⏳ Ищу…"; button.removeAttribute("title");
+            const launchKey=Symbol.for("kino.recommendations.launch");let launchId=null;
             try {
                 const page = app.vault.getAbstractFileByPath("Кино/_system/Рекомендации.md");
                 if (!page) throw new Error("Не найдена страница рекомендаций.");
@@ -260,13 +261,19 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                     }
                     await app.vault.create(statePath, payload);
                 }
-                if (!disposed) {app[Symbol.for("kino.recommendations.launch")]=selection.updatedAt;await app.workspace.getLeaf(false).openFile(page);}
+                // Finish an explicit navigation even if saving the selection
+                // caused Dataview to replace the source card in the meantime.
+                launchId=selection.updatedAt;app[launchKey]=launchId;
+                const target=app.workspace.getLeaf(false);
+                await target.openFile(page,{active:true});
+                app.workspace.setActiveLeaf?.(target,{focus:true});
                 if (!disposed) { button.textContent = "🔎 Найти похожие"; button.disabled = false; }
             } catch (error) {
-                if (disposed) return;
+                if(launchId&&app[launchKey]===launchId)delete app[launchKey];
                 const reason = "Не удалось открыть рекомендации: " + (error.message || error);
-                button.textContent = "⚠ Ошибка"; button.title = reason; button.disabled = false;
                 if (obsidian.Notice) new obsidian.Notice(reason, 7000);
+                if (disposed) return;
+                button.textContent = "⚠ Ошибка"; button.title = reason; button.disabled = false;
                 timer = setTimeout(() => { if (!disposed) button.textContent = "🔎 Найти похожие"; }, 3500);
             }
         });
