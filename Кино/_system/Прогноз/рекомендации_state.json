@@ -1,17 +1,4 @@
 {
-  "reference": "Кино/Media/Джек Ричер 2 Никогда не возвращайся.md",
-  "updatedAt": "2026-10-14T21:12:55.724Z",
-  "yearSettings": {
-    "start": "1888",
-    "end": "current"
-  },
-  "sourceSettings": {
-    "imdb": false,
-    "kp": true,
-    "movieTon": false,
-    "likeFilm": false,
-    "tmdb": false,
-    "openai": false,
-    "watched": true
-  }
+  "reference": "Кино/Media/8 подруг Оушена.md",
+  "updatedAt": "2026-10-17T17:40:20.708Z"
 }
