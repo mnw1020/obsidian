@@ -150,18 +150,10 @@
     --kino-accent-hover:#d2b17b;
 }
 .kino-page.kino-franchise .kino-ui-root[data-kind="franchise"] {margin:4px 0 8px;}
-.kino-page.kino-franchise .kino-franchise-header {
-    padding:18px 24px 20px;border:1px solid var(--franchise-line);border-top:3px solid var(--franchise-accent);
-    border-radius:4px 4px 9px 9px;background:linear-gradient(115deg,var(--franchise-tint),var(--kino-bg) 85%);
-}
-.kino-page.kino-franchise .kino-franchise-nav {display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:19px;font-size:11px;line-height:1.5;}
-.kino-page.kino-franchise .kino-franchise-nav a {color:var(--kino-muted);text-decoration:none;overflow-wrap:anywhere;}
-.kino-page.kino-franchise .kino-franchise-nav a:hover {color:var(--franchise-accent);}
-.kino-page.kino-franchise .kino-franchise-header .kino-eyebrow {color:var(--franchise-accent);font-size:10px;letter-spacing:.13em;}
-.kino-page.kino-franchise .kino-franchise-header h1.kino-card-title {
-    margin:8px 0 0!important;color:var(--franchise-accent)!important;
-    font:700 clamp(30px,4vw,46px)/1.12 var(--franchise-serif)!important;letter-spacing:-.025em;
-}
+/* Use the actual home masthead and panel heading components. */
+.kino-page.kino-franchise .kino-franchise-header.kino-home-masthead {padding-bottom:14px;}
+.kino-page.kino-franchise .kino-franchise-nav {margin-bottom:22px;}
+.kino-page.kino-franchise h1.kino-home-title {margin:10px 0 12px!important;}
 .kino-page.kino-franchise .kino-franchise-header .kino-card-meta:empty {display:none;}
 .kino-page.kino-franchise .kino-properties {margin:7px 0 0;padding:0 2px;border:0;border-radius:0;background:transparent;}
 .kino-page.kino-franchise .kino-properties>summary {padding:8px 0;color:var(--kino-muted);font-size:11px;}
@@ -172,11 +164,20 @@
     display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;
     border:0!important;overflow:hidden;visibility:hidden;
 }
-.kino-page.kino-franchise h2 {
-    margin:24px 0 12px!important;padding:0 0 0 11px;border-inline-start:3px solid var(--franchise-accent);
-    color:var(--franchise-accent)!important;font:700 25px/1.25 var(--franchise-serif)!important;letter-spacing:-.015em;
+/* Continuous native Markdown blocks form the same cards as the home page.
+   Blocks keep their original parent so Obsidian can measure and update them. */
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-start {
+    margin:18px 0 0!important;padding:22px 24px 17px!important;border-bottom:0;border-radius:10px 10px 0 0;
 }
-.kino-page.kino-franchise h3 {color:var(--franchise-accent)!important;font:600 20px/1.3 var(--franchise-serif)!important;}
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-body {
+    display:flow-root;margin:0!important;padding:0 24px!important;border-top:0;border-bottom:0;border-radius:0;box-shadow:none;
+}
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-end {
+    padding-bottom:22px!important;border-bottom:1px solid var(--home-line);border-radius:0 0 10px 10px;margin-bottom:18px!important;
+}
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-start.kino-franchise-section-end {border-radius:10px;}
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-body>p {margin:0 0 14px;}
+.kino-page.kino-franchise.kino-home-ui .kino-franchise-section-end .kino-table-wrap {margin-bottom:0;}
 .kino-page.kino-franchise .kino-franchise-collection-summary {display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 9px;margin:0 0 10px;color:var(--kino-muted);font-size:12px;line-height:1.5;}
 .kino-page.kino-franchise .kino-franchise-collection-count {color:var(--franchise-accent);font:500 23px/1.2 var(--font-monospace);}
 .kino-page.kino-franchise .kino-franchise-collection-years {margin-inline-start:7px;padding-inline-start:14px;border-inline-start:1px solid var(--franchise-line);font-variant-numeric:tabular-nums;}
@@ -196,13 +197,12 @@
 .kino-page.kino-franchise .kino-table-wrap th .small-text {display:none;}
 .kino-page.kino-franchise :is(a,.internal-link) {color:var(--franchise-accent);}
 .kino-page.kino-franchise :is(a,.internal-link):hover {color:#d2b17b;}
-.kino-page.kino-franchise .el-h2.kino-franchise-empty-section+.el-h2 h2 {margin-top:12px!important;}
 .kino-page.kino-franchise :is(.markdown-preview-section>p,.el-p>p) {margin-block:10px 16px;font-size:13px;line-height:1.75;}
 .kino-page.kino-franchise :is(.markdown-preview-section>ul,.el-ul>ul) {padding-inline-start:20px;font-size:13px;line-height:1.9;}
 @media(max-width:650px) {
-    .kino-page.kino-franchise .kino-franchise-header {padding:16px 17px 18px;}
-    .kino-page.kino-franchise .kino-franchise-nav {gap:7px 14px;margin-bottom:16px;}
-    .kino-page.kino-franchise h2 {margin-top:21px!important;font-size:23px!important;}
+    .kino-page.kino-franchise.kino-home-ui .kino-franchise-section-start {padding:18px 18px 14px!important;}
+    .kino-page.kino-franchise.kino-home-ui .kino-franchise-section-body {padding-inline:18px!important;}
+    .kino-page.kino-franchise.kino-home-ui .kino-franchise-section-end {padding-bottom:18px!important;}
     .kino-page.kino-franchise .kino-franchise-collection-order {flex-basis:100%;margin-inline-start:0;font-size:10px;}
     .kino-page.kino-franchise .kino-table-wrap td {padding:11px 12px;}
 }
