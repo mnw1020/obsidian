@@ -80,6 +80,18 @@ function createCoordinator(app, win) {
             descriptor: Object.getOwnPropertyDescriptor(view, name), method: view[name]
         }]));
         const items = new Map();
+        const wrapItem = item => {
+            if (!item?.heading?.[HEADING] || items.has(item)) return;
+            const descriptor = Object.getOwnPropertyDescriptor(item, "onSelfClick");
+            const original = item.onSelfClick;
+            item.onSelfClick = function (event) {
+                if (scrollTo(view, this, event)) return;
+                // A reused native item may already have a real cached
+                // Markdown heading after the user switched to another note.
+                if (!this.heading?.[HEADING]) return original.call(this, event);
+            };
+            items.set(item, { descriptor, original });
+        };
         const wrappers = {
             getHeadings(...args) {
                 const session = contextFor(this);
@@ -87,16 +99,7 @@ function createCoordinator(app, win) {
             },
             createItemDom(heading, ...args) {
                 const item = originals.get("createItemDom").method.call(this, heading, ...args);
-                if (!heading?.[HEADING]) return item;
-                const descriptor = Object.getOwnPropertyDescriptor(item, "onSelfClick");
-                const original = item.onSelfClick;
-                item.onSelfClick = function (event) {
-                    if (scrollTo(view, this, event)) return;
-                    // A reused native item may already have a real cached
-                    // Markdown heading after the user switched to another note.
-                    if (!this.heading?.[HEADING]) return original.call(this, event);
-                };
-                items.set(item, { descriptor, original });
+                wrapItem(item);
                 return item;
             },
             findActiveHeading(...args) {
@@ -154,6 +157,10 @@ function createCoordinator(app, win) {
         };
         restore.prune = () => {
             const live = new Set(view.cachedHeadingDom);
+            // Native Outline also reuses items created before this adapter was
+            // mounted. They may acquire a DOM heading without createItemDom
+            // running, so adopt every live dynamic item after its update.
+            for (const item of live) wrapItem(item);
             for (const [item, state] of items) if (!live.has(item)) {
                 restoreItem(item, state);
                 items.delete(item);

@@ -537,6 +537,10 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 }
 .kino-recommendations-ui .kino-ai-panel[hidden] { display: none !important; }
 .kino-recommendations-ui .kino-ai-state:empty { display: none; }
+.kino-recommendations-ui .kino-recommendation-filters { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; margin-top: 14px; }
+.kino-recommendations-ui .kino-recommendation-filters > :is(.kino-year-panel,.kino-watched-panel) {
+    flex: 1 1 max-content; width: auto; min-width: 0; max-width: 100%; margin-top: 0;
+}
 .kino-recommendations-ui .kino-watched-panel { justify-content: space-between; }
 .kino-recommendations-ui .kino-watched-control { display: inline-flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; }
 .kino-recommendations-ui .kino-watched-count {
