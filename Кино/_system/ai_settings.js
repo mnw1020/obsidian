@@ -54,7 +54,7 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
                 render();await onApply(settings);
             });
             button(bar,"Расшифровать",unlock);password.addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
-            status.textContent="Ключи зашифрованы. Разблокируй настройки для рекомендаций ИИ.";return;
+            return;
         }
         if(!session){
             const password=field(bar,"Пароль — минимум 10 символов","input","password"),confirmation=field(bar,"Повтори пароль","input","password");

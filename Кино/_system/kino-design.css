@@ -531,6 +531,19 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-recommendations-ui { --kino-accent: var(--home-accent) !important; --kino-accent-hover: #ceb27d !important; margin: 8px 0 28px; }
 .kino-recommendations-ui .kino-home-masthead { padding: 24px 28px !important; margin-bottom: 24px; }
 .kino-recommendations-ui .kino-home-masthead h1.kino-home-title { margin: 0 !important; }
+.kino-recommendations-ui .kino-home-masthead .kino-reference-header {
+    margin: 10px 0 0 !important; color: var(--kino-text) !important; font: 400 17px/1.5 var(--kino-font) !important;
+    letter-spacing: normal; overflow-wrap: anywhere;
+}
+.kino-recommendations-ui .kino-ai-panel[hidden] { display: none !important; }
+.kino-recommendations-ui .kino-ai-state:empty { display: none; }
+.kino-recommendations-ui .kino-watched-panel { justify-content: space-between; }
+.kino-recommendations-ui .kino-watched-control { display: inline-flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; }
+.kino-recommendations-ui .kino-watched-count {
+    display: inline-block; flex: 0 0 auto; min-width: 30px; padding: 2px 8px;
+    border: 1px solid var(--home-line); border-radius: 6px; background: var(--home-tint);
+    color: var(--kino-text); font-size: 12px; font-variant-numeric: tabular-nums; text-align: center;
+}
 .kino-recommendations-ui :is(.kino-recommendation-panel,.kino-ai) {
     --kino-accent: var(--home-accent) !important;
     --kino-accent-hover: #ceb27d !important;
@@ -545,7 +558,7 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
     padding-inline-start: 12px; border-inline-start: 3px solid var(--home-accent);
     color: var(--home-heading-color) !important; font: 700 27px/1.25 var(--home-serif) !important; letter-spacing: -.015em;
 }
-.kino-recommendations-ui > .kino-table-wrap:empty { display: none; }
+.kino-recommendations-ui .kino-table-wrap:empty { display: none; }
 @container kino-home (max-width: 480px) {
     .kino-recommendations-ui .kino-home-masthead { padding: 20px !important; }
     .kino-recommendations-ui .kino-recommendation-panel.kino-home-panel { padding: 18px !important; }

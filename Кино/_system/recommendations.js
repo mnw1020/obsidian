@@ -1114,9 +1114,6 @@ async function makeRecommendationsPage(container){
 }
 function makeUi(container){
     const box=container.createDiv({cls:"kino-recommendation-panel kino-home-panel"});
-    const head=box.createDiv({cls:"kino-home-panel-head"});
-    head.createEl("h2",{text:"Подбор фильмов",cls:"kino-panel-title"});
-    head.createEl("p",{text:"Выбери источники и диапазон лет",cls:"kino-panel-subtitle kino-home-caption"});
     const actions=box.createDiv({cls:"kino-source-controls"});
     const aiPanel=box.createDiv({cls:"kino-ai-panel"});
     const filters=box.createDiv({cls:"kino-recommendation-filters"});
@@ -1124,11 +1121,14 @@ function makeUi(container){
     yearPanel.createEl("span",{text:"Годы выпуска",cls:"kino-filter-label"});
     const watchedPanel=filters.createDiv({cls:"kino-watched-panel"});
     const commands=box.createDiv({cls:"kino-recommendation-actions"});
-    const text=box.createDiv({cls:"kino-status"});text.setAttribute("role","status");text.setAttribute("aria-live","polite");
-    const bar=box.createEl("progress",{cls:"kino-progress"});bar.max=100;bar.value=0;bar.setAttribute("aria-label","Загрузка рекомендаций");
-    const tableWrap=container.createDiv({cls:"kino-table-wrap"});
+    const text=box.createDiv({cls:"kino-status"});text.hidden=true;text.setAttribute("role","status");text.setAttribute("aria-live","polite");
+    const bar=box.createEl("progress",{cls:"kino-progress"});bar.hidden=true;bar.max=100;bar.value=0;bar.setAttribute("aria-label","Загрузка рекомендаций");
+    const results=container.createEl("section",{cls:"kino-recommendation-results"});
+    const resultsHead=results.createDiv({cls:"kino-home-panel-head"});resultsHead.hidden=true;
+    resultsHead.createEl("h2",{text:"Похожие фильмы"});
+    const tableWrap=results.createDiv({cls:"kino-table-wrap"});
     tableWrap.setAttribute("role","region");tableWrap.setAttribute("aria-label","Похожие фильмы");tableWrap.tabIndex=0;
-    return {box,text,bar,actions,aiPanel,filters,yearPanel,watchedPanel,commands,tableWrap};
+    return {box,text,bar,actions,aiPanel,filters,yearPanel,watchedPanel,commands,tableWrap,resultsHead};
 }
 function addKpApiControl(ui){
     const label=ui.actions.createEl("span",{text:`КП API: ${KP_DIAG.api}`});
@@ -1137,6 +1137,7 @@ function addKpApiControl(ui){
 }
 function setProgress(ui,text,pct){
     ui.text.empty();
+    ui.text.hidden=!String(text).trim();ui.bar.hidden=pct<=0||pct>=100;
     for(const part of String(text).split(/(\*\*[^*]+\*\*)/g)){
         if(part.startsWith("**")&&part.endsWith("**"))ui.text.createEl("strong",{text:part.slice(2,-2)});
         else ui.text.appendText(part);
@@ -1170,6 +1171,7 @@ async function loadForecastPredictor(){
     return mod.exports;
 }
 function renderTable(ui,list,sort,onSort,reference){
+    ui.resultsHead.hidden=!list.length;
     ui.tableWrap.empty();if(!list.length){ui.tableWrap.createEl("p",{text:"Прямых похожих фильмов нет; фильмы второго уровня — ниже."});return;}
     const table=ui.tableWrap.createEl("table",{cls:"kino-recommendation-table"});
     const cols=table.createEl("colgroup");for(const width of [24,17,9,10,40])cols.createEl("col").style.width=width+"%";
@@ -1486,6 +1488,13 @@ async function main(){
         const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);recommendationContextApi=mod.exports;
     }
     const page=await makeRecommendationsPage(dv.container);
+    const outlineFile=app.vault.getAbstractFileByPath(`${ROOT}/_system/recommendations_outline.js`);
+    if(outlineFile){
+        try{
+            const mod={exports:{}};new Function("module",await app.vault.read(outlineFile))(mod);
+            mod.exports({app,container:page,component:dv.component});
+        }catch(error){console.warn("Кино: оглавление рекомендаций",error);}
+    }
     // Saved JSON only supports buttons that were already rendered before this
     // update. New launches deliver the selection directly to the target leaf.
     const saved=app[Symbol.for("kino.recommendations.launch")]?await loadJson(STATE_PATH):null;
@@ -1519,7 +1528,7 @@ async function main(){
     const ref=referenceForState(state,items);
     if(!ref){page.createEl("p",{text:"Не удалось определить выбранный фильм. Укажи ID на главной или открой рекомендации из карточки."});return;}
     
-    const head=page.createDiv({cls:"kino-reference-header kino-home-panel-head"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
+    page.querySelector(".kino-home-masthead").createEl("h2",{cls:"kino-reference-header",text:`Похожие по теме: ${ref.ruTitle}`});
 
     const ui=makeUi(page);
     const detailsHost=page.createDiv({cls:"kino-recommendation-details"});detailsHost.hidden=true;
@@ -1586,10 +1595,11 @@ async function main(){
     const likeFilmCheckbox=sourceControl("LikeFilm","https://likefilm.ru/",Boolean(sourceSettings.likeFilm)).input;
     const tmdbCheckbox=sourceControl("TMDB","https://www.themoviedb.org/",Boolean(sourceSettings.tmdb)).input;
     const openaiCheckbox=sourceControl("ИИ","https://api.tokenator.top/",Boolean(sourceSettings.openai)).input;
+    ui.aiPanel.hidden=!openaiCheckbox.checked;
     const label=ui.watchedPanel.createEl("label",{cls:"kino-watched-control"});
     const checkbox=label.createEl("input",{type:"checkbox"});checkbox.checked=Boolean(sourceSettings.watched);
-    label.appendText(" Показывать просмотренные");
-    const watchedCount=label.createEl("span",{text:"",cls:"kino-watched-count"});watchedCount.hidden=true;
+    label.createEl("span",{text:"Показывать просмотренные",cls:"kino-watched-label"});
+    const watchedCount=ui.watchedPanel.createEl("span",{text:"",cls:"kino-watched-count"});watchedCount.hidden=true;
     const currentYear=new Date().getFullYear(),firstYear=1888;
     const yearSettings=state.yearSettings||{};
     const startField=ui.yearPanel.createEl("label");startField.classList.add("kino-year-field");startField.createEl("span",{text:"С года"});
@@ -1607,7 +1617,6 @@ async function main(){
     for(let year=currentYear;year>=firstYear;year--)endYear.createEl("option",{text:String(year),value:String(year)});
     const savedEnd=String(yearSettings.end||"current");endYear.value=savedEnd==="current"||Number(savedEnd)>=firstYear&&Number(savedEnd)<=currentYear?savedEnd:"current";
     const yearRange=()=>({start:Number(startYear.value.replace("decade:","")),end:endYear.value==="current"?currentYear:Number(endYear.value)});
-    const yearHint=ui.commands.createEl("span",{text:"Оба уровня · фильмы без года остаются",cls:"kino-year-hint"});
     let imdbRows=[],imdbReady=false,imdbError="";
     let movieTonRows=[],movieTonReady=false,movieTonError="";
     let likeFilmRows=[],likeFilmReady=false,likeFilmError="";
@@ -1791,7 +1800,10 @@ async function main(){
         if(link)link.href=aiHome();
     }catch(error){openaiError=String(error?.message||error).slice(0,160);}
     for(const control of [imdbCheckbox,kpCheckbox,movieTonCheckbox,likeFilmCheckbox,tmdbCheckbox,openaiCheckbox,checkbox]){
-        control.addEventListener("change",async()=>{await saveUiState();await draw(true);});
+        control.addEventListener("change",async()=>{
+            if(control===openaiCheckbox)ui.aiPanel.hidden=!openaiCheckbox.checked;
+            await saveUiState();await draw(true);
+        });
     }
     const changeYears=async changed=>{
         const range=yearRange();
@@ -1799,7 +1811,7 @@ async function main(){
         await saveUiState();await draw(true);
     };
     startYear.addEventListener("change",()=>changeYears(startYear));endYear.addEventListener("change",()=>changeYears(endYear));
-    const run=ui.commands.createEl("button",{text:"Загрузить рекомендации"});run.classList.add("kino-run");ui.commands.insertBefore(run,yearHint);
+    const run=ui.commands.createEl("button",{text:"Загрузить рекомендации"});run.classList.add("kino-run");
     run.addEventListener("click",async()=>{
         if(run.disabled)return;run.disabled=true;
         const selected={imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,ai:openaiCheckbox.checked};
@@ -1842,7 +1854,7 @@ async function main(){
             for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
             await draw(true);
         }
-    }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
+    }else setProgress(ui,"",0);
     // Sources and network requests are selected explicitly for each new film.
 }
 
