@@ -92,58 +92,53 @@ views:
     showFileImages: never
     minimumColumns: one
     displaySecondAsSubtitle: false
-  - type: dynamic-views-grid
+  - type: table
     name: Последние
     order:
       - file.name
+      - Название
+      - formula.type
+      - formula.watched
       - formula.rating
+      - formula.predicted_rating
+      - formula.imdb_rating
+      - formula.kp_rating
+      - formula.release_display
+      - formula.entity_genre
+      - formula.entity_director
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
     limit: 20
-    cardSize: 200
-    imageFit: contain
-    textPreviewProperty: note.Описание
-    fallbackToContent: false
-    textPreviewLines: 7
-    imageProperty: note.poster
-    imageFormat: poster
-    propertyNames: hide
-    id: 0myciy-Последние
-    displayFirstAsTitle: true
-    showFileImages: never
-    minimumColumns: one
-    displaySecondAsSubtitle: false
-  - type: dynamic-views-grid
+    columnSize:
+      formula.imdb_rating: 64
+  - type: table
     name: Последние сериалы
     filters:
       and:
         - file.hasTag("serial")
     order:
       - file.name
+      - Название
+      - formula.type
+      - formula.watched
       - formula.rating
-      - Сезон
+      - formula.predicted_rating
+      - formula.imdb_rating
+      - formula.kp_rating
+      - formula.release_display
+      - formula.entity_genre
+      - formula.entity_director
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
     limit: 20
-    cardSize: 200
-    imageFit: contain
-    textPreviewProperty: note.Описание
-    fallbackToContent: false
-    textPreviewLines: 7
-    imageProperty: note.poster
-    imageFormat: poster
-    propertyNames: hide
-    id: 4i9sz1-Последние сериалы
-    displayFirstAsTitle: true
-    showFileImages: never
-    minimumColumns: one
-    displaySecondAsSubtitle: false
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: Все
     order:
@@ -159,12 +154,12 @@ views:
       - formula.entity_genre
       - formula.entity_director
     sort:
+      - property: formula.type
+        direction: DESC
       - property: formula.rating
         direction: DESC
       - property: file.name
         direction: ASC
-      - property: formula.type
-        direction: DESC
       - property: Просмотрено
         direction: DESC
     columnSize:
@@ -176,6 +171,8 @@ views:
         - file.hasTag("movies")
     order:
       - file.name
+      - Название
+      - formula.type
       - formula.watched
       - formula.rating
       - formula.predicted_rating
@@ -183,17 +180,14 @@ views:
       - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
-      - Описание
       - formula.entity_director
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
-    image: note.poster
-    imageAspectRatio: 0.67
-    imageFit: contain
-    cardSize: 175
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: Сериалы
     filters:
@@ -201,6 +195,8 @@ views:
         - file.hasTag("serial")
     order:
       - file.name
+      - Название
+      - formula.type
       - formula.watched
       - formula.rating
       - formula.predicted_rating
@@ -208,17 +204,14 @@ views:
       - formula.kp_rating
       - formula.release_display
       - formula.entity_genre
-      - Описание
       - formula.entity_director
     sort:
       - property: Просмотрено
         direction: DESC
       - property: formula.rating
         direction: DESC
-    image: note.poster
-    imageAspectRatio: 0.67
-    imageFit: contain
-    cardSize: 175
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: По году релиза
     filters:
@@ -229,13 +222,14 @@ views:
       direction: DESC
     order:
       - file.name
+      - Название
       - formula.type
-      - formula.release_display
+      - formula.watched
       - formula.rating
       - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
-      - formula.watched
+      - formula.release_display
       - formula.entity_genre
       - formula.entity_director
     sort:
@@ -243,6 +237,8 @@ views:
         direction: DESC
       - property: formula.rating
         direction: DESC
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: Сравнение оценок
     filters:
@@ -274,38 +270,31 @@ views:
       formula.rating_delta_prediction: 146
       formula.rating_delta: 99
       formula.imdb_kp_delta: 108
-  - type: dynamic-views-grid
+  - type: table
     name: Перепросмотры
     filters:
       and:
         - formula.watch_count > 1
     order:
       - file.name
-      - formula.watch_count
+      - Название
+      - formula.type
+      - formula.watched
       - formula.rating
       - formula.predicted_rating
       - formula.imdb_rating
       - formula.kp_rating
-      - formula.watched
+      - formula.release_display
+      - formula.entity_genre
+      - formula.entity_director
     sort:
       - property: formula.watch_count
         direction: DESC
       - property: Просмотрено
         direction: DESC
     limit: 20
-    cardSize: 200
-    imageFit: contain
-    textPreviewProperty: note.Описание
-    fallbackToContent: false
-    textPreviewLines: 7
-    imageProperty: note.poster
-    imageFormat: poster
-    propertyNames: inline
-    id: 19bbu7-Перепросмотры
-    displayFirstAsTitle: true
-    showFileImages: never
-    minimumColumns: one
-    displaySecondAsSubtitle: false
+    columnSize:
+      formula.imdb_rating: 64
   - type: table
     name: Проблемные даты
     filters:
@@ -314,11 +303,18 @@ views:
         - formula.release_date == null
     order:
       - file.name
-      - Релиз
+      - Название
       - formula.type
       - formula.watched
-      - formula.entity_director
+      - formula.rating
+      - formula.predicted_rating
+      - formula.imdb_rating
+      - formula.kp_rating
+      - formula.release_display
       - formula.entity_genre
+      - formula.entity_director
     sort:
       - property: file.name
         direction: ASC
+    columnSize:
+      formula.imdb_rating: 64

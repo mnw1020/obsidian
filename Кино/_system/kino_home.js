@@ -349,6 +349,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         nativeView('Последние сериалы', 'Кино/_system/_Кино.base#Последние сериалы');
         function syncViews() { for (const view of nativeViews) if (viewsVisible()) void view.open(); else view.clear(); }
         listen(overviews, 'kino-fold-change', syncViews);
+        root.appendChild(management);
         const footer = el(root, 'footer', 'kino-home-footer');
         internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
         foldBlock(masthead, heading.querySelector('h1'), [nav, actions, stats], 'masthead', 'Кинотека');
