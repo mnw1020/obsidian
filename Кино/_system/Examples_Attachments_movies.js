@@ -151,6 +151,7 @@ const cooldown = new Map();
 let busy = false;
 
 module.exports = {
+    addFromDialog, savePreparedFromDialog,
     entry: async (params, settings) => {
         if (busy) return;
         busy = true;
@@ -179,7 +180,7 @@ async function addMovie(params, settings) {
 
 async function addMovieCore(params, settings, progress, handOff) {
     const { app, quickAddApi: qa, obsidian: ob } = params;
-    const status = message => progress?.setMessage?.(`Кино: ${message}`);
+    const status = message => { checkDialogCancel(params.dialogSignal); progress?.setMessage?.(`Кино: ${message}`); };
     status("проверяю настройки…");
     const key = String(settings?.[API_KEY_OPTION] || "").trim();
     if (!key) { new ob.Notice("Укажи OMDb API Key в настройках скрипта."); return; }
@@ -307,7 +308,7 @@ async function addMovieCore(params, settings, progress, handOff) {
     }
     status("проверяю, нет ли фильма в кинотеке…");
     const existing = await findMovie(app, ob, movie.imdbID);
-    if (existing) { await app.workspace.getLeaf(false).openFile(existing); new ob.Notice("Этот фильм уже есть в кинотеке."); return; }
+    if (existing) { if(params.fromDialog)return {existing}; await app.workspace.getLeaf(false).openFile(existing); new ob.Notice("Этот фильм уже есть в кинотеке."); return; }
 
     status("жду выбор типа карточки…");
     const mediaTag = await qa.suggester(
@@ -437,6 +438,7 @@ async function addMovieCore(params, settings, progress, handOff) {
         franchisePart: ""
     };
     status("создаю карточку из шаблона…");
+    if(params.fromDialog)return {variables:params.variables,movie,title,description,franchise,kinopoiskId:kp?.kp_id||"",people:{actorNames,actorRoles:actorRoleValues,directorNames},mediaTag};
     watchTemplate(params, movie, title, description, franchise, progress, kp?.kp_id || "", {
         actorNames,
         actorRoles: actorRoleValues,
@@ -6993,4 +6995,118 @@ async function loadCardLayout(app) {
     const loaded = { exports: {} };
     new Function("module", "exports", await app.vault.read(file))(loaded, loaded.exports);
     return loaded.exports;
+}
+
+
+// The Add dialog supplies answers; fetching, naming, credits and saving remain
+// owned by this existing script and the existing QuickAdd template.
+const DIALOG_LOCK = Symbol.for('kino.legacy.dialog.lock');
+function checkDialogCancel(signal) {
+    if(signal?.aborted){const error=new Error('Действие остановлено');error.name='AbortError';throw error;}
+}
+function dialogDate(now=new Date()) {
+    return [now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
+}
+async function dialogSettings(app) {
+    let config=app.plugins?.plugins?.quickadd?.settings;
+    if(!config)try{config=JSON.parse(await app.vault.adapter.read('.obsidian/plugins/quickadd/data.json'));}catch(_){}
+    let found=null;
+    function visit(value){
+        if(found||!value||typeof value!=='object')return;
+        if(value.path==='Кино/_system/Examples_Attachments_movies.js'&&value.settings){found=value.settings;return;}
+        for(const child of Object.values(value))visit(child);
+    }
+    visit(config);return found||{};
+}
+async function addFromDialog({app,obsidian:ob={},query,type,rating,signal,onProgress=()=>{},requestInput,findExisting}) {
+    if(!['movie','series'].includes(type))throw new Error('Выбери фильм или сериал.');
+    if(!Number.isFinite(rating)||rating<1||rating>10)throw new Error('Введи личную оценку от 1 до 10.');
+    const previous=app[DIALOG_LOCK]||Promise.resolve();let release;
+    app[DIALOG_LOCK]=new Promise(resolve=>{release=resolve;});await previous;
+    try {
+        checkDialogCancel(signal);
+        const initialId=extractImdbId(query),initialKp=extractKinopoiskId(query);
+        for(const identity of [{provider:'kp',id:initialKp},{provider:'imdb',id:initialId}].filter(x=>x.id)){
+            const existing=findExisting?.(app,identity);if(existing)return {file:existing,existing:true};
+        }
+        let lastNotice='';
+        const legacyOb={...ob,Notice:class {constructor(text){lastNotice=String(text);onProgress({stage:lastNotice});}hide(){}setMessage(text){onProgress({stage:String(text)});}}};
+        if(ob.requestUrl)legacyOb.requestUrl=async params=>{
+            checkDialogCancel(signal);let cancel;
+            try{return await Promise.race([
+                Promise.resolve().then(()=>ob.requestUrl(params)),
+                new Promise((_,reject)=>{cancel=()=>{try{checkDialogCancel(signal);}catch(e){reject(e);}};signal?.addEventListener('abort',cancel,{once:true});})
+            ]);}finally{if(cancel)signal?.removeEventListener('abort',cancel);checkDialogCancel(signal);}
+        };
+        const ask=async prompt=>{checkDialogCancel(signal);if(!requestInput)throw new Error('Нужны дополнительные сведения: '+prompt.title);const value=await requestInput(prompt,signal);checkDialogCancel(signal);return value;};
+        const qa={
+            inputPrompt:async(title,description,value)=>{
+                checkDialogCancel(signal);
+                if(title==='IMDb ID, ссылка КП или название')return String(query).trim();
+                return ask({title,description,value:value||''});
+            },
+            suggester:async(labels,values,title)=>{
+                checkDialogCancel(signal);
+                if(title==='Что добавляем: фильм или сериал?')return type==='series'?'serial':'movies';
+                const selected=await ask({title:title||'Выбери соответствие',options:labels});return selected==null?null:values[Number(selected)];
+            }
+        };
+        const params={app,obsidian:legacyOb,quickAddApi:qa,variables:{},fromDialog:true,dialogSignal:signal};
+        const prepared=await addMovieCore(params,await dialogSettings(app),{setMessage:text=>onProgress({stage:String(text).replace(/^Кино: /,'')})});
+        checkDialogCancel(signal);
+        if(prepared?.existing)return {file:prepared.existing,existing:true};
+        if(!prepared?.variables)throw new Error(lastNotice||'Не удалось подготовить карточку. Проверь ID и настройки старого скрипта.');
+        return await savePreparedFromDialog({app,obsidian:ob,prepared,rating,signal,onProgress,findExisting});
+    }finally{release();}
+}
+async function savePreparedFromDialog({app,obsidian:ob={},prepared,rating,signal,onProgress=()=>{},findExisting}) {
+    checkDialogCancel(signal);
+    if(!prepared?.movie||!Number.isFinite(rating)||rating<1||rating>10)throw new Error('Карточка не подготовлена или не задана оценка.');
+    const {movie,title,description,franchise={},kinopoiskId='',people={},mediaTag}=prepared;
+    for(const identity of [{provider:'kp',id:kinopoiskId},{provider:'imdb',id:movie.imdbID}].filter(x=>x.id)){
+        const existing=findExisting?.(app,identity);if(existing)return {file:existing,existing:true};
+    }
+    const template=app.vault.getAbstractFileByPath('_templates/imdb_template.md');
+    if(!template)throw new Error('Не найден существующий шаблон _templates/imdb_template.md.');
+    const variables={...prepared.variables,'Оценка':rating};
+    const lists=new Set(['genreLinks','directorLink','actorLinks','actorRoleLinks']);
+    const numerics=new Set(['Оценка','imdbRating','kinopoiskRating','kinopoiskVotes','imdbVotesNumber']);
+    const raw=String(await app.vault.read(template))
+        .replace(/"\{\{VALUE:([^}]+)\}\}"/gi,(_,key)=>JSON.stringify(String(variables[key]??'')))
+        .replace(/\{\{VALUE:([^}]+)\}\}/gi,(_,key)=>lists.has(key)?String(variables[key]||' []'):JSON.stringify(numerics.has(key)?number(variables[key]):variables[key]??null))
+        .replace(/\{\{DATE:[^}]+\}\}/gi,dialogDate());
+    if(/\{\{[^}]+\}\}/.test(raw))throw new Error('В шаблоне остались незаполненные поля.');
+    const patched=patchTemplate(raw,ob,movie.imdbID,description,franchise,normalizeRelease(movie.Released),kinopoiskId,people,mediaTag);
+    if(patched===null)throw new Error('Старый скрипт не смог проверить карточку из шаблона.');
+    const cardLayout=await loadCardLayout(app);
+    let basename=safeName(title).slice(0,120),path;
+    for(let i=0;;i++){
+        const name=i===0?basename:basename.slice(0,85)+' ('+(i===1?safeName(movie.Year||movie.imdbID):movie.imdbID+' '+i)+')';
+        path=ROOT+'/Media/'+name+'.md';
+        if(!app.vault.getAbstractFileByPath(path)&&!app.vault.getAbstractFileByPath(ROOT+'/_system/Роли/'+name+'.роли.md'))break;
+    }
+    checkDialogCancel(signal);onProgress({stage:'Сохраняю по существующему шаблону…'});
+    await makeFolders(app,path);
+    const file=await app.vault.create(path,cardLayout.ensureLayout(patched,{kind:'media',parseYaml:ob.parseYaml}));
+    // Complete both files once saving has started, including on cancellation.
+    let warning='';
+    try{
+        onProgress({stage:'Записываю актёров и роли старым скриптом…'});
+        const rolePath=await writeRoleFile(app,ob,file,movie,kinopoiskId,people);
+        const update=text=>cardLayout.ensureLayout(ensureRoleEmbed(text,rolePath),{kind:'media',parseYaml:ob.parseYaml});
+        if(app.vault.process)await app.vault.process(file,update);else await app.vault.modify(file,update(await app.vault.read(file)));
+    }catch(error){throw new Error('Карточка сохранена, но заполнение ролей не завершено: '+error.message);}
+    const known=app[Symbol.for('kino.import.created')]||(app[Symbol.for('kino.import.created')]=new Map());
+    if(kinopoiskId)known.set('kp:'+kinopoiskId,file.path);if(movie.imdbID)known.set('imdb:'+movie.imdbID,file.path);
+    try{
+        onProgress({stage:'Готовлю прогноз для готовой карточки…'});checkDialogCancel(signal);
+        const deadline=Date.now()+10000;
+        while(!app.metadataCache.getFileCache(file)?.frontmatter?.tags){checkDialogCancel(signal);if(Date.now()>deadline)throw new Error('Прогноз можно повторить после индексации.');await new Promise(resolve=>setTimeout(resolve,100));}
+        const predictorFile=app.vault.getAbstractFileByPath(RATING_PREDICTOR);
+        if(!predictorFile)throw new Error('Не найден скрипт прогноза.');
+        const loaded={exports:{}};new Function('module','exports',await app.vault.read(predictorFile))(loaded,loaded.exports);
+        const estimate=await loaded.exports({app,obsidian:ob,targetFile:file,onProgress,shouldCancel:()=>signal?.aborted,suppressNotice:true,prepareDescriptions:false});
+        if(!estimate)throw new Error('Прогноз пока недоступен; расчёт можно повторить из карточки.');
+    }catch(error){warning='Карточка сохранена. '+(error.name==='AbortError'?'Расчёт прогноза остановлен.':error.message);}
+    return {file,warning};
 }
