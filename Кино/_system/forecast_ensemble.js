@@ -3,9 +3,9 @@
 "use strict";
 
 const core = require("./forecast_core.js");
-const { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, MIN_PEERS, MIN_SIM } = core.ensembleInternals;
-const VERSION = 5;
-const ENGINE = "kino-data-gemma-forecasts-5.0.0";
+const { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, MIN_PEERS, MIN_SIM } = core.ensembleInternals;
+const VERSION = 6;
+const ENGINE = "kino-data-gemma-forecasts-6.0.0";
 const MODEL_KEYS = ["embeddinggemma"];
 const DATA_LIMITS = [155];
 const BRANCHES = [
@@ -130,7 +130,7 @@ function forecast(items, target, vectorSets = {}, training = null, options = {})
     const excludedPaths = identities ? new Set(identities.filter(item => item.group === target.group).map(item => item.path)) : null;
     const peers = c.rated.filter(item => item.path !== target.path && item.group !== target.group && !excludedPaths?.has(item.path));
     if (peers.length < MIN_PEERS) return { version: VERSION, engine: ENGINE, target: { path: target.path, name: target.name }, error: "Для прогноза нужно не менее 30 оценённых других карточек", prediction: null };
-    const context = fit(peers), parameters = parametersFor(target, training, identities || c.items);
+    const context = fit(peers, target, options), parameters = parametersFor(target, training, identities || c.items);
     const dataRanking = ranks(target, c);
     const dataVariants = Object.fromEntries(DATA_LIMITS.map(k => [String(k), calculateData(target, context, dataRanking, true, k)]));
     const plotVariants = Object.fromEntries(MODEL_KEYS.map(key => [key, plotReport(target, context, modelCorpora[key], vectorSets[key] || {}, parameters.plots[key])]));
@@ -141,7 +141,8 @@ function forecast(items, target, vectorSets = {}, training = null, options = {})
     const reason = [missing.length ? `Не готовы модели: ${missing.join(", ")}` : "", parameters.needsRetuning ? parameters.reason || "Нужно повторно подобрать параметры без оценок текущего произведения" : ""].filter(Boolean).join("; ") || null;
     const report = {
         version: VERSION, engine: ENGINE, createdAt: new Date().toISOString(), target: { ...target, ownRatingExcluded: true },
-        training: { count: peers.length, excludedGroup: target.group, globalMean: context.mean, parameters, validation: training?.metrics || null, fitCount: parameters.fitCount ?? training?.ratedCount ?? null },
+        temporal: context.temporal,
+        training: { count: peers.length, excludedGroup: target.group, globalMean: context.mean, temporal: context.temporal, parameters, validation: training?.metrics || null, fitCount: parameters.fitCount ?? training?.ratedCount ?? null },
         dataVariants, plotVariants, branches: BRANCHES.map((branch, i) => ({ ...branch, raw: values[i], prediction: rounded(values[i]), status: i < DATA_LIMITS.length ? "ready" : plotVariants[MODEL_KEYS[i - DATA_LIMITS.length]].status })),
         data: dataVariants[155], plot: plotVariants.embeddinggemma,
         final: { ...mixed, prediction: rounded(mixed.raw), provisional, reason, reliability: parameters.reliability, formula: "final.raw = clamp(dataWeight × data155.raw + plotWeight × plot.raw, 1, 10); weights are inverse-MAE reliability weights limited to 25–75%, before rounding. If a branch is unavailable, normalize weights across available branches and mark the result provisional." }
@@ -159,10 +160,10 @@ function plotGrid(context, ranking) {
     const maximum = top[0].sim, prefixes = new Map();
     for (const temperature of [0.03, 0.07, 0.15]) {
         const weights = new Float64Array(top.length + 1), residuals = new Float64Array(top.length + 1);
-        for (let i = 0; i < top.length; i++) { const weight = Math.exp((top[i].sim - maximum) / temperature); weights[i + 1] = weights[i] + weight; residuals[i + 1] = residuals[i] + weight * (top[i].item.rating - context.mean); }
+        for (let i = 0; i < top.length; i++) { const weight = Math.exp((top[i].sim - maximum) / temperature) * temporalWeight(context, top[i].item); weights[i + 1] = weights[i] + weight; residuals[i + 1] = residuals[i] + weight * (top[i].item.rating - context.mean); }
         prefixes.set(temperature, { weights, residuals });
     }
-    for (let i = 0; i < GRID.length; i++) { const parameters = GRID[i], count = Math.min(parameters.k, top.length), prefix = prefixes.get(parameters.temperature); result[i] = clamp(context.mean + prefix.residuals[count] / (prefix.weights[count] + parameters.smoothing)); }
+    for (let i = 0; i < GRID.length; i++) { const parameters = GRID[i], count = Math.min(parameters.k, top.length), prefix = prefixes.get(parameters.temperature), denominator = prefix.weights[count] + parameters.smoothing; result[i] = clamp(context.mean + (denominator > 0 ? prefix.residuals[count] / denominator : 0)); }
     return result;
 }
 
@@ -222,11 +223,11 @@ async function fitParameters(pool, prepared, options, label) {
     for (let fold = 0; fold < 4; fold++) {
         checkCancelled(options);
         const validation = pool.filter(item => core.foldFor(item.group, 4, "inner-v2") === fold);
-        const trainSet = pool.filter(item => core.foldFor(item.group, 4, "inner-v2") !== fold), context = fit(trainSet);
+        const trainSet = pool.filter(item => core.foldFor(item.group, 4, "inner-v2") !== fold);
         if (trainSet.length < MIN_PEERS) continue;
         for (let index = 0; index < validation.length; index++) {
             checkCancelled(options);
-            const target = validation[index], ranking = ranks(target, c);
+            const target = validation[index], context = fit(trainSet, target, options), ranking = ranks(target, c);
             const data = DATA_LIMITS.map(k => calculateData(target, context, ranking, false, k));
             const plots = Object.fromEntries(MODEL_KEYS.map(key => [key, plotGrid(context, ranks(target, modelCorpora[key], true))]));
             for (const key of MODEL_KEYS) for (let g = 0; g < GRID.length; g++) scoreAdd(plotScores[key][g], plots[key][g], target.rating);
@@ -249,11 +250,12 @@ async function fitParameters(pool, prepared, options, label) {
 }
 
 async function train(items, vectorSets = {}, options = {}) {
-    const prepared = prepare(items, vectorSets), { c, modelCorpora } = prepared, pool = c.rated;
+    const prepared = options.prepared || prepare(items, vectorSets), { c, modelCorpora } = prepared, pool = c.rated;
     if (pool.length < 40) throw new Error("Для вложенной проверки нужно не менее 40 оценённых карточек");
     const training = {
         version: VERSION, engine: ENGINE, createdAt: new Date().toISOString(), ratedCount: pool.length, groupCount: new Set(pool.map(item => item.group)).size,
         folds: {}, groupFolds: {}, outer: {}, global: null, metrics: {},
+        temporal: { method: "exponential-watch-distance", halfLifeDays: core.TEMPORAL_HALF_LIFE_DAYS, asOfDate: core.calendarDate(options.asOfDate), missingDateWeight: 1, anchor: "Each target's viewing date, falling back only to the explicitly supplied asOfDate", appliesTo: ["mean", "public-rating calibration", "category residuals", "data-neighbor weights", "plot-neighbor weights", "all inner and outer validation predictions"] },
         crossValidation: { outerFolds: 5, innerFolds: 4, grouping: "connected IMDb/KP identity", split: "stable FNV-1a hash, label independent", selection: "Plot independently: MAE, RMSE, k, temperature, smoothing. Mixture: inverse MAE on paired inner-held-out predictions, each source limited to 25–75%; fewer than 30 paired targets/identity groups or invalid/zero errors: 50/50.", reliability: { method: "inverse-mae", minimumPairedCount: MIN_PAIRED_VALIDATION, minWeight: MIN_BRANCH_WEIGHT, maxWeight: MAX_BRANCH_WEIGHT, formula: RELIABILITY_FORMULA }, grid: { dataNeighbors: DATA_LIMITS, plotNeighbors: [10, 20, 35, 55, 100, 155], temperature: [0.03, 0.07, 0.15], smoothing: [0, 3, 10] } }
     };
     for (const target of pool) { training.folds[target.path] = core.foldFor(target.group); training.groupFolds[target.group] = core.foldFor(target.group); }
@@ -265,10 +267,10 @@ async function train(items, vectorSets = {}, options = {}) {
         options.onProgress?.({ phase: "training", stage: `Внешняя группа ${outer + 1}/5`, completed: outer, total: 6 }); await tick();
         const fitted = await fitParameters(trainSet, prepared, options, `Группа ${outer + 1}/5`);
         training.outer[String(outer)] = fitted;
-        const context = fit(trainSet), foldScores = Object.fromEntries(metricKeys.map(key => [key, emptyScore()]));
+        const foldScores = Object.fromEntries(metricKeys.map(key => [key, emptyScore()]));
         for (let index = 0; index < validation.length; index++) {
             checkCancelled(options);
-            const target = validation[index], ranking = ranks(target, c);
+            const target = validation[index], context = fit(trainSet, target, options), ranking = ranks(target, c);
             const values = [...DATA_LIMITS.map(k => calculateData(target, context, ranking, false, k)), ...MODEL_KEYS.map(key => calculatePlot(target, context, ranks(target, modelCorpora[key], true), fitted.parameters.plots[key]))];
             const predictions = { ...Object.fromEntries(BRANCHES.map(({ id }, i) => [id, values[i]])), half: mix(values, equalWeights()).raw, tuned: mix(values, fitted.parameters.weights).raw };
             for (const [key, prediction] of Object.entries(predictions)) { scoreAdd(scores[key], prediction, target.rating); scoreAdd(foldScores[key], prediction, target.rating); }

@@ -4,6 +4,8 @@
 const DATA_K = 155;
 const MIN_SIM = 0.055;
 const MIN_PEERS = 30;
+const TEMPORAL_HALF_LIFE_DAYS = 730;
+const DAY_MS = 86400000;
 const clamp = (x, lo = 1, hi = 10) => Math.max(lo, Math.min(hi, x));
 const rounded = x => x === null ? null : Math.round(x * 10) / 10;
 const text = v => v == null ? "" : typeof v.toISODate === "function" ? v.toISODate() : String(v).trim();
@@ -21,6 +23,49 @@ const validDescription = description => {
     return value.length >= 30 && (value.match(/\p{L}{2,}/gu) || []).length >= 5;
 };
 
+/* Calendar dates, rather than local timestamps: the same viewing must have the
+   same distance on desktop and Android, including across DST changes. */
+function calendarDate(value) {
+    if (value instanceof Date) value = Number.isFinite(value.getTime()) ? value.toISOString() : "";
+    else if (typeof value?.toISODate === "function") value = value.toISODate();
+    const match = text(value).match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/);
+    if (!match) return null;
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+    const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (year < 1000 || month < 1 || month > 12 || day < 1 || day > days[month - 1]) return null;
+    return `${match[1]}-${match[2]}-${match[3]}`;
+}
+const calendarDay = value => { const date = calendarDate(value); return date ? Date.UTC(Number(date.slice(0, 4)), Number(date.slice(5, 7)) - 1, Number(date.slice(8, 10))) / DAY_MS : null; };
+function temporalFactor(anchorDate, peerDate) {
+    const anchor = calendarDay(anchorDate), peer = calendarDay(peerDate);
+    const distanceDays = anchor !== null && peer !== null ? Math.abs(anchor - peer) : null;
+    return { timeWeight: distanceDays === null ? 1 : Math.exp(-Math.LN2 * distanceDays / TEMPORAL_HALF_LIFE_DAYS), distanceDays };
+}
+function temporalContext(items, target, options = {}) {
+    const ownDate = calendarDate(target?.watchDate), asOfDate = calendarDate(options.asOfDate);
+    const anchorDate = ownDate || asOfDate, weights = new Map();
+    let datedPeers = 0, effectiveCount = 0;
+    for (const item of items) {
+        const watchDate = calendarDate(item.watchDate), factor = temporalFactor(anchorDate, watchDate);
+        if (watchDate) datedPeers++;
+        weights.set(item.path, factor.timeWeight); effectiveCount += factor.timeWeight;
+    }
+    return { weights, report: {
+        method: "exponential-watch-distance", halfLifeDays: TEMPORAL_HALF_LIFE_DAYS,
+        anchorDate, anchorSource: ownDate ? "watchDate" : asOfDate ? "asOfDate" : "missing",
+        status: !anchorDate ? "neutral-missing-target-date" : datedPeers < items.length ? "partial-missing-peer-dates" : "ready",
+        datedPeerCount: datedPeers, missingPeerDateCount: items.length - datedPeers, effectiveCount,
+        missingDateWeight: 1, formula: "timeWeight = exp(-ln(2) × abs(peerWatchDate − targetWatchDate) / 730 days); missing viewing dates use neutral weight 1"
+    } };
+}
+const temporalWeight = (context, item) => context.timeWeights?.get(item.path) ?? 1;
+function weightedAverage(items, value, weights) {
+    let sum = 0, count = 0;
+    for (const item of items) { const weight = weights?.get(item.path) ?? 1; sum += weight * value(item); count += weight; }
+    return count > 0 ? sum / count : null;
+}
+
 function feature(file, fm = {}, actors = []) {
     const path = text(typeof file === "string" ? file : file?.path);
     const release = text(fm["Релиз"]).match(/(?:19|20)\d{2}/);
@@ -30,7 +75,7 @@ function feature(file, fm = {}, actors = []) {
         path, name: text(file?.basename) || path.split("/").pop().replace(/\.md$/i, "") || text(fm["Название"]),
         group: id ? `imdb:${id}` : kpid ? `kp:${kpid}` : `path:${path}`,
         type: list(fm.tags).some(x => x.replace(/^#/, "") === "serial") ? "serial" : "movies",
-        rating: number(fm["Оценка"]), imdbId: id, kpId: kpid, imdb, kp,
+        rating: number(fm["Оценка"]), watchDate: calendarDate(fm["Просмотрено"]), imdbId: id, kpId: kpid, imdb, kp,
         publicMean: average([imdb, kp].filter(x => x !== null && x >= 0 && x <= 10)),
         genres: unique(fm["Жанр"]), directors: unique(fm["Режисер"]), actors: unique(list(actors).slice(0, 60)),
         releaseYear: release ? Number(release[0]) : null, duration: number(fm["Время"]),
@@ -77,36 +122,38 @@ function similarity(a, b, details = false) {
     return details ? { similarity: total ? sum / total : 0, components, totalCoefficient: total } : total ? sum / total : 0;
 }
 
-function calibration(items) {
+function calibration(items, weights) {
     const pairs = items.filter(x => x.publicMean !== null);
-    const globalMean = average(items.map(x => x.rating)) || 6;
-    if (pairs.length < 20) return { a: globalMean, b: 0, count: pairs.length };
-    const mx = average(pairs.map(x => x.publicMean)), my = average(pairs.map(x => x.rating));
+    const globalMean = weightedAverage(items, x => x.rating, weights) ?? 6;
+    const effectiveCount = pairs.reduce((sum, item) => sum + (weights?.get(item.path) ?? 1), 0);
+    if (pairs.length < 20 || effectiveCount <= 0) return { a: globalMean, b: 0, count: pairs.length, effectiveCount };
+    const mx = weightedAverage(pairs, x => x.publicMean, weights), my = weightedAverage(pairs, x => x.rating, weights);
     let cov = 0, variance = 0;
-    for (const x of pairs) { cov += (x.publicMean - mx) * (x.rating - my); variance += (x.publicMean - mx) ** 2; }
+    for (const x of pairs) { const weight = weights?.get(x.path) ?? 1; cov += weight * (x.publicMean - mx) * (x.rating - my); variance += weight * (x.publicMean - mx) ** 2; }
     const b = clamp(variance > 1e-9 ? cov / variance : 0, -0.25, 1.35);
-    return { a: my - b * mx, b, count: pairs.length };
+    return { a: my - b * mx, b, count: pairs.length, effectiveCount };
 }
 const baseline = (item, cal, mean) => item.publicMean !== null ? clamp(cal.a + cal.b * item.publicMean) : mean;
 const categoryKeys = item => ({ genres: item.genres, decade: item.releaseYear === null ? [] : [`${Math.floor(item.releaseYear / 10) * 10}s`], duration: item.duration === null ? [] : [item.duration < 90 ? "short" : item.duration < 130 ? "medium" : "long"], franchise: item.franchise ? [item.franchise] : [] });
 
-function fit(items) {
-    const mean = average(items.map(x => x.rating)) || 6;
-    const cal = calibration(items), residuals = new Map(), bases = new Map();
+function fit(items, target, options = {}) {
+    const temporal = temporalContext(items, target, options), timeWeights = temporal.weights;
+    const mean = weightedAverage(items, x => x.rating, timeWeights) ?? 6;
+    const cal = calibration(items, timeWeights), residuals = new Map(), bases = new Map();
     for (const item of items) {
-        const base = baseline(item, cal, mean); bases.set(item.path, base);
+        const base = baseline(item, cal, mean), weight = timeWeights.get(item.path); bases.set(item.path, base);
         for (const [group, keys] of Object.entries(categoryKeys(item))) for (const key of keys) {
-            const id = `${group}:${key}`, entry = residuals.get(id) || { sum: 0, count: 0 };
-            entry.sum += item.rating - base; entry.count++; residuals.set(id, entry);
+            const id = `${group}:${key}`, entry = residuals.get(id) || { sum: 0, count: 0, weightSum: 0 };
+            entry.sum += weight * (item.rating - base); entry.count++; entry.weightSum += weight; residuals.set(id, entry);
         }
     }
-    return { items, paths: new Set(items.map(x => x.path)), calibration: cal, mean, residuals, bases };
+    return { items, paths: new Set(items.map(x => x.path)), calibration: cal, mean, residuals, bases, timeWeights, temporal: temporal.report };
 }
 
 function categoryCorrection(target, context) {
     const categories = [];
     for (const [group, keys] of Object.entries(categoryKeys(target))) {
-        const entries = keys.map(key => ({ key, ...context.residuals.get(`${group}:${key}`) })).filter(x => x.count).map(x => ({ ...x, effect: x.sum / (x.count + 10) }));
+        const entries = keys.map(key => ({ key, ...context.residuals.get(`${group}:${key}`) })).filter(x => x.count).map(x => ({ ...x, effect: x.sum / ((x.weightSum ?? x.count) + 10) }));
         if (entries.length) categories.push({ group, entries, effect: average(entries.map(x => x.effect)) });
     }
     for (const category of categories) category.contribution = 0.75 * category.effect / categories.length;
@@ -117,19 +164,19 @@ function calculateData(target, context, ranked, details = false, maximumNeighbor
     const top = [];
     for (const row of ranked) { if (context.paths.has(row.item.path)) top.push(row); if (top.length === maximumNeighbors) break; }
     const base = baseline(target, context.calibration, context.mean);
-    const sw = top.reduce((s, x) => s + x.sim ** 3, 0);
+    const sw = top.reduce((s, x) => s + x.sim ** 3 * temporalWeight(context, x.item), 0);
     let correction = 0;
     const neighbors = top.map(row => {
         const neighborBase = context.bases.get(row.item.path), residual = row.item.rating - neighborBase;
-        const weight = row.sim ** 3, share = sw > 1e-9 ? weight / sw : 0, contribution = share * residual;
+        const timeWeight = temporalWeight(context, row.item), weight = row.sim ** 3 * timeWeight, share = sw > 0 ? weight / sw : 0, contribution = share * residual;
         correction += contribution;
         if (!details) return null;
-        return { path: row.item.path, name: row.item.name, rating: row.item.rating, base: neighborBase, similarity: row.sim, weight, share, residual, contribution, components: similarity(target, row.item, true).components };
+        return { path: row.item.path, name: row.item.name, rating: row.item.rating, watchDate: row.item.watchDate || null, distanceDays: temporalFactor(context.temporal?.anchorDate, row.item.watchDate).distanceDays, timeWeight, base: neighborBase, similarity: row.sim, weight, share, residual, contribution, components: similarity(target, row.item, true).components };
     });
     const category = categoryCorrection(target, context), weightedCategory = 0.75 * category.correction;
     const unbounded = base + correction + weightedCategory, raw = clamp(unbounded);
     if (!details) return raw;
-    return { prediction: rounded(raw), raw, unbounded, base, globalMean: context.mean, calibration: context.calibration, correction, categoryCorrection: category.correction, weightedCategory, neighbors, categories: category.categories, formula: "clamp(base + Σ(similarity³ / Σsimilarity³ × (rating − neighborBase)) + 0.75 × categoryCorrection, 1, 10)", maximumNeighbors, minimumSimilarity: MIN_SIM };
+    return { prediction: rounded(raw), raw, unbounded, base, globalMean: context.mean, calibration: context.calibration, temporal: context.temporal, correction, categoryCorrection: category.correction, weightedCategory, neighbors, categories: category.categories, formula: "weight = similarity³ × timeWeight; clamp(base + Σ(weight / Σweight × (rating − neighborBase)) + 0.75 × temporallyWeightedCategoryCorrection, 1, 10)", maximumNeighbors, minimumSimilarity: MIN_SIM };
 }
 
 function embedding(vectors, path) {
@@ -150,15 +197,15 @@ function calculatePlot(target, context, ranked, parameters, details = false) {
     const maximum = top[0].sim;
     let sumWeights = 0, sumResiduals = 0;
     const values = top.map(row => {
-        const weight = Math.exp((row.sim - maximum) / parameters.temperature), residual = row.item.rating - context.mean;
+        const timeWeight = temporalWeight(context, row.item), weight = Math.exp((row.sim - maximum) / parameters.temperature) * timeWeight, residual = row.item.rating - context.mean;
         sumWeights += weight; sumResiduals += weight * residual;
-        return { path: row.item.path, name: row.item.name, rating: row.item.rating, similarity: row.sim, weight, residual };
+        return { path: row.item.path, name: row.item.name, rating: row.item.rating, watchDate: row.item.watchDate || null, distanceDays: temporalFactor(context.temporal?.anchorDate, row.item.watchDate).distanceDays, timeWeight, similarity: row.sim, weight, residual };
     });
-    const denominator = sumWeights + parameters.smoothing, correction = sumResiduals / denominator;
+    const denominator = sumWeights + parameters.smoothing, correction = denominator > 0 ? sumResiduals / denominator : 0;
     const unbounded = context.mean + correction, raw = clamp(unbounded);
     if (!details) return raw;
-    for (const row of values) { row.share = row.weight / denominator; row.contribution = row.share * row.residual; }
-    return { status: "ready", reason: null, prediction: rounded(raw), raw, unbounded, base: context.mean, correction, sumWeights, denominator, neighbors: values, parameters, formula: "clamp(mean + Σ(exp((similarity − maxSimilarity) / temperature) × (rating − mean)) / (Σweights + smoothing), 1, 10)" };
+    for (const row of values) { row.share = denominator > 0 ? row.weight / denominator : 0; row.contribution = row.share * row.residual; }
+    return { status: "ready", reason: null, prediction: rounded(raw), raw, unbounded, base: context.mean, temporal: context.temporal, correction, sumWeights, denominator, neighbors: values, parameters, formula: "weight = exp((similarity − maxSimilarity) / temperature) × timeWeight; clamp(temporallyWeightedMean + Σ(weight × (rating − mean)) / (Σweights + smoothing), 1, 10)" };
 }
 
 function corpus(items, vectors = {}) {
@@ -167,5 +214,5 @@ function corpus(items, vectors = {}) {
     return { items: grouped, rated: grouped.filter(isRated), byPath, normalized, sourceVectors: vectors };
 }
 
-module.exports = { feature, assignGroups, foldFor, validDescription, similarity, cosine,
-    ensembleInternals: { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, MIN_PEERS, MIN_SIM } };
+module.exports = { feature, assignGroups, foldFor, validDescription, similarity, cosine, calendarDate, temporalFactor, TEMPORAL_HALF_LIFE_DAYS,
+    ensembleInternals: { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, MIN_PEERS, MIN_SIM } };
