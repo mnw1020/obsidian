@@ -84,7 +84,7 @@ async function rowsFor(app, obsidian, mediaFile, layout) {
     return { viewings, seasons };
 }
 
-async function saveUnlocked(params, rating) {
+async function saveUnlocked(params, rating, repair = false) {
     const { app, obsidian } = params;
     const current = await read(params);
     const guarded = own(params, "expectedRating"), expected = numeric(params.expectedRating);
@@ -94,7 +94,7 @@ async function saveUnlocked(params, rating) {
     if (guarded && current.rating !== expected) throw Error("Оценка уже изменилась. Открой изменение оценки заново.");
     const mediaRatingBefore = current.kind === "media" ? current.rating : numeric((await fields(app, obsidian, current.mediaFile))["Оценка"]);
     const result = { ...current, rating, changed: false, mediaRatingChanged: false, changedFiles: [] };
-    if (current.rating === rating) return result;
+    if (!repair && current.rating === rating) return result;
 
     const layoutFile = app.vault.getAbstractFileByPath("Кино/_system/card_layout.js");
     if (!layoutFile) throw Error("Не найден модуль оформления карточек Кино.");
@@ -121,71 +121,88 @@ async function saveUnlocked(params, rating) {
         changed.add(file);
     };
 
-    // Guard the source again inside Obsidian's serialized frontmatter operation.
-    await patch(current.file, { "Оценка": rating }, guard);
-    if (sourceRow) sourceRow.rating = rating;
     const latest = viewings[viewings.length - 1];
-    if (current.kind === "media" && latest) {
-        await patch(latest.file, { "Оценка": rating });
-        latest.rating = rating;
-    }
-    if (current.kind === "viewing" && sourceRow === latest) await patch(current.mediaFile, { "Оценка": rating });
+    const previousMediaRatingChanged = repair && params.previousMediaRatingChanged === true;
+    const intendedMainChange = (current.kind === "media" || (current.kind === "viewing" && sourceRow === latest))
+        && mediaRatingBefore !== rating;
+    try {
+        // Guard the source again inside Obsidian's serialized frontmatter operation.
+        await patch(current.file, { "Оценка": rating }, guard);
+        if (sourceRow) sourceRow.rating = rating;
+        if (current.kind === "media" && latest) {
+            await patch(latest.file, { "Оценка": rating });
+            latest.rating = rating;
+        }
+        if (current.kind === "viewing" && sourceRow === latest) await patch(current.mediaFile, { "Оценка": rating });
 
-    if (current.kind !== "season" && viewings.length) {
-        const previous = viewings[viewings.length - 2];
-        for (const row of viewings) {
-            const delta = row === latest && previous?.rating != null && row.rating != null;
-            await patch(row.file, {
-                "Последний просмотр": row === latest,
-                "Предыдущая оценка": delta ? previous.rating : undefined,
-                "Изменение оценки": delta ? Number((row.rating - previous.rating).toFixed(2)) : undefined
-            });
-        }
-    }
-    if (current.kind === "season") {
-        for (let i = 0; i < seasons.length; i++) {
-            const row = seasons[i], previous = seasons[i - 1], delta = previous?.rating != null && row.rating != null;
-            await patch(row.file, {
-                "Предыдущая оценка": delta ? previous.rating : undefined,
-                "Изменение оценки": delta ? Math.round((row.rating - previous.rating) * 10) / 10 : undefined
-            });
-        }
-    }
-
-    if (current.kind !== "media" || latest) {
-        const chunks = [];
-        if (seasons.length) {
-            chunks.push("<!-- SEASONS:START -->");
-            for (const row of seasons) {
-                chunks.push(`# Сезон ${row.season} (${row.rating == null ? "без оценки" : `${row.rating}/10`})`);
-                if (row.comment) chunks.push(row.comment);
-            }
-            chunks.push("<!-- SEASONS:END -->");
-        }
-        if (viewings.length) chunks.push(layout.viewingHistory(viewings));
-        const original = await app.vault.read(current.mediaFile);
-        const rebuilt = layout.rebuildCard(original, chunks.join("\n\n"), { parseYaml: obsidian.parseYaml });
-        if (rebuilt !== original) {
-            // process keeps unrelated edits made since the read used above.
-            if (typeof app.vault.process === "function") {
-                let modified = false;
-                await app.vault.process(current.mediaFile, raw => {
-                    const next = layout.rebuildCard(raw, chunks.join("\n\n"), { parseYaml: obsidian.parseYaml });
-                    modified = next !== raw;
-                    return next;
+        if (current.kind !== "season" && viewings.length) {
+            const previous = viewings[viewings.length - 2];
+            for (const row of viewings) {
+                const delta = row === latest && previous?.rating != null && row.rating != null;
+                await patch(row.file, {
+                    "Последний просмотр": row === latest,
+                    "Предыдущая оценка": delta ? previous.rating : undefined,
+                    "Изменение оценки": delta ? Number((row.rating - previous.rating).toFixed(2)) : undefined
                 });
-                if (modified) changed.add(current.mediaFile);
-            } else {
-                await app.vault.modify(current.mediaFile, rebuilt);
-                changed.add(current.mediaFile);
             }
         }
+        if (current.kind === "season") {
+            for (let i = 0; i < seasons.length; i++) {
+                const row = seasons[i], previous = seasons[i - 1], delta = previous?.rating != null && row.rating != null;
+                await patch(row.file, {
+                    "Предыдущая оценка": delta ? previous.rating : undefined,
+                    "Изменение оценки": delta ? Math.round((row.rating - previous.rating) * 10) / 10 : undefined
+                });
+            }
+        }
+
+        if (current.kind !== "media" || latest) {
+            const chunks = [];
+            if (seasons.length) {
+                chunks.push("<!-- SEASONS:START -->");
+                for (const row of seasons) {
+                    chunks.push(`# Сезон ${row.season} (${row.rating == null ? "без оценки" : `${row.rating}/10`})`);
+                    if (row.comment) chunks.push(row.comment);
+                }
+                chunks.push("<!-- SEASONS:END -->");
+            }
+            if (viewings.length) chunks.push(layout.viewingHistory(viewings));
+            const original = await app.vault.read(current.mediaFile);
+            const rebuilt = layout.rebuildCard(original, chunks.join("\n\n"), { parseYaml: obsidian.parseYaml });
+            if (rebuilt !== original) {
+                // process keeps unrelated edits made since the read used above.
+                if (typeof app.vault.process === "function") {
+                    let modified = false;
+                    await app.vault.process(current.mediaFile, raw => {
+                        const next = layout.rebuildCard(raw, chunks.join("\n\n"), { parseYaml: obsidian.parseYaml });
+                        modified = next !== raw;
+                        return next;
+                    });
+                    if (modified) changed.add(current.mediaFile);
+                } else {
+                    await app.vault.modify(current.mediaFile, rebuilt);
+                    changed.add(current.mediaFile);
+                }
+            }
+        }
+        const mediaRatingAfter = numeric((await fields(app, obsidian, current.mediaFile))["Оценка"]);
+        return { ...result, changed: changed.size > 0 || previousMediaRatingChanged,
+            mediaRatingChanged: previousMediaRatingChanged || mediaRatingAfter !== mediaRatingBefore, changedFiles: [...changed] };
+    } catch (caught) {
+        const error = caught instanceof Error ? caught : Error(String(caught));
+        if (changed.size > 0) {
+            let mediaRatingChanged = intendedMainChange;
+            try { mediaRatingChanged = numeric((await fields(app, obsidian, current.mediaFile))["Оценка"]) !== mediaRatingBefore; }
+            catch (_) { /* The successful source write is known even if the follow-up read fails. */ }
+            error.partialSave = { sourcePath: params.sourcePath, rating,
+                mediaRatingChanged: previousMediaRatingChanged || mediaRatingChanged, changedFiles: [...changed] };
+            error.message = "Оценка сохранена, но связанные записи обновлены не полностью: " + error.message;
+        }
+        throw error;
     }
-    const mediaRatingAfter = numeric((await fields(app, obsidian, current.mediaFile))["Оценка"]);
-    return { ...result, changed: changed.size > 0, mediaRatingChanged: mediaRatingAfter !== mediaRatingBefore, changedFiles: [...changed] };
 }
 
-async function save(params) {
+async function serializedSave(params, repair) {
     const rating = numeric(params.rating);
     if (rating == null || rating < 1 || rating > 10) throw Error("Оценка должна быть от 1 до 10.");
     const previous = params.app[LANE] || Promise.resolve();
@@ -193,8 +210,8 @@ async function save(params) {
     const lane = new Promise(resolve => { release = resolve; });
     params.app[LANE] = lane;
     await previous.catch(() => {});
-    try { return await saveUnlocked(params, rating); }
+    try { return await saveUnlocked(repair ? { ...params, expectedRating: rating } : params, rating, repair); }
     finally { release(); if (params.app[LANE] === lane) delete params.app[LANE]; }
 }
 
-module.exports = { read, save };
+module.exports = { read, save: params => serializedSave(params, false), reconcile: params => serializedSave(params, true) };

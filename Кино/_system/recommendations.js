@@ -1825,7 +1825,10 @@ async function main(){
             const freshRows=rows=>(rows||[]).map(row=>{
                 const local=byPath.get(row.localPath||row.local?.localPath)||byKp.get(row.kpId)||byImdb.get(row.imdbId);
                 const fresh={...row};delete fresh.forecast;delete fresh.storedPrediction;
-                if(local)Object.assign(fresh,{local,localPath:local.localPath,storedPrediction:local.storedPrediction,rating:local.rating});
+                if(local){
+                    const freshLocal={...local};delete freshLocal.storedPrediction;
+                    Object.assign(fresh,{local:freshLocal,localPath:local.localPath,rating:local.rating});
+                }
                 else delete fresh.local;
                 return fresh;
             });

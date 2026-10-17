@@ -16,7 +16,7 @@ module.exports = async function openPersonalRating({ app, obsidian = {}, sourceP
     const descriptor = await store.read({ app, obsidian, sourcePath });
     const refresh = await load(app, "personal_rating_refresh");
     class RatingModal extends obsidian.Modal {
-        constructor() { super(app); this.opened = false; this.saving = false; }
+        constructor() { super(app); this.opened = false; this.saving = false; this.repair = null; }
         isOpen() { return this.opened; }
         focus() { this.input?.focus(); }
         onOpen() {
@@ -54,7 +54,9 @@ module.exports = async function openPersonalRating({ app, obsidian = {}, sourceP
                 save.textContent = "Сохраняю…"; message.textContent = "";
                 this.contentEl.setAttribute("aria-busy", "true");
                 try {
-                    const result = await store.save({ app, obsidian, sourcePath, rating, expectedRating: descriptor.rating });
+                    const result = this.repair
+                        ? await store.reconcile({ app, obsidian, sourcePath, rating: this.repair.rating, previousMediaRatingChanged: this.repair.mediaRatingChanged })
+                        : await store.save({ app, obsidian, sourcePath, rating, expectedRating: descriptor.rating });
                     if (result.changed && result.mediaRatingChanged !== false) {
                         // Do not hold the dialog open for a collection-wide local
                         // forecast update. The worker owns progress and failures.
@@ -68,10 +70,14 @@ module.exports = async function openPersonalRating({ app, obsidian = {}, sourceP
                     try { onSaved?.(result); } catch (_) { /* Saved data remains valid if its old view was replaced. */ }
                     this.saving = false; this.close();
                 } catch (error) {
+                    if (error.partialSave) this.repair = { ...error.partialSave,
+                        mediaRatingChanged: Boolean(error.partialSave.mediaRatingChanged || this.repair?.mediaRatingChanged) };
                     message.textContent = error.message || String(error);
                     this.saving = false; input.disabled = cancel.disabled = save.disabled = false;
-                    save.textContent = "Сохранить"; this.contentEl.removeAttribute("aria-busy");
-                    input.focus();
+                    save.textContent = this.repair ? "Повторить обновление" : "Сохранить";
+                    if (this.repair) { input.value = String(this.repair.rating); input.disabled = true; cancel.textContent = "Закрыть"; }
+                    this.contentEl.removeAttribute("aria-busy");
+                    if (this.repair) save.focus(); else input.focus();
                 }
             };
             save.addEventListener("click", submit);
