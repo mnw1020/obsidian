@@ -170,9 +170,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }
         function rememberDetails(details, key, defaultOpen = false) {
             details.dataset.fold = key;
-            const savedKey = key === 'views' ? 'views:v2' : key;
-            details.open = typeof folds[savedKey] === 'boolean' ? folds[savedKey] : defaultOpen;
-            listen(details, 'toggle', event => { if (event.target === details) saveFold(savedKey, details.open); });
+            details.open = typeof folds[key] === 'boolean' ? folds[key] : defaultOpen;
+            listen(details, 'toggle', event => { if (event.target === details) saveFold(key, details.open); });
         }
         const status = el(root, 'p', 'kino-home-action-error'); status.hidden = true; status.setAttribute('role', 'status');
         function command(parent, text, choice, cls = '') {
@@ -205,8 +204,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         el(heading, 'h1', 'kino-home-title', 'Кинотека');
         const actions = el(identity, 'div', 'kino-home-actions');
         for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
-        const catalogue = internal(actions, 'Открыть каталог', 'Кино/_system/_Кино.base#Карточки', 'kino-home-action is-icon');
-        catalogue.setAttribute('aria-label', 'Открыть каталог'); catalogue.title = 'Открыть каталог';
+        const catalogue = internal(doc.createDocumentFragment(), 'Карточки', 'Кино/_system/_Кино.base#Карточки', 'kino-home-action is-icon');
+        catalogue.setAttribute('aria-label', 'Карточки'); catalogue.title = 'Карточки';
         const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
         for (const [name, value] of Object.entries({ viewBox: '0 0 24 24', width: '20', height: '20', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true', focusable: 'false' })) icon.setAttribute(name, value);
         for (const attributes of [{ d: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z' }]) {
@@ -302,16 +301,14 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         for (const [label, choice] of [['Актёры', 'Кино - Открыть актера'], ['Режиссёры', 'Кино - Открыть режиссера'], ['Жанры', 'Кино - Открыть жанр']]) {
             const tile = el(overviewLinks, 'div', 'kino-home-overview'); command(tile, label, choice);
         }
-        const views = el(overviewBody, 'details', 'kino-home-views');
-        const viewsHeading = el(views, 'summary'); el(viewsHeading, 'span', '', 'Другие представления каталога');
-        el(viewsHeading, 'span', 'kino-home-fold-chevron').setAttribute('aria-hidden', 'true');
-        rememberDetails(management, 'management'); rememberDetails(views, 'views', true);
-        const viewLinks = el(views, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
-        for (const [label, name] of [['Подробная таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_system/_Кино.base#' + name);
+        rememberDetails(management, 'management');
+        const viewLinks = el(overviewBody, 'nav', 'kino-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
+        viewLinks.appendChild(catalogue);
+        for (const [label, name] of [['Таблица', 'Все'], ['Фильмы', 'Фильмы'], ['Сериалы', 'Сериалы'], ['По году релиза', 'По году релиза'], ['Сравнение оценок', 'Сравнение оценок']]) internal(viewLinks, label, 'Кино/_system/_Кино.base#' + name);
         const nativeViews = [];
-        const viewsVisible = () => views.open && overviews.dataset.collapsed !== 'true';
+        const viewsVisible = () => overviews.dataset.collapsed !== 'true';
         function nativeView(label, target) {
-            const details = el(views, 'details', 'kino-home-native-view'); details.dataset.target = target;
+            const details = el(overviewBody, 'details', 'kino-home-native-view'); details.dataset.target = target;
             rememberDetails(details, 'native:' + target);
             el(details, 'summary', '', label);
             const isOpen = () => viewsVisible() && details.open;
@@ -351,7 +348,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         nativeView('Перепросмотры', 'Кино/_system/_Кино.base#Перепросмотры');
         nativeView('Последние сериалы', 'Кино/_system/_Кино.base#Последние сериалы');
         function syncViews() { for (const view of nativeViews) if (viewsVisible()) void view.open(); else view.clear(); }
-        listen(views, 'toggle', syncViews);
         listen(overviews, 'kino-fold-change', syncViews);
         const footer = el(root, 'footer', 'kino-home-footer');
         internal(footer, 'Проверка кинотеки', 'Кино/_system/Проверка кинотеки'); internal(footer, 'Журнал изменений', 'Кино/_system/Журнал изменений');
