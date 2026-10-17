@@ -1,5 +1,5 @@
 /* Saved forecast explanation. Reads a snapshot only; never recalculates or writes. */
-module.exports = async function openForecastDetails({ app, obsidian = {}, doc, sourcePath = "", reportReference, trigger, parent }) {
+module.exports = async function openForecastDetails({ app, obsidian = {}, doc, sourcePath = "", reportReference, snapshot = null, trigger, parent }) {
     let closed = false, modal = null, holder, fallback, focusBefore = trigger ?? doc.activeElement;
     const labels = {
         prediction: "Округлённый прогноз", raw: "До округления", base: "База", correction: "Поправка соседей",
@@ -214,7 +214,7 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
     function render(report) {
         holder.replaceChildren();
         const date = report.createdAt ? new Date(report.createdAt) : null;
-        el(holder, "p", "kino-forecast-meta", `Сохранённый расчёт · ${date && !Number.isNaN(date.getTime()) ? date.toLocaleString("ru-RU") : fmt(report.createdAt)} · версия ${fmt(report.version)}${report.engine ? " · " + fmt(report.engine) : ""}`);
+        el(holder, "p", "kino-forecast-meta", `${snapshot ? 'Предпросмотр · без записи в карточку' : 'Сохранённый расчёт'} · ${date && !Number.isNaN(date.getTime()) ? date.toLocaleString("ru-RU") : fmt(report.createdAt)} · версия ${fmt(report.version)}${report.engine ? " · " + fmt(report.engine) : ""}`);
         const tabs = el(holder, "div", "kino-forecast-tabs");
         tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", "Разделы расчёта");
         const panels = [], buttons = [], id = "kino-forecast-" + Math.random().toString(36).slice(2);
@@ -278,13 +278,16 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
     // Loading is detached from opening so the owner can dispose the modal immediately.
     (async () => {
         try {
+            let report = snapshot;
+            if (!report) {
             const path = pathFor(reportReference);
             if (!path) throw new Error("Сохранённого расчёта ещё нет. Выполни команду «Кино — Обновить оценки».");
             if (/^(?:[a-z]+:|\/|\\)/i.test(path) || path.split(/[\\/]/).includes("..")) throw new Error("Некорректная ссылка на сохранённый расчёт.");
             const file = app.vault.getAbstractFileByPath(path) ?? app.metadataCache.getFirstLinkpathDest?.(path, sourcePath);
             const body = file ? await app.vault.read(file) : app.vault.adapter?.read ? await app.vault.adapter.read(path) : null;
             if (body == null) throw new Error("Файл сохранённого расчёта не найден.");
-            const report = JSON.parse(body);
+            report = JSON.parse(body);
+            }
             if (!report || typeof report !== "object" || !report.final || (!report.data && !report.dataVariants)) throw new Error("Формат сохранённого расчёта не поддерживается.");
             if (!closed) render(report);
         } catch (error) {

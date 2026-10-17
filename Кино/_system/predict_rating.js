@@ -41,3 +41,4 @@ module.exports = predict;
 module.exports.persist = async (params, estimate) => (await service(params.app)).persist(params, estimate);
 module.exports.resume = async params => (await service(params.app)).resume(params);
 module.exports.service = service;
+module.exports.preview = async params => (await service(params.app)).preview(params);

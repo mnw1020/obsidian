@@ -1483,10 +1483,19 @@ async function openaiSourceRecommendations(ref,items,cache,settings){
 
 async function main(){
     const state=await loadJson(STATE_PATH);
-    if(!state?.reference){dv.paragraph("Открой карточку фильма и нажми **🔎 Найти похожие**.");return;}
+    if(!state?.reference){dv.paragraph("На главной нажми **По ID Кинопоиска** или открой карточку и нажми **🔎 Найти похожие**.");return;}
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
-    const ref=items.find(x=>x.file.path===state.reference);
+    let ref=items.find(x=>x.file.path===state.reference);
+    const external=state.externalReference;
+    if(!ref && external && /^\d{1,12}$/.test(String(external.kpId||"")) && state.reference===`kp:${external.kpId}`){
+        ref=items.find(x=>x.kpId===String(external.kpId)) || {
+            ...external, file:{path:`external:kp:${external.kpId}`,basename:external.ruTitle||external.enTitle||'Фильм'},
+            localPath:`external:kp:${external.kpId}`,rating:null,watched:false,storedPrediction:null,
+            genres:genreSet(external.genres),directors:new Set(arr(external.directors).map(norm).filter(Boolean)),
+            descTokens:tokenSet(external.description||''),franchise:external.franchise||''
+        };
+    }
     if(!ref){dv.paragraph("Не удалось прочитать карточку выбранного фильма.");return;}
     
     const head=dv.container.createDiv({cls:"kino-reference-header"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
@@ -1782,6 +1791,9 @@ async function main(){
         for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
         await draw(true);
     }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
+    // One explicit launch from the ID dialog. A later visit never restarts it.
+    const launchKey=Symbol.for('kino.recommendations.launch');
+    if(app[launchKey]===state.updatedAt){delete app[launchKey];run.click();}
 }
 
 await main();

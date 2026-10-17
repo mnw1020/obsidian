@@ -331,6 +331,37 @@ async function candidates(params) {
         catch (_) { return null; }
     });
 }
+// A preview shares the current engine and caches but never writes a media card,
+// queues it, or creates a saved report. The returned report lives in the dialog.
+async function preview(params) {
+    const {app, forecastCandidate: candidate} = params;
+    if (!candidate || !/^\d{1,12}$/.test(text(candidate.kpId))) throw Error('Укажи корректный ID Кинопоиска');
+    const state = await coreFor(app), items = await itemsFor(app, state);
+    abort(params);
+    const target = items.find(item => item.path === candidate.localPath)
+        || state.core.feature({path: `preview:kp:${candidate.kpId}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'}, {
+            'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating,
+            'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId,
+            'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year,
+            'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description,
+            tags: candidate.type === 'series' ? ['serial'] : ['movies']
+        }, candidate.actors || []);
+    const semantic = await embeddings(params, items, state, [target]);
+    const training = await trainingFor(params, items, semantic, state);
+    abort(params);
+    const report = state.engine.forecast(items, target, semantic.vectors, training);
+    if (report.error) throw Error(report.error);
+    report.models = semantic.models; report.model = semantic.models[0];
+    report.training = {...report.training, parameterVersion: training?.version, parameterCreatedAt: training?.createdAt,
+        inputFingerprint: training?.inputFingerprint, refresh: training?.refresh};
+    report.input = {descriptionHash: await hash(text(target.description)), models: Object.fromEntries(MODEL_KEYS.map(key => {
+        const cached = semantic.caches[key]?.entries?.[target.path];
+        return [key, {status: semantic.vectors[key]?.[target.path] ? 'ready' : 'pending', tokens: cached?.tokens,
+            usedTokens: cached?.usedTokens, truncated: cached ? Boolean(cached.truncated) : null}];
+    }))};
+    for (const key of MODEL_KEYS) if (report.plotVariants[key].raw == null && semantic.errors[key] && state.core.validDescription(target.description)) report.plotVariants[key].reason = semantic.errors[key];
+    return report;
+}
 async function resume({app, obsidian = {}}) {
     if (app.__kinoRatingUpdate || app.__kinoForecastResuming) return;
     const backfillLock = await readJson(app, `${BASE}/maintenance-lock.json`, null);
@@ -358,6 +389,7 @@ module.exports = {
     single: params => locked(params.app, () => single(params)),
     persist: (params, estimate) => locked(params.app, () => persist(params, estimate)),
     candidates: params => locked(params.app, () => candidates(params)),
+    preview: params => locked(params.app, () => preview(params)),
     resume: params => locked(params.app, () => resume(params)),
     load, readJson, writeJson, hash, itemsFor, coreFor, media, trainingFor
 };
