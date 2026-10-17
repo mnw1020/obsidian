@@ -204,6 +204,20 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         el(heading, 'h1', 'kino-home-title', 'Кинотека');
         const actions = el(identity, 'div', 'kino-home-actions');
         for (const [text, choice, primary] of [['Добавить фильм или сериал', 'movie_imdb', true], ['Добавить просмотр', 'Добавить просмотр'], ['Добавить сезон', 'Добавить сезон']]) command(actions, text, choice, 'kino-home-action' + (primary ? ' is-primary' : ''));
+        const lookupButton = el(actions, 'button', 'kino-home-action', 'По ID Кинопоиска'); lookupButton.type = 'button';
+        lookupButton.title = 'Рекомендации или персональный прогноз по ID фильма';
+        let lookupDialog = null;
+        cleanups.push(() => lookupDialog?.close());
+        listen(lookupButton, 'click', async () => {
+            if (disposed || lookupButton.disabled) return; lookupButton.disabled = true;
+            try {
+                const file = app.vault.getAbstractFileByPath('Кино/_system/kino_lookup.js');
+                if (!file) throw Error('Не найден поиск по ID Кинопоиска');
+                const mod = {exports:{}}; new Function('module', await app.vault.read(file))(mod);
+                if (!disposed) { lookupDialog = await mod.exports({app, obsidian, doc, trigger:lookupButton, sourcePath:source}); if (disposed) lookupDialog.close(); }
+            } catch (problem) { if (!disposed) { status.textContent = problem.message || String(problem); status.hidden = false; } }
+            finally { if (!disposed) lookupButton.disabled = false; }
+        });
         const catalogue = internal(doc.createDocumentFragment(), 'Карточки', 'Кино/_system/_Кино.base#Карточки', 'kino-home-action is-icon');
         catalogue.setAttribute('aria-label', 'Карточки'); catalogue.title = 'Карточки';
         const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');

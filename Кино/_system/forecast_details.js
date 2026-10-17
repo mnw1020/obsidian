@@ -280,13 +280,13 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         try {
             let report = snapshot;
             if (!report) {
-            const path = pathFor(reportReference);
-            if (!path) throw new Error("Сохранённого расчёта ещё нет. Выполни команду «Кино — Обновить оценки».");
-            if (/^(?:[a-z]+:|\/|\\)/i.test(path) || path.split(/[\\/]/).includes("..")) throw new Error("Некорректная ссылка на сохранённый расчёт.");
-            const file = app.vault.getAbstractFileByPath(path) ?? app.metadataCache.getFirstLinkpathDest?.(path, sourcePath);
-            const body = file ? await app.vault.read(file) : app.vault.adapter?.read ? await app.vault.adapter.read(path) : null;
-            if (body == null) throw new Error("Файл сохранённого расчёта не найден.");
-            report = JSON.parse(body);
+                const path = pathFor(reportReference);
+                if (!path) throw new Error("Сохранённого расчёта ещё нет. Выполни команду «Кино — Обновить оценки».");
+                if (/^(?:[a-z]+:|\/|\\)/i.test(path) || path.split(/[\\/]/).includes("..")) throw new Error("Некорректная ссылка на сохранённый расчёт.");
+                const file = app.vault.getAbstractFileByPath(path) ?? app.metadataCache.getFirstLinkpathDest?.(path, sourcePath);
+                const body = file ? await app.vault.read(file) : app.vault.adapter?.read ? await app.vault.adapter.read(path) : null;
+                if (body == null) throw new Error("Файл сохранённого расчёта не найден.");
+                report = JSON.parse(body);
             }
             if (!report || typeof report !== "object" || !report.final || (!report.data && !report.dataVariants)) throw new Error("Формат сохранённого расчёта не поддерживается.");
             if (!closed) render(report);

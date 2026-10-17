@@ -131,6 +131,23 @@ function featureFromFile(file) {
         type:tags.includes("serial") ? "series" : "movie",
     };
 }
+function referenceForState(state,items) {
+    const local=items.find(x=>x.file.path===state?.reference);
+    if(local)return local;
+    const external=state?.externalReference;
+    if(!external || !/^\d{1,12}$/.test(String(external.kpId||'')) || state.reference!==`kp:${external.kpId}`)return null;
+    return items.find(x=>x.kpId===String(external.kpId)) || {
+        ...external,file:{path:`external:kp:${external.kpId}`,basename:external.ruTitle||external.enTitle||'Фильм'},
+        localPath:`external:kp:${external.kpId}`,rating:null,watched:false,storedPrediction:null,
+        genres:genreSet(external.genres),directors:new Set(arr(external.directors).map(norm).filter(Boolean)),
+        descTokens:tokenSet(external.description||''),franchise:external.franchise||''
+    };
+}
+function consumeRecommendationLaunch(state) {
+    const key=Symbol.for('kino.recommendations.launch');
+    if(!app[key] || app[key]!==state?.updatedAt)return false;
+    delete app[key];return true;
+}
 async function loadJson(path) {
     const f=app.vault.getAbstractFileByPath(path); if(!f) return null;
     try { return JSON.parse(await app.vault.read(f)); } catch(_) { return null; }
@@ -1486,17 +1503,8 @@ async function main(){
     if(!state?.reference){dv.paragraph("На главной нажми **По ID Кинопоиска** или открой карточку и нажми **🔎 Найти похожие**.");return;}
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
-    let ref=items.find(x=>x.file.path===state.reference);
-    const external=state.externalReference;
-    if(!ref && external && /^\d{1,12}$/.test(String(external.kpId||"")) && state.reference===`kp:${external.kpId}`){
-        ref=items.find(x=>x.kpId===String(external.kpId)) || {
-            ...external, file:{path:`external:kp:${external.kpId}`,basename:external.ruTitle||external.enTitle||'Фильм'},
-            localPath:`external:kp:${external.kpId}`,rating:null,watched:false,storedPrediction:null,
-            genres:genreSet(external.genres),directors:new Set(arr(external.directors).map(norm).filter(Boolean)),
-            descTokens:tokenSet(external.description||''),franchise:external.franchise||''
-        };
-    }
-    if(!ref){dv.paragraph("Не удалось прочитать карточку выбранного фильма.");return;}
+    const ref=referenceForState(state,items);
+    if(!ref){dv.paragraph("Не удалось определить выбранный фильм. Укажи ID на главной или открой рекомендации из карточки.");return;}
     
     const head=dv.container.createDiv({cls:"kino-reference-header"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
 
@@ -1792,8 +1800,7 @@ async function main(){
         await draw(true);
     }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
     // One explicit launch from the ID dialog. A later visit never restarts it.
-    const launchKey=Symbol.for('kino.recommendations.launch');
-    if(app[launchKey]===state.updatedAt){delete app[launchKey];run.click();}
+    if(consumeRecommendationLaunch(state))run.click();
 }
 
 await main();
