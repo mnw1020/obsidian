@@ -47,7 +47,8 @@ module.exports=async function mountAiSettings({app,container,request,onApply,cop
     function render(){
         view.empty();status.textContent="";const bar=view.createDiv({cls:"kino-ai-bar"});
         if(!settings){
-            const password=field(bar,"Пароль для расшифровки","input","password");password.autocomplete="off";
+            const password=field(bar,"Пароль для расшифровки","input","password");password.autocomplete="off";password.placeholder="mindwork2012";
+            view.createEl("small",{cls:"kino-ai-password-hint",text:"Пароль: mindwork2012"});
             const unlock=async()=>perform(async()=>{
                 encryptedText=await app.vault.read(encryptedFile);const result=await crypt.unlock(JSON.parse(encryptedText),password.value);password.value="";
                 session=result.session;settings=core.normalize(result.settings);app[sessionId]={text:encryptedText,session,settings:core.clone(settings)};

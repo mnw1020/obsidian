@@ -143,7 +143,7 @@ async function openRecommendations({app,candidate,signal,sourcePath}) {
     check(signal); const page=app.vault.getAbstractFileByPath(BASE+'Рекомендации.md');
     if(!page)throw Error('Не найдена страница рекомендаций.');
     const payload={reference:candidate.localPath||(candidate.kpId?'kp:'+candidate.kpId:'imdb:'+candidate.imdbId),updatedAt:new Date().toISOString(),
-        sourceSettings:{kp:Boolean(candidate.kpId),imdb:!candidate.kpId,movieTon:false,likeFilm:false,tmdb:false,openai:false,watched:false}};
+        sourceSettings:{kp:false,imdb:false,movieTon:false,likeFilm:false,tmdb:false,openai:false,watched:false}};
     if(!candidate.localPath)payload.externalReference=candidate;
     const content=JSON.stringify(payload,null,2),file=app.vault.getAbstractFileByPath(STATE);
     if(file) { if(app.vault.process)await app.vault.process(file,()=>content);else await app.vault.modify(file,content); }
@@ -160,7 +160,7 @@ async function load(app,name) {
     const file=app.vault.getAbstractFileByPath(BASE+name+'.js');if(!file)throw Error('Не найден '+name+'.js');
     const mod={exports:{}};new Function('module','exports',await app.vault.read(file))(mod,mod.exports);return mod.exports;
 }
-async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourcePath='Кино/_index.md'}) {
+async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourcePath='Кино/_index.md',onRecommendationsOpened}) {
     if(app[INSTANCE]?.isOpen()){app[INSTANCE].focus();return app[INSTANCE];}
     const cssFile=app.vault.getAbstractFileByPath(BASE+'kino-lookup.css');if(!cssFile)throw Error('Не найдено оформление поиска по ID.');
     const css=await app.vault.read(cssFile);
@@ -258,7 +258,7 @@ async function openLookup({app,obsidian={},doc=globalThis.document,trigger,sourc
                 if(!closed){if(imported.warning&&obsidian.Notice)new obsidian.Notice(imported.warning,8000);message(imported.warning||'Готово. Открываю карточку…');await app.workspace.getLeaf(false).openFile(imported.file);close();}
             }else{
                 const candidate=resolved?.id===id?resolved.candidate:await resolveFilm({app,obsidian,identity,type:typeInput.value,signal,onProgress});check(signal);resolved={id,candidate};
-            if(kind==='recommendations'){message('Открываю рекомендации…');await openRecommendations({app,candidate,signal,sourcePath});close();}
+            if(kind==='recommendations'){message('Открываю рекомендации…');await openRecommendations({app,candidate,signal,sourcePath});await onRecommendationsOpened?.();close();}
             else{onProgress({stage:'Готовлю персональный прогноз…'});const predictor=await load(app,'predict_rating');check(signal);
                 const value=await predictor.preview({app,obsidian,forecastCandidate:candidate,shouldCancel:()=>signal.aborted,onProgress});check(signal);
                 if(!closed){showResult(candidate,value);message('Прогноз готов. Карточки и личные оценки не изменены.');}

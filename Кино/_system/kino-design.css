@@ -132,6 +132,10 @@
 .markdown-preview-view.kino-has-properties .metadata-container { display: none; }
 .markdown-preview-view.kino-cosmetic-properties .metadata-container,
 .markdown-preview-view.kino-page .kino-duplicate-title { display: none; }
+/* Recommendations have their own Markdown heading and no editable page data.
+   The persisted cssclass applies before either Dataview renderer finishes. */
+:is(.markdown-preview-view,.markdown-source-view).kino-recommendations-page
+:is(.inline-title,.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .kino-page hr { border: 0; border-top: 1px solid var(--kino-line); margin-block: 2rem; }
 .kino-page blockquote {
     color: var(--kino-text); background: var(--kino-surface); border-left: 3px solid var(--kino-accent);

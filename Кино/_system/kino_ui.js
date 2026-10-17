@@ -247,7 +247,8 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                 if (!page) throw new Error("Не найдена страница рекомендаций.");
                 const folderPath = "Кино/_system/Прогноз";
                 const statePath = folderPath + "/рекомендации_state.json";
-                const payload = JSON.stringify({ reference: sourcePath, updatedAt: new Date().toISOString() }, null, 2);
+                const selection={reference:sourcePath,updatedAt:new Date().toISOString(),sourceSettings:{kp:false}};
+                const payload = JSON.stringify(selection, null, 2);
                 const state = app.vault.getAbstractFileByPath(statePath);
                 if (state) {
                     if (app.vault.process) await app.vault.process(state, () => payload);
@@ -259,7 +260,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
                     }
                     await app.vault.create(statePath, payload);
                 }
-                if (!disposed) await app.workspace.getLeaf(false).openFile(page);
+                if (!disposed) {app[Symbol.for("kino.recommendations.launch")]=selection.updatedAt;await app.workspace.getLeaf(false).openFile(page);}
                 if (!disposed) { button.textContent = "🔎 Найти похожие"; button.disabled = false; }
             } catch (error) {
                 if (disposed) return;

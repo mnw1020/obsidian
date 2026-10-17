@@ -1211,7 +1211,7 @@ function hasDirectEvidence(film){
         return !second;
     });
 }
-function recommendationDetailsMarkdown(list,reference){
+function recommendationDetailGroups(list,reference){
     const groups=new Map();
     for(const film of list){
         const evidences=film.evidence||[film];
@@ -1247,44 +1247,17 @@ function recommendationDetailsMarkdown(list,reference){
             }
         }
     }
-    if(!groups.size)return "_Для выбранных источников рекомендаций второго уровня нет._";
-    const lines=[];
-    const inline=value=>String(value||"").replace(/[\\`*_{}\[\]()<>#+.!|]/g,"\\$&").replace(/\s+/g," ").trim();
-    const html=value=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/\s+/g," ").trim()||"-";
-    const emitted=new Set();
-    for(const [parent,films] of groups){
-        const groupFilms=[];
+    const emitted=new Set(),result=[];
+    for(const [title,films]of groups){
+        const entries=[];
         for(const entry of films.values()){
             const identity=recommendationIdentity(entry.film)[0]||`${titleKey(entry.film.ruTitle||entry.film.enTitle)}:${entry.film.year||""}`;
             if(emitted.has(identity))continue;
-            emitted.add(identity);groupFilms.push(entry);
+            emitted.add(identity);entries.push({film:entry.film,reasons:[...entry.reasons]});
         }
-        if(!groupFilms.length)continue;
-        lines.push(`# ${inline(parent)}`,"");
-        lines.push("**Почему предложены:**","");
-        for(const {film,reasons} of groupFilms){
-            const label=inline(film.ruTitle||film.enTitle||film.kpId||"Фильм");
-            const sourceReasons=[...reasons].filter(Boolean);
-            if(sourceReasons.length)lines.push(`- **${label}:** ${sourceReasons.join("; ")}`);
-        }
-        const rows=groupFilms.map(({film})=>({ruTitle:film.ruTitle||film.enTitle||film.kpId||"Фильм",enTitle:film.enTitle||"",year:film.year||"",libraryPath:film.libraryPath||"",url:film.sourceUrl||kinopoiskUrl(film),kpRating:film.kpRating??null,forecast:film.forecast??null,description:String(film.description||film.local?.description||"").trim()}));
-        const payload=JSON.stringify(rows).replace(/`/g,"\\u0060").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");
-        lines.push("", "```dataviewjs", 'const tableScript = app.vault.getAbstractFileByPath("Кино/_system/recommendation_tables.js");', "if (tableScript) {", "    const m = {exports:{}};", '    new Function("module", await app.vault.read(tableScript))(m);', `    m.exports.render(dv, ${payload}, app);`, "}", "```", "");
+        if(entries.length)result.push({title,entries});
     }
-    return lines.join("\n").trim();
-}
-async function saveNativeRecommendationDetails(list,reference){
-    const path=dv.current()?.file?.path||`${ROOT}/_system/Рекомендации.md`;
-    const file=app.vault.getAbstractFileByPath(path);
-    if(!file)return;
-    const start="<!-- KINO:RECOMMENDATION-DETAILS:START -->",end="<!-- KINO:RECOMMENDATION-DETAILS:END -->";
-    const current=await app.vault.read(file);
-    const section=`${start}\n\n${recommendationDetailsMarkdown(list,reference)}\n\n${end}`;
-    const startAt=current.indexOf(start),endAt=startAt<0?-1:current.indexOf(end,startAt+start.length);
-    const updated=startAt>=0&&endAt>=0
-        ?`${current.slice(0,startAt)}${section}${current.slice(endAt+end.length)}`
-        :`${current.trimEnd()}\n\n${section}\n`;
-    if(updated!==current)await app.vault.modify(file,updated);
+    return result;
 }
 function restoreRecommendation(x) {
     return {...x,genres:x.genres instanceof Set?x.genres:new Set(Array.isArray(x.genres)?x.genres:[]),
@@ -1501,8 +1474,31 @@ async function openaiSourceRecommendations(ref,items,cache,settings){
 }
 
 async function main(){
-    const state=await loadJson(STATE_PATH);
-    if(!state?.reference){dv.paragraph("На главной нажми **По ID Кинопоиска** или открой карточку и нажми **🔎 Найти похожие**.");return;}
+    const saved=await loadJson(STATE_PATH),explicitOpen=consumeRecommendationLaunch(saved);
+    const viewsKey=Symbol.for("kino.recommendations.views.v2");
+    const views=app[viewsKey]||(app[viewsKey]=new WeakMap());
+    const previous=views.get(dv.container);
+    let state=explicitOpen?{...saved,sourceSettings:{...(saved?.sourceSettings||{}),kp:false}}:previous?.state;
+    if(!state?.reference){
+        dv.paragraph("Выбери фильм для новой подборки.");
+        const choose=dv.container.createEl("button",{text:"Выбрать фильм"});choose.type="button";
+        choose.addEventListener("click",async()=>{
+            if(choose.disabled)return;choose.disabled=true;
+            try{
+                const file=app.vault.getAbstractFileByPath(`${ROOT}/_system/kino_lookup.js`);
+                if(!file)throw Error("Не найдено окно выбора фильма.");
+                const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);
+                await mod.exports({app,obsidian,doc:dv.container.ownerDocument,trigger:choose,sourcePath:dv.current()?.file?.path,onRecommendationsOpened:async()=>{
+                    if(dv.container.isConnected!==false&&app[Symbol.for("kino.recommendations.launch")]){dv.container.replaceChildren();await main();}
+                }});
+            }catch(error){dv.paragraph(error.message||String(error));}finally{choose.disabled=false;}
+        });
+        return;
+    }
+    const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,token:{}};
+    views.set(dv.container,viewSession);
+    const isCurrent=()=>dv.container.isConnected!==false&&views.get(dv.container)===viewSession;
+    dv.component?.register?.(()=>{Promise.resolve().then(()=>{if(dv.container.isConnected===false&&views.get(dv.container)===viewSession)views.delete(dv.container);});});
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
     const ref=referenceForState(state,items);
@@ -1511,6 +1507,7 @@ async function main(){
     const head=dv.container.createDiv({cls:"kino-reference-header"});head.createEl("h2",{text:`Похожие по теме: ${ref.ruTitle}`});
 
     const ui=makeUi(dv.container);
+    const detailsHost=dv.container.createDiv({cls:"kino-recommendation-details"});detailsHost.hidden=true;
     let cache=null,kpReady=false,kpLoading=null,all=[];
     let seeds={items:[],diag:"ещё не загружено"},second={items:[],diag:""};
     const ensureCache=async()=>cache ||= (await loadJson(SOURCE_CACHE_PATH))||{similar:{},details:{}};
@@ -1559,7 +1556,7 @@ async function main(){
         })();
         try{await kpLoading;}finally{kpLoading=null;}
     };
-    const sourceSettings=state.sourceSettings||{};
+    const sourceSettings={...(state.sourceSettings||{}),kp:explicitOpen?false:Boolean(state.sourceSettings?.kp)};
     ui.actions.style.flexWrap="wrap";
     const sourceControl=(name,home,checked)=>{
         const holder=ui.actions.createEl("span");holder.classList.add("kino-source");holder.style.whiteSpace="nowrap";
@@ -1608,20 +1605,29 @@ async function main(){
     const aiHome=()=>{try{return new URL(activeAiConnection()?.baseUrl).origin;}catch(_){return "https://api.tokenator.top/";}};
     const forecastValues=new Map();
     const forecastId=x=>recommendationIdentity(x)[0]||`${x.ruTitle}:${x.year}`;
-    const viewSessionId=Symbol.for("kino.recommendations.view");
     let forecastLoader=null,forecastError="",drawVersion=0;
     let detailsWriteQueue=Promise.resolve();
+    let disposeDetails=null,detailsRenderer=null;
+    dv.component?.register?.(()=>disposeDetails?.());
     const persistDetails=(version,list)=>{
-        if(dv.container.isConnected===false)return Promise.resolve();
-        if(version===drawVersion)app[viewSessionId]={reference:state.reference,updatedAt:state.updatedAt,aiFingerprint:aiFingerprint(),all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError,openaiRows,openaiReady,openaiError,forecastValues:[...forecastValues]};
-        const task=detailsWriteQueue.then(()=>version===drawVersion?saveNativeRecommendationDetails(list,ref):undefined);
-        detailsWriteQueue=task.catch(()=>{});
-        return task;
+        if(!isCurrent())return Promise.resolve();
+        if(version===drawVersion)Object.assign(viewSession,{state,aiFingerprint:aiFingerprint(),all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError,openaiRows,openaiReady,openaiError,forecastValues:[...forecastValues]});
+        const task=detailsWriteQueue.then(async()=>{
+            if(version!==drawVersion||!isCurrent())return;
+            if(!detailsRenderer){
+                const file=app.vault.getAbstractFileByPath(`${ROOT}/_system/recommendation_details.js`);if(!file)return;
+                const mod={exports:{}};new Function("module",await app.vault.read(file))(mod);detailsRenderer=mod.exports;
+            }
+            if(version!==drawVersion||!isCurrent())return;
+            disposeDetails?.();
+            disposeDetails=await detailsRenderer({app,container:detailsHost,groups:recommendationDetailGroups(list,ref),component:dv.component,sourcePath:dv.current()?.file?.path,isCurrent:()=>version===drawVersion&&isCurrent()});
+        });
+        detailsWriteQueue=task.catch(()=>{});return task;
     };
-    const saveUiState=()=>saveJson(STATE_PATH,{...state,yearSettings:{start:startYear.value,end:endYear.value},sourceSettings:{
-        imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,
-        likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,openai:openaiCheckbox.checked,watched:checkbox.checked
-    }});
+    const saveUiState=()=>{
+        state={...state,yearSettings:{start:startYear.value,end:endYear.value},sourceSettings:{imdb:imdbCheckbox.checked,kp:kpCheckbox.checked,movieTon:movieTonCheckbox.checked,likeFilm:likeFilmCheckbox.checked,tmdb:tmdbCheckbox.checked,openai:openaiCheckbox.checked,watched:checkbox.checked}};
+        viewSession.state=state;return saveJson(STATE_PATH,state);
+    };
     const loadImdb=async()=>{
         if(imdbReady)return;
         await ensureCache();
@@ -1685,7 +1691,7 @@ async function main(){
         renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
     };
     const draw=async(readOnly=false)=>{
-        if(dv.container.isConnected===false)return;
+        if(!isCurrent())return;
         const version=++drawVersion;
         const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[],openaiCheckbox.checked?openaiRows:[]];
         const range=yearRange();
@@ -1722,7 +1728,7 @@ async function main(){
             return lines.join("\n");
         };
         setProgress(ui,formatStatus(),100);
-        if(readOnly)return;
+        if(readOnly){if(!anySource)ui.tableWrap.empty();await persistDetails(version,anySource?currentAllVisible:[]);return;}
         if(!anySource){ui.tableWrap.empty();await persistDetails(version,[]);return;}
         if(!visible.length){
             ui.tableWrap.createEl("p",{text:hidden?"Все найденные фильмы уже просмотрены. Включи «Показывать просмотренные».":"Тематически подходящих фильмов не найдено. Список не дополняется случайными рекомендациями."});
@@ -1794,15 +1800,13 @@ async function main(){
         }catch(error){setProgress(ui,String(error?.message||error).slice(0,160),100);}
         finally{run.disabled=false;}
     });
-    const previous=app[viewSessionId];
-    if(previous?.reference===state.reference&&previous.updatedAt===state.updatedAt){
+    if(!explicitOpen&&previous?.reference===state.reference&&previous.updatedAt===state.updatedAt&&previous.forecastValues){
         ({all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError}=previous);
         if(aiSettings&&previous.aiFingerprint===aiFingerprint())({openaiRows,openaiReady,openaiError}=previous);
         for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
         await draw(true);
     }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
-    // One explicit launch from the ID dialog. A later visit never restarts it.
-    if(consumeRecommendationLaunch(state))run.click();
+    // Sources and network requests are selected explicitly for each new film.
 }
 
 await main();
