@@ -262,6 +262,25 @@ a.kino-score:hover { border-color: var(--kino-accent); background: var(--kino-ra
 .kino-score-label { color: var(--kino-muted); font-size: 11px; font-weight: 550; letter-spacing: .02em; white-space: nowrap; }
 .kino-score-value { font-size: 25px; font-weight: 650; line-height: 1.15; font-variant-numeric: tabular-nums; }
 .kino-score-personal .kino-score-value { color: var(--kino-accent); }
+.kino-page button.kino-score-personal {
+    height: auto; width: 100%; text-align: left; align-items: flex-start;
+    font-family: var(--kino-font); box-shadow: none; cursor: pointer; white-space: normal;
+}
+.kino-page button.kino-score-personal:hover { border-color: var(--kino-accent); background: #362b21; }
+.kino-page button.kino-score-personal[aria-busy="true"] { cursor: progress; }
+.kino-rating-modal {
+    width: min(380px, calc(100vw - 32px)); max-width: calc(100vw - 32px);
+    border: 1px solid var(--kino-line); border-top: 3px solid #b89760;
+    background: var(--kino-bg); color: var(--kino-text); border-radius: 10px;
+}
+.kino-rating-title { margin: 0 0 18px; color: var(--kino-muted); overflow-wrap: anywhere; }
+.kino-rating-field { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.kino-rating-field input { width: 100%; min-height: 42px !important; padding: 8px 12px; font-size: 18px; }
+.kino-rating-message { color: var(--text-error); font-size: 13px; margin: 10px 0; }
+.kino-rating-message:empty { margin: 0; }
+.kino-rating-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+.kino-rating-actions button { min-height: 36px; padding: 7px 13px; border-radius: 7px; }
+.kino-rating-actions .mod-cta { background: #b89760; color: #211a13; }
 .kino-score-scale { color: #8e8e88; font-size: 11px; font-weight: 400; }
 .kino-score.kino-score-with-votes {
     display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; align-content: start; column-gap: 8px;

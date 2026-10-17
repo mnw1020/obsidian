@@ -1509,7 +1509,9 @@ async function main(){
         });
         return;
     }
-    const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,token:{}};
+    const personalRatingRevision=context.personalRatingRevision||0;
+    const ratingsChanged=Boolean(previous&&(previous.personalRatingRevision||0)!==personalRatingRevision);
+    const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,personalRatingRevision,token:{}};
     context.viewSession=viewSession;
     const isCurrent=()=>dv.container.isConnected!==false&&context.viewSession===viewSession&&recommendationContextApi.current({app,container:dv.container})===context;
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
@@ -1816,8 +1818,27 @@ async function main(){
     if(!explicitOpen&&previous?.reference===state.reference&&previous.updatedAt===state.updatedAt&&previous.forecastValues){
         ({all,seeds,second,kpReady,imdbRows,imdbReady,imdbError,movieTonRows,movieTonReady,movieTonError,likeFilmRows,likeFilmReady,likeFilmError,tmdbRows,tmdbReady,tmdbError}=previous);
         if(aiSettings&&previous.aiFingerprint===aiFingerprint())({openaiRows,openaiReady,openaiError}=previous);
-        for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
-        await draw(true);
+        if(ratingsChanged){
+            const byPath=new Map(items.map(item=>[item.localPath,item]));
+            const byKp=new Map(items.filter(item=>item.kpId).map(item=>[item.kpId,item]));
+            const byImdb=new Map(items.filter(item=>item.imdbId).map(item=>[item.imdbId,item]));
+            const freshRows=rows=>(rows||[]).map(row=>{
+                const local=byPath.get(row.localPath||row.local?.localPath)||byKp.get(row.kpId)||byImdb.get(row.imdbId);
+                const fresh={...row};delete fresh.forecast;delete fresh.storedPrediction;
+                if(local)Object.assign(fresh,{local,localPath:local.localPath,storedPrediction:local.storedPrediction,rating:local.rating});
+                else delete fresh.local;
+                return fresh;
+            });
+            all=freshRows(all);imdbRows=freshRows(imdbRows);movieTonRows=freshRows(movieTonRows);
+            likeFilmRows=freshRows(likeFilmRows);tmdbRows=freshRows(tmdbRows);openaiRows=freshRows(openaiRows);
+            openaiReady=false;
+            // Keep loaded suggestions and recompute only their local forecasts.
+            // External providers are still loaded solely by the user's button.
+            await draw();
+        }else{
+            for(const [key,value] of previous.forecastValues)forecastValues.set(key,value);
+            await draw(true);
+        }
     }else setProgress(ui,"Нажми «Загрузить рекомендации». При открытии страницы поиск и расчёт прогноза не запускаются.",0);
     // Sources and network requests are selected explicitly for each new film.
 }

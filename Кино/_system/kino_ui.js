@@ -143,7 +143,8 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         return holder;
     }
     function score(parent, label, value, className, url, voteCount) {
-        const n = number(value), box = element(parent, url ? "a" : "div", `kino-score ${className ?? ""}`);
+        const editable = className === "kino-score-personal";
+        const n = number(value), box = element(parent, url ? "a" : editable ? "button" : "div", `kino-score ${className ?? ""}`);
         if (url) { box.href = url; box.target = "_blank"; box.rel = "noopener noreferrer"; }
         element(box, "span", "kino-score-label", label);
         const valueEl = element(box, "span", "kino-score-value", n == null ? "—" : String(Math.round(n * 10) / 10));
@@ -155,7 +156,33 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
             count.title = `Количество голосов ${label}: ${count.textContent}`;
             count.setAttribute("aria-label", count.title);
         }
+        if (editable) personalRatingAction(box);
         return box;
+    }
+    function personalRatingAction(box) {
+        box.type = "button"; box.title = "Изменить мою оценку";
+        box.setAttribute("aria-haspopup", "dialog");
+        box.setAttribute("aria-label", "Изменить мою оценку");
+        let loading = false, dialog = null;
+        box.addEventListener("click", async () => {
+            if (disposed || loading || dialog?.isOpen?.()) return;
+            loading = true; box.setAttribute("aria-busy", "true");
+            try {
+                const script = app.vault.getAbstractFileByPath("Кино/_system/personal_rating.js");
+                if (!script) throw new Error("Не найден модуль изменения оценки.");
+                const mod = { exports: {} };
+                new Function("module", await app.vault.read(script))(mod);
+                if (disposed) return;
+                dialog = await mod.exports({ app, obsidian, sourcePath, trigger: box, onSaved: result => {
+                    if (disposed) return;
+                    const main = box.querySelector(".kino-score-value");
+                    main.textContent = String(result.rating);
+                    element(main, "span", "kino-score-scale", " / 10");
+                } });
+            } catch (error) {
+                if (obsidian.Notice) new obsidian.Notice("Не удалось изменить оценку: " + (error.message || error), 8000);
+            } finally { loading = false; box.removeAttribute("aria-busy"); }
+        });
     }
     function forecastScore(parent) {
         const value = number(fm["Прогноз оценки"]);
