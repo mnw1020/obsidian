@@ -60,6 +60,22 @@ function temporalContext(items, target, options = {}) {
     } };
 }
 const temporalWeight = (context, item) => context.timeWeights?.get(item.path) ?? 1;
+/* Apply time before the cutoff: an old high-similarity record must not crowd
+   a closer viewing out of the fixed-size neighborhood. Raw ranks stay cached. */
+function selectNeighbors(context, ranked, maximumNeighbors, temperature = null) {
+    const rows = [];
+    let maximumSimilarity = -Infinity;
+    for (const row of ranked) if (context.paths.has(row.item.path)) {
+        maximumSimilarity = Math.max(maximumSimilarity, row.sim);
+        const timeWeight = temporalWeight(context, row.item);
+        const score = (temperature === null ? 3 * Math.log(row.sim) : row.sim / temperature) + Math.log(timeWeight);
+        rows.push({ item: row.item, sim: row.sim, score });
+    }
+    rows.sort((a, b) => b.score - a.score || (a.item.path < b.item.path ? -1 : a.item.path > b.item.path ? 1 : 0));
+    const selected = rows.slice(0, maximumNeighbors);
+    selected.maximumSimilarity = maximumSimilarity;
+    return selected;
+}
 function weightedAverage(items, value, weights) {
     let sum = 0, count = 0;
     for (const item of items) { const weight = weights?.get(item.path) ?? 1; sum += weight * value(item); count += weight; }
@@ -161,8 +177,7 @@ function categoryCorrection(target, context) {
 }
 
 function calculateData(target, context, ranked, details = false, maximumNeighbors = DATA_K) {
-    const top = [];
-    for (const row of ranked) { if (context.paths.has(row.item.path)) top.push(row); if (top.length === maximumNeighbors) break; }
+    const top = selectNeighbors(context, ranked, maximumNeighbors);
     const base = baseline(target, context.calibration, context.mean);
     const sw = top.reduce((s, x) => s + x.sim ** 3 * temporalWeight(context, x.item), 0);
     let correction = 0;
@@ -191,14 +206,14 @@ function embedding(vectors, path) {
 const cosine = (a, b) => { if (!a || !b || a.length !== b.length) return null; let sum = 0; for (let i = 0; i < a.length; i++) sum += a[i] * b[i]; return clamp(sum, -1, 1); };
 
 function calculatePlot(target, context, ranked, parameters, details = false) {
-    const top = [];
-    for (const row of ranked) { if (context.paths.has(row.item.path)) top.push(row); if (top.length === parameters.k) break; }
+    const top = selectNeighbors(context, ranked, parameters.k, parameters.temperature);
     if (!top.length) return details ? { status: "pending", reason: "Нет готовых векторов оценённых сюжетных соседей", prediction: null, raw: null, neighbors: [], parameters } : null;
-    const maximum = top[0].sim;
+    const maximum = top.maximumSimilarity;
     let sumWeights = 0, sumResiduals = 0;
     const values = top.map(row => {
         const timeWeight = temporalWeight(context, row.item), weight = Math.exp((row.sim - maximum) / parameters.temperature) * timeWeight, residual = row.item.rating - context.mean;
         sumWeights += weight; sumResiduals += weight * residual;
+        if (!details) return null;
         return { path: row.item.path, name: row.item.name, rating: row.item.rating, watchDate: row.item.watchDate || null, distanceDays: temporalFactor(context.temporal?.anchorDate, row.item.watchDate).distanceDays, timeWeight, similarity: row.sim, weight, residual };
     });
     const denominator = sumWeights + parameters.smoothing, correction = denominator > 0 ? sumResiduals / denominator : 0;
@@ -215,4 +230,4 @@ function corpus(items, vectors = {}) {
 }
 
 module.exports = { feature, assignGroups, foldFor, validDescription, similarity, cosine, calendarDate, temporalFactor, TEMPORAL_HALF_LIFE_DAYS,
-    ensembleInternals: { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, MIN_PEERS, MIN_SIM } };
+    ensembleInternals: { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, selectNeighbors, MIN_PEERS, MIN_SIM } };

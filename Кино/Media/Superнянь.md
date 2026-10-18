@@ -22,21 +22,14 @@ imdb Id: tt3013602
 poster: https://m.media-amazon.com/images/M/MV5BMmFmNmRlNDctMDNlMi00ZjdhLWIwZjMtNDMyNzU4NDU5ODljXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Superнянь]]"
 Кинопоиск ID: "777091"
-Прогноз оценки: "6.3"
-
+Прогноз оценки: '6.7'
 cssclasses: ["kino-page","kino-media"]
-Прогноз по данным: "6.3"
-Прогноз по сюжету: "6.3"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/6e3d1c5c5f3b-90ae44913d0fba6a9c53.json]]"
+Прогноз по данным: '6.7'
+Прогноз по сюжету: '6.7'
+Расчёт прогноза: '[[Кино/_system/Прогноз/reports/6e3d1c5c5f3b-dd03c814c9ce3eec6551.json]]'
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T20:49:20.090Z"
-Версия прогноза: "kino-forecast-v5"
-
-
-
-
-
-
+Дата прогноза: 2026-10-18T12:23:54.642Z
+Версия прогноза: kino-forecast-v6
 Часть: 1
 ---
 

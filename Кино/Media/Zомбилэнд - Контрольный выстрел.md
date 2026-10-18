@@ -21,20 +21,14 @@ imdb Id: tt1560220
 poster: https://m.media-amazon.com/images/M/MV5BOTViNDc4NTgtYzVlNi00YmY3LWFiNDgtODJlNGU1YzI1MGExXkEyXkFqcGc@._V1_SX300.jpg
 Франшиза: "[[Кино/Франшизы/Зомбилэнд]]"
 Кинопоиск ID: "489414"
-Прогноз оценки: "6.1"
+Прогноз оценки: '5.6'
 cssclasses: ["kino-page","kino-media"]
-Прогноз по данным: "6.1"
-Прогноз по сюжету: "6.2"
-Расчёт прогноза: "[[Кино/_system/Прогноз/reports/1bb06bd135cf-a722fa07a7d5940084e3.json]]"
+Прогноз по данным: '5.5'
+Прогноз по сюжету: '5.7'
+Расчёт прогноза: '[[Кино/_system/Прогноз/reports/1bb06bd135cf-d92c6dc732d09c7a24ed.json]]'
 Статус прогноза: "Готов"
-Дата прогноза: "2026-10-14T20:49:20.172Z"
-Версия прогноза: "kino-forecast-v5"
-
-
-
-
-
-
+Дата прогноза: 2026-10-18T12:23:54.695Z
+Версия прогноза: kino-forecast-v6
 Часть: 2
 ---
 

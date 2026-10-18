@@ -1,11 +1,16 @@
 /* Shared forecast orchestration. Uses Vault APIs on desktop and Android. */
 const BASE = 'Кино/_system/Прогноз';
-const VERSION = 'kino-forecast-v5';
+const VERSION = 'kino-forecast-v6';
 const MODEL_KEYS = ['embeddinggemma'];
 const OBSOLETE_FIELDS = ['Прогноз данные 55', 'Прогноз данные 100', 'Прогноз данные 155', 'Прогноз E5-small', 'Прогноз E5-base', 'Прогноз EmbeddingGemma'];
 const states = new WeakMap();
 const text = value => String(value ?? '').trim();
 const pause = () => new Promise(resolve => setTimeout(resolve, 0));
+function referenceDate(params) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text(params.asOfDate))) return text(params.asOfDate);
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
 function media(app, file) {
     if (!file || !/^Кино\/Media\/[^/]+\.md$/i.test(file.path)) return false;
     const tags = app.metadataCache.getFileCache(file)?.frontmatter?.tags;
@@ -44,6 +49,14 @@ async function writeJson(app, path, value) {
         if (app.vault.process) await app.vault.process(file, () => content);
         else await app.vault.modify(file, content);
     }
+}
+async function maintenanceBusy(params) {
+    const queue = await readJson(params.app, `${BASE}/queue.json`, null);
+    const active = queue?.maintenance;
+    return Boolean(active?.token && Date.parse(active.expiresAt) > Date.now() && active.token !== params.maintenanceToken);
+}
+async function checkMaintenance(params) {
+    if (await maintenanceBusy(params)) throw Error('Выполняется полный пересчёт прогнозов. Дождись его завершения.');
 }
 async function hash(value) {
     const bytes = new TextEncoder().encode(typeof value === 'string' ? value : JSON.stringify(value));
@@ -93,7 +106,7 @@ async function itemsFor(app, state) {
     }
     return state.core.assignGroups ? state.core.assignGroups(items) : items;
 }
-async function trainingFor(params, items, semantic, state) {
+async function trainingFor(params, items, semantic, state, prepared) {
     const {app} = params;
     const previous = await readJson(app, `${BASE}/training.json`, null);
     const rated = items.filter(item => Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 10);
@@ -101,6 +114,7 @@ async function trainingFor(params, items, semantic, state) {
     // trigger another calibration. Sorting makes vault enumeration irrelevant.
     const inputFingerprint = await hash({
         engine: state.engine.ENGINE, models: semantic.models,
+        undatedReferenceDate: rated.some(item => !item.watchDate) ? params.asOfDate : null,
         rated: rated.map(item => ({...item, vectors: Object.fromEntries(MODEL_KEYS.map(key => [key,
             semantic.vectors[key]?.[item.path] ? semantic.caches[key]?.entries?.[item.path]?.hash || null : null
         ]))})).sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
@@ -111,7 +125,7 @@ async function trainingFor(params, items, semantic, state) {
     abort(params);
     if (rated.length < 40 || !MODEL_KEYS.every(key => Object.keys(semantic.vectors[key] || {}).length >= 30)) return null;
     params.onProgress?.({phase: 'training', stage: 'Проверка точности по актуальным личным оценкам', completed: 0, total: 5});
-    const training = await state.engine.train(items, semantic.vectors, {onProgress: params.onProgress, shouldCancel: params.shouldCancel});
+    const training = await state.engine.train(items, semantic.vectors, {onProgress: params.onProgress, shouldCancel: params.shouldCancel, asOfDate: params.asOfDate, prepared});
     // Clearing a previously known personal rating must not switch that card
     // from its withheld outer group to parameters selected on the whole base.
     for (const item of items) if (Number.isInteger(previous?.folds?.[item.path])) {
@@ -122,7 +136,7 @@ async function trainingFor(params, items, semantic, state) {
     training.models = semantic.models;
     training.inputFingerprint = inputFingerprint;
     training.refresh = {trigger: 'training-input-change-or-explicit-retrain', checkedAt: new Date().toISOString(),
-        formula: 'Revalidate on the next forecast calculation when personal ratings, rated-card features, descriptions, vectors, model or engine change.'};
+        formula: 'Revalidate when personal ratings, viewing dates, rated-card features, descriptions, vectors, model or engine change; undated training targets also depend on the reference date.'};
     await writeJson(app, `${BASE}/training.json`, training);
     return training;
 }
@@ -235,6 +249,8 @@ async function embeddings(params, items, state, extra = []) {
     return {vectors, caches, models, errors, reason: Object.entries(errors).map(([key, reason]) => `${key}: ${reason}`).join('; ')};
 }
 async function calculate(params) {
+    params = {...params, asOfDate: referenceDate(params)};
+    await checkMaintenance(params);
     const {app} = params, state = await coreFor(app);
     const requested = params.forecastFiles || [params.targetFile || app.workspace.getActiveFile()];
     const files = requested.filter(file => media(app, file));
@@ -248,14 +264,15 @@ async function calculate(params) {
     let semantic;
     try { semantic = await embeddings(params, items, state); }
     catch (error) { if (error.name === 'AbortError') return {results: [], cancelled: true, descriptions}; throw error; }
-    const training = await trainingFor(params, items, semantic, state);
+    const prepared = state.engine.prepare(items, semantic.vectors);
+    const training = await trainingFor(params, items, semantic, state, prepared);
     const inputHash = await hash(items.map(item => ({...item, description: undefined})));
     const results = [], byPath = new Map(items.map(item => [item.path, item]));
     for (let index = 0; index < files.length; index++) {
         if (params.shouldCancel?.()) return {results, cancelled: true, descriptions};
         const file = files[index], target = byPath.get(file.path);
         try {
-            const report = state.engine.forecast(items, target, semantic.vectors, training);
+            const report = state.engine.forecast(items, target, semantic.vectors, training, {prepared, asOfDate: params.asOfDate});
             if (report.error) throw Error(report.error);
             report.version = state.engine.VERSION;
             report.models = semantic.models;
@@ -278,6 +295,7 @@ async function calculate(params) {
     return {results, cancelled: false, descriptions, metrics: training?.metrics, semanticError: semantic.reason};
 }
 async function persist(params, estimate) {
+    await checkMaintenance(params);
     const {app} = params, state = await coreFor(app), {file, report} = estimate;
     if (!file || !report || estimate.error) throw Error(estimate.error || 'Нет сохранённого расчёта');
     if (app.vault.getAbstractFileByPath(file.path) !== file) throw Error('Карточка перемещена во время расчёта');
@@ -317,23 +335,30 @@ async function persist(params, estimate) {
     return {reportPath, provisional: report.final.provisional};
 }
 async function candidates(params) {
+    params = {...params, asOfDate: referenceDate(params)};
+    await checkMaintenance(params);
     const {app} = params, state = await coreFor(app), items = await itemsFor(app, state);
     const local = new Map(items.map(item => [item.path, item]));
     const targets = params.forecastCandidates.map((candidate, index) => local.get(text(candidate.localPath || candidate.local?.localPath)) || state.core.feature(
         {path: `candidate:${index}:${candidate.imdbId || candidate.kpId || candidate.ruTitle || ''}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'},
         {'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating, 'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId, 'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year, 'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description, tags: candidate.type === 'series' ? ['serial'] : ['movies']}, candidate.actors || []));
     const semantic = await embeddings(params, items, state, targets);
-    const training = await trainingFor(params, items, semantic, state);
+    const prepared = state.engine.prepare(items, semantic.vectors);
+    const training = await trainingFor(params, items, semantic, state, prepared);
     return targets.map((target, index) => {
-        const stored = Number(params.forecastCandidates[index].storedPrediction ?? params.forecastCandidates[index].local?.storedPrediction);
-        if (Number.isFinite(stored) && stored >= 1 && stored <= 10) return stored;
-        try { return state.engine.forecast(items, target, semantic.vectors, training).final.prediction; }
+        const candidate = params.forecastCandidates[index];
+        const storedSource = candidate.storedPrediction != null ? candidate : candidate.local;
+        const stored = Number(storedSource?.storedPrediction);
+        if (local.has(target.path) && text(storedSource?.storedPredictionVersion) === VERSION && Number.isFinite(stored) && stored >= 1 && stored <= 10) return stored;
+        try { return state.engine.forecast(items, target, semantic.vectors, training, {prepared, asOfDate: params.asOfDate}).final.prediction; }
         catch (_) { return null; }
     });
 }
 // A preview shares the current engine and caches but never writes a media card,
 // queues it, or creates a saved report. The returned report lives in the dialog.
 async function preview(params) {
+    params = {...params, asOfDate: referenceDate(params)};
+    await checkMaintenance(params);
     const {app, forecastCandidate: candidate} = params;
     if (!candidate || (!/^\d{1,12}$/.test(text(candidate.kpId)) && !/^tt\d{5,12}$/.test(text(candidate.imdbId)))) throw Error('Укажи корректный ID Кинопоиска или IMDb');
     const state = await coreFor(app), items = await itemsFor(app, state);
@@ -347,9 +372,10 @@ async function preview(params) {
             tags: candidate.type === 'series' ? ['serial'] : ['movies']
         }, candidate.actors || []);
     const semantic = await embeddings(params, items, state, [target]);
-    const training = await trainingFor(params, items, semantic, state);
+    const prepared = state.engine.prepare(items, semantic.vectors);
+    const training = await trainingFor(params, items, semantic, state, prepared);
     abort(params);
-    const report = state.engine.forecast(items, target, semantic.vectors, training);
+    const report = state.engine.forecast(items, target, semantic.vectors, training, {prepared, asOfDate: params.asOfDate});
     if (report.error) throw Error(report.error);
     report.models = semantic.models; report.model = semantic.models[0];
     report.training = {...report.training, parameterVersion: training?.version, parameterCreatedAt: training?.createdAt,
@@ -363,6 +389,7 @@ async function preview(params) {
     return report;
 }
 async function resume({app, obsidian = {}}) {
+    if (await maintenanceBusy({app})) return;
     if (app.__kinoRatingUpdate || app.__kinoForecastResuming) return;
     const backfillLock = await readJson(app, `${BASE}/maintenance-lock.json`, null);
     if (backfillLock?.until > Date.now()) return {deferred: true};
@@ -391,5 +418,5 @@ module.exports = {
     candidates: params => locked(params.app, () => candidates(params)),
     preview: params => locked(params.app, () => preview(params)),
     resume: params => locked(params.app, () => resume(params)),
-    load, readJson, writeJson, hash, itemsFor, coreFor, media, trainingFor
+    load, readJson, writeJson, hash, itemsFor, coreFor, media, trainingFor, maintenanceBusy
 };

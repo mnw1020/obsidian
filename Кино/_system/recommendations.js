@@ -109,6 +109,7 @@ function isMedia(file) {
     const tags=arr(fmOf(file).tags).map(x=>String(x).replace(/^#/,""));
     return tags.includes("movies") || tags.includes("serial");
 }
+function localForecastDate(){const now=new Date();return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;}
 function featureFromFile(file) {
     const fm=fmOf(file);
     const tags=arr(fm?.tags).map(x=>String(x).replace(/^#/,""));
@@ -120,6 +121,7 @@ function featureFromFile(file) {
         rating:num(fm?.["Оценка"]),
         watched:Boolean(fm?.["Просмотрено"]) || num(fm?.["Оценка"])!==null,
         storedPrediction:num(fm?.["Прогноз оценки"]),
+        storedPredictionVersion:String(fm?.["Версия прогноза"]||"").trim(),
         kpRating:num(fm?.["Оценка Кинопоиск"]),
         kpId:String(fm?.["Кинопоиск ID"]||"").replace(/\D/g,""),
         genres:genreSet(fm?.["Жанр"]),
@@ -1519,8 +1521,13 @@ async function main(){
         return;
     }
     const personalRatingRevision=context.personalRatingRevision||0;
-    const ratingsChanged=Boolean(previous&&(previous.personalRatingRevision||0)!==personalRatingRevision);
-    const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,personalRatingRevision,token:{}};
+    const forecastRuntimeVersion=["forecast_core.js","forecast_ensemble.js","Прогноз/training.json"]
+        .map(name=>app.vault.getAbstractFileByPath(`${ROOT}/_system/${name}`)?.stat?.mtime||0).join(":");
+    const forecastInputVersionForDate=date=>`${forecastRuntimeVersion}:${date}`;
+    const forecastAsOfDate=localForecastDate();
+    const forecastInputVersion=forecastInputVersionForDate(forecastAsOfDate);
+    const ratingsChanged=Boolean(previous&&((previous.personalRatingRevision||0)!==personalRatingRevision||previous.forecastInputVersion!==forecastInputVersion));
+    const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,personalRatingRevision,forecastInputVersion,forecastAsOfDate,token:{}};
     context.viewSession=viewSession;
     const isCurrent=()=>dv.container.isConnected!==false&&context.viewSession===viewSession&&recommendationContextApi.current({app,container:dv.container})===context;
     const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
@@ -1716,6 +1723,13 @@ async function main(){
     };
     const draw=async(readOnly=false)=>{
         if(!isCurrent())return;
+        const asOfDate=localForecastDate();
+        if(viewSession.forecastAsOfDate!==asOfDate){
+            forecastValues.clear();
+            viewSession.forecastAsOfDate=asOfDate;
+            viewSession.forecastInputVersion=forecastInputVersionForDate(asOfDate);
+            readOnly=false;
+        }
         const version=++drawVersion;
         const sourceGroups=[imdbCheckbox.checked?imdbRows:[],kpCheckbox.checked?all:[],movieTonCheckbox.checked?movieTonRows:[],likeFilmCheckbox.checked?likeFilmRows:[],tmdbCheckbox.checked?tmdbRows:[],openaiCheckbox.checked?openaiRows:[]];
         const range=yearRange();
@@ -1763,7 +1777,7 @@ async function main(){
         try{
             forecastLoader ||= loadForecastPredictor();
             const predictor=await forecastLoader;
-            const values=await predictor({app,obsidian:typeof obsidian!=="undefined"?obsidian:{},forecastCandidates:pending,suppressNotice:true});
+            const values=await predictor({app,obsidian:typeof obsidian!=="undefined"?obsidian:{},forecastCandidates:pending,suppressNotice:true,asOfDate});
             if(!Array.isArray(values)||values.length!==pending.length)
                 throw new Error("скрипт прогноза не поддерживает расчёт рекомендаций");
             for(let i=0;i<pending.length;i++){
@@ -1771,7 +1785,7 @@ async function main(){
                 forecastValues.set(forecastId(pending[i]),pending[i].forecast);
             }
             forecastError="";
-        }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);}
+        }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);viewSession.forecastInputVersion=null;}
         if(version===drawVersion){
             currentVisible=visible.filter(hasDirectEvidence);
             renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);

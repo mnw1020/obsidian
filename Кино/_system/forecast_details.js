@@ -36,11 +36,17 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         dataRmse: "Ошибка прогноза по данным (RMSE)", plotRmse: "Ошибка прогноза по сюжету (RMSE)",
         rawDataWeight: "Вес данных до ограничения", plotWeight: "Вес сюжета", minWeight: "Минимальный вес источника",
         maxWeight: "Максимальный вес источника", rawWeights: "Веса до ограничения", fallbackReason: "Причина равных весов",
+        temporal: "Вес по датам просмотров", watchDate: "Дата просмотра", timeWeight: "Вес времени", temporalWeight: "Вес времени",
+        distanceDays: "Расстояние между просмотрами, дней", halfLifeDays: "Период уменьшения веса вдвое, дней",
+        anchorDate: "Дата, относительно которой рассчитаны веса", anchorSource: "Источник даты расчёта",
+        datedPeerCount: "Соседей с датой просмотра", missingPeerDateCount: "Соседей без даты просмотра",
+        effectiveCount: "Взвешенный объём выборки", missingDateWeight: "Вес при отсутствующей дате", weightSum: "Сумма временных весов",
         data155: "По данным · 155", "plot-embeddinggemma": "По сюжету · EmbeddingGemma", embeddinggemma: "EmbeddingGemma"
     };
     const dataBranches = [["155", "По данным · 155"]];
     const plotBranches = [["embeddinggemma", "По сюжету · EmbeddingGemma"]];
     const multiple = report => Boolean(report.dataVariants || report.plotVariants);
+    const temporalFor = (report, branch = null) => branch?.temporal ?? report.temporal ?? report.training?.temporal;
     function el(parentEl, tag, cls, value) {
         const node = doc.createElement(tag);
         if (cls) node.className = cls;
@@ -105,7 +111,15 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
             for (const [, key] of columns) {
                 const td = el(row, "td");
                 if (!key) td.textContent = String(index + 1);
-                else if (key === "name") link(td, pathFor(item.path), item.name ?? item.title ?? item.path);
+                else if (key === "name") {
+                    link(td, pathFor(item.path), item.name ?? item.title ?? item.path);
+                    const timeWeight = item.timeWeight ?? item.temporalWeight;
+                    if (numeric(timeWeight)) {
+                        el(td, "div", "kino-forecast-muted", "Просмотр: " + (item.watchDate ? fmt(item.watchDate) : "дата не указана"));
+                        el(td, "div", "kino-forecast-muted", "Расстояние: " + (numeric(item.distanceDays) ? fmt(item.distanceDays) + " дн." : "не определено"));
+                        el(td, "div", "kino-forecast-muted", "Вес времени: ×" + fmt(timeWeight));
+                    }
+                }
                 else if (key === "components" && item.components) {
                     const details = el(td, "details", "kino-forecast-components");
                     el(details, "summary", "", "Показать"); fields(details, item.components);
@@ -150,6 +164,15 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
             formula(panel, `${fmt(result.dataWeight)} × ${fmt(data.raw)} + ${fmt(result.plotWeight)} × ${fmt(plot.raw)} = ${fmt(result.raw)} → ${fmt(result.prediction)}`);
         } else if (numeric(data.raw)) formula(panel, `${fmt(data.raw)} → ${fmt(result.prediction)}`);
         if (plot.reason) el(panel, "p", "kino-forecast-muted", "По сюжету: " + fmt(plot.reason));
+        const temporal = temporalFor(report);
+        if (temporal) {
+            section(panel, "Близость по датам просмотров");
+            el(panel, "p", "kino-forecast-muted", "Чем дальше просмотр соседа от просмотра этой карточки, тем меньше его влияние. Расстояние считается в обе стороны по датам просмотров. Через каждые 730 дней вес уменьшается вдвое. Этот множитель применяется к средней оценке, калибровке публичных рейтингов, категориям и соседям обеих веток.");
+            if (temporal.anchorSource === "asOfDate") el(panel, "p", "kino-forecast-muted", "У карточки нет даты просмотра; отсчёт ведётся от текущей даты, сохранённой в этом расчёте.");
+            if (temporal.missingPeerDateCount) el(panel, "p", "kino-forecast-muted", "Соседи без даты просмотра сохраняют временной вес 1; их количество указано ниже.");
+            fields(panel, temporal, ["anchorDate", "anchorSource", "halfLifeDays", "datedPeerCount", "missingPeerDateCount", "effectiveCount", "missingDateWeight", "status"]);
+            formula(panel, "Расстояние = |дата просмотра соседа − дата просмотра этой карточки| в днях.\nВес времени = exp(−ln(2) × расстояние / 730).\nЧерез 730 дней: 0,5; через 1460 дней: 0,25.");
+        }
         if (reliability) {
             section(panel, "Почему такие веса");
             el(panel, "p", "kino-forecast-muted", "Точность источников проверяется на ваших личных оценках: для каждого проверяемого произведения его оценка и оценки той же группы IMDb / Кинопоиска исключаются из обучения. Сравниваются ошибки двух прогнозов на одном наборе карточек. Чем меньше средняя абсолютная ошибка (MAE), тем больше вес источника.");
@@ -161,7 +184,7 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
                 const error = value => fmt(Math.round(value * 1000) / 1000);
                 el(panel, "p", "kino-forecast-notice", `В общей независимой проверке средняя ошибка смеси — ${error(validation.tuned.mae)} балла, прогноза по данным — ${error(validation.data155.mae)}. Сейчас прогноз по данным точнее на этой проверке. Итог сохраняет вклад обоих источников по выбранному правилу весов.`);
             }
-            el(panel, "p", "kino-forecast-muted", "При изменении ваших оценок веса будут проверены заново при следующем расчёте прогноза. Этот разбор хранит веса и значения, использованные для показанного итога; сам по себе просмотр окна ничего не пересчитывает.");
+            el(panel, "p", "kino-forecast-muted", "При изменении ваших оценок" + (temporal ? " или дат просмотров" : "") + " веса будут проверены заново при следующем расчёте прогноза. Этот разбор хранит веса и значения, использованные для показанного итога; сам по себе просмотр окна ничего не пересчитывает.");
         }
         section(panel, "Исходные данные карточки"); fields(panel, report.target ?? {});
         if (report.training) { section(panel, "Обучающая выборка и исключения"); fields(panel, report.training); }
@@ -170,11 +193,15 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
     }
     function dataPanel(panel, report, branchKey = null, branchLabel = "Прогноз по данным") {
         const data = branchKey ? report.dataVariants?.[branchKey] ?? {} : report.data ?? {};
+        const temporal = temporalFor(report, data);
         section(panel, branchLabel);
-        el(panel, "p", "kino-forecast-muted", "Сходство метаданных: жанры, режиссёры, актёры, публичные рейтинги, год, длительность, тип и франшиза. Описание сюжета в эту ветку не входит.");
+        el(panel, "p", "kino-forecast-muted", "Сходство метаданных: жанры, режиссёры, актёры, публичные рейтинги, год релиза, длительность, тип и франшиза. Описание сюжета в эту ветку не входит."
+            + (temporal ? " Влияние личных оценок дополнительно уменьшается с расстоянием по датам просмотров; год релиза не определяет этот вес. Соседи отбираются по итоговому весу с учётом времени." : ""));
         fields(panel, data, ["prediction", "raw", "unbounded", "base", "globalMean", "calibration", "correction", "categoryCorrection", "weightedCategory", "maximumNeighbors", "minimumSimilarity", "parameters", "status", "reason"]);
         section(panel, "Формулы");
-        formula(panel, "База = ограничить(a + b × среднее IMDb / КП, 1, 10); без публичного рейтинга — средняя личная оценка.\nПохожесть = Σ(коэффициент × сходство) / Σучаствующих коэффициентов.\nВес соседа = похожесть³. Остаток = ваша оценка соседа − его база.\nПоправка соседей = Σ(вес × остаток) / Σвесов.\nПоправка категорий = среднее эффектов групп; эффект категории = сумма остатков / (число карточек + 10).\nПрогноз = ограничить(база + поправка соседей + 0,75 × поправка категорий, 1, 10).\nОграничить(x, 1, 10) = min(10, max(1, x)).");
+        formula(panel, temporal
+            ? "Вес времени = exp(−ln(2) × |дата просмотра соседа − дата просмотра цели| / 730).\nСредняя личная оценка = Σ(вес времени × оценка) / Σвременных весов.\nКалибровка a, b вычисляется с теми же временными весами.\nБаза = ограничить(a + b × среднее IMDb / КП, 1, 10); без публичного рейтинга — взвешенная средняя личная оценка.\nПохожесть = Σ(коэффициент × сходство) / Σучаствующих коэффициентов.\nВес соседа = похожесть³ × вес времени. Остаток = ваша оценка соседа − его база.\nПоправка соседей = Σ(вес × остаток) / Σвесов.\nПоправка категорий = среднее эффектов групп; эффект категории = Σ(вес времени × остаток) / (Σвременных весов + 10).\nПрогноз = ограничить(база + поправка соседей + 0,75 × поправка категорий, 1, 10).\nОграничить(x, 1, 10) = min(10, max(1, x))."
+            : "База = ограничить(a + b × среднее IMDb / КП, 1, 10); без публичного рейтинга — средняя личная оценка.\nПохожесть = Σ(коэффициент × сходство) / Σучаствующих коэффициентов.\nВес соседа = похожесть³. Остаток = ваша оценка соседа − его база.\nПоправка соседей = Σ(вес × остаток) / Σвесов.\nПоправка категорий = среднее эффектов групп; эффект категории = сумма остатков / (число карточек + 10).\nПрогноз = ограничить(база + поправка соседей + 0,75 × поправка категорий, 1, 10).\nОграничить(x, 1, 10) = min(10, max(1, x)).");
         if (data.formula) formula(panel, data.formula);
         if (numeric(data.base) && numeric(data.correction)) {
             const weighted = numeric(data.weightedCategory) ? data.weightedCategory : numeric(data.categoryCorrection) ? .75 * data.categoryCorrection : 0;
@@ -189,8 +216,10 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
     }
     function plotPanel(panel, report, branchKey = null, branchLabel = "Прогноз по сюжету") {
         const plot = branchKey ? report.plotVariants?.[branchKey] ?? {} : report.plot ?? {};
+        const temporal = temporalFor(report, plot);
         section(panel, branchLabel);
-        el(panel, "p", "kino-forecast-muted", "Соседи выбраны по косинусному сходству смысловых векторов описаний. Для оценки используются только ваши оценки этих соседей.");
+        el(panel, "p", "kino-forecast-muted", "Соседи выбраны по косинусному сходству смысловых векторов описаний. Для оценки используются только ваши оценки этих соседей."
+            + (temporal ? " Вес каждого соседа дополнительно уменьшается с расстоянием по датам просмотров. Соседи отбираются по общему весу сходства и времени; максимальное сходство определяется до отбора." : ""));
         if (branchKey) el(panel, "p", "kino-forecast-muted", "Число соседей, температура и сглаживание подбираются для сюжетной ветки отдельно, по ошибке её прогноза. "
             + (report.training?.parameters?.reliability ?? report.final?.reliability
                 ? "Веса данных и сюжета для итоговой оценки рассчитываются по проверенной точности двух источников."
@@ -199,7 +228,9 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
         if (plot.note) el(panel, "p", "kino-forecast-muted", fmt(plot.note));
         fields(panel, plot, ["prediction", "raw", "unbounded", "base", "correction", "sumWeights", "denominator", "parameters", "status", "shortDescription", "truncated", "tokenCount"]);
         section(panel, "Формулы");
-        formula(panel, "Похожесть = косинус между нормированными векторами описаний.\nВес = exp((похожесть − максимальная похожесть) / температура).\nОтклонение = ваша оценка соседа − средняя личная оценка.\nПрогноз = средняя личная оценка + Σ(вес × отклонение) / (Σвесов + сглаживание).\nРезультат ограничивается диапазоном 1–10 и округляется до десятых.");
+        formula(panel, temporal
+            ? "Похожесть = косинус между нормированными векторами описаний.\nВес времени = exp(−ln(2) × |дата просмотра соседа − дата просмотра цели| / 730).\nСредняя личная оценка = Σ(вес времени × оценка) / Σвременных весов.\nВес соседа = exp((похожесть − максимальная похожесть) / температура) × вес времени.\nОтклонение = ваша оценка соседа − взвешенная средняя личная оценка.\nПрогноз = взвешенная средняя личная оценка + Σ(вес × отклонение) / (Σвесов + сглаживание).\nРезультат ограничивается диапазоном 1–10 и округляется до десятых."
+            : "Похожесть = косинус между нормированными векторами описаний.\nВес = exp((похожесть − максимальная похожесть) / температура).\nОтклонение = ваша оценка соседа − средняя личная оценка.\nПрогноз = средняя личная оценка + Σ(вес × отклонение) / (Σвесов + сглаживание).\nРезультат ограничивается диапазоном 1–10 и округляется до десятых.");
         if (plot.formula) formula(panel, plot.formula);
         if (numeric(plot.base) && numeric(plot.correction)) formula(panel, `${fmt(plot.base)} ${signed(plot.correction)} = ${fmt(plot.raw)} → ${fmt(plot.prediction)}`);
         const model = branchKey ? report.models?.[branchKey] ?? report.models?.find?.(item => item.key === branchKey) : report.model;

@@ -26,7 +26,11 @@ async function update(params) {
         const script=app.vault.getAbstractFileByPath('Кино/_system/predict_rating.js');
         if(!script)throw Error('Не найден расчёт прогнозов');
         const mod={exports:{}};new Function('module',await app.vault.read(script))(mod);
-        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true,prepareDescriptions:params.prepareDescriptions!==false,retrain:all});
+        if(mod.exports.service){
+            const api=await mod.exports.service(app);
+            if(await api.maintenanceBusy?.(params)){notify('Выполняется полный пересчёт прогнозов. Дождись его завершения.');return {busy:true};}
+        }
+        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true,prepareDescriptions:params.prepareDescriptions!==false,retrain:all,asOfDate:params.asOfDate,maintenanceToken:params.maintenanceToken});
         result.descriptions=estimates.descriptions;result.metrics=estimates.metrics;result.semanticError=estimates.semanticError;
         if(estimates.cancelled){result.cancelled=true;notify('Обновление отменено до записи прогнозов.');return result;}
         for(let index=0;index<estimates.results.length;index++) {
@@ -34,7 +38,7 @@ async function update(params) {
             const estimate=estimates.results[index];
             if(estimate.error){result.failed.push({path:estimate.file?.path||estimate.path,error:estimate.error});continue;}
             try {
-                await mod.exports.persist({app,obsidian},estimate);
+                await mod.exports.persist({app,obsidian,maintenanceToken:params.maintenanceToken},estimate);
                 result.updated++;
                 if(estimate.report.final.provisional)result.provisional++;else result.complete++;
             }catch(error){result.failed.push({path:estimate.file.path,error:String(error?.message||error)});}

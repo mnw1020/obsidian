@@ -3,7 +3,7 @@
 "use strict";
 
 const core = require("./forecast_core.js");
-const { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, MIN_PEERS, MIN_SIM } = core.ensembleInternals;
+const { corpus, fit, calculateData, calculatePlot, embedding, isRated, clamp, rounded, temporalWeight, selectNeighbors, MIN_PEERS, MIN_SIM } = core.ensembleInternals;
 const VERSION = 6;
 const ENGINE = "kino-data-gemma-forecasts-6.0.0";
 const MODEL_KEYS = ["embeddinggemma"];
@@ -150,20 +150,21 @@ function forecast(items, target, vectorSets = {}, training = null, options = {})
     return report;
 }
 
-// All 54 plot candidates use the same filtered top 155 neighbors. Prefix sums
-// avoid allocating another list for each (k, temperature, smoothing) candidate.
+// Time-adjusted selection depends on temperature. Share the three rankings,
+// then use prefixes for k/smoothing. The maximum similarity is taken across
+// all eligible peers before the cutoff, exactly as in calculatePlot.
 function plotGrid(context, ranking) {
-    const top = [];
-    for (const row of ranking) { if (context.paths.has(row.item.path)) top.push(row); if (top.length === 155) break; }
+    const eligible = [...ranking].filter(row => context.paths.has(row.item.path));
     const result = new Float64Array(GRID.length); result.fill(NaN);
-    if (!top.length) return result;
-    const maximum = top[0].sim, prefixes = new Map();
+    if (!eligible.length) return result;
+    const maximum = Math.max(...eligible.map(row => row.sim)), prefixes = new Map();
     for (const temperature of [0.03, 0.07, 0.15]) {
+        const top = selectNeighbors(context, eligible, 155, temperature);
         const weights = new Float64Array(top.length + 1), residuals = new Float64Array(top.length + 1);
         for (let i = 0; i < top.length; i++) { const weight = Math.exp((top[i].sim - maximum) / temperature) * temporalWeight(context, top[i].item); weights[i + 1] = weights[i] + weight; residuals[i + 1] = residuals[i] + weight * (top[i].item.rating - context.mean); }
-        prefixes.set(temperature, { weights, residuals });
+        prefixes.set(temperature, { weights, residuals, count: top.length });
     }
-    for (let i = 0; i < GRID.length; i++) { const parameters = GRID[i], count = Math.min(parameters.k, top.length), prefix = prefixes.get(parameters.temperature), denominator = prefix.weights[count] + parameters.smoothing; result[i] = clamp(context.mean + (denominator > 0 ? prefix.residuals[count] / denominator : 0)); }
+    for (let i = 0; i < GRID.length; i++) { const parameters = GRID[i], prefix = prefixes.get(parameters.temperature), count = Math.min(parameters.k, prefix.count), denominator = prefix.weights[count] + parameters.smoothing; result[i] = clamp(context.mean + (denominator > 0 ? prefix.residuals[count] / denominator : 0)); }
     return result;
 }
 
