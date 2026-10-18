@@ -158,14 +158,8 @@ async function render({ dv, app, obsidian = {} }) {
         const kindSelect = select(controls, 'Расчёты', [['ready', 'Готовые текущей версии'], ['all', 'Все сохранённые'], ['provisional', 'Предварительные'], ['legacy', 'Старые / без статуса']], state.kind);
         const context = el(head, 'p', 'kino-report-period'); context.setAttribute('role', 'status');
         const metrics = el(head, 'div', 'kino-home-stats'), metricValues = [];
-        for (const label of ['Сравнено карточек', 'Средняя ошибка · MAE', 'Среднее Δ']) {
+        for (const label of ['Сравнено карточек', 'Средняя ошибка · MAE', 'Попадание в ±1 балл', 'Попадание в ±2 балла', 'Попадание в ±3 балла']) {
             const box = el(metrics, 'div', 'kino-home-stat'); metricValues.push(el(box, 'strong', '', '—')); el(box, 'span', '', label);
-        }
-        const hits = el(metrics, 'div', 'kino-analytics-hit-rates'), hitValues = [];
-        el(hits, 'span', 'kino-analytics-hit-title', 'Попадание прогноза');
-        for (const label of ['±1 балл', '±2 балла', '±3 балла']) {
-            const item = el(hits, 'div', 'kino-analytics-hit');
-            hitValues.push(el(item, 'strong', '', '—')); el(item, 'span', '', label);
         }
         const validationBox = section('Независимая проверка модели', 'validation');
         const validationDate = el(validationBox, 'p', 'kino-analytics-note');
@@ -270,8 +264,7 @@ async function render({ dv, app, obsidian = {} }) {
         function draw() {
             if (disposed) return; model = build(records, state); const s = model.stats;
             context.textContent = `${BRANCHES.find(b => b.id === state.branch).label} · ${state.type === 'movies' ? 'фильмы' : state.type === 'serial' ? 'сериалы' : 'фильмы и сериалы'} · ${kindSelect.selectedOptions[0].textContent.toLocaleLowerCase('ru')}`;
-            for (const [i, value] of [String(s.n), fmt(s.mae), signed(s.bias)].entries()) metricValues[i].textContent = value;
-            for (const [i, value] of [s.within1, s.within2, s.within3].entries()) hitValues[i].textContent = pct(value);
+            for (const [i, value] of [String(s.n), fmt(s.mae), pct(s.within1), pct(s.within2), pct(s.within3)].entries()) metricValues[i].textContent = value;
             const count = kind => model.rated.filter(r => r.kind === kind).length;
             coverage.textContent = `Оценённых карточек: ${model.rated.length}. Готовы (v${engine.version}): ${count('ready')}; предварительные: ${count('provisional')}; старые / без статуса: ${count('legacy')}; без прогноза: ${count('missing')}. Выбрано: ${model.scoped.length}; с выбранным прогнозом: ${s.n}.`;
             pairBody.replaceChildren(); pairCaption.textContent = `Три ветки на одной выборке: ${model.paired.length} карточек. Значения из сохранённых полей, с округлением до десятых.`;
