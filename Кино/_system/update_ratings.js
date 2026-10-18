@@ -9,7 +9,7 @@ function isMedia(app,file) {
 }
 async function update(params) {
     const {app,obsidian={}}=params;
-    if (app.__kinoRatingUpdate) return {busy:true};
+    if (app.__kinoRatingUpdate || app.__kinoRoleUpdate || app.__kinoForecastReportCleanup) return {busy:true};
     const active=params.targetFile || app.workspace.getActiveFile();
     const requested=params.scope || params.variables?.kinoRatingScope;
     const all=requested==='all' || (!requested && active?.path===AUDIT);
@@ -30,7 +30,7 @@ async function update(params) {
             const api=await mod.exports.service(app);
             if(await api.maintenanceBusy?.(params)){notify('Выполняется полный пересчёт прогнозов. Дождись его завершения.');return {busy:true};}
         }
-        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true,prepareDescriptions:params.prepareDescriptions!==false,retrain:all,asOfDate:params.asOfDate,maintenanceToken:params.maintenanceToken});
+        const estimates=await mod.exports({app,obsidian,forecastFiles:files,onProgress:progress,shouldCancel:params.shouldCancel,suppressNotice:true,prepareDescriptions:params.prepareDescriptions===true,retrain:all,asOfDate:params.asOfDate,maintenanceToken:params.maintenanceToken});
         result.descriptions=estimates.descriptions;result.metrics=estimates.metrics;result.semanticError=estimates.semanticError;
         if(estimates.cancelled){result.cancelled=true;notify('Обновление отменено до записи прогнозов.');return result;}
         for(let index=0;index<estimates.results.length;index++) {
@@ -44,6 +44,10 @@ async function update(params) {
             }catch(error){result.failed.push({path:estimate.file.path,error:String(error?.message||error)});}
             progress({phase:'writing',completed:index+1,total:files.length});
             if((index+1)%5===0)await new Promise(resolve=>setTimeout(resolve,0));
+        }
+        if(all&&!result.cancelled&&!result.failed.length&&mod.exports.service){
+            try{const api=await mod.exports.service(app);result.cleanup=await api.cleanupReports?.({...params,ratingUpdateToken:token});}
+            catch(error){result.cleanupError=String(error.message||error);}
         }
         notify((result.cancelled?'Остановлено. ':'Готово. ')+'Прогнозов обновлено: '+result.updated+', без изменений: '+result.unchanged+', ошибок: '+result.failed.length+'.');
         return result;

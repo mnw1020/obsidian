@@ -83,13 +83,29 @@ async function render({dv,app,obsidian={}}) {
                     if(disposed)return;
                     status.textContent=result.busy?'Обновление уже выполняется.':(result.cancelled?'Обновление остановлено. ':'Готово. ')+'Обновлено: '+result.updated+' · Полных: '+(result.complete||0)+' · Предварительных: '+(result.provisional||0)+' · Ошибок: '+result.failed.length;
                     if(result.failed?.length){failureList.replaceChildren();for(const entry of result.failed){const item=el(failureList,'li');internal(item,entry.path,entry.path);el(item,'span','',': '+entry.error);}failures.hidden=false;}
+                    if(result.cleanupError)status.textContent+=' Очистка отчётов не завершена: '+result.cleanupError;
+                }else if(action==='cleanup'){
+                    stop.hidden=false;stop.disabled=false;
+                    const predict=await moduleAt('Кино/_system/predict_rating.js'),api=await predict.service(app);
+                    const phases={references:'Проверка ссылок',compacting:'Уменьшение отчётов',deleting:'Удаление лишнего'};
+                    const result=await api.cleanupReports({app,shouldCancel:()=>cancelled||disposed,onProgress:p=>{if(!disposed)status.textContent=(phases[p.phase]||'Очистка')+': '+p.completed+' / '+p.total;}});
+                    if(disposed)return;
+                    status.textContent=result.busy?'Обновление уже выполняется.':(result.cancelled?'Очистка остановлена. ':'Готово. ')+'Удалено: '+result.deleted+' · Уменьшено: '+result.compacted+' · Освобождено: '+(result.savedBytes/1048576).toFixed(1)+' МБ · Ошибок: '+result.failed.length;
+                    if(result.failed?.length){failureList.replaceChildren();for(const entry of result.failed){const item=el(failureList,'li');internal(item,entry.path,entry.path);el(item,'span','',': '+entry.error);}failures.hidden=false;}
+                }else if(action==='roles'){
+                    stop.hidden=false;stop.disabled=false;
+                    const update=await moduleAt('Кино/_system/update_kino_roles.js');
+                    const result=await update({app,obsidian,quickAddApi:app.plugins?.plugins?.quickadd?.api,shouldCancel:()=>cancelled||disposed,onProgress:p=>{if(!disposed)status.textContent='Роли: '+p.completed+' / '+p.total+' · '+p.stage;}});
+                    if(disposed)return;
+                    status.textContent=result?.busy?'Обновление уже выполняется.':!result?'В выбранном списке нет карточек.':(result.cancelled?'Обновление остановлено. ':'Готово. ')+'Обработано: '+result.processed+' · Изменено: '+result.changed+' · Ошибок: '+result.failed.length;
+                    if(result?.failed?.length){failureList.replaceChildren();for(const entry of result.failed){const item=el(failureList,'li');internal(item,entry.path,entry.path);el(item,'span','',': '+entry.error);}failures.hidden=false;}
                 }else{
                     const api=app.plugins?.plugins?.quickadd?.api;if(!api?.executeChoice)throw Error('Не найден QuickAdd');await api.executeChoice(action);if(!disposed)status.textContent='Готово.';
                 }
             }catch(error){if(!disposed)status.textContent='Не удалось выполнить: '+(error.message||error);}
             finally{busy=false;if(!disposed){for(const b of buttons)b.disabled=false;stop.hidden=true;}}
         }
-        for(const [label,choice,primary]of [['Проверить','Кино - Проверить кинотеку',true],['Обновить оценки','ratings',true],['Исправить безопасное','Кино - Исправить безопасное'],['Обновить роли','Кино - Обновить роли актёров']]){
+        for(const [label,choice,primary]of [['Проверить','Кино - Проверить кинотеку',true],['Обновить оценки','ratings',true],['Исправить безопасное','Кино - Исправить безопасное'],['Обновить роли','roles'],['Очистить лишнее','cleanup']]){
             const button=el(actions,'button','kino-home-action'+(primary?' is-primary':''),label);button.type='button';buttons.push(button);
             if(choice==='ratings'){button.dataset.action='ratings';button.title='Команда: QuickAdd: '+UPDATE+'\nНа этой странице — все карточки; в карточке — только текущая. Обновляет прогноз по данным, прогноз по сюжету, итог и подробный разбор.';}
             listen(button,'click',()=>void run(choice));

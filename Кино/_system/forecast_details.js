@@ -320,6 +320,7 @@ module.exports = async function openForecastDetails({ app, obsidian = {}, doc, s
                 report = JSON.parse(body);
             }
             if (!report || typeof report !== "object" || !report.final || (!report.data && !report.dataVariants)) throw new Error("Формат сохранённого расчёта не поддерживается.");
+            report = {...report, data:report.data ?? report.dataVariants?.['155'], plot:report.plot ?? report.plotVariants?.embeddinggemma};
             if (!closed) render(report);
         } catch (error) {
             if (!closed) { holder.replaceChildren(); el(holder, "p", "kino-forecast-notice", error.message || String(error)).setAttribute("role", "alert"); }

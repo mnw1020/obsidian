@@ -51,6 +51,7 @@ async function writeJson(app, path, value) {
     }
 }
 async function maintenanceBusy(params) {
+    if(params.app.__kinoForecastReportCleanup)return true;
     const queue = await readJson(params.app, `${BASE}/queue.json`, null);
     const active = queue?.maintenance;
     return Boolean(active?.token && Date.parse(active.expiresAt) > Date.now() && active.token !== params.maintenanceToken);
@@ -304,10 +305,12 @@ async function persist(params, estimate) {
     const role = rolePath && (app.metadataCache.getFirstLinkpathDest?.(rolePath, file.path) || app.vault.getAbstractFileByPath(rolePath) || app.vault.getAbstractFileByPath(rolePath + '.md'));
     const current = state.core.feature(file, fm, role ? app.metadataCache.getFileCache(role)?.frontmatter?.['Актеры'] || [] : []);
     if (await hash({...current, group: undefined}) !== estimate.sourceSignature) throw Error('Свойства карточки изменились во время расчёта; повтори обновление');
-    const digest = (await hash({...report, createdAt: undefined})).slice(0, 20);
+    const reportStorage = await load(app, 'forecast_reports');
+    const storedReport = reportStorage.compactReport(report);
+    const digest = (await hash({...storedReport, createdAt: undefined})).slice(0, 20);
     const reportPath = `${BASE}/reports/${(await hash(file.path)).slice(0, 12)}-${digest}.json`;
     const existingReport = app.vault.getAbstractFileByPath(reportPath);
-    if (!existingReport) await writeJson(app, reportPath, report);
+    if (!existingReport) await writeJson(app, reportPath, storedReport);
     const savedCreatedAt = existingReport ? (await readJson(app, reportPath, report)).createdAt : report.createdAt;
     const missing = Object.entries(report.plotVariants).filter(([, plot]) => plot.raw == null).map(([key, plot]) => `${key}: ${plot.reason || 'ожидает расчёта'}`);
     const status = report.final.provisional ? `Предварительный: ${missing.join('; ') || report.final.reason || 'ожидает полного расчёта'}` : 'Готов';
@@ -417,6 +420,7 @@ async function single(params) {
     return estimate;
 }
 module.exports = {
+    cleanupReports: params => locked(params.app, async()=>{await checkMaintenance(params);return (await load(params.app,'forecast_reports')).cleanup(params);}),
     calculate: params => locked(params.app, () => calculate(params)),
     single: params => locked(params.app, () => single(params)),
     persist: (params, estimate) => locked(params.app, () => persist(params, estimate)),

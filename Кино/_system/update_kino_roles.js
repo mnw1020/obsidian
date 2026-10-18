@@ -69,19 +69,20 @@ const ROLE_LINKS_BLOCK = [
     '```'
 ].join("\n");
 
-module.exports = async function updateKinoRoles(params) {
+async function updateKinoRoles(params) {
     const { app, obsidian: ob } = params;
     const cardLayout = await loadCardLayout(app);
     let files = app.vault.getMarkdownFiles()
         .filter(file => isMedia(file, app))
         .filter(file => !isTemplate(file, app))
         .sort((a, b) => a.path.localeCompare(b.path, "ru"));
-    const scope = params.variables?.kinoRolesScope || (params.quickAddApi?.suggester
+    const activeMedia=isMedia(app.workspace.getActiveFile(),app);
+    const scope = params.scope || params.variables?.kinoRolesScope || (params.quickAddApi?.suggester
         ? await params.quickAddApi.suggester(
-            ["Только карточки из отчёта проверки", "Только открытая карточка", "Вся кинотека"],
-            ["report", "active", "all"], "Какие карточки обновить?")
+            activeMedia?["Только карточки из отчёта проверки", "Только открытая карточка", "Вся кинотека"]:["Только карточки из отчёта проверки", "Вся кинотека"],
+            activeMedia?["report", "active", "all"]:["report", "all"], "Какие карточки обновить?")
         : "report");
-    if (!scope) return;
+    if (!scope) return {cancelled:true,processed:0,changed:0,failed:[]};
     if (scope === "active") files = files.filter(file => file.path === app.workspace.getActiveFile()?.path);
     else if (scope === "report") {
         const report = app.vault.getAbstractFileByPath(`${ROOT}/_system/Проверка кинотеки.md`);
@@ -109,23 +110,26 @@ module.exports = async function updateKinoRoles(params) {
     let failed = 0;
     let noRoleSource = 0;
     const noRoleFiles = [];
+    const errors = [];
+    let cancelled = false;
 
     try {
         for (const file of files) {
+            if(params.shouldCancel?.()){cancelled=true;break;}
             processed++;
+            const sourceRaw=await app.vault.read(file);
             const fm = app.metadataCache.getFileCache(file)?.frontmatter || {};
             const imdbId = extractImdbId(fm["imdb Id"]);
             const rolePath = roleFilePath(file);
             const roleFile = app.vault.getAbstractFileByPath(rolePath);
+            const sourceRoleRaw=roleFile?await app.vault.read(roleFile):null;
             const roleFm = roleFile ? app.metadataCache.getFileCache(roleFile)?.frontmatter || {} : {};
             const actorValue = roleFm.Актеры ?? fm.Актеры ?? [];
             const roleValue = roleFm["Роли актеров"] ?? fm["Роли актеров"] ?? [];
             const directorField = fm.Режисер !== undefined ? "Режисер" : "Режиссер";
             const directorValue = roleFm.Режисер ?? roleFm.Режиссер ?? fm[directorField] ?? [];
             const storedKpId = explicitKpId(fm) || explicitKpId(roleFm);
-            const progress = stage => notice.setMessage?.(
-                `Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`
-            );
+            const progress = stage => {notice.setMessage?.(`Кино: ${processed}/${files.length} - ${file.basename} - ${stage}`);params.onProgress?.({phase:'roles',completed:processed,total:files.length,stage,path:file.path});};
             progress("подготовка");
             if (!imdbId && !storedKpId) {
                 skipped++;
@@ -193,6 +197,9 @@ module.exports = async function updateKinoRoles(params) {
                     || JSON.stringify(nextDirectorValue) !== JSON.stringify(directorValue)
                     || hasNewKpId;
                 let bodyChanged = false;
+                if(params.shouldCancel?.()){cancelled=true;break;}
+                if(app.vault.getAbstractFileByPath(file.path)!==file||await app.vault.read(file)!==sourceRaw
+                    ||app.vault.getAbstractFileByPath(rolePath)!==roleFile||(roleFile&&await app.vault.read(roleFile)!==sourceRoleRaw))throw Error('Карточка или роли изменились во время загрузки. Повтори обновление.');
                 if (frontmatterChanged) {
                     await app.fileManager.processFrontMatter(file, frontmatter => {
                         frontmatter[directorField] = nextDirectorValue;
@@ -224,6 +231,7 @@ module.exports = async function updateKinoRoles(params) {
                 }
             } catch (error) {
                 failed++;
+                errors.push({path:file.path,error:String(error.message||error)});
                 console.warn("Кино: не удалось получить роли", file.path, error);
             }
         }
@@ -238,6 +246,15 @@ module.exports = async function updateKinoRoles(params) {
         `Роли и люди: обработано ${processed}, изменено ${changed}, ролей ${foundRoles}, режиссеров ${foundDirectors}, IMDb ${imdbSources}, КП ${kpSources}, без ролей ${noRoleSource}, пропущено ${skipped}, ошибок ${failed}.${unresolved}`,
         15000
     );
+    return {total:files.length,processed,changed,failed:errors,skipped,cancelled};
+}
+module.exports=async params=>{
+    const {app}=params;
+    if(app.__kinoRoleUpdate||app.__kinoRatingUpdate||app.__kinoForecastReportCleanup)return {busy:true};
+    const queue=app.vault.getAbstractFileByPath('Кино/_system/Прогноз/queue.json');
+    if(queue){const maintenance=JSON.parse(await app.vault.read(queue)).maintenance;if(maintenance?.token&&Date.parse(maintenance.expiresAt)>Date.now())return {busy:true};}
+    const token={};app.__kinoRoleUpdate=token;
+    try{return await updateKinoRoles(params);}finally{if(app.__kinoRoleUpdate===token)delete app.__kinoRoleUpdate;}
 };
 
 function isMedia(file, app) {
@@ -1350,8 +1367,7 @@ async function writeRoleFile(app, mainFile, fm, values) {
     const cardLayout = await loadCardLayout(app);
     const existing = app.vault.getAbstractFileByPath(rolePath);
     if (existing) {
-        const previous = await app.vault.read(existing);
-        await app.vault.modify(existing, cardLayout.mergeRoleCard(previous, content));
+        await app.vault.process(existing, previous => cardLayout.mergeRoleCard(previous, content));
     }
     else await app.vault.create(rolePath, cardLayout.ensureLayout(content, { kind: "roles" }));
 }
