@@ -320,7 +320,7 @@ module.exports = ({ app, obsidian }) => {
         const decorate = text => layout ? layout.page(text, "journal") : text;
         let file = app.vault.getAbstractFileByPath(JOURNAL_PATH);
         if (!file) {
-            try { await app.vault.create(JOURNAL_PATH, decorate(`---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Журнал изменений\n\n[[Книги/_index|← Книги]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`)); return; }
+            try { await app.vault.create(JOURNAL_PATH, decorate(`---\ncssclasses:\n  - books-library\nobsidianUIMode: preview\n---\n\n# Журнал изменений\n\n[[Книги/_index|← Библиотека]]\n\n> Автоматическая история обслуживания книжной базы.\n\n${block}`)); return; }
             catch (error) { file = app.vault.getAbstractFileByPath(JOURNAL_PATH); if (!file) throw error; }
         }
         await app.vault.process(file, current => {

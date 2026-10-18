@@ -111,8 +111,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const actions = el(identity, 'div', 'book-home-actions');
     const add = command(actions, 'Добавить', 'Книги - Добавить книгу', 'book-home-action is-primary');
     add.title = 'Добавить произведение';
-    command(actions, '… Чтение', 'Книги - Добавить чтение', 'book-home-action').title = 'Записать чтение';
-    command(actions, '… Редактировать', 'Книги - Редактировать чтение', 'book-home-action').title = 'Редактировать чтение';
+    command(actions, '…чтение', 'Книги - Добавить чтение', 'book-home-action').title = 'Записать чтение';
+    command(actions, '…редактировать', 'Книги - Редактировать чтение', 'book-home-action').title = 'Редактировать чтение';
     const search = command(actions, 'Поиск по библиотеке', 'Книги - Поиск по библиотеке', 'book-home-action is-icon');
     search.setAttribute('aria-label', 'Поиск по библиотеке'); search.title = 'Поиск по библиотеке';
     const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');

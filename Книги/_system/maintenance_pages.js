@@ -28,7 +28,7 @@ function page(text, mode) {
 function clearJournal(text) {
     const decorated = page(text, 'journal'), { frontmatter } = documentParts(decorated), nl = newline(decorated);
     const generated = region(decorated).text;
-    const fallback = ['# Журнал изменений', '', '[[Книги/_index|← Библиотека]] · [[Книги/_system/Проверка библиотеки|Проверка библиотеки]]', '', '> Автоматическая история обслуживания книжной базы.', ''].join(nl);
+    const fallback = ['# Журнал изменений', '', '[[Книги/_index|← Библиотека]]', '', '> Автоматическая история обслуживания книжной базы.', ''].join(nl);
     return frontmatter + (frontmatter ? nl : '') + generated + nl + nl + fallback;
 }
 function dataBody(text) {

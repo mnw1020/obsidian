@@ -147,7 +147,7 @@ async function saveQuote({ app, knowledge, core, value = {} } = {}) {
         const title = section.split("/").at(-1) || "Произвольные цитаты";
         const content = [
             "---", "note_type: excerpt_collection", `title: ${JSON.stringify(title)}`, "authors: []", `quote_section: ${JSON.stringify(section)}`,
-            "cssclasses:", "  - book-knowledge", "obsidianUIMode: preview", "---", "", `# ${title}`, "", knowledge.renderExcerpt({ ...input, id })
+            "cssclasses:", "  - book-knowledge", "obsidianUIMode: preview", "---", "", `# ${title}`, "", "[[Книги/_index|← Библиотека]]", "", knowledge.renderExcerpt({ ...input, id })
         ].join("\n");
         const fm = assertCollection(core, content, requestedPath);
         try { file = await app.vault.create(requestedPath, content); }
