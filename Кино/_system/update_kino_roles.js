@@ -83,6 +83,7 @@ async function updateKinoRoles(params) {
             activeMedia?["report", "active", "all"]:["report", "all"], "Какие карточки обновить?")
         : "report");
     if (!scope) return {cancelled:true,processed:0,changed:0,failed:[]};
+    if(!['active','report','all'].includes(scope))throw Error('Неизвестная область обновления ролей');
     if (scope === "active") files = files.filter(file => file.path === app.workspace.getActiveFile()?.path);
     else if (scope === "report") {
         const report = app.vault.getAbstractFileByPath(`${ROOT}/_system/Проверка кинотеки.md`);

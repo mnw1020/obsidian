@@ -11,7 +11,7 @@ function ensureLayout(raw) {
     if(existing){try{for(const value of JSON.parse(existing[1]))if(!classes.includes(value))classes.push(value);}catch{}}
     const replacement='cssclasses: '+JSON.stringify(classes);
     yaml=/^cssclasses:/m.test(yaml)?yaml.replace(/^cssclasses:[^\n]*(?:\n[ \t]+-[^\n]*)*/m,replacement):yaml+'\n'+replacement;
-    const loader=['<!-- KINO:UI:START -->','```dataviewjs','try {',
+    const loader=['<!-- KINO:UI:START -->','```dataviewjs','// Проверка, обновление оценок и ролей, кнопка «Очистить лишнее».','try {',
         '    const file = app.vault.getAbstractFileByPath("Кино/_system/audit_ui.js");',
         '    if (!file) throw new Error("Не найден интерфейс проверки кинотеки");',
         '    const mod = { exports: {} };',
@@ -72,7 +72,7 @@ async function render({dv,app,obsidian={}}) {
         const actions=el(head,'div','kino-home-actions'),buttons=[];
         const status=el(head,'p','kino-audit-status');status.setAttribute('role','status');status.hidden=true;
         const stop=el(head,'button','kino-audit-stop','Остановить обновление');stop.type='button';stop.hidden=true;listen(stop,'click',()=>{cancelled=true;stop.disabled=true;});
-        const failures=el(head,'details','kino-audit-failures');failures.hidden=true;el(failures,'summary','','Карточки, которые не удалось обновить');const failureList=el(failures,'ul');
+        const failures=el(head,'details','kino-audit-failures');failures.hidden=true;el(failures,'summary','','Не удалось обработать');const failureList=el(failures,'ul');
         async function run(action){if(busy||disposed)return;busy=true;cancelled=false;for(const b of buttons)b.disabled=true;status.hidden=false;status.textContent='Выполняется…';failures.hidden=true;
             try{
                 if(action==='ratings'){
@@ -84,6 +84,8 @@ async function render({dv,app,obsidian={}}) {
                     status.textContent=result.busy?'Обновление уже выполняется.':(result.cancelled?'Обновление остановлено. ':'Готово. ')+'Обновлено: '+result.updated+' · Полных: '+(result.complete||0)+' · Предварительных: '+(result.provisional||0)+' · Ошибок: '+result.failed.length;
                     if(result.failed?.length){failureList.replaceChildren();for(const entry of result.failed){const item=el(failureList,'li');internal(item,entry.path,entry.path);el(item,'span','',': '+entry.error);}failures.hidden=false;}
                     if(result.cleanupError)status.textContent+=' Очистка отчётов не завершена: '+result.cleanupError;
+                    if(result.cleanup?.cancelled)status.textContent+=' Очистка отчётов остановлена.';
+                    if(result.cleanup?.failed?.length)status.textContent+=' Ошибок очистки: '+result.cleanup.failed.length;
                 }else if(action==='cleanup'){
                     stop.hidden=false;stop.disabled=false;
                     const predict=await moduleAt('Кино/_system/predict_rating.js'),api=await predict.service(app);
@@ -108,6 +110,7 @@ async function render({dv,app,obsidian={}}) {
         for(const [label,choice,primary]of [['Проверить','Кино - Проверить кинотеку',true],['Обновить оценки','ratings',true],['Исправить безопасное','Кино - Исправить безопасное'],['Обновить роли','roles'],['Очистить лишнее','cleanup']]){
             const button=el(actions,'button','kino-home-action'+(primary?' is-primary':''),label);button.type='button';buttons.push(button);
             if(choice==='ratings'){button.dataset.action='ratings';button.title='Команда: QuickAdd: '+UPDATE+'\nНа этой странице — все карточки; в карточке — только текущая. Обновляет прогноз по данным, прогноз по сюжету, итог и подробный разбор.';}
+            if(choice==='cleanup')button.title='Удалить отчёты без ссылок и убрать повторяющиеся данные в актуальных отчётах.';
             listen(button,'click',()=>void run(choice));
         }
         el(head,'p','kino-audit-description','Обновление оценок пересчитывает прогноз по данным, прогноз по сюжету и итог, затем сохраняет подробный разбор. Личные оценки сохраняются.');

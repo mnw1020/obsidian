@@ -1521,8 +1521,8 @@ async function main(){
         });
         return;
     }
-    const files=app.vault.getMarkdownFiles().filter(isMedia);
-    const libraryRevision=files.map(file=>`${file.path}:${file.stat?.mtime||0}`).sort().join("|");
+    const vaultFiles=app.vault.getMarkdownFiles(),files=vaultFiles.filter(isMedia);
+    const libraryRevision=[...files,...vaultFiles.filter(file=>file.path.startsWith(`${ROOT}/_system/Роли/`))].map(file=>`${file.path}:${file.stat?.mtime||0}`).sort().join("|");
     const personalRatingRevision=context.personalRatingRevision||0;
     const forecastRuntimeVersion=["forecast_core.js","forecast_ensemble.js","forecast_service.js","Прогноз/training.json"]
         .map(name=>app.vault.getAbstractFileByPath(`${ROOT}/_system/${name}`)?.stat?.mtime||0).join(":");
