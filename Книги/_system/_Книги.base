@@ -40,6 +40,20 @@ properties:
   note.series_index:
     displayName: №
 views:
+  - type: cards
+    name: Карточки
+    order:
+      - formula.book_link
+      - formula.author_links
+      - formula.work_type
+      - rating
+      - date
+    sort:
+      - property: date
+        direction: DESC
+      - property: formula.book_link
+        direction: ASC
+    cardSize: 220
   - type: table
     name: Все
     order:
@@ -216,16 +230,20 @@ views:
         direction: ASC
       - property: date
         direction: DESC
-  - type: list
+  - type: table
     name: Главная
     order:
       - formula.book_link
       - formula.author_links
+      - formula.work_type
       - rating
       - date
+      - read_count
+      - formula.series_link
+      - series_index
     sort:
       - property: date
         direction: DESC
+      - property: formula.book_link
+        direction: ASC
     limit: 20
-    separator: ", "
-    indentProperties: false

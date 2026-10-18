@@ -38,13 +38,13 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const cleanups = [], children = [], commandLinks = [];
     if (refresh) refresh.dispose = dispose;
     else dv.component?.register?.(dispose);
-    const paths = ['library-home.css', 'book_core.js', 'lazy_base.js', 'reading_dashboard.js'];
+    const paths = ['library-home.css', 'book_core.js', 'reading_dashboard.js'];
     const files = paths.map(name => app.vault.getAbstractFileByPath('Книги/_system/' + name));
     if (files.some(file => !file)) throw new Error('Не найдены модули главной страницы.');
     const texts = await Promise.all(files.map(file => app.vault.read(file)));
     if (disposed) return { dispose };
     const modules = texts.slice(1).map(text => { const module = { exports: {} }; new Function('module', text)(module); return module.exports; });
-    const [loadCore, lazy, dashboard] = modules;
+    const [loadCore, dashboard] = modules;
     const core = loadCore({ app, obsidian });
     const doc = dv.container.ownerDocument;
     root = el(dv.container, 'section', 'book-home-ui');
@@ -55,10 +55,27 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const node = doc.createElement(tag); if (cls) node.className = cls;
         if (text !== undefined) node.textContent = String(text); parent.appendChild(node); return node;
     }
-    function listen(node, event, callback) { node.addEventListener(event, callback); cleanups.push(() => node.removeEventListener(event, callback)); }
-    function internal(parent, text, target, cls = '') {
+    function listen(node, event, callback, listeners = cleanups) { node.addEventListener(event, callback); listeners.push(() => node.removeEventListener(event, callback)); }
+    function internal(parent, text, target, cls = '', listeners = cleanups) {
         const link = el(parent, 'a', `internal-link ${cls}`.trim(), text); link.href = target; link.dataset.href = target;
-        listen(link, 'click', event => { event.preventDefault(); app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey)); }); return link;
+        listen(link, 'click', event => { event.preventDefault(); if (!disposed) app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey)); }, listeners); return link;
+    }
+    const foldKey = 'books.home.folds.v1:' + (app.vault.getName?.() || '') + ':' + source;
+    const memory = app.__bookHomeFolds || (app.__bookHomeFolds = Object.create(null));
+    let folds = memory[foldKey] || {};
+    try {
+        const saved = JSON.parse(doc.defaultView.localStorage.getItem(foldKey));
+        if (saved && typeof saved === 'object' && !Array.isArray(saved)) folds = saved;
+    } catch (_) {}
+    memory[foldKey] = folds;
+    function saveFold(key, expanded) {
+        if (disposed) return;
+        folds[key] = expanded;
+        try { doc.defaultView.localStorage.setItem(foldKey, JSON.stringify(folds)); } catch (_) {}
+    }
+    function rememberDetails(details, key) {
+        details.open = folds[key] === true;
+        listen(details, 'toggle', event => { if (event.target === details) saveFold(key, details.open); });
     }
     const status = el(root, 'p', 'book-home-action-error'); status.hidden = true; status.setAttribute('role', 'status');
     function command(parent, text, choice, cls = '') {
@@ -153,24 +170,95 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         try { if (!disposed) await renderer({ dv: scope, app, obsidian, ...options }); }
         catch (problem) { if (!disposed) el(container, 'p', 'book-home-widget-error', `Не удалось загрузить блок: ${problem.message || problem}`); }
     }
-    const recent = panel(root, 'Недавние произведения', 'book-home-recent', 'Весь каталог ↗', 'Книги/_system/_Книги.base#Все');
-    el(recent.head, 'p', 'book-home-caption', 'Последние 20 по дате чтения');
-    const reading = panel(root, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
     const overviews = el(root, 'section', 'book-home-overviews'); el(overviews, 'h2', '', 'Обзор библиотеки');
-    const overviewLinks = el(overviews, 'div', 'book-home-overview-links');
-    for (const [label, description, choice] of [['Авторы', 'Произведения и впечатления', 'Книги - Авторы'], ['Серии', 'Порядок книг', 'Книги - Серии'], ['Экранизации', 'Книги и кино', 'Книги - Экранизации']]) {
-        const tile = el(overviewLinks, 'div', 'book-home-overview'); command(tile, label, choice); el(tile, 'p', '', description);
+    const overviewBody = el(overviews, 'div', 'book-home-overview-body');
+    const overviewLinks = el(overviewBody, 'div', 'book-home-overview-links');
+    for (const [label, choice] of [['Авторы', 'Книги - Авторы'], ['Серии', 'Книги - Серии'], ['Экранизации', 'Книги - Экранизации']]) {
+        const tile = el(overviewLinks, 'div', 'book-home-overview'); command(tile, label, choice);
     }
-    const poems = el(overviewLinks, 'div', 'book-home-overview'); internal(poems, 'Стихи', 'Книги/Стихи'); el(poems, 'p', '', 'Поэты и тексты');
-    const views = el(root, 'details', 'book-home-views'); el(views, 'summary', '', 'Другие представления каталога');
-    const viewLinks = el(views, 'nav', 'book-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
-    for (const [label, name] of [['Подробная таблица', 'Все'], ['Любимые', 'Любимые'], ['Без оценки', 'Без оценки'], ['По году', 'По году'], ['По типу', 'По типу']]) internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name);
+    const poems = el(overviewLinks, 'div', 'book-home-overview'); internal(poems, 'Стихи', 'Книги/Стихи');
+    const viewLinks = el(overviewBody, 'nav', 'book-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
+    for (const [label, name, path] of [
+        ['Карточки', 'Карточки', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'],
+        ['Таблица', 'Все', 'M3 9h18M3 15h18M8 3v18']
+    ]) {
+        const link = internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name, 'book-home-action is-icon');
+        link.setAttribute('aria-label', label); link.title = label;
+        const svg = icon.cloneNode(false);
+        if (name === 'Все') {
+            const frame = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            for (const [key, value] of Object.entries({ x: '3', y: '3', width: '18', height: '18', rx: '1.5' })) frame.setAttribute(key, value);
+            svg.appendChild(frame);
+        }
+        const shape = doc.createElementNS('http://www.w3.org/2000/svg', 'path'); shape.setAttribute('d', path); svg.appendChild(shape);
+        link.replaceChildren(svg);
+    }
+    for (const [label, name] of [['Художественные', 'Художественные'], ['Non-fiction', 'Non-fiction'], ['Любимые', 'Любимые'], ['Без оценки', 'Без оценки'], ['По году', 'По году'], ['По типу', 'По типу']]) internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name);
     rereadLink = internal(viewLinks, 'Перечитанные', 'Книги/_system/_Книги.base#Перечитанные');
     drawStats();
+    const nativeViews = [];
+    const viewsVisible = () => overviews.dataset.collapsed !== 'true';
+    function nativeView(label, target) {
+        const details = el(overviewBody, 'details', 'book-home-native-view'); details.dataset.target = target;
+        rememberDetails(details, 'native:' + target);
+        el(details, 'summary', '', label);
+        const content = el(details, 'div', 'book-home-native-content');
+        const isOpen = () => viewsVisible() && details.open;
+        let child = null, generation = 0;
+        const linkCleanups = [];
+        function clear() {
+            generation++; if (child) release(child); child = null;
+            for (const cleanup of linkCleanups.splice(0)) cleanup();
+            content.replaceChildren();
+        }
+        cleanups.push(clear);
+        async function open() {
+            if (disposed || !isOpen() || child) return;
+            const current = ++generation;
+            if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !dv.component?.addChild) {
+                for (const cleanup of linkCleanups.splice(0)) cleanup();
+                content.replaceChildren(); internal(content, 'Открыть представление', target, '', linkCleanups); return;
+            }
+            child = widgetComponent(); const renderingChild = child;
+            const holder = el(content, 'div', 'book-home-native-render');
+            try { await obsidian.MarkdownRenderer.render(app, `![[${target}]]`, holder, source, renderingChild); }
+            catch (problem) {
+                if (!disposed && current === generation && isOpen()) {
+                    holder.replaceChildren(); el(holder, 'p', 'book-home-widget-error', `Не удалось загрузить представление: ${problem?.message || problem}`);
+                    internal(holder, 'Открыть представление', target, '', linkCleanups);
+                }
+                release(renderingChild); if (child === renderingChild) child = null;
+            } finally {
+                if (disposed || current !== generation || !isOpen()) { release(renderingChild); holder.remove(); if (child === renderingChild) child = null; }
+            }
+        }
+        listen(details, 'toggle', event => { if (event.target !== details) return; if (!isOpen()) clear(); else void open(); });
+        nativeViews.push({ clear, open });
+    }
+    nativeView('Недавние произведения', 'Книги/_system/_Книги.base#Главная');
+    nativeView('Перечитанные', 'Книги/_system/_Книги.base#Перечитанные');
+    const overviewHeading = overviews.querySelector('h2');
+    overviewHeading.replaceChildren();
+    const fold = el(overviewHeading, 'button', 'book-home-fold'); fold.type = 'button';
+    el(fold, 'span', 'book-home-fold-title', 'Обзор библиотеки');
+    el(fold, 'span', 'book-home-fold-chevron').setAttribute('aria-hidden', 'true');
+    overviewBody.id = 'book-home-overview-' + Math.random().toString(36).slice(2);
+    fold.setAttribute('aria-controls', overviewBody.id);
+    function drawOverview(expanded) {
+        overviews.dataset.collapsed = String(!expanded); overviewBody.hidden = !expanded;
+        fold.setAttribute('aria-expanded', String(expanded));
+        for (const view of nativeViews) if (expanded) void view.open(); else view.clear();
+    }
+    listen(fold, 'click', () => {
+        const expanded = fold.getAttribute('aria-expanded') !== 'true';
+        drawOverview(expanded); saveFold('overview', expanded);
+    });
+    drawOverview(folds.overview !== false);
+    const reading = panel(root, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
     const footer = el(root, 'footer', 'book-home-footer');
     internal(footer, 'Проверка библиотеки', 'Книги/_system/Проверка библиотеки'); internal(footer, 'Журнал изменений', 'Книги/_system/Журнал изменений');
     function release(component) {
-        const index = children.indexOf(component); if (index >= 0) children.splice(index, 1);
+        const index = children.indexOf(component); if (index < 0) return; children.splice(index, 1);
         if (obsidian.Component && dv.component?.removeChild) dv.component.removeChild(component); else component.unload();
     }
     function dispose() {
@@ -179,10 +267,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         if (root) { root.dataset.ready = 'false'; root.remove(); }
         if (refresh?.root === root) refresh.root = null;
     }
-    await Promise.all([
-        mount(recent.body, lazy, { target: 'Книги/_system/_Книги.base#Главная', label: 'недавние 20', expanded: true }),
-        mount(reading.body, dashboard, { mode: 'home' })
-    ]);
+    await mount(reading.body, dashboard, { mode: 'home' });
     if (!disposed) root.dataset.ready = 'true';
     return { dispose };
 };
