@@ -78,12 +78,19 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         listen(details, 'toggle', event => { if (event.target === details) saveFold(key, details.open); });
     }
     const status = el(root, 'p', 'book-home-action-error'); status.hidden = true; status.setAttribute('role', 'status');
-    function command(parent, text, choice, cls = '') {
-        const link = el(parent, 'a', cls, text); link.href = 'obsidian://quickadd?choice=' + encodeURIComponent(choice);
+    function command(parent, text, choice, cls = '', tag = 'a') {
+        const link = el(parent, tag, cls, text);
+        if (tag === 'button') { link.type = 'button'; link.dataset.choice = choice; }
+        else link.href = 'obsidian://quickadd?choice=' + encodeURIComponent(choice);
         commandLinks.push(link);
         listen(link, 'click', async event => {
             const api = app.plugins?.plugins?.quickadd?.api;
-            if (!api?.executeChoice) return;
+            if (!api?.executeChoice) {
+                if (tag === 'button' && !disposed) {
+                    status.textContent = `Не удалось открыть «${text}»: команда QuickAdd недоступна.`; status.hidden = false;
+                }
+                return;
+            }
             event.preventDefault();
             if (disposed || actionBusy) return;
             actionBusy = true; for (const node of commandLinks) node.setAttribute('aria-disabled', 'true');
@@ -174,9 +181,14 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const overviewBody = el(overviews, 'div', 'book-home-overview-body');
     const overviewLinks = el(overviewBody, 'div', 'book-home-overview-links');
     for (const [label, choice] of [['Авторы', 'Книги - Авторы'], ['Серии', 'Книги - Серии'], ['Экранизации', 'Книги - Экранизации']]) {
-        const tile = el(overviewLinks, 'div', 'book-home-overview'); command(tile, label, choice);
+        command(overviewLinks, label, choice, 'book-home-overview', 'button');
     }
-    const poems = el(overviewLinks, 'div', 'book-home-overview'); internal(poems, 'Стихи', 'Книги/Стихи');
+    for (const [label, target] of [['Стихи', 'Книги/Стихи'], ['Цитаты', 'Книги/Цитаты']]) {
+        const button = el(overviewLinks, 'button', 'book-home-overview', label); button.type = 'button';
+        listen(button, 'click', event => {
+            if (!disposed) app.workspace.openLinkText(target, source, Boolean(event.ctrlKey || event.metaKey));
+        });
+    }
     const viewLinks = el(overviewBody, 'nav', 'book-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
     const tableLink = internal(viewLinks, 'Таблица', 'Книги/_system/_Книги.base#Все', 'book-home-action is-icon');
     tableLink.setAttribute('aria-label', 'Таблица'); tableLink.title = 'Таблица';
