@@ -228,9 +228,9 @@
     };
     let evidence;
     if (prediction.raw == null) evidence = "Недостаточно других оценок для прогноза";
-    else if (!support.author) evidence = "Автор без истории оценок; " + (candidate.type && support.type ? `ориентир по типу · ${support.type} оценок` : "общий ориентир");
+    else if (!support.author) evidence = "Автор без истории оценок; " + (candidate.type && support.type ? `ориентир по типу · оценок: ${support.type}` : "общий ориентир");
     else if (candidate.complexity === 0) evidence = "Общий ориентир: признаки не улучшили проверку достаточно";
-    else if (!candidate.author && candidate.type) evidence = `Ориентир по типу · ${support.type} оценок`;
+    else if (!candidate.author && candidate.type) evidence = `Ориентир по типу · оценок: ${support.type}`;
     else if (support.author < 5) evidence = "Мало оценок автора; сильное сглаживание к общему уровню";
     else evidence = "Есть оценки автора; экспериментальная оценка";
     const matching = training.filter(r => hasAuthor(r) || hasSeries(r) || (candidate.type && r.type === record.type));

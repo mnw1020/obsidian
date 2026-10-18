@@ -161,7 +161,7 @@ function main(args) {
     const unrated = records.filter(row => row.rating === null);
     console.log(JSON.stringify({
         data: { total: records.length, rated: records.length - unrated.length, unrated: unrated.length, authors: new Set(records.flatMap(row => row.authors)).size },
-        model: model.model || null,
+        model: model.model ? { id: model.model.id, name: model.model.name, features: model.model.features } : null,
         validation: model.validation ? {
             n: model.validation.n, mae: model.validation.mae, rmse: model.validation.rmse,
             within1: model.validation.within1, residual80: model.validation.residual80,
@@ -169,10 +169,9 @@ function main(args) {
             baselineMedianMae: model.validation.baselineMedianMae,
             description: model.validation.description
         } : null,
-        unrated: (model.rows || []).filter(row => row.rating === null).map(row => ({
-            title: row.title, authors: row.authors, type: row.type,
-            forecast: row.forecast, evidence: row.evidence
-        })),
+        unrated: [...new Map((model.rows || []).filter(row => row.rating === null).map(row => [JSON.stringify([row.authors, row.type, row.forecast]), {
+            authors: row.authors, type: row.type, forecast: row.forecast, evidence: row.evidence
+        }])).values()],
         preview: previewPath ? path.resolve(previewPath) : undefined
     }, null, 2));
 }
