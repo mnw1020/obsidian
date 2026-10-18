@@ -91,10 +91,7 @@ async function render({ dv, app, obsidian = {} }) {
     el(heading, 'h1', '', 'Стихи');
     const total = el(heading, 'p', 'book-poetry-total');
     const mastActions = el(identity, 'div', 'book-poetry-mast-actions');
-    const add = button(mastActions, 'Добавить', 'book-poetry-add'); add.setAttribute('aria-label', 'Добавить стихотворение');
-    const random = button(mastActions, 'Наугад', 'book-poetry-random');
-    const sourceToggle = button(mastActions, 'Все тексты', 'book-poetry-source-toggle');
-    sourceToggle.setAttribute('aria-pressed', 'false');
+    const add = button(mastActions, '+ Добавить', 'book-poetry-add'); add.setAttribute('aria-label', 'Добавить стихотворение');
     const controls = el(root, 'div', 'book-poetry-controls');
     const searchLabel = el(controls, 'label', 'book-poetry-search-field');
     el(searchLabel, 'span', 'book-poetry-label', 'Поиск стихов');
@@ -164,10 +161,8 @@ async function render({ dv, app, obsidian = {} }) {
         finally { node.disabled = false; }
     }
     function setSource(open) {
-        root.dataset.sourceOpen = String(open); sourceToggle.setAttribute('aria-pressed', String(open));
-        sourceToggle.textContent = open ? 'Режим чтения' : 'Все тексты';
+        root.dataset.sourceOpen = String(open);
         memory.sourceOpen = open;
-        random.disabled = (open ? poems : results()).length < 2;
     }
     function setNavigation(open) {
         root.dataset.navigationOpen = String(open); navigationToggle.setAttribute('aria-expanded', String(open));
@@ -194,7 +189,7 @@ async function render({ dv, app, obsidian = {} }) {
         if (!rows.some(poem => poem.key === selected)) selected = rows[0]?.key || '';
         Object.assign(memory, { selected, author, query: search.value, groups: [...openGroups] });
         resultCount.textContent = search.value.trim() || author ? `Найдено: ${rows.length} из ${poems.length}` : `${noun(poems.length, ['текст', 'текста', 'текстов'])}`;
-        reset.disabled = !search.value && !author; random.disabled = rows.length < 2;
+        reset.disabled = !search.value && !author;
         navigation.replaceChildren();
         el(navigation, 'div', 'book-poetry-contents-title', 'Оглавление');
         const groups = new Map();
@@ -270,12 +265,6 @@ async function render({ dv, app, obsidian = {} }) {
     listen(authorSelect, 'change', () => { author = authorSelect.value; draw(); });
     listen(reset, 'click', () => { author = ''; search.value = ''; authorSelect.value = ''; draw(); });
     listen(navigationToggle, 'click', () => setNavigation(root.dataset.navigationOpen !== 'true'));
-    listen(sourceToggle, 'click', () => setSource(root.dataset.sourceOpen !== 'true'));
-    listen(random, 'click', () => {
-        if (root.dataset.sourceOpen === 'true') { author = ''; search.value = ''; authorSelect.value = ''; }
-        const choices = results().filter(poem => poem.key !== selected);
-        if (choices.length) select(choices[Math.floor(Math.random() * choices.length)].key, true);
-    });
     function containingView(node) {
         const views = app.workspace.getLeavesOfType?.('markdown') || [];
         const found = views.find(leaf => leaf.view?.containerEl?.contains(node));
@@ -306,7 +295,7 @@ async function render({ dv, app, obsidian = {} }) {
         if (file?.path === sourceFile.path && view && app.workspace.activeLeaf?.view === view && hasSubpath(view)) setSource(true);
     });
     const currentView = containingView(dv.container);
-    setSource(Boolean(memory.sourceOpen || currentView?.file?.path === sourceFile.path && hasSubpath(currentView)));
+    setSource(Boolean(currentView?.file?.path === sourceFile.path && hasSubpath(currentView)));
     async function reload() {
         const token = ++generation;
         try {

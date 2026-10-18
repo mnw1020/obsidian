@@ -478,7 +478,8 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const identity = element(masthead, "div", undefined, "book-quotes-identity");
         const heading = element(identity, "div", undefined, "book-quotes-heading");
         element(heading, "h1", "Цитаты", "book-quotes-title");
-        const add = element(identity, "a", "+ Добавить цитату", "book-quotes-add");
+        const add = element(identity, "a", "+ Добавить", "book-quotes-add");
+        add.setAttribute("aria-label", "Добавить цитату");
         add.href = "obsidian://quickadd?choice=" + encodeURIComponent("Книги - Добавить выписку");
         add.addEventListener("click", event => { event.preventDefault(); create(); });
     }

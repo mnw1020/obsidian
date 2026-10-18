@@ -169,8 +169,9 @@
 .book-reading-dashboard.is-index .book-dashboard-methodology { margin: 0; padding: 20px 0 0; border-top: 1px solid var(--home-line); color: var(--text-muted); font-size: .72em; line-height: 1.7; }
 .book-reading-dashboard.is-index .book-dashboard-methodology summary { color: var(--text-muted); line-height: 1.7; }
 .book-reading-dashboard.is-index .book-dashboard-methodology p { margin: 12px 0; overflow-wrap: anywhere; }
-.book-reading-dashboard.is-index .book-dashboard-footer { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 22px; font-size: .7em; }
-.book-reading-dashboard.is-index .book-dashboard-footer a { color: var(--text-muted); }
+.book-reading-dashboard.is-index .book-dashboard-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.book-reading-dashboard.is-index .book-dashboard-footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 9px 13px; border: 1px solid var(--background-modifier-border); border-radius: 7px; background: var(--background-primary); color: var(--text-muted); font-size: 12px; line-height: 1.5; text-decoration: none; }
+.book-reading-dashboard.is-index .book-dashboard-footer a:hover { color: var(--text-accent); background: color-mix(in srgb,var(--text-accent) 8%,var(--background-primary)); }
 @container reading-dashboard (max-width: 850px) {
     .book-reading-dashboard.is-index :is(.book-dashboard-overview,.book-dashboard-details-grid) { grid-template-columns: minmax(0,1fr); }
 }

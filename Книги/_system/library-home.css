@@ -107,8 +107,9 @@
 .book-home-ui .book-home-overview-body .book-home-view-links a { padding: 7px 11px; border: 1px solid var(--home-line); border-radius: 6px; color: var(--text-muted); font-size: .9em; text-decoration: none; }
 .book-home-ui .book-home-overview-body .book-home-view-links a.is-icon { padding: 0; }
 .book-home-ui .book-home-overview-body .book-home-view-links a:hover { color: var(--home-accent); background: var(--home-tint); }
-.book-home-ui .book-home-footer { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 22px; font-size: .7em; }
-.book-home-ui .book-home-footer a { color: var(--text-muted); }
+.book-home-ui .book-home-footer { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.book-home-ui .book-home-footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 9px 13px; border: 1px solid var(--home-line); border-radius: 7px; background: var(--background-primary); color: var(--text-muted); font-size: 12px; line-height: 1.5; text-decoration: none; }
+.book-home-ui .book-home-footer a:hover { color: var(--home-accent); background: var(--home-tint); }
 .book-home-ui :is(.book-home-widget-error,.book-home-action-error) { color: var(--text-error); font-size: .8em; overflow-wrap: anywhere; }
 .book-home-ui .books-empty { margin: 0; color: var(--text-muted); font-size: .8em; line-height: 1.65; overflow-wrap: anywhere; }
 @container library-home (max-width: 800px) {

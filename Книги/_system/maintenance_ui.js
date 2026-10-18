@@ -40,7 +40,8 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
     el(root, 'style', '', texts[0] + '\n' + texts[1]);
     const module = { exports: {} }; new Function('module', texts[2])(module);
     const pages = module.exports;
-    const nav = el(root, 'nav', 'book-authors-nav');
+    const masthead = el(root, 'header', 'book-maintenance-masthead');
+    const nav = el(masthead, 'nav', 'book-authors-nav'); nav.setAttribute('aria-label', 'Навигация библиотеки');
     function internal(parent, label, target) {
         const link = el(parent, 'a', 'internal-link', label);
         link.href = target; link.dataset.href = target;
@@ -49,10 +50,9 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
         }); return link;
     }
     internal(nav, '← Библиотека', 'Книги/_index');
-    const header = el(root, 'header', 'book-authors-header');
+    const header = el(masthead, 'div', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     const heading = el(identity, 'div', 'book-authors-heading');
-    el(heading, 'div', 'book-authors-eyebrow', 'Библиотека / Обслуживание');
     el(heading, 'h1', 'book-authors-name', mode === 'audit' ? 'Проверка библиотеки' : 'Журнал изменений');
     const controls = el(header, 'div', 'book-maintenance-actions');
     const status = el(root, 'p', 'book-maintenance-status');
@@ -130,12 +130,13 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
             if (mode === 'audit' && !model.sections.length) throw new Error('В отчёте нет разделов проверки. Запустите проверку библиотеки.');
             child = makeChild();
             if (mode === 'audit') {
-                const stats = el(draft, 'div', 'book-authors-stats');
+                const summary = el(draft, 'section', 'book-maintenance-summary');
+                const stats = el(summary, 'div', 'book-authors-stats');
                 for (const [label, value] of [['Произведений', model.checked], ['Ошибок', model.errors], ['Предупреждений', model.warnings]]) {
                     const stat = el(stats, 'div', 'book-authors-stat');
                     el(stat, 'strong', 'book-authors-stat-value', value); el(stat, 'span', 'book-authors-stat-label', label);
                 }
-                if (model.timestamp) el(draft, 'p', 'book-maintenance-updated', `Последняя проверка: ${model.timestamp}`);
+                if (model.timestamp) el(summary, 'p', 'book-maintenance-updated', `Последняя проверка: ${model.timestamp}`);
                 sectionHeading(draft, 'Результаты проверки');
                 const previous = new Map([...content.querySelectorAll('details')].map(node => [node.dataset.section, node.open]));
                 const sections = [...model.sections].sort((a, b) => {

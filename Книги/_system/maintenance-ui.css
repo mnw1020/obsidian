@@ -1,32 +1,55 @@
-/* Shared library typography and controls, with compact report sections. */
-.book-maintenance-ui .book-authors-identity { grid-template-columns: minmax(0,1fr); gap: 0; }
-.book-maintenance-ui .book-maintenance-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; max-width: 330px; }
-.book-maintenance-ui .book-authors-change { font: 12px/1.4 var(--font-interface,inherit); box-shadow: none; cursor: pointer; }
+/* Service pages share the library's masthead, gold headings and quiet panels. */
+.markdown-preview-view:has(.book-maintenance-ui) {
+    --file-line-width: 100%; --line-width: 100%; --line-width-wide: 100%;
+    --max-width: 100%; --content-margin: 0; --file-margins: 8px 12px;
+    padding-inline: 12px !important;
+}
+.markdown-preview-view:has(.book-maintenance-ui) .markdown-preview-sizer>div:has(>.block-language-dataviewjs) { width: 100% !important; max-width: 100% !important; margin-inline: 0 !important; }
+.book-maintenance-ui.book-maintenance-ui {
+    --authors-accent: var(--books-gold,#b89760);
+    --authors-line: color-mix(in srgb,var(--background-modifier-border) 70%,transparent);
+    --maintenance-serif: "Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+    --maintenance-numbers: "JetBrains Mono","Cascadia Mono",Consolas,monospace;
+    --maintenance-tint: color-mix(in srgb,var(--authors-accent) 8%,var(--background-primary));
+    width: 100%; max-width: 100%; margin: 0 0 28px;
+}
+.book-maintenance-ui .book-maintenance-masthead { padding: 22px 28px 28px; border: 1px solid var(--authors-line); border-top: 3px solid var(--authors-accent); border-radius: 4px 4px 12px 12px; background: linear-gradient(120deg,var(--maintenance-tint),var(--background-primary) 75%); }
+.book-maintenance-ui .book-authors-header { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 22px; padding: 25px 0 0; border: 0; }
+.book-maintenance-ui .book-authors-identity { flex: 1 1 280px; grid-template-columns: minmax(0,1fr); gap: 0; }
+.book-maintenance-ui h1.book-authors-name { margin: 0 !important; color: var(--authors-accent) !important; font: 700 clamp(34px,4.4cqi,52px)/1.1 var(--maintenance-serif) !important; letter-spacing: -.025em; }
+.book-maintenance-ui .book-maintenance-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; max-width: 100%; }
+.book-maintenance-ui .book-authors-change { min-height: 40px; padding: 9px 13px; border: 1px solid var(--authors-line); border-radius: 7px; background: var(--background-primary); color: var(--text-normal); font: 12px/1.5 var(--font-interface,sans-serif); box-shadow: none; cursor: pointer; text-decoration: none; }
+.book-maintenance-ui .book-authors-change:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--maintenance-tint); border-color: color-mix(in srgb,var(--authors-accent) 45%,var(--authors-line)); color: var(--authors-accent); }
 .book-maintenance-ui .book-authors-change[aria-disabled="true"] { opacity: .5; pointer-events: none; }
 .book-maintenance-ui button:disabled { opacity: .45; cursor: default; }
 .book-maintenance-ui [hidden] { display: none !important; }
-.book-maintenance-ui .book-authors-stats { grid-template-columns: repeat(3,minmax(0,1fr)); margin-bottom: 14px; }
+.book-maintenance-ui :is(a,button,summary):focus-visible { outline: 2px solid var(--authors-accent); outline-offset: 3px; }
+.book-maintenance-ui .book-maintenance-summary { padding: 24px; margin-bottom: 24px; border: 1px solid var(--authors-line); border-radius: 10px; background: var(--background-primary); }
+.book-maintenance-ui .book-authors-stats { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin: 0; padding: 0; }
+.book-maintenance-ui .book-authors-stat { border: 0; padding: 0; }
 .book-maintenance-ui .book-authors-stat:last-child { grid-column: auto; }
-.book-maintenance-ui .book-authors-stat:last-child .book-authors-stat-value { font-size: 27px; padding-top: 0; }
-.book-maintenance-ui .book-maintenance-updated { color: var(--authors-muted); font-size: 11px; margin: 0 0 28px; overflow-wrap: anywhere; }
+.book-maintenance-ui .book-authors-stat-value,
+.book-maintenance-ui .book-authors-stat:last-child .book-authors-stat-value { padding-top: 0; color: var(--authors-accent); font: 700 28px/1.2 var(--maintenance-numbers); font-variant-numeric: tabular-nums; }
+.book-maintenance-ui .book-maintenance-updated { color: var(--authors-muted); font-size: 12px; margin: 18px 0 0; overflow-wrap: anywhere; }
 .book-maintenance-ui .book-maintenance-content { min-width: 0; margin-top: 24px; }
-.book-maintenance-ui .book-maintenance-status { margin: 14px 0 0; font-size: 12px; color: var(--text-error,#c9665f); overflow-wrap: anywhere; }
-.book-maintenance-ui .book-maintenance-section { border: 1px solid var(--authors-line); border-radius: 10px; margin: 0 0 8px; padding: 0 16px; min-width: 0; }
-.book-maintenance-ui .book-maintenance-section > summary { cursor: pointer; padding: 14px 0; color: var(--authors-text); font-size: 15px; font-weight: 550; line-height: 1.4; overflow-wrap: anywhere; }
+.book-maintenance-ui .book-maintenance-status { margin: 14px 0 0; font-size: 13px; color: var(--text-error,#c9665f); overflow-wrap: anywhere; }
+.book-maintenance-ui .book-authors-section-heading { gap: 8px 18px; margin-bottom: 18px; }
+.book-maintenance-ui .book-authors-section-heading h2 { min-width: 0; max-width: 100%; overflow-wrap: anywhere; padding-inline-start: 12px; border-inline-start: 3px solid var(--authors-accent); color: var(--authors-accent) !important; font: 700 27px/1.25 var(--maintenance-serif) !important; }
+.book-maintenance-ui .book-maintenance-section { border: 1px solid var(--authors-line); border-radius: 10px; margin: 0 0 10px; padding: 0 20px; background: var(--background-primary); min-width: 0; }
+.book-maintenance-ui .book-maintenance-section > summary { cursor: pointer; padding: 16px 0; color: var(--authors-text); font-size: 15px; font-weight: 400; line-height: 1.5; overflow-wrap: anywhere; }
 .book-maintenance-ui .book-maintenance-section[open] > summary { color: var(--authors-accent); }
-.book-maintenance-ui .book-maintenance-section .book-maintenance-markdown { padding: 0 0 14px; }
-.book-maintenance-ui .book-maintenance-entries { border: 1px solid var(--authors-line); border-radius: 12px; overflow: hidden; min-width: 0; }
-.book-maintenance-ui .book-maintenance-entry { border-bottom: 1px solid var(--authors-line); padding: 16px; min-width: 0; }
-.book-maintenance-ui .book-maintenance-entry:last-child { border-bottom: 0; }
-.book-maintenance-ui h2.book-maintenance-entry-title { font-size: 15px !important; font-weight: 650 !important; line-height: 1.4; margin: 0 0 10px !important; padding: 0; overflow-wrap: anywhere; }
-.book-maintenance-ui .book-maintenance-markdown { font-size: 12px; line-height: 1.65; overflow-wrap: anywhere; min-width: 0; }
+.book-maintenance-ui .book-maintenance-section .book-maintenance-markdown { padding: 0 0 18px; }
+.book-maintenance-ui .book-maintenance-entries { display: grid; gap: 14px; min-width: 0; }
+.book-maintenance-ui .book-maintenance-entry { border: 1px solid var(--authors-line); border-radius: 10px; padding: 20px; background: var(--background-primary); min-width: 0; }
+.book-maintenance-ui h2.book-maintenance-entry-title { color: var(--authors-accent) !important; font: 700 20px/1.35 var(--maintenance-serif) !important; margin: 0 0 12px !important; padding: 0; overflow-wrap: anywhere; }
+.book-maintenance-ui .book-maintenance-markdown { font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; min-width: 0; }
 .book-maintenance-ui .book-maintenance-markdown :is(p,ul,ol) { margin: 0 0 8px; }
 .book-maintenance-ui .book-maintenance-markdown :last-child { margin-bottom: 0; }
 .book-maintenance-ui .book-maintenance-markdown :is(ul,ol) { padding-left: 20px; }
 .book-maintenance-ui .book-maintenance-markdown li { margin: 5px 0; }
 .book-maintenance-ui .book-maintenance-markdown a { color: var(--authors-accent); text-decoration: none; }
 .book-maintenance-ui .book-maintenance-markdown a:hover { text-decoration: underline; }
-.book-maintenance-ui .book-maintenance-markdown :is(code,pre) { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+.book-maintenance-ui .book-maintenance-markdown :is(code,pre) { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9em; }
 .book-maintenance-ui .book-maintenance-markdown table { display: block; max-width: 100%; overflow-x: auto; }
 /* Keep Obsidian's sibling height measurement intact when the live view is ready. */
 .markdown-preview-view .el-pre:has(.book-maintenance-ui[data-ready="true"]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight) {
@@ -35,8 +58,11 @@
     overflow: hidden; visibility: hidden; pointer-events: none;
 }
 @container book-authors (max-width: 620px) {
-    .book-maintenance-ui .book-maintenance-actions { justify-content: flex-start; max-width: 100%; }
-    .book-maintenance-ui .book-authors-stat:nth-child(3) { border-left: 1px solid var(--authors-line); padding-left: 12px; }
-    .book-maintenance-ui .book-maintenance-section { padding-inline: 12px; }
-    .book-maintenance-ui .book-maintenance-entry { padding: 12px; }
+    .book-maintenance-ui .book-maintenance-masthead { padding: 18px; }
+    .book-maintenance-ui .book-maintenance-actions { justify-content: flex-start; }
+    .book-maintenance-ui .book-maintenance-summary { padding: 18px; }
+    .book-maintenance-ui .book-authors-stat:nth-child(3) { border-left: 0; padding-left: 0; }
+    .book-maintenance-ui .book-maintenance-section { padding-inline: 16px; }
+    .book-maintenance-ui .book-maintenance-entry { padding: 16px; }
 }
+@media(pointer:coarse) { .book-maintenance-ui :is(.book-authors-change,summary) { min-height: 44px; } }
