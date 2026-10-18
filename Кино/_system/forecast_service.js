@@ -345,6 +345,8 @@ async function candidates(params) {
         const feature = state.core.feature(
         {path: `candidate:${index}:${candidate.imdbId || candidate.kpId || candidate.ruTitle || ''}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'},
         {'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating, 'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId, 'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year, 'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description, tags: candidate.type === 'series' ? ['serial'] : ['movies']}, candidate.actors || []);
+        // Filtering or merging sources must not change the embedding-cache key.
+        feature.path = `candidate:${feature.imdbId ? 'imdb:' + feature.imdbId : feature.kpId ? 'kp:' + feature.kpId : 'title:' + text(candidate.ruTitle || candidate.enTitle) + ':' + text(candidate.year) + ':' + feature.type}`;
         return items.find(item => feature.imdbId && item.imdbId === feature.imdbId || feature.kpId && item.kpId === feature.kpId) || feature;
     });
     const semantic = await embeddings(params, items, state, targets);

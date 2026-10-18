@@ -1202,6 +1202,7 @@ function renderTable(ui,list,sort,onSort,reference){
         const en=row.createEl("td");en.textContent=x.enTitle||"-";
         const pr=row.createEl("td",{text:fmt(x.kpRating),cls:"kino-rating"});
         const forecast=row.createEl("td",{text:fmt(x.forecast),cls:"kino-rating"});
+        forecast.title="Ожидаемая оценка при просмотре сегодня";
         const ds=row.createEl("td");
         const full=String(x.description||x.local?.description||"").trim();const short=full.length>280?full.slice(0,277).trim()+"…":full;ds.createEl("div",{text:short||"—"});
         if(full.length>280){const details=ds.createEl("details",{cls:"kino-description-details"});details.createEl("summary",{text:"Полное описание"});details.createEl("div",{text:full});}
@@ -1520,17 +1521,19 @@ async function main(){
         });
         return;
     }
+    const files=app.vault.getMarkdownFiles().filter(isMedia);
+    const libraryRevision=files.map(file=>`${file.path}:${file.stat?.mtime||0}`).sort().join("|");
     const personalRatingRevision=context.personalRatingRevision||0;
     const forecastRuntimeVersion=["forecast_core.js","forecast_ensemble.js","forecast_service.js","Прогноз/training.json"]
         .map(name=>app.vault.getAbstractFileByPath(`${ROOT}/_system/${name}`)?.stat?.mtime||0).join(":");
-    const forecastInputVersionForDate=date=>`${forecastRuntimeVersion}:${date}`;
+    const forecastInputVersionForDate=date=>`${forecastRuntimeVersion}:${date}:${libraryRevision}`;
     const forecastAsOfDate=localForecastDate();
     const forecastInputVersion=forecastInputVersionForDate(forecastAsOfDate);
     const ratingsChanged=Boolean(previous&&((previous.personalRatingRevision||0)!==personalRatingRevision||previous.forecastInputVersion!==forecastInputVersion));
     const viewSession={container:dv.container,state,reference:state.reference,updatedAt:state.updatedAt,personalRatingRevision,forecastInputVersion,forecastAsOfDate,token:{}};
     context.viewSession=viewSession;
     const isCurrent=()=>dv.container.isConnected!==false&&context.viewSession===viewSession&&recommendationContextApi.current({app,container:dv.container})===context;
-    const files=app.vault.getMarkdownFiles().filter(isMedia),items=files.map(featureFromFile);
+    const items=files.map(featureFromFile);
     const watchedItems=watchedIndex(items);
     const ref=referenceForState(state,items);
     if(!ref){page.createEl("p",{text:"Не удалось определить выбранный фильм. Укажи ID на главной или открой рекомендации из карточки."});return;}
