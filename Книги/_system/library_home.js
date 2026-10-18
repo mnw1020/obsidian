@@ -264,6 +264,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     internal(statisticsHeading, 'Статистика', 'Книги/_system/Итоги чтения', 'book-home-statistics-link');
     const footer = el(root, 'footer', 'book-home-footer');
     internal(footer, 'Проверка библиотеки', 'Книги/_system/Проверка библиотеки'); internal(footer, 'Журнал изменений', 'Книги/_system/Журнал изменений');
+    internal(footer, 'Прогноз — тест', 'Книги/_system/Прогноз оценок (тест)');
     function release(component) {
         const index = children.indexOf(component); if (index < 0) return; children.splice(index, 1);
         if (obsidian.Component && dv.component?.removeChild) dv.component.removeChild(component); else component.unload();

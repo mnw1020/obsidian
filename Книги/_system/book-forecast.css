@@ -1,0 +1,49 @@
+.markdown-preview-view.books-forecast-page { --file-line-width: 100%; --line-width: 100%; --line-width-wide: 100%; --max-width: 100%; --content-margin: 0; --file-margins: 8px 12px; padding-inline: 12px !important; }
+.markdown-preview-view.books-forecast-page .markdown-preview-sizer>div:has(>.block-language-dataviewjs) { width: 100% !important; max-width: 100% !important; margin-inline: 0 !important; }
+.markdown-preview-view.books-forecast-page:has(.book-forecast-ui[data-ready="true"]) .inline-title { display: none; }
+.markdown-preview-view.books-forecast-page .el-pre:has(.book-forecast-ui[data-ready="true"]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight) { display: block !important; height: 0 !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; overflow: hidden; visibility: hidden; pointer-events: none; }
+.book-forecast-ui.book-forecast-ui { --home-accent: #b89760; --home-heading-color: var(--home-accent); --home-number-color: var(--home-accent); }
+.book-forecast-ui .book-home-masthead { padding-bottom: 24px; }
+.book-forecast-ui .book-forecast-back { color: var(--text-muted); font-size: 12px; }
+.book-forecast-ui .book-forecast-identity { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px; margin-top: 25px; }
+.book-forecast-ui .book-forecast-caption { margin: 8px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.6; }
+.book-forecast-ui .book-forecast-status { margin: 22px 0 16px; color: var(--text-muted); font-size: 13px; line-height: 1.5; }
+.book-forecast-ui .book-forecast-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 20px; padding-top: 20px; border-top: 1px solid var(--home-line); }
+.book-forecast-ui .book-forecast-metric { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.book-forecast-ui .book-forecast-metric strong { color: var(--home-number-color); font: 700 28px/1.2 var(--home-numbers); }
+.book-forecast-ui .book-forecast-metric span { color: var(--text-muted); font-size: 12px; overflow-wrap: anywhere; }
+.book-forecast-ui .book-forecast-warning { margin: 24px 0 0; padding: 16px 18px; border: 1px solid color-mix(in srgb,var(--home-accent) 45%,var(--home-line)); border-radius: 8px; background: var(--home-tint); font-size: 13px; line-height: 1.6; }
+.book-forecast-ui .book-forecast-accuracy { margin: 16px 0 0; color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.book-forecast-ui .book-forecast-method { margin: 18px 0 24px; padding: 16px 18px; border: 1px solid var(--home-line); border-radius: 8px; }
+.book-forecast-ui .book-forecast-method>summary { color: var(--text-normal); font-size: 14px; font-weight: 400; }
+.book-forecast-ui .book-forecast-method-body { font-size: 13px; line-height: 1.65; }
+.book-forecast-ui .book-forecast-method-body p { margin: 14px 0 0; }
+.book-forecast-ui .book-forecast-controls { display: grid; grid-template-columns: minmax(0,1fr) minmax(180px,240px); gap: 12px; }
+.book-forecast-ui .book-forecast-controls :is(input,select) { width: 100%; min-width: 0; height: 42px; border: 1px solid var(--home-line); border-radius: 7px; background: var(--background-primary); color: var(--text-normal); padding: 8px 12px; font: inherit; font-size: 13px; }
+.book-forecast-ui .book-forecast-count { margin: 16px 0; color: var(--text-muted); font-size: 12px; }
+.book-forecast-ui .book-forecast-table-wrap { width: 100%; max-width: 100%; overflow-x: auto; border: 1px solid var(--home-line); border-radius: 8px; }
+.book-forecast-ui table.book-forecast-table { width: 100%; border-collapse: collapse; margin: 0; font-size: 13px; line-height: 1.5; }
+.book-forecast-ui .book-forecast-table :is(th,td) { padding: 11px 12px; border: 0; border-bottom: 1px solid var(--home-line); vertical-align: top; text-align: left; }
+.book-forecast-ui .book-forecast-table th { color: var(--text-muted); background: var(--background-secondary); white-space: nowrap; font-weight: 400; }
+.book-forecast-ui .book-forecast-table tr:last-child td { border-bottom: 0; }
+.book-forecast-ui .book-forecast-table td:first-child { min-width: 210px; }
+.book-forecast-ui .book-forecast-table td:nth-child(2) { min-width: 140px; }
+.book-forecast-ui .book-forecast-table td:nth-child(3) { min-width: 110px; }
+.book-forecast-ui .book-forecast-table a { color: var(--text-accent); text-decoration: none; }
+.book-forecast-ui .book-forecast-table a:hover { text-decoration: underline; }
+.book-forecast-ui button.book-forecast-sort { padding: 0; border: 0; border-radius: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.book-forecast-ui th[aria-sort="descending"] .book-forecast-sort::after { content: ' ↓'; color: var(--home-accent); }
+.book-forecast-ui th[aria-sort="ascending"] .book-forecast-sort::after { content: ' ↑'; color: var(--home-accent); }
+.book-forecast-ui .book-forecast-table td.book-forecast-number { text-align: right; white-space: nowrap; font-family: var(--home-numbers); font-variant-numeric: tabular-nums; }
+.book-forecast-ui .book-forecast-table .is-forecast { color: var(--home-accent); font-weight: 700; }
+.book-forecast-ui .book-forecast-evidence { min-width: 210px; color: var(--text-muted); font-size: 12px; }
+.book-forecast-ui .book-forecast-evidence.is-sparse { color: var(--text-accent); }
+.book-forecast-ui button.book-forecast-detail { min-height: 30px; padding: 4px 9px; border: 1px solid var(--home-line); border-radius: 6px; background: transparent; color: var(--text-muted); font-size: 12px; }
+.book-forecast-ui button.book-forecast-detail:hover { color: var(--home-accent); background: var(--home-tint); }
+.book-forecast-ui .book-forecast-explanation-row td { padding: 20px; background: var(--home-tint); }
+.book-forecast-ui .book-forecast-explanation-row h3 { margin: 0 0 12px; color: var(--home-accent) !important; font: 700 21px/1.3 var(--home-serif) !important; }
+.book-forecast-ui .book-forecast-explanation-row :is(p,ul) { max-width: 900px; margin: 10px 0; }
+.book-forecast-ui .book-forecast-formula { font-family: var(--home-numbers); overflow-wrap: anywhere; }
+.book-forecast-ui .book-forecast-empty { padding: 24px !important; color: var(--text-muted); }
+@container library-home (max-width: 650px) { .book-forecast-ui .book-forecast-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .book-forecast-ui .book-forecast-controls { grid-template-columns: minmax(0,1fr); } }
+@media(pointer:coarse) { .book-forecast-ui button.book-forecast-detail { min-height: 44px; } }
