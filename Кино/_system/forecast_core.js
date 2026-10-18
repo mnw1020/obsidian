@@ -44,7 +44,8 @@ function temporalFactor(anchorDate, peerDate) {
 }
 function temporalContext(items, target, options = {}) {
     const ownDate = calendarDate(target?.watchDate), asOfDate = calendarDate(options.asOfDate);
-    const anchorDate = ownDate || asOfDate, weights = new Map();
+    const forecastDate = calendarDate(options.forecastDate);
+    const anchorDate = forecastDate || ownDate || asOfDate, weights = new Map();
     let datedPeers = 0, effectiveCount = 0;
     for (const item of items) {
         const watchDate = calendarDate(item.watchDate), factor = temporalFactor(anchorDate, watchDate);
@@ -53,7 +54,7 @@ function temporalContext(items, target, options = {}) {
     }
     return { weights, report: {
         method: "exponential-watch-distance", halfLifeDays: TEMPORAL_HALF_LIFE_DAYS,
-        anchorDate, anchorSource: ownDate ? "watchDate" : asOfDate ? "asOfDate" : "missing",
+        anchorDate, anchorSource: forecastDate ? "forecastDate" : ownDate ? "watchDate" : asOfDate ? "asOfDate" : "missing",
         status: !anchorDate ? "neutral-missing-target-date" : datedPeers < items.length ? "partial-missing-peer-dates" : "ready",
         datedPeerCount: datedPeers, missingPeerDateCount: items.length - datedPeers, effectiveCount,
         missingDateWeight: 1, formula: "timeWeight = exp(-ln(2) × abs(peerWatchDate − targetWatchDate) / 730 days); missing viewing dates use neutral weight 1"

@@ -339,18 +339,21 @@ async function candidates(params) {
     await checkMaintenance(params);
     const {app} = params, state = await coreFor(app), items = await itemsFor(app, state);
     const local = new Map(items.map(item => [item.path, item]));
-    const targets = params.forecastCandidates.map((candidate, index) => local.get(text(candidate.localPath || candidate.local?.localPath)) || state.core.feature(
+    const targets = params.forecastCandidates.map((candidate, index) => {
+        const linked = local.get(text(candidate.localPath || candidate.local?.localPath || candidate.libraryPath));
+        if (linked) return linked;
+        const feature = state.core.feature(
         {path: `candidate:${index}:${candidate.imdbId || candidate.kpId || candidate.ruTitle || ''}`, basename: candidate.ruTitle || candidate.enTitle || 'Фильм'},
-        {'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating, 'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId, 'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year, 'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description, tags: candidate.type === 'series' ? ['serial'] : ['movies']}, candidate.actors || []));
+        {'Оценка Imdb': candidate.imdbRating, 'Оценка Кинопоиск': candidate.kpRating, 'imdb Id': candidate.imdbId, 'Кинопоиск ID': candidate.kpId, 'Жанр': candidate.genres, 'Режисер': candidate.directors, 'Релиз': candidate.year, 'Время': candidate.duration, 'Франшиза': candidate.franchise, 'Описание': candidate.description, tags: candidate.type === 'series' ? ['serial'] : ['movies']}, candidate.actors || []);
+        return items.find(item => feature.imdbId && item.imdbId === feature.imdbId || feature.kpId && item.kpId === feature.kpId) || feature;
+    });
     const semantic = await embeddings(params, items, state, targets);
     const prepared = state.engine.prepare(items, semantic.vectors);
     const training = await trainingFor(params, items, semantic, state, prepared);
-    return targets.map((target, index) => {
-        const candidate = params.forecastCandidates[index];
-        const storedSource = candidate.storedPrediction != null ? candidate : candidate.local;
-        const stored = Number(storedSource?.storedPrediction);
-        if (local.has(target.path) && text(storedSource?.storedPredictionVersion) === VERSION && Number.isFinite(stored) && stored >= 1 && stored <= 10) return stored;
-        try { return state.engine.forecast(items, target, semantic.vectors, training, {prepared, asOfDate: params.asOfDate}).final.prediction; }
+    // Recommendations estimate a viewing today, including already-watched
+    // titles. A saved retrospective forecast is anchored to a different date.
+    return targets.map(target => {
+        try { return state.engine.forecast(items, target, semantic.vectors, training, {prepared, asOfDate: params.asOfDate, forecastDate: params.asOfDate}).final?.prediction ?? null; }
         catch (_) { return null; }
     });
 }

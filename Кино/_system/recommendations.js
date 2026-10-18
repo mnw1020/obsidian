@@ -1521,7 +1521,7 @@ async function main(){
         return;
     }
     const personalRatingRevision=context.personalRatingRevision||0;
-    const forecastRuntimeVersion=["forecast_core.js","forecast_ensemble.js","Прогноз/training.json"]
+    const forecastRuntimeVersion=["forecast_core.js","forecast_ensemble.js","forecast_service.js","Прогноз/training.json"]
         .map(name=>app.vault.getAbstractFileByPath(`${ROOT}/_system/${name}`)?.stat?.mtime||0).join(":");
     const forecastInputVersionForDate=date=>`${forecastRuntimeVersion}:${date}`;
     const forecastAsOfDate=localForecastDate();
@@ -1737,7 +1737,7 @@ async function main(){
         const inRange=filterRecommendationYears(merged.items,range.start,range.end);
         const combined={items:checkbox.checked?inRange:inRange.filter(film=>!isWatched(film,watchedItems)),hidden:inRange.filter(film=>isWatched(film,watchedItems)).length};
         const visible=combined.items.map(film=>({...film,libraryPath:recommendationCardPath(film,watchedItems)}));
-        for(const film of visible)if(forecastValues.has(forecastId(film)))film.forecast=forecastValues.get(forecastId(film));
+        for(const film of visible)film.forecast=forecastValues.get(forecastId(film))??null;
         currentAllVisible=visible;
         currentVisible=visible.filter(hasDirectEvidence);
         renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
@@ -1766,12 +1766,12 @@ async function main(){
             return lines.join("\n");
         };
         setProgress(ui,formatStatus(),100);
-        if(readOnly){if(!anySource)ui.tableWrap.empty();await persistDetails(version,anySource?currentAllVisible:[]);return;}
+        const pending=visible.filter(x=>!forecastValues.has(forecastId(x)));
+        if(readOnly&&!pending.length){if(!anySource)ui.tableWrap.empty();await persistDetails(version,anySource?currentAllVisible:[]);return;}
         if(!anySource){ui.tableWrap.empty();await persistDetails(version,[]);return;}
         if(!visible.length){
             ui.tableWrap.createEl("p",{text:hidden?"Все найденные фильмы уже просмотрены. Включи «Показывать просмотренные».":"Тематически подходящих фильмов не найдено. Список не дополняется случайными рекомендациями."});
         }
-        const pending=visible.filter(x=>!forecastValues.has(forecastId(x)));
         if(!pending.length){await persistDetails(version,currentAllVisible);return;}
         setProgress(ui,`Считаю личный прогноз: ${pending.length} фильмов…`,75);
         try{
@@ -1780,12 +1780,13 @@ async function main(){
             const values=await predictor({app,obsidian:typeof obsidian!=="undefined"?obsidian:{},forecastCandidates:pending,suppressNotice:true,asOfDate});
             if(!Array.isArray(values)||values.length!==pending.length)
                 throw new Error("скрипт прогноза не поддерживает расчёт рекомендаций");
+            if(!isCurrent()||viewSession.forecastAsOfDate!==asOfDate||version!==drawVersion)return;
             for(let i=0;i<pending.length;i++){
                 pending[i].forecast=Number.isFinite(values?.[i])?values[i]:null;
-                forecastValues.set(forecastId(pending[i]),pending[i].forecast);
+                if(pending[i].forecast!==null)forecastValues.set(forecastId(pending[i]),pending[i].forecast);
             }
             forecastError="";
-        }catch(error){forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);viewSession.forecastInputVersion=null;}
+        }catch(error){if(!isCurrent()||viewSession.forecastAsOfDate!==asOfDate||version!==drawVersion)return;forecastLoader=null;forecastError=String(error?.message||error).slice(0,100);viewSession.forecastInputVersion=null;}
         if(version===drawVersion){
             currentVisible=visible.filter(hasDirectEvidence);
             renderTable(ui,sortRecommendationRows(currentVisible,sort),sort,onSort,ref);
