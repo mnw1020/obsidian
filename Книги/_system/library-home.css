@@ -1,5 +1,17 @@
-.markdown-preview-view.books-home-page { --file-line-width: 100%; }
-.markdown-preview-view.books-home-page .markdown-preview-sizer { width: 100%; min-width: 0; max-width: none; margin-inline: 0; }
+.markdown-preview-view.books-home-page {
+    --home-page-inset: clamp(8px,1vw,12px);
+    --file-line-width: 100%;
+    --line-width: 100%;
+    --line-width-wide: 100%;
+    --max-width: 100%;
+    --content-margin: 0;
+    --file-margins: 8px var(--home-page-inset);
+    box-sizing: border-box;
+    padding-inline: var(--home-page-inset) !important;
+}
+.markdown-preview-view.books-home-page .markdown-preview-sizer { box-sizing: border-box; width: 100% !important; min-width: 0; max-width: none !important; margin-inline: 0 !important; }
+/* Minimal also sizes individual Dataview wrappers independently of the sizer. */
+.markdown-preview-view.books-home-page .markdown-preview-sizer>div:has(>.block-language-dataviewjs) { width: 100% !important; max-width: 100% !important; margin-inline: 0 !important; }
 .books-home-page :is(.metadata-container,.frontmatter-container,pre.frontmatter) { display: none !important; }
 .books-home-page :is(.markdown-preview-section,.block-language-dataviewjs) { min-width: 0; max-width: 100%; }
 .markdown-preview-view.books-home-page:has(.book-home-ui[data-ready="true"]) .inline-title { display: none; }
@@ -79,8 +91,8 @@
 .book-home-ui .book-home-native-render>p>.bases-embed { margin-block: 0; }
 .book-home-ui .book-home-native-content:empty { display: none; }
 .book-home-ui .book-home-native-content :is(.bases-view,.bases-list,.bases-list-item,.list-view) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
-.book-home-ui .book-home-overviews { --home-accent: #b89760; --home-heading-color: var(--home-accent); --home-tint: color-mix(in srgb,var(--home-accent) 8%,var(--background-primary)); margin: 12px 0 24px; min-width: 0; }
-.book-home-ui .book-home-overview-links { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); max-width: 960px; gap: 10px; margin-top: 18px; }
+.book-home-ui .book-home-overviews { --home-accent: #b89760; --home-heading-color: var(--home-accent); --home-tint: color-mix(in srgb,var(--home-accent) 8%,var(--background-primary)); margin: 24px 0 0; min-width: 0; }
+.book-home-ui .book-home-overview-links { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); width: 100%; max-width: 100%; gap: 10px; margin-top: 18px; }
 .book-home-ui .book-home-overview { min-width: 0; padding: 11px 13px; border: 1px solid var(--home-line); border-radius: 7px; background: linear-gradient(140deg,var(--background-primary),color-mix(in srgb,var(--background-secondary) 35%,var(--background-primary))); }
 .book-home-ui .book-home-overview>a { display: inline-block; max-width: 100%; font: 700 18px/1.35 var(--home-serif); color: var(--home-heading-color); text-decoration: none; }
 .book-home-ui .book-home-overview p { margin: 4px 0 0; font-size: .66em; color: var(--text-muted); overflow-wrap: anywhere; }
@@ -110,7 +122,7 @@
     .book-home-ui .book-home-action:has(+ .book-home-action.is-icon) { flex: 1 1 0; }
     .book-home-ui .book-home-overview { padding: 10px 12px; }
     .book-home-ui .book-home-overview>a { font-size: 17px; }
-    .book-home-ui .book-home-panel-head h2 { font-size: 25px !important; }
+    .book-home-ui :is(.book-home-panel-head,.book-home-overviews)>h2 { font-size: 25px !important; }
     .book-home-ui .book-dashboard-metric strong { font-size: 24px; }
     .book-home-ui .book-home-overview p { font-size: .7em; }
 }

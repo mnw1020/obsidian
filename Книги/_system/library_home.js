@@ -98,7 +98,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     }
     const masthead = el(root, 'header', 'book-home-masthead');
     const nav = el(masthead, 'nav', 'book-home-nav'); nav.setAttribute('aria-label', 'Навигация библиотеки');
-    internal(nav, 'Цитаты', 'Книги/Цитаты'); internal(nav, 'Стихи', 'Книги/Стихи'); internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
+    internal(nav, 'Цитаты', 'Книги/Цитаты'); internal(nav, 'Стихи', 'Книги/Стихи'); internal(nav, 'Статистика', 'Книги/_system/Итоги чтения');
     const identity = el(masthead, 'div', 'book-home-identity');
     const heading = el(identity, 'div', 'book-home-heading');
     el(heading, 'h1', 'book-home-title', 'Библиотека');
@@ -170,7 +170,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         try { if (!disposed) await renderer({ dv: scope, app, obsidian, ...options }); }
         catch (problem) { if (!disposed) el(container, 'p', 'book-home-widget-error', `Не удалось загрузить блок: ${problem.message || problem}`); }
     }
-    const overviews = el(root, 'section', 'book-home-overviews'); el(overviews, 'h2', '', 'Обзор библиотеки');
+    const overviews = el(root, 'section', 'book-home-panel book-home-overviews'); el(overviews, 'h2', '', 'Обзор библиотеки');
     const overviewBody = el(overviews, 'div', 'book-home-overview-body');
     const overviewLinks = el(overviewBody, 'div', 'book-home-overview-links');
     for (const [label, choice] of [['Авторы', 'Книги - Авторы'], ['Серии', 'Книги - Серии'], ['Экранизации', 'Книги - Экранизации']]) {
@@ -178,22 +178,14 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     }
     const poems = el(overviewLinks, 'div', 'book-home-overview'); internal(poems, 'Стихи', 'Книги/Стихи');
     const viewLinks = el(overviewBody, 'nav', 'book-home-view-links'); viewLinks.setAttribute('aria-label', 'Представления каталога');
-    for (const [label, name, path] of [
-        ['Карточки', 'Карточки', 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'],
-        ['Таблица', 'Все', 'M3 9h18M3 15h18M8 3v18']
-    ]) {
-        const link = internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name, 'book-home-action is-icon');
-        link.setAttribute('aria-label', label); link.title = label;
-        const svg = icon.cloneNode(false);
-        if (name === 'Все') {
-            const frame = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            for (const [key, value] of Object.entries({ x: '3', y: '3', width: '18', height: '18', rx: '1.5' })) frame.setAttribute(key, value);
-            svg.appendChild(frame);
-        }
-        const shape = doc.createElementNS('http://www.w3.org/2000/svg', 'path'); shape.setAttribute('d', path); svg.appendChild(shape);
-        link.replaceChildren(svg);
-    }
-    for (const [label, name] of [['Художественные', 'Художественные'], ['Non-fiction', 'Non-fiction'], ['Любимые', 'Любимые'], ['Без оценки', 'Без оценки'], ['По году', 'По году'], ['По типу', 'По типу']]) internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name);
+    const tableLink = internal(viewLinks, 'Таблица', 'Книги/_system/_Книги.base#Все', 'book-home-action is-icon');
+    tableLink.setAttribute('aria-label', 'Таблица'); tableLink.title = 'Таблица';
+    const tableIcon = icon.cloneNode(false);
+    const frame = doc.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    for (const [key, value] of Object.entries({ x: '3', y: '3', width: '18', height: '18', rx: '1.5' })) frame.setAttribute(key, value);
+    const tableLines = doc.createElementNS('http://www.w3.org/2000/svg', 'path'); tableLines.setAttribute('d', 'M3 9h18M3 15h18M8 3v18');
+    tableIcon.append(frame, tableLines); tableLink.replaceChildren(tableIcon);
+    for (const [label, name] of [['Художественные', 'Художественные'], ['Non-fiction', 'Non-fiction'], ['Любимые', 'Любимые'], ['По году', 'По году'], ['По типу', 'По типу']]) internal(viewLinks, label, 'Книги/_system/_Книги.base#' + name);
     rereadLink = internal(viewLinks, 'Перечитанные', 'Книги/_system/_Книги.base#Перечитанные');
     drawStats();
     const nativeViews = [];
@@ -251,10 +243,10 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     }
     listen(fold, 'click', () => {
         const expanded = fold.getAttribute('aria-expanded') !== 'true';
-        drawOverview(expanded); saveFold('overview', expanded);
+        drawOverview(expanded); saveFold('overview:panel.v2', expanded);
     });
-    drawOverview(folds.overview !== false);
-    const reading = panel(root, 'Чтение в цифрах', 'book-home-reading', 'Все итоги ↗', 'Книги/_system/Итоги чтения');
+    drawOverview(folds['overview:panel.v2'] !== false);
+    const reading = panel(root, 'Статистика', 'book-home-reading');
     const footer = el(root, 'footer', 'book-home-footer');
     internal(footer, 'Проверка библиотеки', 'Книги/_system/Проверка библиотеки'); internal(footer, 'Журнал изменений', 'Книги/_system/Журнал изменений');
     function release(component) {

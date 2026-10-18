@@ -178,7 +178,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         for (const [title, path] of [["← Библиотека", "Книги/_index.md"], ["Цитаты", "Книги/Цитаты.md"], ["Стихи", "Книги/Стихи.md"]]) {
             link(nav, { file: { path } }, app, title);
         }
-        element(masthead, "h1", "Итоги чтения", "book-dashboard-title");
+        element(masthead, "h1", "Статистика", "book-dashboard-title");
         element(masthead, "p", "История чтений, произведения и впечатления", "book-dashboard-subtitle");
     }
     let selectedYear = home ? currentYear : view?.year || "", selectedMonth = home ? "" : view?.month || "", yearSelect, monthSelect, resetMonth;
