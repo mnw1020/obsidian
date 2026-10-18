@@ -1,7 +1,12 @@
 /* Extends the shared cinema home/report design. */
 .kino-home-ui.kino-report.kino-forecast-analytics { container: kino-home kino-report kino-analytics / inline-size; }
 .kino-forecast-analytics .kino-home-masthead .kino-home-subtitle { margin: -6px 0 24px; line-height: 1.6; }
-.kino-forecast-analytics .kino-home-masthead .kino-home-stats { padding-bottom: 0; }
+.kino-home-ui.kino-report.kino-forecast-analytics .kino-home-masthead .kino-home-stats { padding-bottom: 0; grid-template-columns: repeat(3,minmax(0,1fr)); }
+.kino-analytics-hit-rates { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px 20px; width: min(100%,420px); box-sizing: border-box; padding: 14px 18px; border: 1px solid var(--home-line); border-radius: 10px; background: var(--home-tint); }
+.kino-analytics-hit-title { grid-column: 1 / -1; color: var(--text-muted); font-size: .7em; }
+.kino-analytics-hit { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kino-analytics-hit strong { color: var(--home-number-color); font: 700 22px/1.2 var(--home-numbers); font-variant-numeric: lining-nums tabular-nums; }
+.kino-analytics-hit span { color: var(--text-muted); font-size: .7em; }
 .kino-home-ui.kino-report.kino-forecast-analytics .kino-analytics-note { margin: 12px 0; color: var(--text-muted); font-size: .76em; line-height: 1.7; overflow-wrap: anywhere; }
 .kino-home-ui.kino-report.kino-forecast-analytics .kino-analytics-insight { padding: 14px 16px; border-inline-start: 3px solid var(--home-accent); border-radius: 0 6px 6px 0; background: var(--home-tint); font-size: .8em; line-height: 1.7; }
 .kino-forecast-analytics .kino-report-table .is-best { background: var(--home-tint); }

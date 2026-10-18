@@ -45,16 +45,19 @@ function collect(app, version) {
     return rows;
 }
 function stats(rows, branch) {
-    let n = 0, sum = 0, square = 0, signed = 0, within05 = 0, within1 = 0;
+    let n = 0, sum = 0, square = 0, signed = 0, within05 = 0, within1 = 0, within2 = 0, within3 = 0;
     for (const row of rows) {
         if (rating(row.actual) === null || rating(row[branch]) === null) continue;
         const error = row.actual - row[branch], abs = Math.abs(error);
         n++; sum += abs; square += error * error; signed += error;
         if (abs <= 0.5 + 1e-9) within05++;
         if (abs <= 1 + 1e-9) within1++;
+        if (abs <= 2 + 1e-9) within2++;
+        if (abs <= 3 + 1e-9) within3++;
     }
     return { n, mae: n ? sum / n : null, rmse: n ? Math.sqrt(square / n) : null,
-        bias: n ? signed / n : null, within05: n ? within05 / n * 100 : null, within1: n ? within1 / n * 100 : null };
+        bias: n ? signed / n : null, within05: n ? within05 / n * 100 : null, within1: n ? within1 / n * 100 : null,
+        within2: n ? within2 / n * 100 : null, within3: n ? within3 / n * 100 : null };
 }
 function build(records, filters) {
     const rated = records.filter(r => r.actual !== null && (!filters.type || r.type === filters.type));
@@ -155,8 +158,14 @@ async function render({ dv, app, obsidian = {} }) {
         const kindSelect = select(controls, 'Расчёты', [['ready', 'Готовые текущей версии'], ['all', 'Все сохранённые'], ['provisional', 'Предварительные'], ['legacy', 'Старые / без статуса']], state.kind);
         const context = el(head, 'p', 'kino-report-period'); context.setAttribute('role', 'status');
         const metrics = el(head, 'div', 'kino-home-stats'), metricValues = [];
-        for (const label of ['Сравнено карточек', 'Средняя ошибка · MAE', 'Попадание в ±1 балл', 'Среднее Δ']) {
+        for (const label of ['Сравнено карточек', 'Средняя ошибка · MAE', 'Среднее Δ']) {
             const box = el(metrics, 'div', 'kino-home-stat'); metricValues.push(el(box, 'strong', '', '—')); el(box, 'span', '', label);
+        }
+        const hits = el(metrics, 'div', 'kino-analytics-hit-rates'), hitValues = [];
+        el(hits, 'span', 'kino-analytics-hit-title', 'Попадание прогноза');
+        for (const label of ['±1 балл', '±2 балла', '±3 балла']) {
+            const item = el(hits, 'div', 'kino-analytics-hit');
+            hitValues.push(el(item, 'strong', '', '—')); el(item, 'span', '', label);
         }
         const validationBox = section('Независимая проверка модели', 'validation');
         const validationDate = el(validationBox, 'p', 'kino-analytics-note');
@@ -169,7 +178,7 @@ async function render({ dv, app, obsidian = {} }) {
         el(weightsBox, 'p', 'kino-analytics-note', 'Итог смешивает значения до округления. Каждый готовый источник получает от 25% до 75%; при недостатке независимых пар — 50/50. Без сюжета итог предварительно использует данные. Это правило не гарантирует улучшение точности.');
         const snapshotBox = section('Сохранённые прогнозы', 'snapshots');
         const coverage = el(snapshotBox, 'p', 'kino-analytics-note'), pairCaption = el(snapshotBox, 'p', 'kino-analytics-note');
-        const pairBody = table(snapshotBox, ['Общая выборка', 'Карточек', 'MAE ↓', 'RMSE ↓', '±0,5', '±1', 'Среднее Δ']);
+        const pairBody = table(snapshotBox, ['Общая выборка', 'Карточек', 'MAE ↓', 'RMSE ↓', '±0,5', '±1', '±2', '±3', 'Среднее Δ']);
         const freshness = el(snapshotBox, 'p', 'kino-analytics-note');
         const chartGrid = el(section('Прогноз и личная оценка', 'charts'), 'div', 'kino-report-grid');
         const scatterBox = el(chartGrid, 'div'); el(scatterBox, 'h3', '', 'Ближе к диагонали — точнее');
@@ -186,7 +195,7 @@ async function render({ dv, app, obsidian = {} }) {
         const tableCaption = el(missesBox, 'p', 'kino-report-table-caption');
         const method = section('Как читать эту страницу', 'method', false);
         for (const text of [
-            'MAE — средняя абсолютная ошибка в баллах; RMSE сильнее учитывает крупные промахи. Меньше — лучше. ±0,5 и ±1 — доля попаданий в этот диапазон.',
+            'MAE — средняя абсолютная ошибка в баллах; RMSE сильнее учитывает крупные промахи. Меньше — лучше. ±0,5, ±1, ±2 и ±3 — доля прогнозов с абсолютной ошибкой не больше указанного числа баллов; границы включены.',
             'Δ = личная оценка − выбранный прогноз. Положительное среднее Δ означает, что прогноз занижает оценку; отрицательное — завышает.',
             'Независимая проверка скрывает оценки внешней группы и её дубликатов при обучении и подборе параметров. Веса подбираются внутри обучающей части; внешняя проверка оценивает полученную смесь отдельно.',
             'Графики и таблицы сохранённых прогнозов сравнивают текущие YAML-поля, округлённые до десятых. Они могли быть пересчитаны после просмотра и не являются историей прогнозов, сделанных заранее. Их ошибка может отличаться от независимой проверки.',
@@ -261,11 +270,12 @@ async function render({ dv, app, obsidian = {} }) {
         function draw() {
             if (disposed) return; model = build(records, state); const s = model.stats;
             context.textContent = `${BRANCHES.find(b => b.id === state.branch).label} · ${state.type === 'movies' ? 'фильмы' : state.type === 'serial' ? 'сериалы' : 'фильмы и сериалы'} · ${kindSelect.selectedOptions[0].textContent.toLocaleLowerCase('ru')}`;
-            for (const [i, value] of [String(s.n), fmt(s.mae), pct(s.within1), signed(s.bias)].entries()) metricValues[i].textContent = value;
+            for (const [i, value] of [String(s.n), fmt(s.mae), signed(s.bias)].entries()) metricValues[i].textContent = value;
+            for (const [i, value] of [s.within1, s.within2, s.within3].entries()) hitValues[i].textContent = pct(value);
             const count = kind => model.rated.filter(r => r.kind === kind).length;
             coverage.textContent = `Оценённых карточек: ${model.rated.length}. Готовы (v${engine.version}): ${count('ready')}; предварительные: ${count('provisional')}; старые / без статуса: ${count('legacy')}; без прогноза: ${count('missing')}. Выбрано: ${model.scoped.length}; с выбранным прогнозом: ${s.n}.`;
             pairBody.replaceChildren(); pairCaption.textContent = `Три ветки на одной выборке: ${model.paired.length} карточек. Значения из сохранённых полей, с округлением до десятых.`;
-            for (const r of model.comparison) cells(pairBody, [r.label, r.n, fmt(r.mae), fmt(r.rmse), pct(r.within05), pct(r.within1), signed(r.bias)], r.id === state.branch ? 'is-current' : '');
+            for (const r of model.comparison) cells(pairBody, [r.label, r.n, fmt(r.mae), fmt(r.rmse), pct(r.within05), pct(r.within1), pct(r.within2), pct(r.within3), signed(r.bias)], r.id === state.branch ? 'is-current' : '');
             const td = isoDate(training?.createdAt), dated = model.rows.filter(r => r.date), before = td ? dated.filter(r => r.date < td).length : 0;
             freshness.textContent = td ? `${before} из выбранных карточек рассчитаны раньше последней проверки; без даты: ${model.rows.length - dated.length}. Дата не доказывает устаревание: новые веса появятся в карточке только после её пересчёта.` : 'Дата проверки недоступна. Сохранённые поля показаны без проверки актуальности параметров.';
             drawScatter(model.rows); histogram.replaceChildren();
