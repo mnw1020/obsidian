@@ -49,10 +49,6 @@ module.exports = async ({ dv, app, obsidian = {}, mode = 'audit' }) => {
         }); return link;
     }
     internal(nav, '← Библиотека', 'Книги/_index');
-    internal(nav, 'Авторы', 'Книги/_system/Авторы');
-    internal(nav, 'Серии', 'Книги/_system/Серии');
-    internal(nav, 'Экранизации', 'Книги/_system/Экранизации');
-    internal(nav, mode === 'audit' ? 'Журнал изменений' : 'Проверка библиотеки', mode === 'audit' ? journalPath.slice(0, -3) : 'Книги/_system/Проверка библиотеки');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     const heading = el(identity, 'div', 'book-authors-heading');

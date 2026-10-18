@@ -104,17 +104,15 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         }); return link;
     }
     const masthead = el(root, 'header', 'book-home-masthead');
-    const nav = el(masthead, 'nav', 'book-home-nav'); nav.setAttribute('aria-label', 'Навигация библиотеки');
-    internal(nav, 'Цитаты', 'Книги/Цитаты'); internal(nav, 'Стихи', 'Книги/Стихи'); internal(nav, 'Статистика', 'Книги/_system/Итоги чтения');
     const identity = el(masthead, 'div', 'book-home-identity');
     const heading = el(identity, 'div', 'book-home-heading');
     el(heading, 'h1', 'book-home-title', 'Библиотека');
     el(heading, 'p', 'book-home-subtitle', 'Произведения, чтения и заметки');
     const actions = el(identity, 'div', 'book-home-actions');
-    command(actions, 'Записать произведение', 'Книги - Добавить книгу', 'book-home-action is-primary');
-    command(actions, 'Записать чтение', 'Книги - Добавить чтение', 'book-home-action');
-    command(actions, 'Редактировать чтение', 'Книги - Редактировать чтение', 'book-home-action');
-    command(actions, 'Добавить цитату', 'Книги - Добавить выписку', 'book-home-action');
+    const add = command(actions, 'Добавить', 'Книги - Добавить книгу', 'book-home-action is-primary');
+    add.title = 'Добавить произведение';
+    command(actions, '… Чтение', 'Книги - Добавить чтение', 'book-home-action').title = 'Записать чтение';
+    command(actions, '… Редактировать', 'Книги - Редактировать чтение', 'book-home-action').title = 'Редактировать чтение';
     const search = command(actions, 'Поиск по библиотеке', 'Книги - Поиск по библиотеке', 'book-home-action is-icon');
     search.setAttribute('aria-label', 'Поиск по библиотеке'); search.title = 'Поиск по библиотеке';
     const icon = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -124,6 +122,9 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         for (const [name, value] of Object.entries(attributes)) shape.setAttribute(name, value); icon.appendChild(shape);
     }
     search.replaceChildren(icon);
+    const addIcon = icon.cloneNode(false); addIcon.classList.add('book-home-action-icon');
+    const addPath = doc.createElementNS('http://www.w3.org/2000/svg', 'path'); addPath.setAttribute('d', 'M12 5v14M5 12h14');
+    addIcon.appendChild(addPath); add.prepend(addIcon);
     const stats = el(masthead, 'div', 'book-home-stats');
     const statValues = [];
     for (const [key, label] of [['books', 'Произведений'], ['authors', 'Авторов'], ['fictionRead', 'Художественных'], ['nonfictionRead', 'Нон-фикшн'], ['reread', 'Перечитано']]) {
@@ -259,6 +260,8 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     });
     drawOverview(folds['overview:panel.v2'] !== false);
     const reading = panel(root, 'Статистика', 'book-home-reading');
+    const statisticsHeading = reading.head.querySelector('h2'); statisticsHeading.replaceChildren();
+    internal(statisticsHeading, 'Статистика', 'Книги/_system/Итоги чтения', 'book-home-statistics-link');
     const footer = el(root, 'footer', 'book-home-footer');
     internal(footer, 'Проверка библиотеки', 'Книги/_system/Проверка библиотеки'); internal(footer, 'Журнал изменений', 'Книги/_system/Журнал изменений');
     function release(component) {

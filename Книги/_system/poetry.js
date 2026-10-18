@@ -86,11 +86,8 @@ async function render({ dv, app, obsidian = {} }) {
     const topNav = el(masthead, 'nav', 'book-poetry-top-nav');
     topNav.setAttribute('aria-label', 'Навигация библиотеки');
     internal(topNav, '← Библиотека', 'Книги/_index');
-    internal(topNav, 'Авторы', 'Книги/_system/Авторы');
-    internal(topNav, 'Цитаты', 'Книги/Цитаты');
     const identity = el(masthead, 'div', 'book-poetry-identity');
     const heading = el(identity, 'div', 'book-poetry-heading');
-    el(heading, 'div', 'book-poetry-eyebrow', 'Личная антология');
     el(heading, 'h1', '', 'Стихи');
     const total = el(heading, 'p', 'book-poetry-total');
     const mastActions = el(identity, 'div', 'book-poetry-mast-actions');

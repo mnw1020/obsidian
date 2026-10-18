@@ -21,9 +21,7 @@ if (file) {
 
 # 📚 Библиотека
 
-[[Книги/Цитаты|Цитаты]] · [[Книги/Стихи|Стихи]] · [[Книги/_system/Итоги чтения|Статистика]]
-
-<p class="books-actions-fallback"><a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20книгу">➕ Записать произведение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20чтение">📖 Записать чтение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Редактировать%20чтение">✏️ Редактировать чтение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20выписку">✒️ Добавить цитату</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Поиск%20по%20библиотеке" aria-label="Поиск по библиотеке" title="Поиск по библиотеке">🔍</a></p>
+<p class="books-actions-fallback"><a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20книгу">+ Добавить</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Добавить%20чтение">… Чтение</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Редактировать%20чтение">… Редактировать</a> · <a href="obsidian://quickadd?choice=Книги%20-%20Поиск%20по%20библиотеке" aria-label="Поиск по библиотеке" title="Поиск по библиотеке">🔍</a></p>
 
 
 <!-- BOOK-HOME-STATS:START -->
@@ -48,7 +46,7 @@ if (file) {
 
 [[Книги/_system/_Книги.base#Перечитанные|Все перечитанные произведения]]
 
-## Статистика
+## [[Книги/_system/Итоги чтения|Статистика]]
 
 ---
 

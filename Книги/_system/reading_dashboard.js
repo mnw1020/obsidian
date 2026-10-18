@@ -175,7 +175,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         masthead = element(root, "header", undefined, "book-dashboard-masthead");
         const nav = element(masthead, "nav", undefined, "book-dashboard-nav");
         nav.setAttribute("aria-label", "Навигация библиотеки");
-        for (const [title, path] of [["← Библиотека", "Книги/_index.md"], ["Цитаты", "Книги/Цитаты.md"], ["Стихи", "Книги/Стихи.md"]]) {
+        for (const [title, path] of [["← Библиотека", "Книги/_index.md"]]) {
             link(nav, { file: { path } }, app, title);
         }
         element(masthead, "h1", "Статистика", "book-dashboard-title");

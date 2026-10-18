@@ -135,8 +135,7 @@ async function render({ dv, app, obsidian = {} }) {
         if (disposed) return { dispose };
     }
     const nav = el(root, 'nav', 'book-authors-nav'); nav.setAttribute('aria-label', 'Навигация библиотеки');
-    internal(nav, '← Библиотека', 'Книги/_index'); internal(nav, 'Авторы', 'Книги/_system/Авторы');
-    internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения'); internal(nav, 'Цитаты', 'Книги/Цитаты');
+    internal(nav, '← Библиотека', 'Книги/_index');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     const icon = el(identity, 'div', 'book-authors-monogram', '↔'); icon.setAttribute('aria-hidden', 'true');

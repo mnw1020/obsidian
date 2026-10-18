@@ -58,10 +58,6 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
     if (css) el(root, 'style', '', await app.vault.read(css));
     const nav = el(root, 'nav', 'book-authors-nav');
     internal(nav, '← Библиотека', 'Книги/_index');
-    if (!index) internal(nav, seriesMode ? 'Все серии' : 'Все авторы', `Книги/_system/${catalogue}`);
-    if (seriesMode) internal(nav, 'Авторы', 'Книги/_system/Авторы');
-    internal(nav, 'Итоги чтения', 'Книги/_system/Итоги чтения');
-    internal(nav, 'Цитаты', 'Книги/Цитаты');
     const header = el(root, 'header', 'book-authors-header');
     const identity = el(header, 'div', 'book-authors-identity');
     if (!seriesMode) {

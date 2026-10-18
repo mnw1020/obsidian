@@ -467,7 +467,7 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const masthead = element(root, "header", undefined, "book-quotes-masthead");
         const navigation = element(masthead, "nav", undefined, "book-quotes-top-nav");
         navigation.setAttribute("aria-label", "Навигация библиотеки");
-        for (const [label, target] of [["← Библиотека", "Книги/_index"], ["Итоги чтения", "Книги/_system/Итоги чтения"]]) {
+        for (const [label, target] of [["← Библиотека", "Книги/_index"]]) {
             const link = element(navigation, "a", label, "internal-link");
             link.href = target; link.setAttribute("data-href", target);
             link.addEventListener("click", event => {
@@ -478,7 +478,6 @@ async function render({ dv, app, obsidian, mode = "index" }) {
         const identity = element(masthead, "div", undefined, "book-quotes-identity");
         const heading = element(identity, "div", undefined, "book-quotes-heading");
         element(heading, "h1", "Цитаты", "book-quotes-title");
-        element(heading, "p", "Из книг и собственных записей", "book-quotes-subtitle");
         const add = element(identity, "a", "+ Добавить цитату", "book-quotes-add");
         add.href = "obsidian://quickadd?choice=" + encodeURIComponent("Книги - Добавить выписку");
         add.addEventListener("click", event => { event.preventDefault(); create(); });
