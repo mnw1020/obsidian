@@ -52,6 +52,8 @@ views:
       - formula.series_link
       - series_index
     sort:
+      - property: rating
+        direction: DESC
       - property: date
         direction: DESC
       - property: formula.book_link
