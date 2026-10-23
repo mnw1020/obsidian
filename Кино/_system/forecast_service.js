@@ -110,6 +110,12 @@ async function itemsFor(app, state) {
 async function trainingFor(params, items, semantic, state, prepared) {
     const {app} = params;
     const previous = await readJson(app, `${BASE}/training.json`, null);
+    const compatible = previous?.version === state.engine.VERSION && previous?.engine === state.engine.ENGINE
+        && JSON.stringify(previous.models) === JSON.stringify(semantic.models);
+    // Adding/editing a card, previews and recommendations reuse saved tuning.
+    // Only the explicit full-library update requests the expensive validation.
+    abort(params);
+    if (params.retrain !== true) return compatible ? previous : null;
     const rated = items.filter(item => Number.isFinite(item.rating) && item.rating >= 1 && item.rating <= 10);
     // Only training inputs are fingerprinted: writing forecast fields must not
     // trigger another calibration. Sorting makes vault enumeration irrelevant.
@@ -120,10 +126,6 @@ async function trainingFor(params, items, semantic, state, prepared) {
             semantic.vectors[key]?.[item.path] ? semantic.caches[key]?.entries?.[item.path]?.hash || null : null
         ]))})).sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0)
     });
-    const compatible = previous?.version === state.engine.VERSION && previous?.engine === state.engine.ENGINE
-        && JSON.stringify(previous.models) === JSON.stringify(semantic.models);
-    if (compatible && previous.inputFingerprint === inputFingerprint && !params.retrain) return previous;
-    abort(params);
     if (rated.length < 40 || !MODEL_KEYS.every(key => Object.keys(semantic.vectors[key] || {}).length >= 30)) return null;
     params.onProgress?.({phase: 'training', stage: 'Проверка точности по актуальным личным оценкам', completed: 0, total: 5});
     const training = await state.engine.train(items, semantic.vectors, {onProgress: params.onProgress, shouldCancel: params.shouldCancel, asOfDate: params.asOfDate, prepared});
@@ -136,8 +138,8 @@ async function trainingFor(params, items, semantic, state, prepared) {
     }
     training.models = semantic.models;
     training.inputFingerprint = inputFingerprint;
-    training.refresh = {trigger: 'training-input-change-or-explicit-retrain', checkedAt: new Date().toISOString(),
-        formula: 'Revalidate when personal ratings, viewing dates, rated-card features, descriptions, vectors, model or engine change; undated training targets also depend on the reference date.'};
+    training.refresh = {trigger: 'explicit-retrain', checkedAt: new Date().toISOString(),
+        formula: 'Revalidate only on an explicit full-library update; ordinary forecasts reuse compatible saved parameters, or defaults if none are compatible.'};
     await writeJson(app, `${BASE}/training.json`, training);
     return training;
 }
