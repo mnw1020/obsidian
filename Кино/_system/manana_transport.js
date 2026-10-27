@@ -75,12 +75,21 @@ async function render({ dv, app, obsidian = {} }) {
     state.dispose?.();
     let disposed = false, root, dialog = null, timer, generation = 0, entries = [];
     const cleanups = [];
+    const labelPrefix = 'manana-' + Math.random().toString(36).slice(2);
+    let labelSequence = 0;
     function el(parent, tag, cls = '', text) {
         const node = doc.createElement(tag); node.className = cls;
         if (text !== undefined) node.textContent = text;
         parent.append(node); return node;
     }
     function listen(node, event, fn) { node.addEventListener(event, fn); cleanups.push(() => node.removeEventListener(event, fn)); }
+    // Obsidian turns aria-label and title into hover tooltips. Use labelledby
+    // so controls retain accessible names without showing those popups.
+    function accessibleName(control, text, parent = control) {
+        const label = el(parent, 'span', 'manana-sr-only', text);
+        label.id = labelPrefix + '-' + (++labelSequence);
+        control.setAttribute('aria-labelledby', label.id);
+    }
     function dispose() {
         if (disposed) return;
         disposed = true; generation++; clearTimeout(timer);
@@ -104,39 +113,39 @@ async function render({ dv, app, obsidian = {} }) {
         const head = el(root, 'header', 'manana-head');
         el(head, 'p', 'manana-eyebrow', 'АДРЕСА · МАНАНА МАМА');
         el(head, 'h1', 'manana-title', 'Развоз');
-        el(head, 'p', 'manana-description', 'Нажмите на имя, чтобы скопировать адрес.');
         const toolbar = el(root, 'div', 'manana-toolbar');
-        const searchWrap = el(toolbar, 'label', 'manana-search');
+        const searchWrap = el(toolbar, 'div', 'manana-search');
         const searchIcon = el(searchWrap, 'span', 'manana-search-icon');
         icon(searchIcon, 'search', '⌕'); searchIcon.setAttribute('aria-hidden', 'true');
         const search = el(searchWrap, 'input');
         search.type = 'search'; search.placeholder = 'Поиск по имени или адресу'; search.value = state.query;
-        search.setAttribute('aria-label', 'Поиск по имени или адресу'); search.autocomplete = 'off';
+        accessibleName(search, 'Поиск по имени или адресу', searchWrap); search.autocomplete = 'off';
+        const clear = iconButton(searchWrap, 'circle-x', '⊗', 'Очистить поиск', 'manana-search-clear');
+        clear.hidden = !search.value.length;
         const add = iconButton(toolbar, 'plus', '+', 'Добавить человека', 'manana-add');
         add.setAttribute('aria-haspopup', 'dialog');
-        const meta = el(root, 'div', 'manana-meta');
-        const counter = el(meta, 'span'); counter.setAttribute('aria-live', 'polite');
-        el(meta, 'span', '', 'По имени · А–Я');
-        const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); rows.setAttribute('aria-label', 'Адреса для развоза');
-        const status = el(root, 'p', 'manana-status'); status.setAttribute('role', 'status');
-        function message(text, error = false) { if (!disposed) { status.textContent = text; status.classList.toggle('is-error', error); } }
+        const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
+        const status = el(root, 'div', 'manana-status'); status.setAttribute('role', 'status');
+        const counter = el(status, 'span', 'manana-counter');
+        const statusMessage = el(status, 'span', 'manana-status-message');
+        function message(text, error = false) { if (!disposed) { statusMessage.textContent = text; status.classList.toggle('is-error', error); } }
         function icon(node, name, fallback) {
             if (obsidian.setIcon) obsidian.setIcon(node, name); else node.textContent = fallback;
         }
         function iconButton(parent, name, fallback, label, cls = '') {
             const button = el(parent, 'button', 'manana-icon-button ' + cls);
-            button.type = 'button'; button.title = label; button.setAttribute('aria-label', label);
-            icon(button, name, fallback); return button;
+            button.type = 'button';
+            icon(button, name, fallback); accessibleName(button, label); return button;
         }
         function paint() {
             const visible = filterRows(entries, state.query);
-            rows.replaceChildren(); counter.textContent = state.query.trim() ? `${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
+            rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
+            clear.hidden = !search.value.length;
             if (!visible.length) el(rows, 'p', 'manana-empty', entries.length ? 'Ничего не найдено. Попробуйте другое имя или адрес.' : 'Список пуст. Добавьте первого человека кнопкой +.');
             for (const entry of visible) {
                 const row = el(rows, 'div', 'manana-row'); row.setAttribute('role', 'listitem');
                 const name = el(row, 'button', 'manana-name', entry.name); name.type = 'button';
-                name.title = entry.address ? 'Скопировать адрес: ' + entry.address : 'Добавить адрес';
-                name.setAttribute('aria-label', entry.address ? 'Скопировать адрес: ' + entry.name : 'Добавить адрес: ' + entry.name);
+                accessibleName(name, entry.address ? 'Скопировать адрес: ' + entry.name : 'Добавить адрес: ' + entry.name);
                 name.addEventListener('click', () => entry.address ? void copyAddress(entry) : openDialog('edit', entry, name));
                 el(row, 'span', 'manana-address' + (entry.address ? '' : ' is-missing'), entry.address || 'Адрес не указан');
                 const actions = el(row, 'div', 'manana-row-actions');
@@ -227,8 +236,10 @@ async function render({ dv, app, obsidian = {} }) {
             dialog = new ContactModal(app); dialog.open();
         }
         listen(search, 'input', () => { state.query = search.value; paint(); });
+        function clearSearch() { search.value = state.query = ''; paint(); search.focus(); }
+        listen(clear, 'click', clearSearch);
         listen(search, 'keydown', event => {
-            if (event.key === 'Escape' && search.value) { event.preventDefault(); search.value = state.query = ''; paint(); }
+            if (event.key === 'Escape' && search.value) { event.preventDefault(); clearSearch(); }
         });
         listen(add, 'click', () => openDialog('add', null, add));
         await refresh(); if (disposed) return;
