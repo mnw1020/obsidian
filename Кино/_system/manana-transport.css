@@ -20,7 +20,7 @@
 .manana-ui .manana-search:focus-within { border-color: var(--manana-accent); }
 .manana-ui .manana-search-icon { display: flex; color: var(--kino-muted,#a8a69f); }
 .manana-ui .manana-search-icon svg { width: 14px; height: 14px; }
-.manana-ui .manana-search input[type="search"], .manana-ui .manana-search input[type="search"]:focus { width: 100%; min-width: 0; height: 30px; padding: 0; border: 0; background: transparent; color: inherit; font: 12px var(--manana-font); box-shadow: none; outline: none; }
+.manana-ui.manana-ui .manana-search input[type="search"], .manana-ui.manana-ui .manana-search input[type="search"]:focus { width: 100%; min-width: 0; min-height: 0; height: 30px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: inherit; font: 12px var(--manana-font); box-shadow: none; outline: none; }
 .manana-ui .manana-search input::placeholder { color: var(--kino-muted,#a8a69f); opacity: .85; }
 .manana-ui .manana-meta { display: flex; justify-content: space-between; gap: 12px; margin: 11px 1px 7px; color: var(--kino-muted,#a8a69f); font-size: 10px; }
 .manana-ui .manana-list { border: 1px solid var(--manana-line); border-radius: 9px; overflow: hidden; }
