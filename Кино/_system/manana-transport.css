@@ -70,6 +70,16 @@
 .manana-ui .manana-counter { flex-shrink: 0; }
 .manana-ui .manana-status-message:empty { display: none; }
 .manana-ui .manana-status.is-error .manana-status-message, .manana-modal .manana-form-error { color: #e19188; }
+.manana-ui .manana-trip { width: 98%; margin: 0 auto calc(10px * var(--manana-scale)); padding: calc(6px * var(--manana-scale)); border: 1px solid var(--manana-line); border-radius: calc(7px * var(--manana-scale)); background: var(--kino-bg,#16181c); }
+.manana-ui .manana-trip-head { display: flex; align-items: center; justify-content: space-between; gap: calc(6px * var(--manana-scale)); min-width: 0; }
+.manana-ui button.manana-trip-toggle { flex: 1; justify-content: flex-start; min-width: 0; height: auto; min-height: calc(28px * var(--manana-scale)); padding: calc(4px * var(--manana-scale)); border: 0; background: transparent; color: var(--manana-accent); font-size: 11px; white-space: normal; text-align: left; }
+.manana-ui .manana-trip-toggle::after { content: ''; flex: 0 0 5px; width: 5px; height: 5px; margin-left: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: rotate(45deg); }
+.manana-ui .manana-trip-toggle[aria-expanded="true"]::after { transform: rotate(225deg); }
+.manana-ui .manana-trip-actions { display: flex; flex: 0 0 auto; gap: calc(4px * var(--manana-scale)); }
+.manana-ui .manana-trip-actions button:disabled { opacity: .35; cursor: wait; }
+.manana-ui ol.manana-trip-stops { margin: calc(7px * var(--manana-scale)) 0 0; padding-left: calc(21px * var(--manana-scale)); color: var(--kino-muted,#a8a69f); font-size: 11px; line-height: 1.5; }
+.manana-ui .manana-trip-stops li { padding: 3px 0; }
+.manana-ui .manana-trip-address { display: block; font-size: 10px; opacity: .85; overflow-wrap: anywhere; }
 .manana-ui .manana-empty { margin: 0; padding: calc(24px * var(--manana-scale)) calc(14px * var(--manana-scale)); color: var(--kino-muted,#a8a69f); font-size: 12px; text-align: center; }
 .manana-modal.modal { width: min(calc(440px * var(--manana-scale)),calc(100vw - calc(28px * var(--manana-scale)))); padding: calc(22px * var(--manana-scale)); border: calc(1px * var(--manana-scale)) solid var(--manana-line); border-top: calc(3px * var(--manana-scale)) solid var(--manana-accent); border-radius: calc(10px * var(--manana-scale)); background: var(--kino-bg,#16181c); }
 .manana-modal .modal-title { margin-bottom: calc(18px * var(--manana-scale)); color: var(--manana-accent); font: 700 25px/1.2 var(--manana-serif); }

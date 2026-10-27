@@ -69,7 +69,7 @@ function copyTextNow(doc, text) {
         if (!doc.execCommand?.('copy')) throw Error('Буфер обмена недоступен.');
     } finally { area.remove(); focused?.focus({ preventScroll: true }); }
 }
-async function activateAddress({ doc, address, mobile = false }) {
+async function activateAddress({ doc, address, mobile = false, mapUri }) {
     const value = String(address ?? '');
     if (!value.trim()) throw Error('Адрес не указан.');
     const win = doc.defaultView;
@@ -89,7 +89,9 @@ async function activateAddress({ doc, address, mobile = false }) {
         }
         try {
             if (typeof win?.open !== 'function') throw Error('Запуск приложения недоступен.');
-            win.open(twoGisSearchUri(value), '_blank');
+            const target = mapUri ?? twoGisSearchUri(value);
+            if (!target.startsWith('dgis://2gis.ru/')) throw Error('Некорректная ссылка 2ГИС.');
+            win.open(target, '_blank');
             // Native app handlers may return null even on a successful launch.
             mapRequested = true;
         } catch (error) { mapError = error; }
@@ -104,6 +106,7 @@ async function activateAddress({ doc, address, mobile = false }) {
 async function render({ dv, app, obsidian = {} }) {
     const doc = dv.container.ownerDocument, component = dv.component;
     const mobile = isMobileClient(obsidian, doc);
+    const tripEnabled = mobile && (obsidian.Platform?.isAndroidApp === true || /Android/i.test(doc.defaultView?.navigator?.userAgent || ''));
     const source = dv.current?.()?.file?.path || 'Развоз Манана мама 3.md';
     const file = app.vault.getAbstractFileByPath(source);
     if (!file) throw Error('Не найдена заметка с адресами.');
@@ -128,6 +131,9 @@ async function render({ dv, app, obsidian = {} }) {
     }
     state.dispose?.();
     let disposed = false, root, dialog = null, timer, generation = 0, entries = [];
+    let tripApi = null, tripStore = null, locationResolver = null, tripInitError = null, tripPreparing = false;
+    const locations = [];
+    const tripStorageKey = 'manana.trip.v1:' + (app.vault.getName?.() || 'obsidian') + ':' + source;
     const cleanups = [];
     const labelPrefix = 'manana-' + Math.random().toString(36).slice(2);
     let labelSequence = 0;
@@ -161,6 +167,25 @@ async function render({ dv, app, obsidian = {} }) {
         const cssFile = app.vault.getAbstractFileByPath('Кино/_system/manana-transport.css');
         if (!cssFile) throw Error('Не найдено оформление списка адресов.');
         const css = await app.vault.read(cssFile);
+        if (tripEnabled) {
+            try {
+                const paths = ['manana_trip.js', 'manana_geocode.js', 'manana_locations.json'];
+                const contents = await Promise.all(paths.map(async name => {
+                    const helper = app.vault.getAbstractFileByPath('Кино/_system/' + name);
+                    if (!helper) throw Error('Не найден файл поездки: ' + name);
+                    return app.vault.read(helper);
+                }));
+                const tripModule = { exports: {} }, geoModule = { exports: {} };
+                new Function('module', contents[0])(tripModule);
+                new Function('module', contents[1])(geoModule);
+                const cache = JSON.parse(contents[2]);
+                if (cache.version !== 1 || !Array.isArray(cache.entries)) throw Error('Неизвестный формат точек поездки.');
+                locations.push(...cache.entries);
+                tripApi = tripModule.exports;
+                tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations });
+                locationResolver = geoModule.exports.createLocationResolver({ app, obsidian, records: locations });
+            } catch (error) { tripInitError = error; }
+        }
         if (disposed) return;
         root = el(dv.container, 'section', 'manana-ui'); state.root = root;
         el(root, 'style', '', css);
@@ -178,6 +203,15 @@ async function render({ dv, app, obsidian = {} }) {
         clear.hidden = !search.value.length;
         const add = iconButton(toolbar, 'plus', '+', 'Добавить человека', 'manana-add');
         add.setAttribute('aria-haspopup', 'dialog');
+        const tripPanel = el(root, 'section', 'manana-trip'); tripPanel.hidden = true;
+        const tripHead = el(tripPanel, 'div', 'manana-trip-head');
+        const tripToggle = el(tripHead, 'button', 'manana-trip-toggle'); tripToggle.type = 'button';
+        const tripActions = el(tripHead, 'div', 'manana-trip-actions');
+        const tripOpen = iconButton(tripActions, 'route', '↗', 'Открыть поездку в 2ГИС');
+        const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Убрать последний адрес из поездки');
+        const tripReset = iconButton(tripActions, 'rotate-ccw', '⟲', 'Начать новую поездку');
+        const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
+        tripToggle.setAttribute('aria-controls', tripList.id);
         const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
         const status = el(root, 'div', 'manana-status'); status.setAttribute('role', 'status');
         const counter = el(status, 'span', 'manana-counter');
@@ -191,6 +225,77 @@ async function render({ dv, app, obsidian = {} }) {
             button.type = 'button';
             icon(button, name, fallback); accessibleName(button, label); return button;
         }
+        function addressCount(count) { return count + (count === 1 ? ' адрес' : count >= 2 && count <= 4 ? ' адреса' : ' адресов'); }
+        function paintTrip() {
+            if (disposed || !tripEnabled) return;
+            try {
+                if (tripInitError) throw tripInitError;
+                const selected = tripStore.read();
+                tripPanel.hidden = selected.stops.length === 0;
+                tripToggle.textContent = 'Поездка: ' + addressCount(selected.stops.length);
+                tripToggle.setAttribute('aria-expanded', String(Boolean(state.tripExpanded)));
+                tripList.hidden = !state.tripExpanded;
+                tripList.replaceChildren();
+                for (const stop of selected.stops) {
+                    const entry = entries.find(item => item.id === stop.id);
+                    const item = el(tripList, 'li');
+                    el(item, 'span', '', entry?.name || stop.address);
+                    el(item, 'span', 'manana-trip-address', stop.address);
+                }
+                tripOpen.disabled = tripPreparing || !selected.stops.length;
+                tripUndo.disabled = tripPreparing || !selected.stops.length;
+                tripReset.disabled = tripPreparing;
+            } catch (error) {
+                tripPanel.hidden = false; tripToggle.textContent = 'Поездка недоступна';
+                tripList.hidden = true; tripOpen.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore || tripPreparing;
+                message(error.message || String(error), true);
+            }
+        }
+        function notifyTrip() {
+            paintTrip();
+            doc.defaultView.dispatchEvent(new doc.defaultView.CustomEvent('manana-trip-change', { detail: tripStorageKey }));
+        }
+        function showAddressResult(result, entry, selection) {
+            if (disposed) return;
+            if (selection && result.mapError) {
+                try { tripStore.rollback(selection); notifyTrip(); } catch (_) { /* Keep the original launch error visible. */ }
+            }
+            if (!result.copied) {
+                const copyFailure = 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError));
+                const mapResult = result.mapRequested ? ' · адрес передан в 2ГИС' : result.mapError ? ' · не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)) : '';
+                message(copyFailure + mapResult, true);
+            } else if (result.mapError) {
+                message('Адрес скопирован. Не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)), true);
+            } else if (selection && result.mapRequested) {
+                message('Адрес скопирован · поездка: ' + addressCount(selection.state.stops.length));
+            } else {
+                message((result.mapRequested ? 'Адрес скопирован · отправлен в 2ГИС: ' : 'Адрес скопирован: ') + entry.name);
+            }
+        }
+        async function prepareMissingTrip(entry, addresses) {
+            tripPreparing = true; paintTrip();
+            const copying = activateAddress({ doc, address: entry.address, mobile: false });
+            message('Находим точку адреса в Челябинске…');
+            try {
+                await locationResolver.ensure(addresses);
+                if (disposed) return;
+                tripStore.select(entry);
+                tripPreparing = false; notifyTrip();
+                const result = await copying;
+                if (disposed) return;
+                message('Адрес добавлен в поездку. Нажмите кнопку маршрута, чтобы открыть 2ГИС.' + (result.copied ? '' : ' Не удалось скопировать адрес.'), !result.copied);
+            } catch (error) {
+                message('Не удалось добавить адрес в поездку: ' + (error.message || error), true);
+            } finally { tripPreparing = false; if (!disposed) paintTrip(); }
+        }
+        function openTrip() {
+            if (disposed || tripPreparing || !tripStore) return;
+            try {
+                const current = tripStore.read(), uri = tripApi.buildTripUri(current.stops, locations);
+                doc.defaultView.open(uri, '_blank');
+                message('Поездка передана в 2ГИС: ' + addressCount(current.stops.length));
+            } catch (error) { message('Не удалось открыть поездку: ' + (error.message || error), true); }
+        }
         function paint() {
             const visible = filterRows(entries, state.query);
             rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
@@ -199,7 +304,7 @@ async function render({ dv, app, obsidian = {} }) {
             for (const entry of visible) {
                 const row = el(rows, 'div', 'manana-row'); row.setAttribute('role', 'listitem');
                 const name = el(row, 'button', 'manana-name', entry.name); name.type = 'button';
-                accessibleName(name, entry.address ? (mobile ? 'Скопировать адрес и открыть в 2ГИС: ' : 'Скопировать адрес: ') + entry.name : 'Добавить адрес: ' + entry.name);
+                accessibleName(name, entry.address ? (tripEnabled ? 'Скопировать адрес и добавить в поездку: ' : mobile ? 'Скопировать адрес и открыть в 2ГИС: ' : 'Скопировать адрес: ') + entry.name : 'Добавить адрес: ' + entry.name);
                 name.addEventListener('click', () => entry.address ? void copyAddress(entry) : openDialog('edit', entry, name));
                 el(row, 'span', 'manana-address' + (entry.address ? '' : ' is-missing'), entry.address || 'Адрес не указан');
                 const actions = el(row, 'div', 'manana-row-actions');
@@ -215,24 +320,32 @@ async function render({ dv, app, obsidian = {} }) {
             try {
                 const data = readData(await app.vault.read(file));
                 if (disposed || current !== generation) return;
-                entries = data.entries; paint();
+                entries = data.entries; paint(); paintTrip();
             } catch (error) { if (!disposed && current === generation) message('Не удалось прочитать адреса: ' + error.message, true); }
         }
         async function copyAddress(entry) {
             if (disposed) return;
+            if (tripPreparing) { message('Сначала закончим поиск предыдущего адреса.'); return; }
             try {
-                const result = await activateAddress({ doc, address: entry.address, mobile });
-                if (disposed) return;
-                if (!result.copied) {
-                    const copyFailure = 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError));
-                    const mapResult = result.mapRequested ? ' · адрес передан в 2ГИС' : result.mapError ? ' · не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)) : '';
-                    message(copyFailure + mapResult, true);
-                } else if (result.mapError) {
-                    message('Адрес скопирован. Не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)), true);
-                } else {
-                    message((result.mapRequested ? 'Адрес скопирован · отправлен в 2ГИС: ' : 'Адрес скопирован: ') + entry.name);
+                if (tripInitError) throw tripInitError;
+                let selection = null;
+                if (tripStore) selection = tripStore.select(entry);
+                // activateAddress performs copying and opening synchronously up
+                // to its first await; do not put async work before this call.
+                const work = activateAddress({ doc, address: entry.address, mobile, mapUri: selection?.uri });
+                if (selection) {
+                    notifyTrip();
+                    if (!locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(entry.address))) {
+                        void locationResolver.ensure([entry.address]).catch(() => {});
+                    }
                 }
-            } catch (error) { message('Не удалось скопировать адрес: ' + error.message, true); }
+                const result = await work;
+                showAddressResult(result, entry, selection);
+            } catch (error) {
+                if (error.code === 'MISSING_LOCATION' && locationResolver) return prepareMissingTrip(entry, error.addresses);
+                const copied = await activateAddress({ doc, address: entry.address, mobile: false });
+                message((copied.copied ? 'Адрес скопирован. ' : '') + (error.message || String(error)), true);
+            }
         }
         function openDialog(mode, entry, trigger) {
             if (disposed) return;
@@ -300,6 +413,22 @@ async function render({ dv, app, obsidian = {} }) {
             if (event.key === 'Escape' && search.value) { event.preventDefault(); clearSearch(); }
         });
         listen(add, 'click', () => openDialog('add', null, add));
+        listen(tripToggle, 'click', () => { state.tripExpanded = !state.tripExpanded; paintTrip(); });
+        listen(tripOpen, 'click', openTrip);
+        listen(tripUndo, 'click', () => {
+            if (!tripStore || tripPreparing) return;
+            try { tripStore.removeLast(); notifyTrip(); message('Последний адрес убран из поездки.'); }
+            catch (error) { message(error.message || String(error), true); }
+        });
+        listen(tripReset, 'click', () => {
+            if (!tripStore || tripPreparing) return;
+            try { tripStore.clear(); state.tripExpanded = false; notifyTrip(); message('Можно выбирать адреса новой поездки.'); }
+            catch (error) { message(error.message || String(error), true); }
+        });
+        if (tripEnabled) {
+            listen(doc.defaultView, 'storage', event => { if (event.key === tripStorageKey) paintTrip(); });
+            listen(doc.defaultView, 'manana-trip-change', event => { if (event.detail === tripStorageKey) paintTrip(); });
+        }
         await refresh(); if (disposed) return;
         if (app.vault.on) {
             const ref = app.vault.on('modify', changed => { if (changed === file || changed.path === file.path) { clearTimeout(timer); timer = setTimeout(() => void refresh(), 80); } });
