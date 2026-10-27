@@ -47,9 +47,63 @@ function filterRows(entries, query) {
     const terms = normalize(query).trim().split(/\s+/).filter(Boolean);
     return sorted(entries).filter(row => terms.every(term => normalize(row.name + ' ' + row.address).includes(term)));
 }
+function isMobileClient(obsidian, doc) {
+    if (typeof obsidian.Platform?.isMobile === 'boolean') return obsidian.Platform.isMobile;
+    const navigator = doc.defaultView?.navigator;
+    return /Android|iPhone|iPad|iPod/i.test(navigator?.userAgent || '')
+        || (/Mac/i.test(navigator?.platform || '') && navigator?.maxTouchPoints > 1);
+}
+function twoGisSearchUri(address) {
+    const value = String(address ?? '').trim();
+    if (!value) throw Error('Адрес не указан.');
+    // Official mobile search URL: https://help.2gis.ru/question/razrabotchikam-zapusk-ideystviya-vmobilnom-prilozhenii-cherez-deeplink
+    return 'dgis://2gis.ru/search/' + encodeURIComponent(value);
+}
+function copyTextNow(doc, text) {
+    const focused = doc.activeElement, area = doc.createElement('textarea');
+    area.value = text; area.readOnly = true; area.tabIndex = -1;
+    area.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
+    doc.body.append(area);
+    try {
+        area.focus({ preventScroll: true }); area.select(); area.setSelectionRange?.(0, text.length);
+        if (!doc.execCommand?.('copy')) throw Error('Буфер обмена недоступен.');
+    } finally { area.remove(); focused?.focus({ preventScroll: true }); }
+}
+async function activateAddress({ doc, address, mobile = false }) {
+    const value = String(address ?? '');
+    if (!value.trim()) throw Error('Адрес не указан.');
+    const win = doc.defaultView;
+    const copyAsync = () => {
+        if (!win?.navigator?.clipboard?.writeText) throw Error('Буфер обмена недоступен.');
+        return win.navigator.clipboard.writeText(value);
+    };
+    let copyError = null, mapError = null, mapRequested = false;
+    if (mobile) {
+        // Keep the external-app launch inside the original tap. Waiting for
+        // Clipboard API first can lose mobile browser user activation.
+        let copying;
+        try { copyTextNow(doc, value); copying = Promise.resolve(); }
+        catch (_) {
+            try { copying = Promise.resolve(copyAsync()); }
+            catch (error) { copying = Promise.reject(error); }
+        }
+        try {
+            if (typeof win?.open !== 'function') throw Error('Запуск приложения недоступен.');
+            win.open(twoGisSearchUri(value), '_blank');
+            // Native app handlers may return null even on a successful launch.
+            mapRequested = true;
+        } catch (error) { mapError = error; }
+        try { await copying; } catch (error) { copyError = error; }
+    } else {
+        try { await copyAsync(); }
+        catch (_) { try { copyTextNow(doc, value); } catch (error) { copyError = error; } }
+    }
+    return { copied: !copyError, copyError, mapRequested, mapError };
+}
 
 async function render({ dv, app, obsidian = {} }) {
     const doc = dv.container.ownerDocument, component = dv.component;
+    const mobile = isMobileClient(obsidian, doc);
     const source = dv.current?.()?.file?.path || 'Развоз Манана мама 3.md';
     const file = app.vault.getAbstractFileByPath(source);
     if (!file) throw Error('Не найдена заметка с адресами.');
@@ -145,7 +199,7 @@ async function render({ dv, app, obsidian = {} }) {
             for (const entry of visible) {
                 const row = el(rows, 'div', 'manana-row'); row.setAttribute('role', 'listitem');
                 const name = el(row, 'button', 'manana-name', entry.name); name.type = 'button';
-                accessibleName(name, entry.address ? 'Скопировать адрес: ' + entry.name : 'Добавить адрес: ' + entry.name);
+                accessibleName(name, entry.address ? (mobile ? 'Скопировать адрес и открыть в 2ГИС: ' : 'Скопировать адрес: ') + entry.name : 'Добавить адрес: ' + entry.name);
                 name.addEventListener('click', () => entry.address ? void copyAddress(entry) : openDialog('edit', entry, name));
                 el(row, 'span', 'manana-address' + (entry.address ? '' : ' is-missing'), entry.address || 'Адрес не указан');
                 const actions = el(row, 'div', 'manana-row-actions');
@@ -165,15 +219,19 @@ async function render({ dv, app, obsidian = {} }) {
             } catch (error) { if (!disposed && current === generation) message('Не удалось прочитать адреса: ' + error.message, true); }
         }
         async function copyAddress(entry) {
+            if (disposed) return;
             try {
-                try { await doc.defaultView.navigator.clipboard.writeText(entry.address); }
-                catch (_) {
-                    const focused = doc.activeElement, area = el(doc.body, 'textarea');
-                    area.value = entry.address; area.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-                    try { area.focus(); area.select(); if (!doc.execCommand('copy')) throw Error('Буфер обмена недоступен.'); }
-                    finally { area.remove(); focused?.focus(); }
+                const result = await activateAddress({ doc, address: entry.address, mobile });
+                if (disposed) return;
+                if (!result.copied) {
+                    const copyFailure = 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError));
+                    const mapResult = result.mapRequested ? ' · адрес передан в 2ГИС' : result.mapError ? ' · не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)) : '';
+                    message(copyFailure + mapResult, true);
+                } else if (result.mapError) {
+                    message('Адрес скопирован. Не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)), true);
+                } else {
+                    message((result.mapRequested ? 'Адрес скопирован · отправлен в 2ГИС: ' : 'Адрес скопирован: ') + entry.name);
                 }
-                message('Адрес скопирован: ' + entry.name);
             } catch (error) { message('Не удалось скопировать адрес: ' + error.message, true); }
         }
         function openDialog(mode, entry, trigger) {
@@ -256,3 +314,6 @@ module.exports.readData = readData;
 module.exports.writeData = writeData;
 module.exports.changeData = changeData;
 module.exports.filterRows = filterRows;
+module.exports.isMobileClient = isMobileClient;
+module.exports.twoGisSearchUri = twoGisSearchUri;
+module.exports.activateAddress = activateAddress;
