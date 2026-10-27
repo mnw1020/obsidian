@@ -46,6 +46,9 @@
 .manana-ui .manana-icon-button svg { width: calc(13px * var(--manana-scale)); height: calc(13px * var(--manana-scale)); }
 .manana-ui .manana-add { flex-basis: calc(34px * var(--manana-scale)); width: calc(34px * var(--manana-scale)); height: calc(34px * var(--manana-scale)); color: var(--manana-accent); background: color-mix(in srgb,var(--manana-accent) 9%,var(--kino-bg,#16181c)); border-color: color-mix(in srgb,var(--manana-accent) 40%,var(--manana-line)); }
 .manana-ui .manana-add svg { width: calc(17px * var(--manana-scale)); height: calc(17px * var(--manana-scale)); }
+.manana-ui button.manana-search-add { flex: 0 0 calc(22px * var(--manana-scale)); width: calc(22px * var(--manana-scale)); height: calc(22px * var(--manana-scale)); padding: 0; border: 0; border-radius: 50%; color: var(--manana-accent); background: color-mix(in srgb,var(--manana-accent) 8%,transparent); }
+.manana-ui button.manana-search-add:hover { color: var(--kino-accent-hover,#efb876); background: color-mix(in srgb,var(--manana-accent) 15%,transparent); }
+.manana-ui .manana-search-add svg { width: calc(14px * var(--manana-scale)); height: calc(14px * var(--manana-scale)); }
 .manana-ui button.manana-search-clear { flex: 0 0 calc(20px * var(--manana-scale)); width: calc(20px * var(--manana-scale)); height: calc(20px * var(--manana-scale)); padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--kino-muted,#a8a69f); }
 .manana-ui button.manana-search-clear:hover { background: transparent; color: var(--manana-accent); }
 .manana-ui .manana-search-clear svg { width: calc(16px * var(--manana-scale)); height: calc(16px * var(--manana-scale)); }

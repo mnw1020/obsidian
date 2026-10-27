@@ -17,10 +17,11 @@ function normalizeAddress(value) {
 }
 function stopSnapshot(value) {
     if (!value || typeof value.id !== 'string' || !value.id.trim()
-        || typeof value.address !== 'string' || !value.address.trim()) {
+        || typeof value.address !== 'string' || !value.address.trim()
+        || (value.custom !== undefined && typeof value.custom !== 'boolean')) {
         throw fail('INVALID_STOP', 'У остановки должны быть имя записи и адрес.');
     }
-    return { id: value.id, address: value.address.trim() };
+    return { id: value.id, address: value.address.trim(), ...(value.custom === true ? { custom: true } : {}) };
 }
 function validLimit(value) {
     if (!Number.isSafeInteger(value) || value < 1 || value > MAX_SAVED_STOPS) {
@@ -30,13 +31,16 @@ function validLimit(value) {
 }
 function reconcileStops(stops, entries) {
     const current = new Map((entries || []).map(entry => [entry.id, entry]));
-    const seen = new Set(), result = [];
+    const seen = new Set(), seenAddresses = new Set(), result = [];
     for (const value of stops || []) {
         const stop = stopSnapshot(value), entry = current.get(stop.id);
-        if (seen.has(stop.id) || !entry || typeof entry.address !== 'string'
-            || normalizeAddress(entry.address) !== normalizeAddress(stop.address)) continue;
+        const key = normalizeAddress(stop.address);
+        if (seen.has(stop.id) || seenAddresses.has(key)) continue;
+        if (!stop.custom && (!entry || typeof entry.address !== 'string'
+            || normalizeAddress(entry.address) !== key)) continue;
         seen.add(stop.id);
-        result.push({ id: stop.id, address: entry.address.trim() });
+        seenAddresses.add(key);
+        result.push(stop.custom ? stop : { id: stop.id, address: entry.address.trim() });
     }
     return result;
 }
@@ -60,7 +64,7 @@ function readTrip(raw, entries) {
 function appendStop(stops, entry, maxStops = MAX_STOPS) {
     validLimit(maxStops);
     const result = (stops || []).map(stopSnapshot), stop = stopSnapshot(entry);
-    if (result.some(value => value.id === stop.id)) return result;
+    if (result.some(value => value.id === stop.id || normalizeAddress(value.address) === normalizeAddress(stop.address))) return result;
     if (result.length >= maxStops) {
         throw fail('TRIP_FULL', `В одной поездке можно выбрать до ${maxStops} адресов. Начните новую поездку.`);
     }
@@ -155,6 +159,15 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         const { previous, stops, added } = prepareSelection(entry);
         return { state: write(previous, stops), previous, added };
     }
+    function addCustom(address) {
+        if (typeof address !== 'string' || !normalizeAddress(address)) throw fail('INVALID_STOP', 'Укажите адрес.');
+        const value = address.trim(), key = normalizeAddress(value), entries = getEntries();
+        const known = entries.find(entry => typeof entry.address === 'string' && normalizeAddress(entry.address) === key);
+        if (known) return add(known);
+        const previous = readTrip(getRaw(), entries);
+        const stops = appendStop(previous.stops, { id: 'manual:' + key, address: value, custom: true }, maxStops);
+        return { state: write(previous, stops), previous, added: stops.length > previous.stops.length };
+    }
     function select(entry) {
         // Legacy combined preparation, retained for callers that need a URI.
         const { previous, stops, added } = prepareSelection(entry);
@@ -180,6 +193,6 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         write(current, reconcileStops(selection.previous.stops, getEntries()));
         return true;
     }
-    return { read, add, select, clear, removeLast, rollback };
+    return { read, add, addCustom, select, clear, removeLast, rollback };
 }
 module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, appendStop, reconcileStops, createTripStore };

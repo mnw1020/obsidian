@@ -185,6 +185,8 @@ async function render({ dv, app, obsidian = {} }) {
         const search = el(searchWrap, 'input');
         search.type = 'search'; search.placeholder = 'Поиск по имени или адресу'; search.value = state.query;
         accessibleName(search, 'Поиск по имени или адресу', searchWrap); search.autocomplete = 'off';
+        const searchAdd = iconButton(searchWrap, 'plus', '+', 'Добавить введённый адрес в список', 'manana-search-add');
+        searchAdd.hidden = !search.value.trim();
         const clear = iconButton(searchWrap, 'circle-x', '⊗', 'Очистить поиск', 'manana-search-clear');
         clear.hidden = !search.value.length;
         const add = iconButton(toolbar, 'plus', '+', 'Добавить человека', 'manana-add');
@@ -227,7 +229,7 @@ async function render({ dv, app, obsidian = {} }) {
                     const entry = entries.find(item => item.id === stop.id);
                     const item = el(tripList, 'li');
                     el(item, 'span', '', entry?.name || stop.address);
-                    el(item, 'span', 'manana-trip-address', stop.address);
+                    if (entry?.name) el(item, 'span', 'manana-trip-address', stop.address);
                 }
                 const overLimit = selected.stops.length > 5;
                 tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
@@ -275,6 +277,7 @@ async function render({ dv, app, obsidian = {} }) {
             const visible = filterRows(entries, state.query);
             rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
             clear.hidden = !search.value.length;
+            searchAdd.hidden = !search.value.trim();
             if (!visible.length) el(rows, 'p', 'manana-empty', entries.length ? 'Ничего не найдено. Попробуйте другое имя или адрес.' : 'Список пуст. Добавьте первого человека кнопкой +.');
             for (const entry of visible) {
                 const row = el(rows, 'div', 'manana-row'); row.setAttribute('role', 'listitem');
@@ -319,6 +322,22 @@ async function render({ dv, app, obsidian = {} }) {
             if (selectionError) parts.push('Не удалось добавить в список: ' + (selectionError.message || String(selectionError)));
             else if (selection) parts.push('в списке ' + addressCount(selection.state.stops.length));
             message(parts.join(' · '), !result.copied || Boolean(selectionError));
+        }
+        function addSearchAddress() {
+            if (disposed) return;
+            const address = search.value.trim();
+            if (!address) return;
+            try {
+                if (tripInitError) throw tripInitError;
+                const selection = tripStore.addCustom(address);
+                state.tripExpanded = true;
+                notifyTrip();
+                if (locationResolver && !locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(address))) {
+                    void locationResolver.ensure([address]).catch(() => {});
+                }
+                search.value = state.query = ''; paint(); search.focus();
+                message((selection.added ? 'Адрес добавлен' : 'Адрес уже в списке') + ' · в списке ' + addressCount(selection.state.stops.length));
+            } catch (error) { message('Не удалось добавить адрес: ' + (error.message || error), true); }
         }
         function openDialog(mode, entry, trigger) {
             if (disposed) return;
@@ -380,6 +399,7 @@ async function render({ dv, app, obsidian = {} }) {
             dialog = new ContactModal(app); dialog.open();
         }
         listen(search, 'input', () => { state.query = search.value; paint(); });
+        listen(searchAdd, 'click', addSearchAddress);
         function clearSearch() { search.value = state.query = ''; paint(); search.focus(); }
         listen(clear, 'click', clearSearch);
         listen(search, 'keydown', event => {
