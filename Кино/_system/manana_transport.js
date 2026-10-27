@@ -201,6 +201,8 @@ async function render({ dv, app, obsidian = {} }) {
         const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Удалить последний адрес из списка');
         const tripReset = iconButton(tripActions, 'trash-2', '×', 'Удалить все адреса из списка');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
+        let tripDrag = null;
+        cleanups.push(() => cancelTripDrag());
         tripToggle.setAttribute('aria-controls', tripList.id);
         const status = el(root, 'div', 'manana-status'); status.setAttribute('role', 'status');
         const counter = el(status, 'span', 'manana-counter');
@@ -218,6 +220,7 @@ async function render({ dv, app, obsidian = {} }) {
         function addressCount(count) { return count + (count === 1 ? ' адрес' : count >= 2 && count <= 4 ? ' адреса' : ' адресов'); }
         function paintTrip() {
             if (disposed || !tripEnabled) return;
+            cancelTripDrag();
             try {
                 if (tripInitError) throw tripInitError;
                 const selected = tripStore.read();
@@ -229,8 +232,13 @@ async function render({ dv, app, obsidian = {} }) {
                 for (const stop of selected.stops) {
                     const entry = entries.find(item => item.id === stop.id);
                     const item = el(tripList, 'li');
-                    el(item, 'span', '', entry?.name || stop.address);
-                    if (entry?.name) el(item, 'span', 'manana-trip-address', stop.address);
+                    item.dataset.stopId = stop.id;
+                    const line = el(item, 'div', 'manana-trip-stop');
+                    const text = el(line, 'div', 'manana-trip-stop-text');
+                    el(text, 'span', '', entry?.name || stop.address);
+                    if (entry?.name) el(text, 'span', 'manana-trip-address', stop.address);
+                    const handle = iconButton(line, 'grip-vertical', '⠿', 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.', 'manana-trip-drag');
+                    handle.disabled = selected.stops.length < 2;
                 }
                 const overLimit = selected.stops.length > 5;
                 tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
@@ -249,6 +257,72 @@ async function render({ dv, app, obsidian = {} }) {
             paintTrip();
             doc.defaultView.dispatchEvent(new doc.defaultView.CustomEvent('manana-trip-change', { detail: tripStorageKey }));
         }
+        function cancelTripDrag() {
+            const drag = tripDrag;
+            if (!drag) return;
+            tripDrag = null;
+            if (drag.handle.hasPointerCapture?.(drag.pointerId)) drag.handle.releasePointerCapture(drag.pointerId);
+            drag.item.classList.remove('is-dragging');
+            tripList.classList.remove('is-reordering');
+            for (const item of drag.original) tripList.append(item);
+        }
+        function saveTripOrder(ids, revision, focusId) {
+            try {
+                tripStore.reorder(ids, revision); notifyTrip(); message('Порядок адресов сохранён.');
+            } catch (error) { paintTrip(); message(error.message || String(error), true); }
+            for (const item of tripList.children) {
+                if (item.dataset.stopId === focusId) item.querySelector('.manana-trip-drag')?.focus({ preventScroll: true });
+            }
+        }
+        listen(tripList, 'pointerdown', event => {
+            const handle = event.target.closest?.('.manana-trip-drag');
+            if (!handle || handle.disabled || event.button !== 0 || event.isPrimary === false || tripDrag || !tripStore) return;
+            try {
+                const selected = tripStore.read(), original = [...tripList.children];
+                if (selected.stops.map(stop => stop.id).join('\n') !== original.map(item => item.dataset.stopId).join('\n')) { paintTrip(); return; }
+                tripDrag = { handle, item: handle.closest('li'), pointerId: event.pointerId,
+                    startY: event.clientY, active: false, original, revision: selected.revision };
+                handle.setPointerCapture?.(event.pointerId);
+            } catch (error) { cancelTripDrag(); message(error.message || String(error), true); }
+        });
+        listen(doc, 'pointermove', event => {
+            const drag = tripDrag;
+            if (!drag || event.pointerId !== drag.pointerId) return;
+            if (!drag.active && Math.abs(event.clientY - drag.startY) < 5) return;
+            drag.active = true;
+            if (event.cancelable) event.preventDefault();
+            drag.item.classList.add('is-dragging'); tripList.classList.add('is-reordering');
+            const others = [...tripList.children].filter(item => item !== drag.item);
+            const before = others.find(item => { const rect = item.getBoundingClientRect(); return event.clientY < rect.top + rect.height / 2; });
+            if (drag.item.nextElementSibling !== (before || null)) {
+                tripList.insertBefore(drag.item, before || null);
+                drag.handle.setPointerCapture?.(drag.pointerId);
+            }
+        });
+        listen(doc, 'pointerup', event => {
+            const drag = tripDrag;
+            if (!drag || event.pointerId !== drag.pointerId) return;
+            const ids = [...tripList.children].map(item => item.dataset.stopId);
+            cancelTripDrag();
+            if (drag.active) saveTripOrder(ids, drag.revision, drag.item.dataset.stopId);
+        });
+        listen(doc, 'pointercancel', event => { if (tripDrag?.pointerId === event.pointerId) cancelTripDrag(); });
+        listen(doc.defaultView, 'blur', cancelTripDrag);
+        listen(doc, 'keydown', event => {
+            if (event.key === 'Escape' && tripDrag) { event.preventDefault(); cancelTripDrag(); }
+        });
+        listen(tripList, 'keydown', event => {
+            const handle = event.target.closest?.('.manana-trip-drag');
+            if (!handle || handle.disabled || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+            event.preventDefault(); cancelTripDrag();
+            try {
+                const selected = tripStore.read(), ids = selected.stops.map(stop => stop.id);
+                const id = handle.closest('li').dataset.stopId, from = ids.indexOf(id), to = from + (event.key === 'ArrowUp' ? -1 : 1);
+                if (from < 0 || to < 0 || to >= ids.length) return;
+                [ids[from], ids[to]] = [ids[to], ids[from]];
+                saveTripOrder(ids, selected.revision, id);
+            } catch (error) { paintTrip(); message(error.message || String(error), true); }
+        });
         function mapProvider(provider) {
             const providers = {
                 '2gis': { name: '2ГИС', build: tripApi?.buildTwoGisRouteUri },

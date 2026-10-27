@@ -200,12 +200,25 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         const previous = read();
         return write(previous, previous.stops.slice(0, -1));
     }
+    function reorder(ids, expectedRevision) {
+        const previous = read();
+        if (previous.revision !== expectedRevision) {
+            throw fail('TRIP_CHANGED', 'Список уже изменился. Повторите перетаскивание.');
+        }
+        const stopsById = new Map(previous.stops.map(stop => [stop.id, stop]));
+        if (!Array.isArray(ids) || ids.length !== previous.stops.length
+            || new Set(ids).size !== ids.length || ids.some(id => !stopsById.has(id))) {
+            throw fail('INVALID_ORDER', 'Не удалось изменить порядок адресов.');
+        }
+        if (ids.every((id, index) => id === previous.stops[index].id)) return previous;
+        return write(previous, ids.map(id => stopsById.get(id)));
+    }
     function rollback(selection) {
         const current = read();
         if (!selection?.state || !selection.previous || current.revision !== selection.state.revision) return false;
         write(current, reconcileStops(selection.previous.stops, getEntries()));
         return true;
     }
-    return { read, add, addCustom, select, clear, removeLast, rollback };
+    return { read, add, addCustom, select, clear, removeLast, reorder, rollback };
 }
 module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildOrganicMapsPointsUri, appendStop, reconcileStops, createTripStore };
