@@ -113,6 +113,8 @@ async function render({ dv, app, obsidian = {} }) {
     state.dispose?.();
     let disposed = false, root, dialog = null, timer, generation = 0, entries = [];
     let tripApi = null, tripStore = null, locationResolver = null, tripInitError = null, mapInitError = null, tripPreparing = false;
+    let tripOptimizing = false, optimizationGeneration = 0, roadOptimizer = null, optimizedOrder = null;
+    let optimizationSnapshot = null;
     const locations = [];
     const tripStorageKey = 'manana.trip.v1:' + (app.vault.getName?.() || 'obsidian') + ':' + source;
     const cleanups = [];
@@ -133,7 +135,7 @@ async function render({ dv, app, obsidian = {} }) {
     }
     function dispose() {
         if (disposed) return;
-        disposed = true; generation++; clearTimeout(timer);
+        disposed = true; generation++; optimizationGeneration++; clearTimeout(timer);
         for (const fn of cleanups.splice(0)) fn();
         dialog?.close(); root?.remove(); if (state.root === root) state.root = null;
     }
@@ -195,12 +197,19 @@ async function render({ dv, app, obsidian = {} }) {
         const tripHead = el(tripPanel, 'div', 'manana-trip-head');
         const tripToggle = el(tripHead, 'button', 'manana-trip-toggle'); tripToggle.type = 'button';
         const tripActions = el(tripHead, 'div', 'manana-trip-actions');
-        const tripOpen = iconButton(tripActions, 'map-pinned', '↗', 'Открыть маршрут в 2ГИС', 'manana-trip-2gis');
-        const tripYandex = iconButton(tripActions, 'navigation', '➤', 'Открыть маршрут в Яндекс Навигаторе', 'manana-trip-yandex');
-        const tripOrganicPoints = iconButton(tripActions, 'map', '▧', 'Organic Maps: показать все адреса метками', 'manana-trip-organic-points');
-        const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Удалить последний адрес из списка');
-        const tripReset = iconButton(tripActions, 'trash-2', '×', 'Удалить все адреса из списка');
+        const tripMaps = el(tripActions, 'div', 'manana-trip-maps');
+        const tripTools = el(tripActions, 'div', 'manana-trip-tools');
+        const tripOpen = iconButton(tripMaps, 'map-pinned', '↗', 'Открыть маршрут в 2ГИС', 'manana-trip-2gis');
+        const tripYandex = iconButton(tripMaps, 'navigation', '➤', 'Открыть маршрут в Яндекс Навигаторе', 'manana-trip-yandex');
+        const tripOrganicPoints = iconButton(tripMaps, 'map', '▧', 'Organic Maps: показать все адреса метками', 'manana-trip-organic-points');
+        const tripOptimize = iconButton(tripTools, 'route', '⇢', 'Кратчайший порядок по дорогам. Первый адрес остаётся стартом.', 'manana-trip-optimize');
+        const tripCopy = iconButton(tripTools, 'clipboard-list', '▤', 'Скопировать весь список адресов', 'manana-trip-copy');
+        const tripRemoveLast = iconButton(tripTools, 'list-minus', '−', 'Удалить последний адрес из списка', 'manana-trip-remove-last');
+        const tripUndo = iconButton(tripTools, 'rotate-ccw', '↶', 'Отменить последнее изменение списка', 'manana-trip-undo');
+        const tripReset = iconButton(tripTools, 'trash-2', '×', 'Удалить все адреса из списка', 'manana-trip-reset');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
+        const roadAttribution = el(tripPanel, 'a', 'manana-road-attribution', 'Маршруты: Valhalla · © OpenStreetMap');
+        roadAttribution.href = 'https://www.openstreetmap.org/copyright'; roadAttribution.target = '_blank'; roadAttribution.rel = 'noopener'; roadAttribution.hidden = true;
         let tripDrag = null;
         cleanups.push(() => cancelTripDrag());
         tripToggle.setAttribute('aria-controls', tripList.id);
@@ -224,10 +233,15 @@ async function render({ dv, app, obsidian = {} }) {
             try {
                 if (tripInitError) throw tripInitError;
                 const selected = tripStore.read();
-                tripPanel.hidden = selected.stops.length === 0;
+                if (tripOptimizing && optimizationSnapshot !== null
+                    && optimizationSnapshot !== JSON.stringify([selected.revision, selected.stops])) {
+                    optimizationGeneration++; tripOptimizing = false; optimizationSnapshot = null;
+                }
+                roadAttribution.hidden = optimizedOrder !== JSON.stringify(selected.stops.map(stop => stop.id));
+                tripPanel.hidden = selected.stops.length === 0 && !tripStore.canUndo();
                 tripToggle.textContent = 'Список: ' + addressCount(selected.stops.length);
                 tripToggle.setAttribute('aria-expanded', String(Boolean(state.tripExpanded)));
-                tripList.hidden = !state.tripExpanded;
+                tripList.hidden = !state.tripExpanded || !selected.stops.length;
                 tripList.replaceChildren();
                 for (const stop of selected.stops) {
                     const entry = entries.find(item => item.id === stop.id);
@@ -237,19 +251,28 @@ async function render({ dv, app, obsidian = {} }) {
                     const text = el(line, 'div', 'manana-trip-stop-text');
                     el(text, 'span', '', entry?.name || stop.address);
                     if (entry?.name) el(text, 'span', 'manana-trip-address', stop.address);
-                    const handle = iconButton(line, 'grip-vertical', '⠿', 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.', 'manana-trip-drag');
+                    const actions = el(line, 'div', 'manana-trip-stop-actions');
+                    const handle = iconButton(actions, 'grip-vertical', '⠿', 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.', 'manana-trip-drag');
                     handle.disabled = selected.stops.length < 2;
+                    const remove = iconButton(actions, 'x', '×', 'Убрать из поездки: ' + (entry?.name || stop.address), 'manana-trip-remove');
+                    remove.addEventListener('click', () => {
+                        try { tripStore.remove(stop.id, selected.revision); notifyTrip(); message('Адрес убран из поездки.'); }
+                        catch (error) { paintTrip(); message(error.message || String(error), true); }
+                    });
                 }
                 const overLimit = selected.stops.length > 5;
                 tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripYandex.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripOrganicPoints.disabled = tripPreparing || !selected.stops.length || overLimit;
-                tripUndo.disabled = !selected.stops.length;
-                tripReset.disabled = false;
+                tripOptimize.disabled = tripOptimizing || tripPreparing || selected.stops.length < 3 || overLimit;
+                tripOptimize.classList.toggle('is-busy', tripOptimizing);
+                tripOptimize.setAttribute('aria-busy', String(tripOptimizing));
+                tripCopy.disabled = tripRemoveLast.disabled = tripReset.disabled = !selected.stops.length;
+                tripUndo.disabled = !tripStore.canUndo();
                 if (overLimit) message('В списке больше 5 адресов. Удалите лишние адреса или очистите список.', true);
             } catch (error) {
                 tripPanel.hidden = false; tripToggle.textContent = 'Список недоступен';
-                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripOrganicPoints.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
+                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripOrganicPoints.disabled = tripOptimize.disabled = tripCopy.disabled = tripRemoveLast.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
                 message(error.message || String(error), true);
             }
         }
@@ -332,6 +355,51 @@ async function render({ dv, app, obsidian = {} }) {
             const selected = providers[provider];
             if (!selected || typeof selected.build !== 'function') throw Error('Не найден способ открытия карты.');
             return selected;
+        }
+        async function optimizeTrip() {
+            if (disposed || tripOptimizing || !tripStore) return;
+            const current = tripStore.read();
+            if (current.stops.length < 3 || current.stops.length > 5) return;
+            const run = ++optimizationGeneration;
+            optimizationSnapshot = JSON.stringify([current.revision, current.stops]);
+            tripOptimizing = true; paintTrip();
+            message('Считаем кратчайший порядок по дорогам. Первый адрес — старт…');
+            try {
+                if (mapInitError) throw mapInitError;
+                await locationResolver.ensure(current.stops.map(stop => stop.address));
+                if (disposed || run !== optimizationGeneration) return;
+                if (!roadOptimizer) {
+                    const helper = app.vault.getAbstractFileByPath('Кино/_system/manana_optimize.js');
+                    if (!helper) throw Error('Не найден расчёт порядка адресов.');
+                    const optimizeModule = { exports: {} };
+                    new Function('module', await app.vault.read(helper))(optimizeModule);
+                    roadOptimizer = optimizeModule.exports.createRoadOptimizer({ requestUrl: options => obsidian.requestUrl(options) });
+                }
+                if (disposed || run !== optimizationGeneration) return;
+                const result = await roadOptimizer.optimize({ stops: current.stops, locations });
+                if (disposed || run !== optimizationGeneration) return;
+                optimizationSnapshot = null;
+                tripStore.reorder(result.ids, current.revision);
+                optimizedOrder = JSON.stringify(result.ids);
+                state.tripExpanded = true; notifyTrip();
+                const km = meters => (meters / 1000).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
+                message('По дорогам: ' + km(result.distanceMeters) + ' км'
+                    + (result.savedMeters === null ? ' · найден проезжаемый порядок.' : result.savedMeters >= 50 ? ' · короче на ' + km(result.savedMeters) + ' км.' : result.changed ? ' · порядок обновлён.' : ' · порядок уже кратчайший.')
+                    + ' Первый адрес — старт.');
+            } catch (error) {
+                if (!disposed && run === optimizationGeneration) message('Не удалось подобрать порядок: ' + (error.message || error), true);
+            } finally {
+                if (!disposed && run === optimizationGeneration) { tripOptimizing = false; optimizationSnapshot = null; paintTrip(); }
+            }
+        }
+        async function copyTrip() {
+            try {
+                const current = tripStore.read();
+                if (!current.stops.length) return;
+                const result = await copyAddressText({ doc, address: tripApi.formatTripText(current.stops, entries), mobile });
+                if (!result.copied) throw result.copyError;
+                message('Список скопирован: ' + addressCount(current.stops.length) + '.');
+            } catch (error) { message('Не удалось скопировать список: ' + (error.message || error), true); }
         }
         async function prepareMapPoints(provider, addresses) {
             tripPreparing = true; paintTrip();
@@ -496,10 +564,17 @@ async function render({ dv, app, obsidian = {} }) {
         listen(tripOpen, 'click', () => openTrip('2gis'));
         listen(tripYandex, 'click', () => openTrip('yandex'));
         listen(tripOrganicPoints, 'click', () => openTrip('organic-points'));
-        listen(tripUndo, 'click', () => {
+        listen(tripOptimize, 'click', () => void optimizeTrip());
+        listen(tripCopy, 'click', () => void copyTrip());
+        listen(tripRemoveLast, 'click', () => {
             if (!tripStore) return;
             try { tripStore.removeLast(); notifyTrip(); message('Последний адрес удалён из списка.'); }
             catch (error) { message(error.message || String(error), true); }
+        });
+        listen(tripUndo, 'click', () => {
+            if (!tripStore) return;
+            try { tripStore.undo(tripStore.read().revision); state.tripExpanded = true; notifyTrip(); message('Последнее изменение отменено.'); }
+            catch (error) { paintTrip(); message(error.message || String(error), true); }
         });
         listen(tripReset, 'click', () => {
             if (!tripStore) return;

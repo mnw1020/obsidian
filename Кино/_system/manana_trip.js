@@ -44,6 +44,16 @@ function reconcileStops(stops, entries) {
     }
     return result;
 }
+function snapshots(values) {
+    if (!Array.isArray(values) || values.length > MAX_SAVED_STOPS) throw Error('Invalid stops');
+    const stops = values.map(stopSnapshot);
+    if (new Set(stops.map(stop => stop.id)).size !== stops.length) throw Error('Duplicate stops');
+    return stops;
+}
+function sameStops(left, right) {
+    return left.length === right.length && left.every((stop, index) => stop.id === right[index].id
+        && stop.address === right[index].address && Boolean(stop.custom) === Boolean(right[index].custom));
+}
 function readTrip(raw, entries) {
     if (raw == null) return { version: VERSION, stops: [], revision: 0 };
     let data;
@@ -54,12 +64,30 @@ function readTrip(raw, entries) {
         throw fail('INVALID_TRIP', 'Неизвестный формат поездки. Начните новую поездку.');
     }
     let stops;
-    try { stops = data.stops.map(stopSnapshot); }
+    try { stops = snapshots(data.stops); }
     catch (_) { throw fail('INVALID_TRIP', 'Повреждены адреса поездки. Начните новую поездку.'); }
-    if (new Set(stops.map(stop => stop.id)).size !== stops.length) {
-        throw fail('INVALID_TRIP', 'В поездке повторяются записи. Начните новую поездку.');
+    const state = { version: VERSION, stops: entries === undefined ? stops : reconcileStops(stops, entries), revision: data.revision };
+    if (Object.prototype.hasOwnProperty.call(data, 'undoStops')) {
+        try {
+            const previous = snapshots(data.undoStops);
+            state.undoStops = entries === undefined ? previous : reconcileStops(previous, entries);
+        } catch (_) {
+            // A damaged history must not make the current valid trip unusable.
+            state.undoInvalid = true;
+        }
     }
-    return { version: VERSION, stops: entries === undefined ? stops : reconcileStops(stops, entries), revision: data.revision };
+    return state;
+}
+function formatTripText(stops, entries = []) {
+    const ordered = snapshots(stops);
+    if (!ordered.length) throw fail('EMPTY_TRIP', 'Сначала выберите адрес поездки.');
+    const current = new Map(entries.map(entry => [entry.id, entry]));
+    const oneLine = value => String(value ?? '').replace(/\s+/g, ' ').trim();
+    return ordered.map((stop, index) => {
+        const entry = current.get(stop.id), address = oneLine(stop.address);
+        const name = entry && normalizeAddress(entry.address) === normalizeAddress(stop.address) ? oneLine(entry.name) : '';
+        return `${index + 1}. ` + (name && normalizeAddress(name) !== normalizeAddress(address) ? name + ' — ' : '') + address;
+    }).join('\n');
 }
 function appendStop(stops, entry, maxStops = MAX_STOPS) {
     validLimit(maxStops);
@@ -148,9 +176,12 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         catch (cause) { throw fail('TRIP_STORAGE_ERROR', 'Не удалось прочитать сохранённую поездку.', { cause }); }
     }
     function read() { return readTrip(getRaw(), getEntries()); }
-    function write(previous, stops) {
+    function write(previous, stops, { history = previous.stops, force = false } = {}) {
+        const next = stops.map(stopSnapshot);
+        if (!force && sameStops(previous.stops, next)) return previous;
         if (previous.revision >= Number.MAX_SAFE_INTEGER) throw fail('INVALID_TRIP', 'Слишком много изменений поездки.');
-        const state = { version: VERSION, stops: stops.map(stopSnapshot), revision: previous.revision + 1 };
+        const state = { version: VERSION, stops: next, revision: previous.revision + 1 };
+        if (history !== null) state.undoStops = history.map(stopSnapshot);
         try { storage.setItem(key, JSON.stringify(state)); }
         catch (cause) { throw fail('TRIP_STORAGE_ERROR', 'Не удалось сохранить поездку.', { cause }); }
         return state;
@@ -193,12 +224,35 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         catch (error) {
             if (error.code !== 'INVALID_TRIP') throw error;
             previous = { version: VERSION, stops: [], revision: 0 };
+            return write(previous, [], { history: null, force: true });
         }
         return write(previous, []);
     }
     function removeLast() {
         const previous = read();
         return write(previous, previous.stops.slice(0, -1));
+    }
+    function checkRevision(previous, expectedRevision) {
+        if (expectedRevision !== undefined && previous.revision !== expectedRevision) {
+            throw fail('TRIP_CHANGED', 'Список уже изменился. Повторите действие.');
+        }
+    }
+    function remove(id, expectedRevision) {
+        const previous = read();
+        checkRevision(previous, expectedRevision);
+        if (!previous.stops.some(stop => stop.id === id)) throw fail('STOP_NOT_FOUND', 'Адрес уже удалён из списка.');
+        return write(previous, previous.stops.filter(stop => stop.id !== id));
+    }
+    function canUndo() {
+        const previous = read();
+        return Array.isArray(previous.undoStops) && !sameStops(previous.stops, previous.undoStops);
+    }
+    function undo(expectedRevision) {
+        const previous = read();
+        checkRevision(previous, expectedRevision);
+        if (previous.undoInvalid) throw fail('INVALID_UNDO', 'Не удалось прочитать отмену последнего действия. Текущий список сохранён.');
+        if (!Array.isArray(previous.undoStops)) throw fail('NO_UNDO', 'Нет действия для отмены.');
+        return write(previous, previous.undoStops, { history: null, force: true });
     }
     function reorder(ids, expectedRevision) {
         const previous = read();
@@ -216,9 +270,12 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
     function rollback(selection) {
         const current = read();
         if (!selection?.state || !selection.previous || current.revision !== selection.state.revision) return false;
-        write(current, reconcileStops(selection.previous.stops, getEntries()));
+        write(current, reconcileStops(selection.previous.stops, getEntries()), {
+            history: selection.previous.undoStops ? reconcileStops(selection.previous.undoStops, getEntries()) : null,
+            force: true
+        });
         return true;
     }
-    return { read, add, addCustom, select, clear, removeLast, reorder, rollback };
+    return { read, add, addCustom, select, clear, removeLast, remove, canUndo, undo, reorder, rollback };
 }
-module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildOrganicMapsPointsUri, appendStop, reconcileStops, createTripStore };
+module.exports = { normalizeAddress, readTrip, formatTripText, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildOrganicMapsPointsUri, appendStop, reconcileStops, createTripStore };
