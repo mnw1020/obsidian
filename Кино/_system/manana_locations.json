@@ -217,6 +217,15 @@
       "objectId": "2111697980497303",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980497303",
       "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "250 лет Челябинска 32",
+      "formattedAddress": "250-летия Челябинска, 32",
+      "lon": 61.291087,
+      "lat": 55.176324,
+      "objectId": "2111697980494758",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980494758",
+      "checkedAt": "2026-10-28"
     }
   ]
 }

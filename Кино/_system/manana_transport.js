@@ -201,10 +201,10 @@ async function render({ dv, app, obsidian = {} }) {
         const tripReset = iconButton(tripActions, 'trash-2', '×', 'Удалить все адреса из списка');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
         tripToggle.setAttribute('aria-controls', tripList.id);
-        const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
         const status = el(root, 'div', 'manana-status'); status.setAttribute('role', 'status');
         const counter = el(status, 'span', 'manana-counter');
         const statusMessage = el(status, 'span', 'manana-status-message');
+        const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
         function message(text, error = false) { if (!disposed) { statusMessage.textContent = text; status.classList.toggle('is-error', error); } }
         function icon(node, name, fallback) {
             if (obsidian.setIcon) obsidian.setIcon(node, name); else node.textContent = fallback;
