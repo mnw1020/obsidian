@@ -1,0 +1,105 @@
+{
+  "city": "Челябинск",
+  "entries": [
+    {
+      "address": "40 лет победы 29б",
+      "formattedAddress": "Челябинск, 40-летия Победы, 29Б",
+      "lon": 61.303007,
+      "lat": 55.18539,
+      "objectId": "2111697980524720",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980524720",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Первого спутника 31",
+      "formattedAddress": "Челябинск, Первого Спутника, 31",
+      "lon": 61.379732,
+      "lat": 55.259455,
+      "objectId": "2111697980490809",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980490809",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Братьев Кашириных 160",
+      "formattedAddress": "Челябинск, улица Братьев Кашириных, 160",
+      "lon": 61.293919,
+      "lat": 55.162674,
+      "objectId": "2111697980598130",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980598130",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Профессора благих 59",
+      "formattedAddress": "Челябинск, Профессора Благих, 59",
+      "lon": 61.303941,
+      "lat": 55.214676,
+      "objectId": "2111697980531654",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980531654",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Олимпийская, 15",
+      "formattedAddress": "Челябинск, Олимпийская улица, 15",
+      "lon": 61.259024,
+      "lat": 55.125354,
+      "objectId": "70030076941232530",
+      "source": "https://2gis.ru/chelyabinsk/geo/70030076941232530",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Чуйкова 35",
+      "formattedAddress": "Челябинск, улица Маршала Чуйкова, 35",
+      "lon": 61.284114,
+      "lat": 55.219167,
+      "objectId": "70030076171062451",
+      "source": "https://2gis.ru/chelyabinsk/geo/70030076171062451",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Солнечная 18в",
+      "formattedAddress": "Челябинск, Солнечная улица, 18в",
+      "lon": 61.314324,
+      "lat": 55.201689,
+      "objectId": "2111697980528267",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980528267",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Генерала Мартынова 3",
+      "formattedAddress": "Челябинск, Генерала Мартынова улица, 3",
+      "lon": 61.29439,
+      "lat": 55.216473,
+      "objectId": "2111697980526564",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980526564",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Просторная 52",
+      "formattedAddress": "Челябинск, Просторная улица, 52",
+      "lon": 61.240686,
+      "lat": 55.100043,
+      "objectId": "2111697980602148",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980602148",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Чичерина 32а",
+      "formattedAddress": "Челябинск, улица Чичерина, 32а",
+      "lon": 61.29288,
+      "lat": 55.179027,
+      "objectId": "2111697980534728",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980534728",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Проспект Победы, 238",
+      "formattedAddress": "Челябинск, проспект Победы, 238",
+      "lon": 61.369964,
+      "lat": 55.184965,
+      "objectId": "2111697980529147",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980529147",
+      "checkedAt": "2026-10-28"
+    }
+  ],
+  "unresolved": []
+}
