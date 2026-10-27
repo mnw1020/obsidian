@@ -64,32 +64,60 @@ function appendStop(stops, entry, maxStops = MAX_STOPS) {
     result.push(stop);
     return result;
 }
-function locationPoint(value) {
+function locationPoint(value, includeObjectId = true) {
     if (!value || !Number.isFinite(value.lon) || value.lon < -180 || value.lon > 180
         || !Number.isFinite(value.lat) || value.lat < -90 || value.lat > 90) return null;
+    if (!includeObjectId) return { lon: value.lon, lat: value.lat };
     let objectId = value.objectId;
     if (objectId == null || objectId === '') objectId = '';
     else if (typeof objectId === 'number' && Number.isSafeInteger(objectId) && objectId >= 0) objectId = String(objectId);
     else if (typeof objectId !== 'string' || !/^\d+$/.test(objectId)) return null;
     return { lon: value.lon, lat: value.lat, objectId };
 }
-function buildTripUri(stops, locations) {
+function tripPoints(stops, locations, includeObjectId = true) {
     const ordered = (stops || []).map(stopSnapshot);
     if (!ordered.length) throw fail('EMPTY_TRIP', 'Сначала выберите адрес поездки.');
     if (ordered.length > MAX_STOPS) throw fail('TRIP_FULL', 'В одной поездке можно выбрать до 9 адресов.');
     const index = new Map((locations || []).map(value => [normalizeAddress(value.address), value]));
-    const points = ordered.map(stop => locationPoint(index.get(normalizeAddress(stop.address))));
+    const points = ordered.map(stop => locationPoint(index.get(normalizeAddress(stop.address)), includeObjectId));
+    return { ordered, points };
+}
+function requirePoints(ordered, points) {
+    const missing = [...new Set(ordered.filter((_, index) => !points[index]).map(stop => stop.address))];
+    if (missing.length) throw fail('MISSING_LOCATION', 'Для маршрута нужны точные точки выбранных адресов.', { addresses: missing });
+}
+function routeUri(ordered, points) {
+    requirePoints(ordered, points);
+    return BASE + '/directions/tab/car/points/|' + points.map(point =>
+        `${point.lon},${point.lat}` + (point.objectId ? ';' + point.objectId : '')).join('|');
+}
+function buildTwoGisRouteUri(stops, locations) {
+    const { ordered, points } = tripPoints(stops, locations);
+    return routeUri(ordered, points);
+}
+function buildYandexNavigatorUri(stops, locations) {
+    // Navigator uses coordinates only. An optional 2GIS object id is unrelated
+    // and must not prevent opening valid coordinates in another application.
+    const { ordered, points } = tripPoints(stops, locations, false);
+    requirePoints(ordered, points);
+    const destination = points[points.length - 1];
+    const query = [`lat_to=${destination.lat}`, `lon_to=${destination.lon}`];
+    for (let index = 0; index < points.length - 1; index++) {
+        query.push(`lat_via_${index}=${points[index].lat}`, `lon_via_${index}=${points[index].lon}`);
+    }
+    // Omitted from coordinates tell Navigator to start at current position.
+    return 'yandexnavi://build_route_on_map?' + query.join('&');
+}
+function buildTripUri(stops, locations) {
+    const { ordered, points } = tripPoints(stops, locations);
     if (ordered.length === 1) {
         const point = points[0];
         if (point) return `${BASE}/geo/${point.objectId || `${point.lon},${point.lat}`}`;
         return BASE + '/search/' + encodeURIComponent(ordered[0].address);
     }
-    const missing = [...new Set(ordered.filter((_, index) => !points[index]).map(stop => stop.address))];
-    if (missing.length) throw fail('MISSING_LOCATION', 'Для маршрута нужны точные точки выбранных адресов.', { addresses: missing });
-    return BASE + '/directions/tab/car/points/|' + points.map(point =>
-        `${point.lon},${point.lat}` + (point.objectId ? ';' + point.objectId : '')).join('|');
+    return routeUri(ordered, points);
 }
-function createTripStore({ storage, key, getEntries, locations, maxStops = MAX_STOPS }) {
+function createTripStore({ storage, key, getEntries, locations = [], maxStops = MAX_STOPS }) {
     validLimit(maxStops);
     if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function'
         || typeof key !== 'string' || !key || typeof getEntries !== 'function' || !Array.isArray(locations)) {
@@ -107,7 +135,7 @@ function createTripStore({ storage, key, getEntries, locations, maxStops = MAX_S
         catch (cause) { throw fail('TRIP_STORAGE_ERROR', 'Не удалось сохранить поездку.', { cause }); }
         return state;
     }
-    function select(entry) {
+    function prepareSelection(entry) {
         const snapshot = stopSnapshot(entry), entries = getEntries();
         const current = entries.find(value => value.id === snapshot.id);
         if (!current) throw fail('ENTRY_NOT_FOUND', 'Запись уже удалена. Обновите список адресов.');
@@ -116,9 +144,19 @@ function createTripStore({ storage, key, getEntries, locations, maxStops = MAX_S
         }
         const previous = readTrip(getRaw(), entries);
         const stops = appendStop(previous.stops, current, maxStops);
+        return { previous, stops, added: stops.length > previous.stops.length };
+    }
+    function add(entry) {
+        // Selection is local only: unresolved addresses can be accumulated
+        // without building a URI, looking up coordinates, or launching an app.
+        const { previous, stops, added } = prepareSelection(entry);
+        return { state: write(previous, stops), previous, added };
+    }
+    function select(entry) {
+        // Legacy combined preparation, retained for callers that need a URI.
+        const { previous, stops, added } = prepareSelection(entry);
         const uri = buildTripUri(stops, locations); // Validate before persistence.
-        const state = write(previous, stops);
-        return { state, previous, uri, added: stops.length > previous.stops.length };
+        return { state: write(previous, stops), previous, uri, added };
     }
     function clear() {
         let previous;
@@ -139,6 +177,6 @@ function createTripStore({ storage, key, getEntries, locations, maxStops = MAX_S
         write(current, reconcileStops(selection.previous.stops, getEntries()));
         return true;
     }
-    return { read, select, clear, removeLast, rollback };
+    return { read, add, select, clear, removeLast, rollback };
 }
-module.exports = { normalizeAddress, readTrip, buildTripUri, appendStop, reconcileStops, createTripStore };
+module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, appendStop, reconcileStops, createTripStore };
