@@ -71,6 +71,7 @@
 }
 .manana-ui .manana-status { display: flex; flex-wrap: wrap; align-items: center; gap: calc(5px * var(--manana-scale)) calc(14px * var(--manana-scale)); min-height: calc(32px * var(--manana-scale)); margin: 0 0 calc(9px * var(--manana-scale)); padding: calc(7px * var(--manana-scale)) calc(10px * var(--manana-scale)); border: calc(1px * var(--manana-scale)) solid var(--manana-line); border-radius: calc(6px * var(--manana-scale)); background: color-mix(in srgb,var(--kino-bg,#16181c) 88%,#000); box-shadow: inset 0 calc(2px * var(--manana-scale)) calc(4px * var(--manana-scale)) #0005,0 calc(1px * var(--manana-scale)) 0 #ffffff05; color: var(--kino-muted,#a8a69f); font-size: 11px; line-height: 1.45; }
 .manana-ui .manana-counter { flex-shrink: 0; }
+.manana-ui .manana-status { margin-block-end: calc(10px * var(--manana-scale)) !important; }
 .manana-ui .manana-status-message:empty { display: none; }
 .manana-ui .manana-status.is-error .manana-status-message, .manana-modal .manana-form-error { color: #e19188; }
 .manana-ui .manana-trip { width: 98%; margin: 0 auto calc(10px * var(--manana-scale)); padding: calc(6px * var(--manana-scale)); border: 1px solid var(--manana-line); border-radius: calc(7px * var(--manana-scale)); background: var(--kino-bg,#16181c); }
@@ -81,6 +82,7 @@
 .manana-ui .manana-trip-actions { display: flex; flex: 0 0 auto; gap: calc(4px * var(--manana-scale)); }
 .manana-ui .manana-trip-actions .manana-trip-2gis { color: #86b65b; }
 .manana-ui .manana-trip-actions .manana-trip-yandex { color: #e0c35c; }
+.manana-ui .manana-trip-actions :is(.manana-trip-mapsme-points,.manana-trip-mapsme-route) { color: #69b7c6; }
 .manana-ui .manana-trip-actions button:disabled { opacity: .35; cursor: wait; }
 .manana-ui ol.manana-trip-stops { margin: calc(7px * var(--manana-scale)) 0 0; padding-left: calc(21px * var(--manana-scale)); color: var(--kino-muted,#a8a69f); font-size: 11px; line-height: 1.5; }
 .manana-ui .manana-trip-stops li { padding: 3px 0; }
@@ -106,4 +108,9 @@
     .manana-ui .manana-address { grid-column: 1; grid-row: 2; padding: calc(2px * var(--manana-scale)) calc(1px * var(--manana-scale)); }
     .manana-ui .manana-row-actions { grid-column: 2; grid-row: 1 / 3; }
     .manana-ui .manana-head { padding: calc(14px * var(--manana-scale)); }
+}
+@container manana (max-width: 420px) {
+    .manana-ui .manana-trip-head { flex-wrap: wrap; }
+    .manana-ui button.manana-trip-toggle { flex-basis: 100%; }
+    .manana-ui .manana-trip-actions { margin-left: auto; }
 }

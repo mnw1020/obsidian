@@ -147,7 +147,7 @@ async function render({ dv, app, obsidian = {} }) {
         }
         const cssFile = app.vault.getAbstractFileByPath('Кино/_system/manana-transport.css');
         if (!cssFile) throw Error('Не найдено оформление списка адресов.');
-        const css = await app.vault.read(cssFile);
+        let css = await app.vault.read(cssFile), cssGeneration = 0;
         if (tripEnabled) {
             try {
                 const helper = app.vault.getAbstractFileByPath('Кино/_system/manana_trip.js');
@@ -174,7 +174,7 @@ async function render({ dv, app, obsidian = {} }) {
         }
         if (disposed) return;
         root = el(dv.container, 'section', 'manana-ui'); state.root = root;
-        el(root, 'style', '', css);
+        const uiStyle = el(root, 'style', '', css);
         const head = el(root, 'header', 'manana-head');
         el(head, 'p', 'manana-eyebrow', 'АДРЕСА · МАНАНА МАМА');
         el(head, 'h1', 'manana-title', 'Развоз');
@@ -197,6 +197,8 @@ async function render({ dv, app, obsidian = {} }) {
         const tripActions = el(tripHead, 'div', 'manana-trip-actions');
         const tripOpen = iconButton(tripActions, 'map-pinned', '↗', 'Открыть маршрут в 2ГИС', 'manana-trip-2gis');
         const tripYandex = iconButton(tripActions, 'navigation', '➤', 'Открыть маршрут в Яндекс Навигаторе', 'manana-trip-yandex');
+        const tripMapsMePoints = iconButton(tripActions, 'map', '▧', 'MAPS.ME: показать все адреса метками', 'manana-trip-mapsme-points');
+        const tripMapsMeRoute = iconButton(tripActions, 'route', '⇢', 'MAPS.ME: пробный маршрут между двумя адресами', 'manana-trip-mapsme-route');
         const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Удалить последний адрес из списка');
         const tripReset = iconButton(tripActions, 'trash-2', '×', 'Удалить все адреса из списка');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
@@ -234,12 +236,14 @@ async function render({ dv, app, obsidian = {} }) {
                 const overLimit = selected.stops.length > 5;
                 tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripYandex.disabled = tripPreparing || !selected.stops.length || overLimit;
+                tripMapsMePoints.disabled = tripPreparing || !selected.stops.length || overLimit;
+                tripMapsMeRoute.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripUndo.disabled = !selected.stops.length;
                 tripReset.disabled = false;
                 if (overLimit) message('В списке больше 5 адресов. Удалите лишние адреса или очистите список.', true);
             } catch (error) {
                 tripPanel.hidden = false; tripToggle.textContent = 'Список недоступен';
-                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
+                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripMapsMePoints.disabled = tripMapsMeRoute.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
                 message(error.message || String(error), true);
             }
         }
@@ -247,9 +251,20 @@ async function render({ dv, app, obsidian = {} }) {
             paintTrip();
             doc.defaultView.dispatchEvent(new doc.defaultView.CustomEvent('manana-trip-change', { detail: tripStorageKey }));
         }
+        function mapProvider(provider) {
+            const providers = {
+                '2gis': { name: '2ГИС', build: tripApi?.buildTwoGisRouteUri },
+                yandex: { name: 'Яндекс Навигатор', build: tripApi?.buildYandexNavigatorUri },
+                'mapsme-points': { name: 'MAPS.ME — метки', build: tripApi?.buildMapsMePointsUri },
+                'mapsme-route': { name: 'MAPS.ME — маршрут', build: tripApi?.buildMapsMeRouteUri }
+            };
+            const selected = providers[provider];
+            if (!selected || typeof selected.build !== 'function') throw Error('Не найден способ открытия карты.');
+            return selected;
+        }
         async function prepareMapPoints(provider, addresses) {
             tripPreparing = true; paintTrip();
-            const mapName = provider === 'yandex' ? 'Яндекс Навигатора' : '2ГИС';
+            const mapName = mapProvider(provider).name;
             message('Готовим точки маршрута для ' + mapName + '…');
             try {
                 await locationResolver.ensure(addresses);
@@ -265,9 +280,9 @@ async function render({ dv, app, obsidian = {} }) {
                 const current = tripStore.read();
                 if (current.stops.length > 5) throw Error('В списке может быть не больше 5 адресов.');
                 if (mapInitError) throw mapInitError;
-                const uri = provider === 'yandex' ? tripApi.buildYandexNavigatorUri(current.stops, locations) : tripApi.buildTwoGisRouteUri(current.stops, locations);
+                const selected = mapProvider(provider), uri = selected.build(current.stops, locations);
                 doc.defaultView.open(uri, '_blank');
-                message('Маршрут передан в ' + (provider === 'yandex' ? 'Яндекс Навигатор' : '2ГИС') + ': ' + addressCount(current.stops.length));
+                message((provider === 'mapsme-points' ? 'Адреса переданы в ' : 'Маршрут передан в ') + selected.name + ': ' + addressCount(current.stops.length));
             } catch (error) {
                 if (error.code === 'MISSING_LOCATION' && locationResolver) { void prepareMapPoints(provider, error.addresses); return; }
                 message('Не удалось открыть маршрут: ' + (error.message || error), true);
@@ -409,6 +424,8 @@ async function render({ dv, app, obsidian = {} }) {
         listen(tripToggle, 'click', () => { state.tripExpanded = !state.tripExpanded; paintTrip(); });
         listen(tripOpen, 'click', () => openTrip('2gis'));
         listen(tripYandex, 'click', () => openTrip('yandex'));
+        listen(tripMapsMePoints, 'click', () => openTrip('mapsme-points'));
+        listen(tripMapsMeRoute, 'click', () => openTrip('mapsme-route'));
         listen(tripUndo, 'click', () => {
             if (!tripStore) return;
             try { tripStore.removeLast(); notifyTrip(); message('Последний адрес удалён из списка.'); }
@@ -425,7 +442,16 @@ async function render({ dv, app, obsidian = {} }) {
         }
         await refresh(); if (disposed) return;
         if (app.vault.on) {
-            const ref = app.vault.on('modify', changed => { if (changed === file || changed.path === file.path) { clearTimeout(timer); timer = setTimeout(() => void refresh(), 80); } });
+            const ref = app.vault.on('modify', changed => {
+                if (changed === file || changed.path === file.path) { clearTimeout(timer); timer = setTimeout(() => void refresh(), 80); }
+                if (changed.path === cssFile.path) {
+                    const current = ++cssGeneration;
+                    void app.vault.read(cssFile).then(updated => {
+                        if (disposed || current !== cssGeneration) return;
+                        css = updated; uiStyle.textContent = updated;
+                    }).catch(error => console.warn('Не удалось обновить оформление развоза', error));
+                }
+            });
             cleanups.push(() => app.vault.offref(ref));
         }
         root.dataset.ready = 'true';
