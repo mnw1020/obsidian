@@ -115,29 +115,18 @@ function buildYandexNavigatorUri(stops, locations) {
     // Omitted from coordinates tell Navigator to start at current position.
     return 'yandexnavi://build_route_on_map?' + query.join('&');
 }
-function buildMapsMePointsUri(stops, locations) {
-    const { ordered, points } = tripPoints(stops, locations, false, MAX_STOPS, 'MAPS.ME');
+function buildOrganicMapsPointsUri(stops, locations) {
+    const { ordered, points } = tripPoints(stops, locations, false, MAX_STOPS, 'Organic Maps');
     requirePoints(ordered, points);
-    // MAPS.ME API requires ll before the label n for every individual pin.
+    // Each ll starts a new pin; its name and style must follow that point.
     const query = ['v=1'];
     for (let index = 0; index < points.length; index++) {
         query.push(`ll=${points[index].lat},${points[index].lon}`,
-            'n=' + encodeURIComponent((index + 1) + '. ' + ordered[index].address));
+            'n=' + encodeURIComponent((index + 1) + '. ' + ordered[index].address),
+            's=placemark-purple');
     }
     query.push('appname=' + encodeURIComponent('Развоз'));
-    return 'mapsme://map?' + query.join('&');
-}
-function buildMapsMeRouteUri(stops, locations) {
-    if (!Array.isArray(stops) || stops.length !== 2) {
-        throw fail('MAPSME_ROUTE_POINTS', 'Для пробного маршрута MAPS.ME выберите 2 адреса: старт и финиш. Все адреса можно открыть метками.');
-    }
-    const { ordered, points } = tripPoints(stops, locations, false, 2, 'MAPS.ME');
-    requirePoints(ordered, points);
-    // The published route scheme specifies two endpoints and this exact order.
-    return `mapsme://route?sll=${points[0].lat},${points[0].lon}`
-        + '&saddr=' + encodeURIComponent(ordered[0].address)
-        + `&dll=${points[1].lat},${points[1].lon}`
-        + '&daddr=' + encodeURIComponent(ordered[1].address) + '&type=vehicle';
+    return 'om://map?' + query.join('&');
 }
 function buildTripUri(stops, locations) {
     const { ordered, points } = tripPoints(stops, locations);
@@ -219,4 +208,4 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
     }
     return { read, add, addCustom, select, clear, removeLast, rollback };
 }
-module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildMapsMePointsUri, buildMapsMeRouteUri, appendStop, reconcileStops, createTripStore };
+module.exports = { normalizeAddress, readTrip, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildOrganicMapsPointsUri, appendStop, reconcileStops, createTripStore };
