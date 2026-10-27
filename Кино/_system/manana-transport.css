@@ -30,11 +30,11 @@
 .manana-ui .manana-search input::placeholder { color: var(--kino-muted,#a8a69f); opacity: .85; }
 .manana-ui .manana-search input::-webkit-search-cancel-button, .manana-ui .manana-search input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
 .manana-ui .manana-list { border: calc(1px * var(--manana-scale)) solid var(--manana-line); border-radius: calc(9px * var(--manana-scale)); overflow: hidden; }
-.manana-ui .manana-row { display: grid; grid-template-columns: minmax(calc(180px * var(--manana-scale)),calc(260px * var(--manana-scale))) minmax(0,1fr) auto; align-items: center; gap: calc(12px * var(--manana-scale)); min-width: 0; padding: calc(7px * var(--manana-scale)) calc(10px * var(--manana-scale)); border-bottom: calc(1px * var(--manana-scale)) solid var(--manana-line); background: var(--manana-row-bg,var(--kino-bg,#16181c)); }
+.manana-ui .manana-row { --manana-row-surface: var(--manana-row-bg,var(--kino-bg,#16181c)); display: grid; grid-template-columns: minmax(calc(180px * var(--manana-scale)),calc(260px * var(--manana-scale))) minmax(0,1fr) auto; align-items: center; gap: calc(12px * var(--manana-scale)); min-width: 0; padding: calc(7px * var(--manana-scale)) calc(10px * var(--manana-scale)); border-bottom: calc(1px * var(--manana-scale)) solid var(--manana-line); background: var(--manana-row-surface); }
 .manana-ui .manana-row:nth-child(odd) { --manana-row-bg: var(--kino-bg,#16181c); }
-.manana-ui .manana-row:nth-child(even) { --manana-row-bg: var(--kino-surface,#202329); }
+.manana-ui .manana-row:nth-child(even) { --manana-row-bg: color-mix(in srgb,var(--kino-bg,#16181c) 98%,white 2%); }
 .manana-ui .manana-row:last-child { border-bottom: 0; }
-.manana-ui .manana-row:hover { background: color-mix(in srgb,var(--manana-accent) 4%,var(--manana-row-bg,var(--kino-bg,#16181c))); }
+.manana-ui .manana-row:hover { --manana-row-surface: color-mix(in srgb,var(--manana-accent) 4%,var(--manana-row-bg,var(--kino-bg,#16181c))); }
 .manana-ui button, .manana-modal button { display: inline-flex; align-items: center; justify-content: center; min-width: 0; height: calc(30px * var(--manana-scale)); padding: calc(5px * var(--manana-scale)) calc(9px * var(--manana-scale)); border: calc(1px * var(--manana-scale)) solid var(--manana-line); border-radius: calc(6px * var(--manana-scale)); background: transparent; color: var(--kino-text,#f0ece3); font: 12px/1.35 var(--manana-font); box-shadow: none; cursor: pointer; }
 .manana-ui button:hover, .manana-modal button:hover { background: color-mix(in srgb,var(--manana-accent) 8%,var(--kino-bg,#16181c)); border-color: var(--manana-accent); color: var(--manana-accent); }
 .manana-ui button:focus-visible, .manana-modal :is(button,input):focus-visible { outline: calc(2px * var(--manana-scale)) solid var(--manana-accent); outline-offset: calc(2px * var(--manana-scale)); }
@@ -50,6 +50,22 @@
 .manana-ui button.manana-search-clear:hover { background: transparent; color: var(--manana-accent); }
 .manana-ui .manana-search-clear svg { width: calc(16px * var(--manana-scale)); height: calc(16px * var(--manana-scale)); }
 .manana-ui .manana-delete:hover, .manana-modal button.is-danger { color: #e19188; border-color: #9a5f59; background: #352526; }
+/* Row actions are embossed in the same material and color as their row. */
+.manana-ui .manana-row-actions .manana-icon-button {
+    background: var(--manana-row-surface);
+    border-color: var(--manana-row-surface);
+    color: var(--manana-row-surface);
+    box-shadow: calc(1.4px * var(--manana-scale)) calc(1.4px * var(--manana-scale)) calc(3px * var(--manana-scale)) #0006,calc(-.8px * var(--manana-scale)) calc(-.8px * var(--manana-scale)) calc(2px * var(--manana-scale)) #ffffff08;
+    text-shadow: -.6px -.6px .5px #ffffff24,.7px .7px .6px #000a;
+}
+.manana-ui .manana-row-actions .manana-icon-button svg { stroke: currentColor; filter: drop-shadow(-.6px -.6px .4px #ffffff24) drop-shadow(.7px .7px .6px #000a); }
+.manana-ui .manana-row-actions .manana-icon-button:is(:hover,:focus-visible) {
+    outline: none;
+    box-shadow: calc(1.6px * var(--manana-scale)) calc(1.6px * var(--manana-scale)) calc(3.4px * var(--manana-scale)) #0008,calc(-1px * var(--manana-scale)) calc(-1px * var(--manana-scale)) calc(2.4px * var(--manana-scale)) #ffffff10;
+}
+.manana-ui .manana-row-actions .manana-icon-button:active {
+    box-shadow: inset calc(1px * var(--manana-scale)) calc(1px * var(--manana-scale)) calc(2px * var(--manana-scale)) #0007,inset calc(-.8px * var(--manana-scale)) calc(-.8px * var(--manana-scale)) calc(1.6px * var(--manana-scale)) #ffffff08;
+}
 .manana-ui .manana-status { display: flex; flex-wrap: wrap; align-items: center; gap: calc(5px * var(--manana-scale)) calc(14px * var(--manana-scale)); min-height: calc(32px * var(--manana-scale)); margin: calc(9px * var(--manana-scale)) 0 0; padding: calc(7px * var(--manana-scale)) calc(10px * var(--manana-scale)); border: calc(1px * var(--manana-scale)) solid var(--manana-line); border-radius: calc(6px * var(--manana-scale)); background: color-mix(in srgb,var(--kino-bg,#16181c) 88%,#000); box-shadow: inset 0 calc(2px * var(--manana-scale)) calc(4px * var(--manana-scale)) #0005,0 calc(1px * var(--manana-scale)) 0 #ffffff05; color: var(--kino-muted,#a8a69f); font-size: 11px; line-height: 1.45; }
 .manana-ui .manana-counter { flex-shrink: 0; }
 .manana-ui .manana-status-message:empty { display: none; }
