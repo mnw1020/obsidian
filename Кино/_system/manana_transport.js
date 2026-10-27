@@ -53,12 +53,6 @@ function isMobileClient(obsidian, doc) {
     return /Android|iPhone|iPad|iPod/i.test(navigator?.userAgent || '')
         || (/Mac/i.test(navigator?.platform || '') && navigator?.maxTouchPoints > 1);
 }
-function twoGisSearchUri(address) {
-    const value = String(address ?? '').trim();
-    if (!value) throw Error('Адрес не указан.');
-    // Official mobile search URL: https://help.2gis.ru/question/razrabotchikam-zapusk-ideystviya-vmobilnom-prilozhenii-cherez-deeplink
-    return 'dgis://2gis.ru/search/' + encodeURIComponent(value);
-}
 function copyTextNow(doc, text) {
     const focused = doc.activeElement, area = doc.createElement('textarea');
     area.value = text; area.readOnly = true; area.tabIndex = -1;
@@ -69,7 +63,7 @@ function copyTextNow(doc, text) {
         if (!doc.execCommand?.('copy')) throw Error('Буфер обмена недоступен.');
     } finally { area.remove(); focused?.focus({ preventScroll: true }); }
 }
-async function activateAddress({ doc, address, mobile = false, mapUri }) {
+async function copyAddressText({ doc, address, mobile = false }) {
     const value = String(address ?? '');
     if (!value.trim()) throw Error('Адрес не указан.');
     const win = doc.defaultView;
@@ -77,43 +71,30 @@ async function activateAddress({ doc, address, mobile = false, mapUri }) {
         if (!win?.navigator?.clipboard?.writeText) throw Error('Буфер обмена недоступен.');
         return win.navigator.clipboard.writeText(value);
     };
-    let copyError = null, mapError = null, mapRequested = false;
+    let copyError = null;
     if (mobile) {
-        // Keep the external-app launch inside the original tap. Waiting for
-        // Clipboard API first can lose mobile browser user activation.
-        let copying;
-        try { copyTextNow(doc, value); copying = Promise.resolve(); }
+        try { copyTextNow(doc, value); }
         catch (_) {
-            try { copying = Promise.resolve(copyAsync()); }
-            catch (error) { copying = Promise.reject(error); }
+            try { await copyAsync(); } catch (error) { copyError = error; }
         }
-        try {
-            if (typeof win?.open !== 'function') throw Error('Запуск приложения недоступен.');
-            const target = mapUri ?? twoGisSearchUri(value);
-            if (!target.startsWith('dgis://2gis.ru/')) throw Error('Некорректная ссылка 2ГИС.');
-            win.open(target, '_blank');
-            // Native app handlers may return null even on a successful launch.
-            mapRequested = true;
-        } catch (error) { mapError = error; }
-        try { await copying; } catch (error) { copyError = error; }
     } else {
         try { await copyAsync(); }
         catch (_) { try { copyTextNow(doc, value); } catch (error) { copyError = error; } }
     }
-    return { copied: !copyError, copyError, mapRequested, mapError };
+    return { copied: !copyError, copyError };
 }
 
 async function render({ dv, app, obsidian = {} }) {
     const doc = dv.container.ownerDocument, component = dv.component;
     const mobile = isMobileClient(obsidian, doc);
-    const tripEnabled = mobile && (obsidian.Platform?.isAndroidApp === true || /Android/i.test(doc.defaultView?.navigator?.userAgent || ''));
+    const tripEnabled = true;
     const source = dv.current?.()?.file?.path || 'Развоз Манана мама 3.md';
     const file = app.vault.getAbstractFileByPath(source);
     if (!file) throw Error('Не найдена заметка с адресами.');
     const stateKey = '__mananaTransport';
     let state = component?.[stateKey];
     if (!state) {
-        state = { query: '', root: null };
+        state = { query: '', root: null, tripExpanded: true };
         if (component) {
             component[stateKey] = state;
             const original = component.render;
@@ -131,7 +112,7 @@ async function render({ dv, app, obsidian = {} }) {
     }
     state.dispose?.();
     let disposed = false, root, dialog = null, timer, generation = 0, entries = [];
-    let tripApi = null, tripStore = null, locationResolver = null, tripInitError = null, tripPreparing = false;
+    let tripApi = null, tripStore = null, locationResolver = null, tripInitError = null, mapInitError = null, tripPreparing = false;
     const locations = [];
     const tripStorageKey = 'manana.trip.v1:' + (app.vault.getName?.() || 'obsidian') + ':' + source;
     const cleanups = [];
@@ -169,22 +150,27 @@ async function render({ dv, app, obsidian = {} }) {
         const css = await app.vault.read(cssFile);
         if (tripEnabled) {
             try {
-                const paths = ['manana_trip.js', 'manana_geocode.js', 'manana_locations.json'];
+                const helper = app.vault.getAbstractFileByPath('Кино/_system/manana_trip.js');
+                if (!helper) throw Error('Не найден список адресов.');
+                const tripModule = { exports: {} };
+                new Function('module', await app.vault.read(helper))(tripModule);
+                tripApi = tripModule.exports;
+                tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations, maxStops: 5 });
+            } catch (error) { tripInitError = error; }
+            try {
+                const paths = ['manana_geocode.js', 'manana_locations.json'];
                 const contents = await Promise.all(paths.map(async name => {
                     const helper = app.vault.getAbstractFileByPath('Кино/_system/' + name);
                     if (!helper) throw Error('Не найден файл поездки: ' + name);
                     return app.vault.read(helper);
                 }));
-                const tripModule = { exports: {} }, geoModule = { exports: {} };
-                new Function('module', contents[0])(tripModule);
-                new Function('module', contents[1])(geoModule);
-                const cache = JSON.parse(contents[2]);
+                const geoModule = { exports: {} };
+                new Function('module', contents[0])(geoModule);
+                const cache = JSON.parse(contents[1]);
                 if (cache.version !== 1 || !Array.isArray(cache.entries)) throw Error('Неизвестный формат точек поездки.');
                 locations.push(...cache.entries);
-                tripApi = tripModule.exports;
-                tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations });
                 locationResolver = geoModule.exports.createLocationResolver({ app, obsidian, records: locations });
-            } catch (error) { tripInitError = error; }
+            } catch (error) { mapInitError = error; }
         }
         if (disposed) return;
         root = el(dv.container, 'section', 'manana-ui'); state.root = root;
@@ -207,9 +193,10 @@ async function render({ dv, app, obsidian = {} }) {
         const tripHead = el(tripPanel, 'div', 'manana-trip-head');
         const tripToggle = el(tripHead, 'button', 'manana-trip-toggle'); tripToggle.type = 'button';
         const tripActions = el(tripHead, 'div', 'manana-trip-actions');
-        const tripOpen = iconButton(tripActions, 'route', '↗', 'Открыть поездку в 2ГИС');
-        const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Убрать последний адрес из поездки');
-        const tripReset = iconButton(tripActions, 'rotate-ccw', '⟲', 'Начать новую поездку');
+        const tripOpen = iconButton(tripActions, 'map-pinned', '↗', 'Открыть маршрут в 2ГИС', 'manana-trip-2gis');
+        const tripYandex = iconButton(tripActions, 'navigation', '➤', 'Открыть маршрут в Яндекс Навигаторе', 'manana-trip-yandex');
+        const tripUndo = iconButton(tripActions, 'undo-2', '↶', 'Удалить последний адрес из списка');
+        const tripReset = iconButton(tripActions, 'trash-2', '×', 'Удалить все адреса из списка');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
         tripToggle.setAttribute('aria-controls', tripList.id);
         const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
@@ -232,7 +219,7 @@ async function render({ dv, app, obsidian = {} }) {
                 if (tripInitError) throw tripInitError;
                 const selected = tripStore.read();
                 tripPanel.hidden = selected.stops.length === 0;
-                tripToggle.textContent = 'Поездка: ' + addressCount(selected.stops.length);
+                tripToggle.textContent = 'Список: ' + addressCount(selected.stops.length);
                 tripToggle.setAttribute('aria-expanded', String(Boolean(state.tripExpanded)));
                 tripList.hidden = !state.tripExpanded;
                 tripList.replaceChildren();
@@ -242,12 +229,15 @@ async function render({ dv, app, obsidian = {} }) {
                     el(item, 'span', '', entry?.name || stop.address);
                     el(item, 'span', 'manana-trip-address', stop.address);
                 }
-                tripOpen.disabled = tripPreparing || !selected.stops.length;
-                tripUndo.disabled = tripPreparing || !selected.stops.length;
-                tripReset.disabled = tripPreparing;
+                const overLimit = selected.stops.length > 5;
+                tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
+                tripYandex.disabled = tripPreparing || !selected.stops.length || overLimit;
+                tripUndo.disabled = !selected.stops.length;
+                tripReset.disabled = false;
+                if (overLimit) message('В списке больше 5 адресов. Удалите лишние адреса или очистите список.', true);
             } catch (error) {
-                tripPanel.hidden = false; tripToggle.textContent = 'Поездка недоступна';
-                tripList.hidden = true; tripOpen.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore || tripPreparing;
+                tripPanel.hidden = false; tripToggle.textContent = 'Список недоступен';
+                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
                 message(error.message || String(error), true);
             }
         }
@@ -255,46 +245,31 @@ async function render({ dv, app, obsidian = {} }) {
             paintTrip();
             doc.defaultView.dispatchEvent(new doc.defaultView.CustomEvent('manana-trip-change', { detail: tripStorageKey }));
         }
-        function showAddressResult(result, entry, selection) {
-            if (selection && result.mapError) {
-                try { tripStore.rollback(selection); notifyTrip(); } catch (_) { /* Keep the original launch error visible. */ }
-            }
-            if (disposed) return;
-            if (!result.copied) {
-                const copyFailure = 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError));
-                const mapResult = result.mapRequested ? ' · адрес передан в 2ГИС' : result.mapError ? ' · не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)) : '';
-                message(copyFailure + mapResult, true);
-            } else if (result.mapError) {
-                message('Адрес скопирован. Не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)), true);
-            } else if (selection && result.mapRequested) {
-                message('Адрес скопирован · поездка: ' + addressCount(selection.state.stops.length));
-            } else {
-                message((result.mapRequested ? 'Адрес скопирован · отправлен в 2ГИС: ' : 'Адрес скопирован: ') + entry.name);
-            }
-        }
-        async function prepareMissingTrip(entry, addresses) {
+        async function prepareMapPoints(provider, addresses) {
             tripPreparing = true; paintTrip();
-            const copying = activateAddress({ doc, address: entry.address, mobile: false });
-            message('Находим точку адреса в Челябинске…');
+            const mapName = provider === 'yandex' ? 'Яндекс Навигатора' : '2ГИС';
+            message('Готовим точки маршрута для ' + mapName + '…');
             try {
                 await locationResolver.ensure(addresses);
                 if (disposed) return;
-                tripStore.select(entry);
-                tripPreparing = false; notifyTrip();
-                const result = await copying;
-                if (disposed) return;
-                message('Адрес добавлен в поездку. Нажмите кнопку маршрута, чтобы открыть 2ГИС.' + (result.copied ? '' : ' Не удалось скопировать адрес.'), !result.copied);
+                if (tripStore.read().stops.length) message('Точки готовы. Нажмите значок ' + mapName + ', чтобы открыть маршрут.');
             } catch (error) {
-                message('Не удалось добавить адрес в поездку: ' + (error.message || error), true);
+                message('Не удалось подготовить маршрут: ' + (error.message || error), true);
             } finally { tripPreparing = false; if (!disposed) paintTrip(); }
         }
-        function openTrip() {
+        function openTrip(provider) {
             if (disposed || tripPreparing || !tripStore) return;
             try {
-                const current = tripStore.read(), uri = tripApi.buildTripUri(current.stops, locations);
+                const current = tripStore.read();
+                if (current.stops.length > 5) throw Error('В списке может быть не больше 5 адресов.');
+                if (mapInitError) throw mapInitError;
+                const uri = provider === 'yandex' ? tripApi.buildYandexNavigatorUri(current.stops, locations) : tripApi.buildTwoGisRouteUri(current.stops, locations);
                 doc.defaultView.open(uri, '_blank');
-                message('Поездка передана в 2ГИС: ' + addressCount(current.stops.length));
-            } catch (error) { message('Не удалось открыть поездку: ' + (error.message || error), true); }
+                message('Маршрут передан в ' + (provider === 'yandex' ? 'Яндекс Навигатор' : '2ГИС') + ': ' + addressCount(current.stops.length));
+            } catch (error) {
+                if (error.code === 'MISSING_LOCATION' && locationResolver) { void prepareMapPoints(provider, error.addresses); return; }
+                message('Не удалось открыть маршрут: ' + (error.message || error), true);
+            }
         }
         function paint() {
             const visible = filterRows(entries, state.query);
@@ -304,7 +279,7 @@ async function render({ dv, app, obsidian = {} }) {
             for (const entry of visible) {
                 const row = el(rows, 'div', 'manana-row'); row.setAttribute('role', 'listitem');
                 const name = el(row, 'button', 'manana-name', entry.name); name.type = 'button';
-                accessibleName(name, entry.address ? (tripEnabled ? 'Скопировать адрес и добавить в поездку: ' : mobile ? 'Скопировать адрес и открыть в 2ГИС: ' : 'Скопировать адрес: ') + entry.name : 'Добавить адрес: ' + entry.name);
+                accessibleName(name, entry.address ? 'Скопировать адрес и добавить в список: ' + entry.name : 'Добавить адрес: ' + entry.name);
                 name.addEventListener('click', () => entry.address ? void copyAddress(entry) : openDialog('edit', entry, name));
                 el(row, 'span', 'manana-address' + (entry.address ? '' : ' is-missing'), entry.address || 'Адрес не указан');
                 const actions = el(row, 'div', 'manana-row-actions');
@@ -325,27 +300,25 @@ async function render({ dv, app, obsidian = {} }) {
         }
         async function copyAddress(entry) {
             if (disposed) return;
-            if (tripPreparing) { message('Сначала закончим поиск предыдущего адреса.'); return; }
+            const copying = copyAddressText({ doc, address: entry.address, mobile });
+            let selection = null, selectionError = null;
             try {
                 if (tripInitError) throw tripInitError;
-                let selection = null;
-                if (tripStore) selection = tripStore.select(entry);
-                // activateAddress performs copying and opening synchronously up
-                // to its first await; do not put async work before this call.
-                const work = activateAddress({ doc, address: entry.address, mobile, mapUri: selection?.uri });
+                if (tripStore) selection = tripStore.add(entry);
                 if (selection) {
+                    state.tripExpanded = true;
                     notifyTrip();
-                    if (!locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(entry.address))) {
+                    if (locationResolver && !locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(entry.address))) {
                         void locationResolver.ensure([entry.address]).catch(() => {});
                     }
                 }
-                const result = await work;
-                showAddressResult(result, entry, selection);
-            } catch (error) {
-                if (error.code === 'MISSING_LOCATION' && locationResolver) return prepareMissingTrip(entry, error.addresses);
-                const copied = await activateAddress({ doc, address: entry.address, mobile: false });
-                message((copied.copied ? 'Адрес скопирован. ' : '') + (error.message || String(error)), true);
-            }
+            } catch (error) { selectionError = error; }
+            const result = await copying;
+            if (disposed) return;
+            const parts = [result.copied ? 'Адрес скопирован' : 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError))];
+            if (selectionError) parts.push('Не удалось добавить в список: ' + (selectionError.message || String(selectionError)));
+            else if (selection) parts.push('в списке ' + addressCount(selection.state.stops.length));
+            message(parts.join(' · '), !result.copied || Boolean(selectionError));
         }
         function openDialog(mode, entry, trigger) {
             if (disposed) return;
@@ -414,15 +387,16 @@ async function render({ dv, app, obsidian = {} }) {
         });
         listen(add, 'click', () => openDialog('add', null, add));
         listen(tripToggle, 'click', () => { state.tripExpanded = !state.tripExpanded; paintTrip(); });
-        listen(tripOpen, 'click', openTrip);
+        listen(tripOpen, 'click', () => openTrip('2gis'));
+        listen(tripYandex, 'click', () => openTrip('yandex'));
         listen(tripUndo, 'click', () => {
-            if (!tripStore || tripPreparing) return;
-            try { tripStore.removeLast(); notifyTrip(); message('Последний адрес убран из поездки.'); }
+            if (!tripStore) return;
+            try { tripStore.removeLast(); notifyTrip(); message('Последний адрес удалён из списка.'); }
             catch (error) { message(error.message || String(error), true); }
         });
         listen(tripReset, 'click', () => {
-            if (!tripStore || tripPreparing) return;
-            try { tripStore.clear(); state.tripExpanded = false; notifyTrip(); message('Можно выбирать адреса новой поездки.'); }
+            if (!tripStore) return;
+            try { tripStore.clear(); state.tripExpanded = true; notifyTrip(); message('Список адресов очищен.'); }
             catch (error) { message(error.message || String(error), true); }
         });
         if (tripEnabled) {
@@ -444,5 +418,4 @@ module.exports.writeData = writeData;
 module.exports.changeData = changeData;
 module.exports.filterRows = filterRows;
 module.exports.isMobileClient = isMobileClient;
-module.exports.twoGisSearchUri = twoGisSearchUri;
-module.exports.activateAddress = activateAddress;
+module.exports.copyAddressText = copyAddressText;

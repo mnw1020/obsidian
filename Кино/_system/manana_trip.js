@@ -2,7 +2,10 @@
    Load with new Function('module', source), like the other vault UI modules.
    Corrupt saved trips throw INVALID_TRIP; an explicit clear() can recover them. */
 const VERSION = 1;
-const MAX_STOPS = 9; // Current location + eight intermediate stops + destination.
+const MAX_STOPS = 5; // Default local selection cap, independent of map providers.
+const MAX_SAVED_STOPS = 99; // Read older larger selections without discarding them.
+const TWO_GIS_MAX_STOPS = 9; // Current location + eight intermediate stops + destination.
+const YANDEX_MAX_STOPS = 19; // Current location + eighteen via points + destination.
 const BASE = 'dgis://2gis.ru/chelyabinsk';
 
 function fail(code, message, fields = {}) {
@@ -20,8 +23,8 @@ function stopSnapshot(value) {
     return { id: value.id, address: value.address.trim() };
 }
 function validLimit(value) {
-    if (!Number.isSafeInteger(value) || value < 1 || value > MAX_STOPS) {
-        throw fail('INVALID_LIMIT', 'В одной поездке можно выбрать от 1 до 9 адресов.');
+    if (!Number.isSafeInteger(value) || value < 1 || value > MAX_SAVED_STOPS) {
+        throw fail('INVALID_LIMIT', 'В одной поездке можно выбрать от 1 до 99 адресов.');
     }
     return value;
 }
@@ -43,7 +46,7 @@ function readTrip(raw, entries) {
     try { data = JSON.parse(raw); }
     catch (_) { throw fail('INVALID_TRIP', 'Не удалось прочитать поездку. Начните новую поездку.'); }
     if (!data || data.version !== VERSION || !Array.isArray(data.stops)
-        || data.stops.length > MAX_STOPS || !Number.isSafeInteger(data.revision) || data.revision < 0) {
+        || data.stops.length > MAX_SAVED_STOPS || !Number.isSafeInteger(data.revision) || data.revision < 0) {
         throw fail('INVALID_TRIP', 'Неизвестный формат поездки. Начните новую поездку.');
     }
     let stops;
@@ -74,10 +77,10 @@ function locationPoint(value, includeObjectId = true) {
     else if (typeof objectId !== 'string' || !/^\d+$/.test(objectId)) return null;
     return { lon: value.lon, lat: value.lat, objectId };
 }
-function tripPoints(stops, locations, includeObjectId = true) {
+function tripPoints(stops, locations, includeObjectId = true, maxStops = TWO_GIS_MAX_STOPS, provider = '2ГИС') {
     const ordered = (stops || []).map(stopSnapshot);
     if (!ordered.length) throw fail('EMPTY_TRIP', 'Сначала выберите адрес поездки.');
-    if (ordered.length > MAX_STOPS) throw fail('TRIP_FULL', 'В одной поездке можно выбрать до 9 адресов.');
+    if (ordered.length > maxStops) throw fail('TRIP_FULL', `В ${provider} можно передать до ${maxStops} адресов. Уберите лишние адреса из поездки.`);
     const index = new Map((locations || []).map(value => [normalizeAddress(value.address), value]));
     const points = ordered.map(stop => locationPoint(index.get(normalizeAddress(stop.address)), includeObjectId));
     return { ordered, points };
@@ -98,7 +101,7 @@ function buildTwoGisRouteUri(stops, locations) {
 function buildYandexNavigatorUri(stops, locations) {
     // Navigator uses coordinates only. An optional 2GIS object id is unrelated
     // and must not prevent opening valid coordinates in another application.
-    const { ordered, points } = tripPoints(stops, locations, false);
+    const { ordered, points } = tripPoints(stops, locations, false, YANDEX_MAX_STOPS, 'Яндекс Навигатор');
     requirePoints(ordered, points);
     const destination = points[points.length - 1];
     const query = [`lat_to=${destination.lat}`, `lon_to=${destination.lon}`];
