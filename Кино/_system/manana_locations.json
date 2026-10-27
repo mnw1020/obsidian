@@ -199,6 +199,24 @@
       "objectId": "2111697980529147",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980529147",
       "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Куйбышева 13",
+      "formattedAddress": "Куйбышева улица, 13",
+      "lon": 61.35929,
+      "lat": 55.197252,
+      "objectId": "2111697980492783",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980492783",
+      "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Проспект победы 308",
+      "formattedAddress": "проспект Победы, 308",
+      "lon": 61.343908,
+      "lat": 55.189533,
+      "objectId": "2111697980497303",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980497303",
+      "checkedAt": "2026-10-28"
     }
   ]
 }
