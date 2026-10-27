@@ -50,10 +50,15 @@ function parseSearchHtml(html, address) {
     let state;
     try { state = JSON.parse(quotedString(html, marker.index + marker[0].length)); }
     catch (_) { throw Error('Не удалось прочитать адресные данные 2ГИС.'); }
-    const query = addressParts(address), found = new Map();
+    const query = addressParts(address), buildings = new Map(), branches = new Map();
     for (const wrapper of Object.values(state?.data?.entity?.profile || {})) {
         const item = wrapper?.data;
-        if (item?.type !== 'building' || item.city_alias !== CITY || !/^\d+$/.test(String(item.id))) continue;
+        if (!['building', 'branch'].includes(item?.type) || item.city_alias !== CITY || !/^\d+$/.test(String(item.id))) continue;
+        // Some buildings (e.g. shopping centres) are represented by a business
+        // card even at their /geo/ URL. Accept only an exact address with an
+        // explicit building reference; group businesses in the same building.
+        const buildingId = item.type === 'building' ? String(item.id) : String(item.address?.building_id || '');
+        if (!/^\d+$/.test(buildingId)) continue;
         const matches = (item.address?.components || []).some(part => normalize(part.number || '').trim() === query.number
             && query.tokens.every(token => streetTokens(part.street || '').includes(token)));
         if (!matches) continue;
@@ -62,11 +67,14 @@ function parseSearchHtml(html, address) {
         const lon = Number(point[1]), lat = Number(point[2]);
         if (!Number.isFinite(lon) || !Number.isFinite(lat) || Math.abs(lon) > 180 || Math.abs(lat) > 90) continue;
         const objectId = String(item.id);
-        found.set(objectId, { address, formattedAddress: item.address_name || item.full_name || address, lon, lat, objectId,
-            source: 'https://2gis.ru/' + CITY + '/geo/' + objectId,
+        const found = item.type === 'building' ? buildings : branches;
+        if (!found.has(buildingId)) found.set(buildingId, { address, formattedAddress: item.address_name || item.full_name || address, lon, lat, objectId,
+            source: 'https://2gis.ru/' + CITY + (item.type === 'building' ? '/geo/' : '/firm/') + objectId,
             checkedAt: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Yekaterinburg' }) });
     }
-    if (found.size > 1) throw Error('Найдено несколько зданий. Уточните адрес: ' + address);
+    const found = buildings.size ? buildings : branches;
+    const buildingIds = new Set([...buildings.keys(), ...branches.keys()]);
+    if (buildingIds.size > 1) throw Error('Найдено несколько зданий. Уточните адрес: ' + address);
     if (!found.size) throw Error('Точный адрес в Челябинске не найден: ' + address);
     return found.values().next().value;
 }

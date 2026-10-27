@@ -226,6 +226,15 @@
       "objectId": "2111697980494758",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980494758",
       "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Труда 176",
+      "formattedAddress": "улица Труда, 176",
+      "lon": 61.361469,
+      "lat": 55.171509,
+      "objectId": "70000001067450278",
+      "source": "https://2gis.ru/chelyabinsk/firm/70000001067450278",
+      "checkedAt": "2026-10-28"
     }
   ]
 }
