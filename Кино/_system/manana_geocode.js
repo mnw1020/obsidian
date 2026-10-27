@@ -36,7 +36,8 @@ function streetTokens(street) {
         .replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(/\s+/).filter(token => token && !['улица', 'ул'].includes(token));
 }
 function addressParts(address) {
-    const text = normalize(address).trim(), match = /(?:^|[\s,])(\d+[а-яa-z]?(?:[/-]\d+[а-яa-z]?)?)\s*$/.exec(text);
+    const text = normalize(address).trim().replace(/^(?:(?:г(?:ород)?\.?)\s*)?челябинск(?:\s*,\s*|\s+)/, '');
+    const match = /(?:^|[\s,])(\d+[а-яa-z]?(?:[/-]\d+[а-яa-z]?)?)\s*$/.exec(text);
     if (!match) throw Error('Укажите улицу и точный номер дома: ' + address);
     const tokens = streetTokens(text.slice(0, match.index));
     if (!tokens.length) throw Error('Не указана улица: ' + address);

@@ -256,10 +256,10 @@ async function render({ dv, app, obsidian = {} }) {
             doc.defaultView.dispatchEvent(new doc.defaultView.CustomEvent('manana-trip-change', { detail: tripStorageKey }));
         }
         function showAddressResult(result, entry, selection) {
-            if (disposed) return;
             if (selection && result.mapError) {
                 try { tripStore.rollback(selection); notifyTrip(); } catch (_) { /* Keep the original launch error visible. */ }
             }
+            if (disposed) return;
             if (!result.copied) {
                 const copyFailure = 'Не удалось скопировать адрес: ' + (result.copyError.message || String(result.copyError));
                 const mapResult = result.mapRequested ? ' · адрес передан в 2ГИС' : result.mapError ? ' · не удалось открыть 2ГИС: ' + (result.mapError.message || String(result.mapError)) : '';
