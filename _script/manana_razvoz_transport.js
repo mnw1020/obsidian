@@ -142,17 +142,12 @@ async function render({ dv, app, obsidian = {} }) {
     state.dispose = dispose;
     if (!component?.[stateKey]) component?.register?.(dispose);
     try {
-        const stylesFile = app.vault.getAbstractFileByPath('Кино/_system/vault_styles.js');
-        if (stylesFile) {
-            const styles = { exports: {} }; new Function('module', await app.vault.read(stylesFile))(styles);
-            await styles.exports({ app, document: doc });
-        }
-        const cssFile = app.vault.getAbstractFileByPath('Кино/_system/manana-transport.css');
+        const cssFile = app.vault.getAbstractFileByPath('_script/manana_razvoz_styles.css');
         if (!cssFile) throw Error('Не найдено оформление списка адресов.');
         let css = await app.vault.read(cssFile), cssGeneration = 0;
         if (tripEnabled) {
             try {
-                const helper = app.vault.getAbstractFileByPath('Кино/_system/manana_trip.js');
+                const helper = app.vault.getAbstractFileByPath('_script/manana_razvoz_trip.js');
                 if (!helper) throw Error('Не найден список адресов.');
                 const tripModule = { exports: {} };
                 new Function('module', await app.vault.read(helper))(tripModule);
@@ -160,9 +155,9 @@ async function render({ dv, app, obsidian = {} }) {
                 tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations, maxStops: 5 });
             } catch (error) { tripInitError = error; }
             try {
-                const paths = ['manana_geocode.js', 'manana_locations.json'];
+                const paths = ['manana_razvoz_geocode.js', 'manana_razvoz_locations.json'];
                 const contents = await Promise.all(paths.map(async name => {
-                    const helper = app.vault.getAbstractFileByPath('Кино/_system/' + name);
+                    const helper = app.vault.getAbstractFileByPath('_script/' + name);
                     if (!helper) throw Error('Не найден файл поездки: ' + name);
                     return app.vault.read(helper);
                 }));
@@ -369,7 +364,7 @@ async function render({ dv, app, obsidian = {} }) {
                 await locationResolver.ensure(current.stops.map(stop => stop.address));
                 if (disposed || run !== optimizationGeneration) return;
                 if (!roadOptimizer) {
-                    const helper = app.vault.getAbstractFileByPath('Кино/_system/manana_optimize.js');
+                    const helper = app.vault.getAbstractFileByPath('_script/manana_razvoz_optimize.js');
                     if (!helper) throw Error('Не найден расчёт порядка адресов.');
                     const optimizeModule = { exports: {} };
                     new Function('module', await app.vault.read(helper))(optimizeModule);
@@ -500,7 +495,7 @@ async function render({ dv, app, obsidian = {} }) {
             const original = entry ? { ...entry } : null;
             class ContactModal extends obsidian.Modal {
                 onOpen() {
-                    this.modalEl.classList.add('kino-page', 'manana-modal');
+                    this.modalEl.classList.add('manana-modal');
                     el(this.contentEl, 'style', '', css);
                     this.titleEl.textContent = mode === 'add' ? 'Добавить человека' : mode === 'edit' ? 'Редактировать запись' : 'Удалить запись?';
                     const form = el(this.contentEl, 'form', 'manana-form'); form.noValidate = true;

@@ -78,7 +78,7 @@ function parseSearchHtml(html, address) {
     if (!found.size) throw Error('Точный адрес в Челябинске не найден: ' + address);
     return found.values().next().value;
 }
-function createLocationResolver({ app, obsidian, records, cachePath = 'Кино/_system/manana_locations.json' }) {
+function createLocationResolver({ app, obsidian, records, cachePath = '_script/manana_razvoz_locations.json' }) {
     if (!Array.isArray(records)) throw Error('Не передан список координат.');
     const inFlight = new Map(), dirty = new Map();
     async function fetchLocation(address) {
