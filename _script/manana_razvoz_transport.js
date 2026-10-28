@@ -199,7 +199,6 @@ async function render({ dv, app, obsidian = {} }) {
         const tripOrganicPoints = iconButton(tripMaps, 'map', '▧', 'Organic Maps: показать все адреса метками', 'manana-trip-organic-points');
         const tripOptimize = iconButton(tripTools, 'route', '⇢', 'Кратчайший порядок по дорогам. Первый адрес остаётся стартом.', 'manana-trip-optimize');
         const tripCopy = iconButton(tripTools, 'clipboard-list', '▤', 'Скопировать весь список адресов', 'manana-trip-copy');
-        const tripRemoveLast = iconButton(tripTools, 'list-minus', '−', 'Удалить последний адрес из списка', 'manana-trip-remove-last');
         const tripUndo = iconButton(tripTools, 'rotate-ccw', '↶', 'Отменить последнее изменение списка', 'manana-trip-undo');
         const tripReset = iconButton(tripTools, 'trash-2', '×', 'Удалить все адреса из списка', 'manana-trip-reset');
         const tripList = el(tripPanel, 'ol', 'manana-trip-stops'); tripList.id = labelPrefix + '-trip-stops';
@@ -262,12 +261,12 @@ async function render({ dv, app, obsidian = {} }) {
                 tripOptimize.disabled = tripOptimizing || tripPreparing || selected.stops.length < 3 || overLimit;
                 tripOptimize.classList.toggle('is-busy', tripOptimizing);
                 tripOptimize.setAttribute('aria-busy', String(tripOptimizing));
-                tripCopy.disabled = tripRemoveLast.disabled = tripReset.disabled = !selected.stops.length;
+                tripCopy.disabled = tripReset.disabled = !selected.stops.length;
                 tripUndo.disabled = !tripStore.canUndo();
                 if (overLimit) message('В списке больше 5 адресов. Удалите лишние адреса или очистите список.', true);
             } catch (error) {
                 tripPanel.hidden = false; tripToggle.textContent = 'Список недоступен';
-                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripOrganicPoints.disabled = tripOptimize.disabled = tripCopy.disabled = tripRemoveLast.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
+                tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripOrganicPoints.disabled = tripOptimize.disabled = tripCopy.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
                 message(error.message || String(error), true);
             }
         }
@@ -561,11 +560,6 @@ async function render({ dv, app, obsidian = {} }) {
         listen(tripOrganicPoints, 'click', () => openTrip('organic-points'));
         listen(tripOptimize, 'click', () => void optimizeTrip());
         listen(tripCopy, 'click', () => void copyTrip());
-        listen(tripRemoveLast, 'click', () => {
-            if (!tripStore) return;
-            try { tripStore.removeLast(); notifyTrip(); message('Последний адрес удалён из списка.'); }
-            catch (error) { message(error.message || String(error), true); }
-        });
         listen(tripUndo, 'click', () => {
             if (!tripStore) return;
             try { tripStore.undo(tripStore.read().revision); state.tripExpanded = true; notifyTrip(); message('Последнее изменение отменено.'); }
