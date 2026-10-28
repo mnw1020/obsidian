@@ -85,7 +85,7 @@ function formatTripText(stops, entries = []) {
     const oneLine = value => String(value ?? '').replace(/\s+/g, ' ').trim();
     return ordered.map((stop, index) => {
         const entry = current.get(stop.id), address = oneLine(stop.address);
-        const name = entry && normalizeAddress(entry.address) === normalizeAddress(stop.address) ? oneLine(entry.name) : '';
+        const name = entry && (stop.custom || normalizeAddress(entry.address) === normalizeAddress(stop.address)) ? oneLine(entry.name) : '';
         return `${index + 1}. ` + (name && normalizeAddress(name) !== normalizeAddress(address) ? name + ' — ' : '') + address;
     }).join('\n');
 }
@@ -243,6 +243,20 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         if (!previous.stops.some(stop => stop.id === id)) throw fail('STOP_NOT_FOUND', 'Адрес уже удалён из списка.');
         return write(previous, previous.stops.filter(stop => stop.id !== id));
     }
+    function editAddress(id, address, expectedRevision) {
+        const previous = read();
+        checkRevision(previous, expectedRevision);
+        const index = previous.stops.findIndex(stop => stop.id === id);
+        if (index < 0) throw fail('STOP_NOT_FOUND', 'Адрес уже удалён из списка.');
+        if (typeof address !== 'string' || !address.trim()) throw fail('INVALID_STOP', 'Укажите адрес.');
+        const value = address.trim(), key = normalizeAddress(value);
+        if (previous.stops.some((stop, i) => i !== index && normalizeAddress(stop.address) === key)) {
+            throw fail('DUPLICATE_STOP', 'Такой адрес уже есть в поездке.');
+        }
+        if (previous.stops[index].address === value) return previous;
+        const stops = previous.stops.map((stop, i) => i === index ? { ...stop, address: value, custom: true } : stop);
+        return write(previous, stops);
+    }
     function canUndo() {
         const previous = read();
         return Array.isArray(previous.undoStops) && !sameStops(previous.stops, previous.undoStops);
@@ -276,6 +290,6 @@ function createTripStore({ storage, key, getEntries, locations = [], maxStops = 
         });
         return true;
     }
-    return { read, add, addCustom, select, clear, removeLast, remove, canUndo, undo, reorder, rollback };
+    return { read, add, addCustom, select, clear, removeLast, remove, editAddress, canUndo, undo, reorder, rollback };
 }
 module.exports = { normalizeAddress, readTrip, formatTripText, buildTripUri, buildTwoGisRouteUri, buildYandexNavigatorUri, buildOrganicMapsPointsUri, appendStop, reconcileStops, createTripStore };

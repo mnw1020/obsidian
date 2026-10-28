@@ -246,6 +246,9 @@ async function render({ dv, app, obsidian = {} }) {
                     el(text, 'span', '', entry?.name || stop.address);
                     if (entry?.name) el(text, 'span', 'manana-trip-address', stop.address);
                     const actions = el(line, 'div', 'manana-trip-stop-actions');
+                    const edit = iconButton(actions, 'pencil', '✎', 'Изменить адрес в поездке: ' + (entry?.name || stop.address), 'manana-trip-edit');
+                    edit.setAttribute('aria-haspopup', 'dialog');
+                    edit.addEventListener('click', () => openTripEdit(stop, selected.revision, edit));
                     const handle = iconButton(actions, 'grip-vertical', '⠿', 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.', 'manana-trip-drag');
                     handle.disabled = selected.stops.length < 2;
                     const remove = iconButton(actions, 'x', '×', 'Убрать из поездки: ' + (entry?.name || stop.address), 'manana-trip-remove');
@@ -486,6 +489,45 @@ async function render({ dv, app, obsidian = {} }) {
                 search.value = state.query = ''; paint(); search.focus();
                 message((selection.added ? 'Адрес добавлен' : 'Адрес уже в списке') + ' · в списке ' + addressCount(selection.state.stops.length));
             } catch (error) { message('Не удалось добавить адрес: ' + (error.message || error), true); }
+        }
+        function openTripEdit(stop, revision, trigger) {
+            if (disposed || dialog) return;
+            if (!obsidian.Modal) { message('Не удалось открыть окно редактирования.', true); return; }
+            class TripAddressModal extends obsidian.Modal {
+                onOpen() {
+                    this.modalEl.classList.add('manana-modal');
+                    el(this.contentEl, 'style', '', css);
+                    this.titleEl.textContent = 'Адрес в поездке';
+                    const form = el(this.contentEl, 'form', 'manana-form');
+                    const label = el(form, 'label', 'manana-field');
+                    el(label, 'span', '', 'Адрес');
+                    this.addressInput = el(label, 'input');
+                    this.addressInput.type = 'text'; this.addressInput.value = stop.address;
+                    this.addressInput.autocomplete = 'off'; this.addressInput.required = true;
+                    el(form, 'p', 'manana-dialog-description', 'Изменение только для этой поездки.');
+                    const errorText = el(form, 'p', 'manana-form-error'); errorText.setAttribute('role', 'alert');
+                    const actions = el(form, 'div', 'manana-dialog-actions');
+                    const cancel = el(actions, 'button', '', 'Отмена'); cancel.type = 'button';
+                    cancel.addEventListener('click', () => this.close());
+                    const save = el(actions, 'button', 'is-primary', 'Сохранить'); save.type = 'submit';
+                    form.addEventListener('submit', event => {
+                        event.preventDefault();
+                        try {
+                            const address = this.addressInput.value.trim();
+                            tripStore.editAddress(stop.id, address, revision);
+                            this.close(); notifyTrip(); message('Адрес в поездке изменён.');
+                            if (locationResolver) void locationResolver.ensure([address]).catch(() => {});
+                        } catch (error) { errorText.textContent = error.message || String(error); }
+                    });
+                    this.addressInput.focus(); this.addressInput.select();
+                }
+                onClose() {
+                    if (dialog === this) dialog = null;
+                    this.contentEl.replaceChildren();
+                    if (!disposed) (trigger?.isConnected ? trigger : search).focus();
+                }
+            }
+            dialog = new TripAddressModal(app); dialog.open();
         }
         function openDialog(mode, entry, trigger) {
             if (disposed) return;
