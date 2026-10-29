@@ -78,7 +78,7 @@ const readerCss = [
 "/* Hide only the native fallback after a complete successful reader render. */",
 ".markdown-preview-view.sport-nutrition-page .el-pre:has(.sn-reader[data-ready=true]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight){display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden;visibility:hidden;pointer-events:none}",
 "@container sn-reader (max-width:680px){.sn-shell{grid-template-columns:minmax(0,1fr);gap:16px}.sn-nav-toggle{display:inline-block!important}.sn-reader[data-navigation-open=false] .sn-sidebar{display:none}.sn-sidebar{height:45vh;min-height:180px}.sn-article{height:65vh;padding:16px}.sn-search{flex-basis:100%!important}.sn-reading-head{display:block}}"
-].join("\n") + "\n.markdown-preview-view.sport-nutrition-page{--file-line-width:100%!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin-inline:0!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page :is(.markdown-preview-section,.block-language-dataviewjs){box-sizing:border-box;max-width:none!important;min-width:0;width:100%}.sport-nutrition-page .sn-reader{width:100%!important;max-width:none!important}" + "\n.sport-nutrition-page :is(.metadata-container,.frontmatter-container,pre.frontmatter){display:none!important}.markdown-preview-view.sport-nutrition-page .el-h1:has(~ .el-pre .sn-reader){display:none!important}" + "\n.sn-left-panel{display:grid;grid-template-rows:auto minmax(0,1fr);height:72vh;min-width:0}.sn-reader .sn-left-panel>.sn-sidebar{height:100%;min-height:0}.sn-left-panel>.sn-fold-actions{margin:0 0 10px}.sn-left-panel>.sn-fold-actions .sn-action{font-size:12px;padding:8px 10px}@container sn-reader (max-width:680px){.sn-left-panel{height:45vh;min-height:180px}.sn-reader[data-navigation-open=false] .sn-left-panel{display:none}}";
+].join("\n") + "\n.sn-reader .sn-alphabet{margin:20px 0 0}.sn-finder-search{display:flex;align-items:center;gap:8px;padding:0 14px 12px;min-width:0}.sn-reader .sn-finder-search .sn-search{flex:1;min-width:0}.sn-finder-search .sn-action{flex:0 0 44px}.sn-reader .sn-toolbar{justify-content:flex-end}" + "\n.markdown-preview-view.sport-nutrition-page{--file-line-width:100%!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{box-sizing:border-box!important;width:98%!important;max-width:none!important;min-width:0!important;margin-inline:auto!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page :is(.markdown-preview-section,.block-language-dataviewjs){box-sizing:border-box;max-width:none!important;min-width:0;width:100%}.sport-nutrition-page .sn-reader{width:100%!important;max-width:none!important}" + "\n.sport-nutrition-page :is(.metadata-container,.frontmatter-container,pre.frontmatter){display:none!important}.markdown-preview-view.sport-nutrition-page .el-h1:has(~ .el-pre .sn-reader){display:none!important}" + "\n.sn-left-panel{display:grid;grid-template-rows:auto minmax(0,1fr);height:72vh;min-width:0}.sn-reader .sn-left-panel>.sn-sidebar{height:100%;min-height:0}.sn-left-panel>.sn-fold-actions{margin:0 0 10px}.sn-left-panel>.sn-fold-actions .sn-action{font-size:12px;padding:8px 10px}@container sn-reader (max-width:680px){.sn-left-panel{height:45vh;min-height:180px}.sn-reader[data-navigation-open=false] .sn-left-panel{display:none}}";
 
 async function sportNutritionReader({dv,app,obsidian={}}) {
     if (!obsidian.MarkdownRenderer || !obsidian.Component) throw new Error("Недоступен MarkdownRenderer Obsidian");
@@ -118,14 +118,15 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
     const style=doc.getElementById("sport-nutrition-ui-style")||el(doc.head,"style","");
     style.id="sport-nutrition-ui-style";style.textContent=readerCss;
     const toolbar=el(root,"div","sn-toolbar");
-    const search=el(toolbar,"input","sn-search");search.type="search";search.placeholder="Найти вещество, термин или фразу";
+    const searchBox=doc.createElement("div");searchBox.className="sn-finder-search";
+    const search=el(searchBox,"input","sn-search");search.type="search";search.placeholder="Найти вещество, термин или фразу";
     search.setAttribute("aria-label","Поиск по всему справочнику");
-    button(toolbar,"×","sn-action","clear").setAttribute("aria-label","Очистить поиск");
+    button(searchBox,"×","sn-action","clear").setAttribute("aria-label","Очистить поиск");
     const navToggle=button(toolbar,"Разделы","sn-action sn-nav-toggle","navigation");navToggle.setAttribute("aria-expanded","false");
-    const all=button(toolbar,"Весь текст","sn-action","all");
     const back=button(toolbar,"← Назад","sn-action","back");
     const alphabet=el(root,"details","sn-alphabet");
-    el(alphabet,"summary","","Алфавитный указатель · все темы");
+    el(alphabet,"summary","","Поиск и алфавитный указатель");
+    alphabet.open=true;alphabet.appendChild(searchBox);
     const letters=el(alphabet,"div","sn-letters"),alphaList=el(alphabet,"div","sn-alpha-list");
     const sorted=[...entries].sort((a,b)=>a.title.localeCompare(b.title,"ru",{numeric:true,sensitivity:"base"}));
     function initial(entry){const first=entry.title.replace(/^[^А-Яа-яЁёA-Za-z0-9]+/u,"").charAt(0).toLocaleUpperCase("ru");return /\d/.test(first)?"0–9":first;}
@@ -145,8 +146,9 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
     drawAlphabet();
     const shell=el(root,"div","sn-shell"), left=el(shell,"div","sn-left-panel");
     const foldActions=el(left,"div","sn-fold-actions");
-    button(foldActions,"Свернуть всё","sn-action","collapse-all");
-    button(foldActions,"Развернуть всё","sn-action","expand-all");
+    const all=button(foldActions,"Весь текст →","sn-action","all");
+    button(foldActions,"Свернуть","sn-action","collapse-all");
+    button(foldActions,"Развернуть","sn-action","expand-all");
     const sidebar=el(left,"nav","sn-sidebar");
     sidebar.setAttribute("aria-label","Рубрикатор справочника");
     const reading=el(shell,"section","sn-reading"), crumbs=el(reading,"nav","sn-breadcrumb");
@@ -173,17 +175,6 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
     }
     function drawTree(){
         sidebar.replaceChildren();
-        if(query){
-            const hits=sportNutritionSearch(entries,query);
-            el(sidebar,"p","sn-status","Найдено: "+hits.length);
-            hits.forEach(e=>{
-                const word=sportNutritionNormalize(query).split(" ").find(term=>e.bodyKey.includes(term));
-                const start=word?Math.max(0,e.bodyKey.indexOf(word)-30):0;
-                const snippet=e.plain?(start?"…":"")+e.plain.slice(start,start+120)+(start+120<e.plain.length?"…":""):"";
-                row(sidebar,e,[e.path.join(" › "),snippet].filter(Boolean).join(" · "));
-            });
-            return;
-        }
         function draw(nodes,parent){
             nodes.forEach(node=>{
                 if(!node.children.length){row(parent,node.entry);return;}
@@ -247,7 +238,7 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
         rememberPosition();
         if(push&&title!==selected)history.push(selected);
         selected=title;currentTopic=title;query="";search.value="";reveal();drawTree();drawAlphabet();persist();
-        alphabet.open=false;
+
         root.dataset.navigationOpen="false";navToggle.setAttribute("aria-expanded","false");
         back.disabled=!history.length;all.setAttribute("aria-pressed",String(!selected));
         const index=entries.findIndex(e=>e.title===selected), entry=entries[index];
@@ -292,7 +283,10 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
         if(b&&root.contains(b)){
             event.preventDefault();event.stopPropagation();
             const action=b.dataset.action,index=entries.findIndex(e=>e.title===selected);
-            if(action==="select")show(b.dataset.title);
+            if(action==="select"){
+                const fromFinder=alphabet.contains(b);
+                show(b.dataset.title).then(()=>{if(fromFinder&&!disposed)reading.scrollIntoView({block:"start",behavior:"smooth"});});
+            }
             if(action==="all")show("");
             if(action==="letter"){alphaLetter=b.dataset.letter;drawAlphabet();}
             if(action==="collapse-all"||action==="expand-all"){
@@ -321,6 +315,7 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
     listen(search,"input",()=>{query=search.value.trim();drawTree();drawAlphabet();if(query){root.dataset.navigationOpen="true";navToggle.setAttribute("aria-expanded","true");}});
     listen(search,"keydown",event=>{if(event.key==="Escape"){query="";search.value="";drawTree();drawAlphabet();}});
     listen(article,"scroll",()=>{rememberPosition();syncTopic();clearTimeout(timer);timer=setTimeout(persist,200);});
+    root.appendChild(alphabet);
     dv.container.appendChild(root);
     await show(selected,{push:false});
     if(!lifecycle.alive||generation!==lifecycle.generation)lifecycle.dispose?.();
