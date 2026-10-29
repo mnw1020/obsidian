@@ -50,269 +50,198 @@ function sportNutritionSearch(entries, query, section = "") {
                 : terms.every(term => entry.titleKey.includes(term)) ? 3 : 4 }))
         .sort((a, b) => a.rank - b.rank || a.entry.line - b.entry.line).map(item => item.entry);
 }
-const sportNutritionCss = [
-    ".sport-nutrition-page { --sn-bg:#16181c; --sn-panel:#202329; --sn-hover:#282b31; --sn-line:#363a42; --sn-accent:#b89760; --sn-text:#e4e2de; --sn-muted:#a8a6a1; --file-line-width:100%; }",
-    ".markdown-preview-view.sport-nutrition-page .markdown-preview-sizer { max-width:1120px; width:100%; min-width:0; margin-inline:auto; }",
-    ".sport-nutrition-page .inline-title { display:none; }",
-    ".sport-nutrition-page .markdown-rendered h1, .markdown-rendered.sport-nutrition-page h1 { border-inline-start:3px solid var(--sn-accent); padding-inline-start:14px; color:var(--sn-accent); font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif; scroll-margin-top:28px; }",
-    ".sport-nutrition-page :is(h2,h3,h4) { scroll-margin-top:28px; overflow-wrap:anywhere; }",
-    ".sport-nutrition-page hr { border-color:var(--sn-line); opacity:.7; margin-block:28px; }",
-    ".sn-ui { color:var(--sn-text,#e4e2de); font-size:15px; line-height:1.5; min-width:0; max-width:100%; container:sn-ui / inline-size; margin:12px 0 28px; }",
-    ".sn-ui * { box-sizing:border-box; }",
-    ".sn-ui [hidden] { display:none !important; }",
-    ".sn-ui :is(button,input,select,summary,a):focus-visible { outline:2px solid var(--sn-accent,#b89760); outline-offset:3px; }",
-    ".sn-ui :is(a,button,summary) { -webkit-tap-highlight-color:transparent; }",
-    ".sn-ui a { text-decoration:none; overflow-wrap:anywhere; color:var(--sn-text,#e4e2de); }",
-    ".sn-ui a:hover { color:var(--sn-accent,#b89760); }",
-    ".sn-ui button { box-shadow:none; font:inherit; cursor:pointer; white-space:normal; height:auto; }",
-    ".sn-hero { padding:24px 26px; border:1px solid var(--sn-line,#363a42); border-top:3px solid var(--sn-accent,#b89760); border-radius:4px 4px 12px 12px; background:linear-gradient(120deg,#27251f,var(--sn-bg,#16181c) 75%); }",
-    ".sn-kicker { color:var(--sn-accent,#b89760); font-size:11px; letter-spacing:.13em; text-transform:uppercase; }",
-    ".sn-intro { margin:10px 0 18px; color:var(--sn-muted,#a8a6a1); font-size:13px; }",
-    ".sn-stats { display:flex; flex-wrap:wrap; gap:12px 28px; padding:16px 0 20px; border-top:1px solid var(--sn-line,#363a42); }",
-    ".sn-stat { display:flex; align-items:baseline; gap:7px; color:var(--sn-muted,#a8a6a1); font-size:12px; }",
-    ".sn-stat strong { color:var(--sn-accent,#b89760); font:600 23px/1.2 'Cascadia Mono',Consolas,monospace; }",
-    ".sn-form { display:grid; grid-template-columns:minmax(0,1fr) minmax(145px,210px) 44px; gap:8px; }",
-    ".sn-ui .sn-input,.sn-ui .sn-select { width:100%; min-width:0; height:44px; border:1px solid var(--sn-line,#363a42); border-radius:7px; background:var(--sn-panel,#202329); color:var(--sn-text,#e4e2de); padding:10px 12px; font:inherit; font-size:13px; }",
-    ".sn-ui .sn-clear { width:44px; min-height:44px; padding:8px; border:1px solid var(--sn-line,#363a42); border-radius:7px; background:var(--sn-panel,#202329); color:var(--sn-muted,#a8a6a1); font-size:22px; }",
-    ".sn-ui .sn-clear:disabled { opacity:.35; cursor:default; }",
-    ".sn-status { margin:10px 0 0; font-size:12px; color:var(--sn-muted,#a8a6a1); }",
-    ".sn-results { margin-top:14px; border-top:1px solid var(--sn-line,#363a42); padding-top:4px; }",
-    ".sn-result { display:block; padding:13px 0; border-bottom:1px solid var(--sn-line,#363a42); min-height:44px; }",
-    ".sn-result-title { display:block; font-weight:600; font-size:14px; }",
-    ".sn-result-path { display:block; margin-top:4px; color:var(--sn-accent,#b89760); font-size:11px; }",
-    ".sn-result-text { display:block; margin-top:6px; font-size:12px; line-height:1.6; color:var(--sn-muted,#a8a6a1); }",
-    ".sn-ui mark { background:#b8976030; color:var(--sn-text,#e4e2de); border-radius:2px; padding:0 1px; }",
-    ".sn-ui .sn-more { min-height:44px; padding:9px 16px; margin-top:12px; border:1px solid var(--sn-line,#363a42); border-radius:7px; color:var(--sn-accent,#b89760); background:var(--sn-panel,#202329); font-size:13px; }",
-    ".sn-section-title { margin:24px 0 14px; border-inline-start:3px solid var(--sn-accent,#b89760); padding-inline-start:12px; font:700 24px/1.25 'Iowan Old Style','Palatino Linotype',Georgia,serif; color:var(--sn-accent,#b89760); }",
-    ".sn-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }",
-    ".sn-card { min-width:0; border:1px solid var(--sn-line,#363a42); border-radius:8px; background:var(--sn-bg,#16181c); overflow:hidden; }",
-    ".sn-card-top { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:13px 14px; min-height:66px; }",
-    ".sn-card-title { font:700 19px/1.3 'Iowan Old Style','Palatino Linotype',Georgia,serif; color:var(--sn-accent,#b89760); }",
-    ".sn-card-count { flex-shrink:0; font:12px 'Cascadia Mono',Consolas,monospace; color:var(--sn-muted,#a8a6a1); }",
-    ".sn-card details { border-top:1px solid var(--sn-line,#363a42); }",
-    ".sn-card summary { min-height:44px; padding:11px 14px; cursor:pointer; color:var(--sn-muted,#a8a6a1); font-size:12px; }",
-    ".sn-card summary:hover { background:var(--sn-hover,#282b31); color:var(--sn-accent,#b89760); }",
-    ".sn-topic-list { padding:0 14px 12px; max-height:360px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }",
-    ".sn-topic { display:block; min-height:44px; padding:10px 0; border-top:1px solid var(--sn-line,#363a42); font-size:12px; }",
-    ".sn-topic[data-depth='1'] { padding-inline-start:10px; color:var(--sn-muted,#a8a6a1); }",
-    ".sn-topic[data-depth='2'] { padding-inline-start:20px; color:var(--sn-muted,#a8a6a1); }",
-    ".sn-alphabet { margin-top:12px; border:1px solid var(--sn-line,#363a42); border-radius:8px; background:var(--sn-bg,#16181c); }",
-    ".sn-alphabet>summary { padding:14px; min-height:48px; cursor:pointer; color:var(--sn-muted,#a8a6a1); font-size:13px; }",
-    ".sn-letters { display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 12px; }",
-    ".sn-ui .sn-letter { min-width:36px; min-height:44px; padding:8px; border:1px solid var(--sn-line,#363a42); border-radius:6px; background:var(--sn-panel,#202329); color:var(--sn-muted,#a8a6a1); font-size:12px; }",
-    ".sn-ui .sn-letter[aria-pressed='true'] { border-color:var(--sn-accent,#b89760); color:var(--sn-accent,#b89760); }",
-    ".sn-alpha-list { max-height:420px; overflow-y:auto; padding:0 14px 14px; scrollbar-width:thin; }",
-    ".sn-note { margin:12px 0 0; font-size:11px; line-height:1.6; color:var(--sn-muted,#a8a6a1); }",
-    "@container sn-ui (max-width:720px) { .sn-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }",
-    "@container sn-ui (max-width:480px) { .sn-hero { padding:18px 16px; } .sn-form { grid-template-columns:minmax(0,1fr) 44px; } .sn-input { grid-column:1; grid-row:1; } .sn-clear { grid-column:2; grid-row:1; } .sn-select { grid-column:1 / -1; grid-row:2; } .sn-grid { grid-template-columns:1fr; } .sn-stats { gap:12px 18px; } }"
+// Продолжение общего парсера. Содержимое заметки никогда не записывается из UI.
+const readerCss = [
+".sport-nutrition-page{--file-line-width:100%;--sn-accent:#b89760;--sn-line:var(--background-modifier-border,#363a42)}",
+".markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{max-width:none;width:100%;min-width:0}.sport-nutrition-page .inline-title{display:none}",
+".sn-reader{container:sn-reader / inline-size;min-width:0;width:100%;font-size:15px}.sn-reader *{box-sizing:border-box}.sn-reader [hidden]{display:none!important}",
+".sn-reader :is(button,input,a,summary):focus-visible{outline:2px solid var(--sn-accent);outline-offset:2px}.sn-reader button{font:inherit;box-shadow:none;cursor:pointer;white-space:normal;height:auto}",
+".sn-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px;padding-bottom:16px;border-bottom:1px solid var(--sn-line)}",
+".sn-reader .sn-search{flex:1;min-width:130px;height:44px;padding:10px 12px;border:1px solid var(--sn-line);border-radius:7px;background:var(--background-primary);color:var(--text-normal);font:inherit}",
+".sn-reader .sn-action{min-height:44px;padding:8px 12px;border:1px solid var(--sn-line);border-radius:7px;background:transparent;color:var(--text-muted);font-size:13px}.sn-reader .sn-action[aria-pressed=true]{color:var(--sn-accent);border-color:var(--sn-accent)}.sn-reader button:disabled{opacity:.35;cursor:default}",
+".sn-shell{display:grid;grid-template-columns:minmax(210px,25%) minmax(0,1fr);gap:24px;align-items:start;min-width:0}",
+".sn-sidebar{height:72vh;min-height:300px;overflow:auto;scrollbar-width:thin;padding:8px;border:1px solid var(--sn-line);border-radius:10px;background:var(--background-primary);min-width:0}",
+".sn-reader .sn-row{display:block;width:100%;text-align:left;padding:10px;min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--text-normal);font-size:13px;line-height:1.45;overflow-wrap:anywhere}",
+".sn-reader .sn-row:hover{background:var(--background-modifier-hover,#282b31)}.sn-reader .sn-row[aria-current=page]{background:color-mix(in srgb,var(--sn-accent) 12%,var(--background-primary));box-shadow:inset 2px 0 var(--sn-accent);color:var(--sn-accent)}",
+".sn-branch>summary{display:flex;align-items:start;list-style:none;cursor:pointer}.sn-branch>summary::-webkit-details-marker{display:none}.sn-branch>summary:before{content:'›';flex:0 0 23px;padding-top:11px;text-align:center;color:var(--text-muted)}.sn-branch[open]>summary:before{content:'⌄'}.sn-branch>summary .sn-row{flex:1;min-width:0}.sn-children{margin-left:10px;padding-left:8px;border-left:1px solid var(--sn-line)}",
+".sn-caption{display:block;font-size:11px;color:var(--text-muted);margin-top:4px}.sn-reading{min-width:0}.sn-breadcrumb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;color:var(--text-muted);font-size:12px}.sn-reader .sn-crumb{border:0;background:none;color:inherit;font-size:inherit;padding:3px;min-height:30px}",
+".sn-reading-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px}.sn-reader h2.sn-title{font:600 25px/1.3 'Palatino Linotype',Georgia,serif;color:var(--sn-accent);margin:0;border:0;overflow-wrap:anywhere}.sn-status{font-size:12px;color:var(--text-muted);margin:8px 0 0}",
+".sn-article{height:65vh;min-height:280px;overflow:auto;scrollbar-width:thin;overscroll-behavior:contain;border:1px solid var(--sn-line);border-radius:10px;padding:22px;line-height:1.75;overflow-wrap:anywhere}.sn-article :is(h1,h2,h3,h4){scroll-margin-top:12px}.sn-article>:first-child{margin-top:0}.sn-article a{color:var(--sn-accent)}",
+".sn-footer{display:flex;justify-content:space-between;gap:8px;margin-top:12px}.sn-footer .sn-action{max-width:48%;text-align:left}.sn-nav-toggle{display:none!important}",
+"/* Hide only the native fallback after a complete successful reader render. */",
+".markdown-preview-view.sport-nutrition-page .el-pre:has(.sn-reader[data-ready=true]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight){display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden;visibility:hidden;pointer-events:none}",
+"@container sn-reader (max-width:680px){.sn-shell{grid-template-columns:minmax(0,1fr);gap:16px}.sn-nav-toggle{display:inline-block!important}.sn-reader[data-navigation-open=false] .sn-sidebar{display:none}.sn-sidebar{height:45vh;min-height:180px}.sn-article{height:65vh;padding:16px}.sn-search{flex-basis:100%!important}.sn-reading-head{display:block}}"
 ].join("\n");
 
-async function sportNutritionUi({ dv, app }) {
-    const doc = dv.container.ownerDocument;
-    const component = dv.component || dv.container;
-    let state = component.__sportNutritionState;
-    if (!state) {
-        state = { generation:0, alive:true, dispose:null, query:"", section:"", limit:12 };
-        component.__sportNutritionState = state;
-        component.register?.(() => {
-            state.alive = false; state.generation++; state.dispose?.();
-            delete component.__sportNutritionState;
-        });
+async function sportNutritionReader({dv,app,obsidian={}}) {
+    if (!obsidian.MarkdownRenderer || !obsidian.Component) throw new Error("Недоступен MarkdownRenderer Obsidian");
+    const component=dv.component, doc=dv.container.ownerDocument, source=dv.current()?.file?.path || "Спортивное питание.md";
+    if (!component) throw new Error("Недоступен компонент Dataview");
+    let lifecycle=component.__snReader;
+    if (!lifecycle) {
+        lifecycle={generation:0,alive:true,dispose:null};
+        component.__snReader=lifecycle;
+        component.register(()=>{lifecycle.alive=false;lifecycle.generation++;lifecycle.dispose?.();delete component.__snReader;});
     }
-    state.dispose?.();
-    const generation = ++state.generation;
-    const source = dv.current?.()?.file?.path || "Спортивное питание.md";
-    const file = app.vault.getAbstractFileByPath(source);
-    if (!file) throw new Error("Не найдена заметка");
-    const text = await app.vault.read(file);
-    if (!state.alive || state.generation !== generation) return;
-    const entries = sportNutritionParse(text), sections = entries.filter(item => item.level === 1);
-    if (!entries.length) throw new Error("Не найдены заголовки справочника");
-    const root = doc.createElement("section");
-    root.className = "sn-ui";
-    root.setAttribute("aria-label", "Навигация по спортивному питанию");
-    const cleanup = [], foldKey = "sport_nutrition_folds:" + source;
-    let disposed = false, timer = null, limit = state.limit || 12;
-    function el(parent, tag, cls, text) {
-        const node = doc.createElement(tag);
-        if (cls) node.className = cls;
-        if (text !== undefined) node.textContent = text;
-        parent.appendChild(node); return node;
-    }
-    function listen(node, event, handler) {
-        node.addEventListener(event, handler);
-        cleanup.push(() => node.removeEventListener(event, handler));
-    }
-    function link(parent, title, heading, cls = "") {
-        const node = el(parent, "a", "internal-link " + cls, title);
-        const target = source + "#" + heading;
-        node.href = target; node.dataset.href = target;
-        // Delegation keeps the index and result lists free of stale listeners.
-        node.dataset.snTarget = target;
-        return node;
-    }
-    listen(root, "click", event => {
-        const target = event.target.closest?.("a[data-sn-target]");
-        if (!target || !root.contains(target)) return;
-        event.preventDefault();
-        app.workspace.openLinkText(target.dataset.snTarget, source, !!(event.ctrlKey || event.metaKey))
-            ?.catch?.(error => console.warn("Спортивное питание: переход", error));
+    lifecycle.dispose?.(); const generation=++lifecycle.generation;
+    const file=app.vault.getAbstractFileByPath(source);
+    const text=await app.vault.read(file);
+    if (!lifecycle.alive || generation!==lifecycle.generation) return;
+    const entries=sportNutritionParse(text);
+    const raw=text.split("<!-- SPORT:NUTRITION:CONTENT:START -->")[1]?.split("<!-- SPORT:NUTRITION:CONTENT:END -->")[0]
+        .replace(/<!-- SPORT:NUTRITION:BACK:START -->[\s\S]*?<!-- SPORT:NUTRITION:BACK:END -->/g,"");
+    if (!raw || !entries.length) throw new Error("Не найден текст справочника");
+    // Use the exact line origin of the common parser.
+    const lines=raw.split(/\r?\n/);
+    const key="sport_nutrition_reader:"+source;
+    let saved={};
+    try {saved=JSON.parse(doc.defaultView.localStorage.getItem(key)) || {};} catch (_) {}
+    let selected=saved.selected===""||entries.some(e=>e.title===saved.selected)?saved.selected:entries[0].title;
+    let opened=new Set(Array.isArray(saved.opened)?saved.opened:[]), positions=saved.positions||{};
+    let query="", disposed=false, renderId=0, child=null, timer=null, displayed=null;
+    const history=[], cleanup=[];
+    const root=doc.createElement("section");root.className="sn-reader";root.dataset.navigationOpen="false";
+    lifecycle.dispose=()=>{disposed=true;renderId++;clearTimeout(timer);cleanup.splice(0).forEach(fn=>fn());release();root.remove();};
+    function release(){if(child){component.removeChild(child);child=null;}}
+    function el(parent,tag,cls,text){const n=doc.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;parent.appendChild(n);return n;}
+    function listen(n,event,fn,options){n.addEventListener(event,fn,options);cleanup.push(()=>n.removeEventListener(event,fn,options));}
+    function persist(){try{doc.defaultView.localStorage.setItem(key,JSON.stringify({selected,opened:[...opened],positions}));}catch(_){}}
+    function button(parent,label,cls,action){const b=el(parent,"button",cls,label);b.type="button";b.dataset.action=action;return b;}
+    const style=doc.getElementById("sport-nutrition-ui-style")||el(doc.head,"style","");
+    style.id="sport-nutrition-ui-style";style.textContent=readerCss;
+    const toolbar=el(root,"div","sn-toolbar");
+    const search=el(toolbar,"input","sn-search");search.type="search";search.placeholder="Найти вещество, термин или фразу";
+    search.setAttribute("aria-label","Поиск по всему справочнику");
+    button(toolbar,"×","sn-action","clear").setAttribute("aria-label","Очистить поиск");
+    const navToggle=button(toolbar,"Разделы","sn-action sn-nav-toggle","navigation");navToggle.setAttribute("aria-expanded","false");
+    const all=button(toolbar,"Весь текст","sn-action","all");
+    const back=button(toolbar,"← Назад","sn-action","back");
+    const shell=el(root,"div","sn-shell"), sidebar=el(shell,"nav","sn-sidebar");
+    sidebar.setAttribute("aria-label","Рубрикатор справочника");
+    const reading=el(shell,"section","sn-reading"), crumbs=el(reading,"nav","sn-breadcrumb");
+    crumbs.setAttribute("aria-label","Путь раздела");
+    const head=el(reading,"div","sn-reading-head"), heading=el(head,"h2","sn-title");
+    const status=el(head,"p","sn-status");status.setAttribute("role","status");
+    const article=el(reading,"div","sn-article markdown-rendered");article.tabIndex=0;article.setAttribute("aria-label","Текст выбранной темы");
+    const footer=el(reading,"div","sn-footer"), previous=button(footer,"","sn-action","previous"), next=button(footer,"","sn-action","next");
+    const tree=[], stack=[];
+    entries.forEach((entry,index)=>{
+        const node={entry,index,children:[]};
+        while(stack.length&&stack.at(-1).entry.level>=entry.level)stack.pop();
+        (stack.length?stack.at(-1).children:tree).push(node);stack.push(node);
     });
-    function dispose() {
-        disposed = true; clearTimeout(timer);
-        cleanup.splice(0).forEach(fn => fn()); root.remove();
+    function reveal(){
+        const entry=entries.find(e=>e.title===selected);
+        entry?.path.forEach(title=>opened.add(title));
     }
-    state.dispose = dispose;
-    let folds = {};
-    try { folds = JSON.parse(doc.defaultView.localStorage.getItem(foldKey)) || {}; } catch (_) {}
-    if (!folds || typeof folds !== "object" || Array.isArray(folds)) folds = {};
-    function remember(details, key) {
-        details.open = folds[key] === true;
-        listen(details, "toggle", () => {
-            if (disposed) return;
-            folds[key] = details.open;
-            try { doc.defaultView.localStorage.setItem(foldKey, JSON.stringify(folds)); } catch (_) {}
-        });
+    function row(parent,entry,caption=""){
+        const b=button(parent,"","sn-row","select");b.dataset.title=entry.title;
+        b.setAttribute("aria-current",selected===entry.title?"page":"false");
+        el(b,"span","",entry.title);if(caption)el(b,"small","sn-caption",caption);
     }
-    // Keep typography available while Obsidian virtualizes the top Markdown block.
-    let style = doc.getElementById("sport-nutrition-ui-style");
-    if (!style) { style = doc.createElement("style"); style.id = "sport-nutrition-ui-style"; doc.head.appendChild(style); }
-    style.textContent = sportNutritionCss;
-    const hero = el(root, "div", "sn-hero");
-    el(hero, "div", "sn-kicker", "Личный справочник");
-    el(hero, "p", "sn-intro", "Найди вещество, термин или фразу и перейди к записи ниже.");
-    const stats = el(hero, "div", "sn-stats");
-    for (const [number, title] of [[String(sections.length), "разделов"], [String(entries.length), "заголовков"], ["1", "файл"]]) {
-        const stat = el(stats, "div", "sn-stat"); el(stat, "strong", "", number); el(stat, "span", "", title);
-    }
-    const form = el(hero, "div", "sn-form");
-    const input = el(form, "input", "sn-input"); input.type = "search";
-    input.value = state.query;
-    input.placeholder = "Например: магний, B12, сон";
-    input.setAttribute("aria-label", "Поиск по заголовкам и тексту заметки");
-    const select = el(form, "select", "sn-select"); select.setAttribute("aria-label", "Раздел справочника");
-    el(select, "option", "", "Все разделы").value = "";
-    for (const section of sections) el(select, "option", "", section.title).value = section.title;
-    if (sections.some(section => section.title === state.section)) select.value = state.section;
-    const clear = el(form, "button", "sn-clear", "×"); clear.type = "button";
-    clear.title = "Очистить поиск"; clear.setAttribute("aria-label", "Очистить поиск и выбор раздела");
-    const status = el(hero, "p", "sn-status");
-    status.setAttribute("role", "status"); status.setAttribute("aria-live", "polite");
-    const results = el(hero, "div", "sn-results"); results.hidden = true;
-    let more = null;
-    function marked(parent, text, query) {
-        const term = sportNutritionNormalize(query).split(" ").filter(Boolean).sort((a, b) => b.length - a.length);
-        if (!term.length) { parent.textContent = text; return; }
-        const normalized = sportNutritionNormalize(text);
-        // Snippets use the same whitespace normalization as the index.
-        let position = 0, next = 0;
-        while (position < text.length) {
-            let found = -1, length = 0;
-            for (const word of term) {
-                next = normalized.indexOf(word, position);
-                if (next >= 0 && (found < 0 || next < found)) { found = next; length = word.length; }
-            }
-            if (found < 0) { parent.appendChild(doc.createTextNode(text.slice(position))); break; }
-            parent.appendChild(doc.createTextNode(text.slice(position, found)));
-            el(parent, "mark", "", text.slice(found, found + length)); position = found + length;
+    function drawTree(){
+        sidebar.replaceChildren();
+        if(query){
+            const hits=sportNutritionSearch(entries,query);
+            el(sidebar,"p","sn-status","Найдено: "+hits.length);
+            hits.forEach(e=>{
+                const word=sportNutritionNormalize(query).split(" ").find(term=>e.bodyKey.includes(term));
+                const start=word?Math.max(0,e.bodyKey.indexOf(word)-30):0;
+                const snippet=e.plain?(start?"…":"")+e.plain.slice(start,start+120)+(start+120<e.plain.length?"…":""):"";
+                row(sidebar,e,[e.path.join(" › "),snippet].filter(Boolean).join(" · "));
+            });
+            return;
+        }
+        function draw(nodes,parent){
+            nodes.forEach(node=>{
+                if(!node.children.length){row(parent,node.entry);return;}
+                const details=el(parent,"details","sn-branch");details.dataset.title=node.entry.title;
+                const summary=el(details,"summary","");summary.setAttribute("aria-label","Раскрыть: "+node.entry.title);
+                row(summary,node.entry);
+                draw(node.children,el(details,"div","sn-children"));details.open=opened.has(node.entry.title);
+            });
+        }
+        draw(tree,sidebar);
+        const active=sidebar.querySelector('[aria-current="page"]');
+        if(active){
+            const box=sidebar.getBoundingClientRect(), row=active.getBoundingClientRect();
+            if(row.bottom>box.bottom)sidebar.scrollTop+=row.bottom-box.bottom+12;
+            else if(row.top<box.top)sidebar.scrollTop-=box.top-row.top+12;
         }
     }
-    function showResults(reset = true) {
-        if (disposed) return;
-        if (reset) limit = 12;
-        const query = input.value.trim(), section = select.value;
-        state.query = input.value; state.section = section; state.limit = limit;
-        results.replaceChildren(); more = null;
-        clear.disabled = !query && !section;
-        results.hidden = !query && !section;
-        if (results.hidden) { status.textContent = "Поиск по заголовкам и всему тексту · ниже — разделы и алфавитный указатель"; return; }
-        const matches = sportNutritionSearch(entries, query, section);
-        status.textContent = matches.length ? "Найдено: " + matches.length + " · показано: " + Math.min(limit, matches.length)
-            : "Совпадений нет. Попробуй другое название или убери фильтр раздела.";
-        for (const entry of matches.slice(0, limit)) {
-            const row = link(results, "", entry.title, "sn-result");
-            marked(el(row, "span", "sn-result-title"), entry.title.replace(/\s+/g, " "), query);
-            el(row, "span", "sn-result-path", entry.path.join(" › ") || entry.section);
-            if (entry.plain) {
-                const key = sportNutritionNormalize(query).split(" ").filter(Boolean).find(term => entry.bodyKey.includes(term));
-                const offset = key ? Math.max(0, entry.bodyKey.indexOf(key) - 65) : 0;
-                const snippet = (offset ? "…" : "") + entry.plain.slice(offset, offset + 200)
-                    + (offset + 200 < entry.plain.length ? "…" : "");
-                marked(el(row, "span", "sn-result-text"), snippet, query);
-            }
-        }
-        if (matches.length > limit) {
-            more = el(results, "button", "sn-more", "Показать ещё 12"); more.type = "button";
-            more.dataset.snMore = "true";
-        }
-    }
-    listen(root, "click", event => {
-        if (event.target.closest?.("[data-sn-more]")) {
-            limit += 12; showResults(false);
-            results.querySelectorAll(".sn-result")[limit - 12]?.focus();
-        }
-    });
-    listen(input, "input", () => {
-        state.query = input.value; clearTimeout(timer); timer = setTimeout(showResults, 140);
-    });
-    listen(input, "keydown", event => {
-        if (event.key === "Escape") { input.value = ""; select.value = ""; showResults(); }
-        if (event.key === "Enter") { clearTimeout(timer); showResults(); results.querySelector("a")?.focus(); }
-    });
-    listen(select, "change", () => { clearTimeout(timer); showResults(); });
-    listen(clear, "click", () => { clearTimeout(timer); input.value = ""; select.value = ""; showResults(); input.focus(); });
-    el(root, "div", "sn-section-title", "Разделы и темы");
-    const grid = el(root, "nav", "sn-grid"); grid.setAttribute("aria-label", "Разделы справочника");
-    for (const section of sections) {
-        const items = entries.filter(item => item.section === section.title && item !== section);
-        const card = el(grid, "div", "sn-card");
-        const top = link(card, "", section.title, "sn-card-top");
-        el(top, "span", "sn-card-title", section.title); el(top, "span", "sn-card-count", String(items.length));
-        const details = el(card, "details", "");
-        el(details, "summary", "", "Темы раздела · " + items.length);
-        remember(details, section.title);
-        const list = el(details, "div", "sn-topic-list");
-        for (const item of items) {
-            const node = link(list, item.title, item.title, "sn-topic");
-            node.dataset.depth = String(Math.min(2, Math.max(0, item.level - 2)));
+    function rememberPosition(){if(displayed!==null)positions[displayed||"__all"]=article.scrollTop;}
+    async function show(title,{push=true}={}){
+        rememberPosition();
+        if(push&&title!==selected)history.push(selected);
+        selected=title;query="";search.value="";reveal();drawTree();persist();
+        root.dataset.navigationOpen="false";navToggle.setAttribute("aria-expanded","false");
+        back.disabled=!history.length;all.setAttribute("aria-pressed",String(!selected));
+        const index=entries.findIndex(e=>e.title===selected), entry=entries[index];
+        crumbs.replaceChildren();
+        if(entry)entry.path.forEach(parent=>{const b=button(crumbs,parent,"sn-crumb","select");b.dataset.title=parent;el(crumbs,"span","","›");});
+        heading.textContent=entry?.title||"Весь справочник";
+        previous.hidden=next.hidden=!entry;
+        previous.disabled=index<=0;next.disabled=index>=entries.length-1;
+        previous.textContent=index>0?"← "+entries[index-1].title:"Начало";
+        next.textContent=index<entries.length-1?"Следующая: "+entries[index+1].title+" →":"Конец";
+        let stop=index+1;
+        while(stop<entries.length&&entries[stop].level>entry?.level)stop++;
+        const markdown=entry?lines.slice(entry.line+1,entries[stop]?.line??lines.length).join("\n"):raw;
+        const token=++renderId, holder=doc.createElement("div");
+        const renderComponent=new obsidian.Component();component.addChild(renderComponent);
+        status.textContent="Загрузка…";
+        try {
+            await obsidian.MarkdownRenderer.render(app,markdown,holder,source,renderComponent);
+            if(disposed||token!==renderId){component.removeChild(renderComponent);return;}
+            release();child=renderComponent;article.replaceChildren(holder);displayed=selected;
+            article.scrollTop=positions[selected||"__all"]||0;
+            status.textContent=entry?"Тема "+(index+1)+" из "+entries.length:"Все "+entries.length+" заголовков";
+            root.dataset.ready="true";
+        }catch(error){
+            component.removeChild(renderComponent);
+            if(disposed||token!==renderId)return;
+            root.dataset.ready="false";status.textContent="Не удалось показать текст. Исходная заметка доступна ниже.";
+            console.warn("Спортивное питание: чтение",error);
         }
     }
-    const alphabet = el(root, "details", "sn-alphabet");
-    el(alphabet, "summary", "", "Алфавитный указатель · все заголовки");
-    remember(alphabet, "__alphabet");
-    const letters = el(alphabet, "div", "sn-letters");
-    const alphaList = el(alphabet, "div", "sn-alpha-list");
-    const sorted = [...entries].sort((a, b) => a.title.localeCompare(b.title, "ru", { numeric:true, sensitivity:"base" }));
-    function initial(entry) {
-        const first = entry.title.replace(/^[^А-Яа-яЁёA-Za-z0-9]+/u, "").charAt(0).toLocaleUpperCase("ru");
-        return /\d/.test(first) ? "0–9" : first;
-    }
-    function showLetter(letter) {
-        alphaList.replaceChildren();
-        for (const entry of sorted.filter(item => !letter || initial(item) === letter)) {
-            const row = link(alphaList, "", entry.title, "sn-result");
-            el(row, "span", "sn-result-title", entry.title);
-            el(row, "span", "sn-result-path", entry.path.join(" › ") || entry.section);
+    // toggle does not bubble.
+    root.addEventListener("toggle",onToggle,true);
+    function onToggle(event){const d=event.target;if(!d.matches?.("details.sn-branch"))return;if(d.open)opened.add(d.dataset.title);else opened.delete(d.dataset.title);persist();}
+    cleanup.push(()=>root.removeEventListener("toggle",onToggle,true));
+    listen(root,"click",event=>{
+        const b=event.target.closest?.("button[data-action]");
+        if(b&&root.contains(b)){
+            event.preventDefault();event.stopPropagation();
+            const action=b.dataset.action,index=entries.findIndex(e=>e.title===selected);
+            if(action==="select")show(b.dataset.title);
+            if(action==="all")show("");
+            if(action==="previous"&&index>0)show(entries[index-1].title);
+            if(action==="next"&&index<entries.length-1)show(entries[index+1].title);
+            if(action==="back"&&history.length)show(history.pop(),{push:false});
+            if(action==="clear"){query="";search.value="";drawTree();search.focus();}
+            if(action==="navigation"){const open=root.dataset.navigationOpen!=="true";root.dataset.navigationOpen=String(open);navToggle.setAttribute("aria-expanded",String(open));}
+            return;
         }
-        for (const button of letters.children) button.setAttribute("aria-pressed", String(button.dataset.letter === letter));
-    }
-    const initials = [...new Set(sorted.map(initial))].sort((a, b) => a.localeCompare(b, "ru"));
-    for (const letter of ["", ...initials]) {
-        const button = el(letters, "button", "sn-letter", letter || "Все");
-        button.type = "button"; button.dataset.letter = letter; button.setAttribute("aria-pressed", String(!letter));
-    }
-    listen(letters, "click", event => {
-        const button = event.target.closest?.("button[data-letter]");
-        if (button) showLetter(button.dataset.letter);
-    });
-    showLetter("");
-    el(root, "p", "sn-note", "Переходы ведут к исходным записям в этой заметке. Обычное оглавление доступно ниже.");
-    showResults(false);
-    if (!state.alive || state.generation !== generation) { dispose(); return; }
+        const link=event.target.closest?.("a.internal-link");
+        if(!link||!article.contains(link))return;
+        let target=link.dataset.href||link.getAttribute("href")||"";
+        try{target=decodeURIComponent(target);}catch(_){}
+        const hash=target.indexOf("#");
+        if(hash<0)return;
+        const targetFile=target.slice(0,hash), anchor=target.slice(hash+1);
+        if(targetFile&&targetFile!==source&&targetFile!==source.replace(/\.md$/,""))return;
+        const entry=anchor.startsWith("^")?entries.find(e=>e.body.includes(anchor)):entries.find(e=>e.title===anchor);
+        if(entry){event.preventDefault();event.stopPropagation();show(entry.title);}
+    },true);
+    listen(search,"input",()=>{query=search.value.trim();drawTree();if(query){root.dataset.navigationOpen="true";navToggle.setAttribute("aria-expanded","true");}});
+    listen(search,"keydown",event=>{if(event.key==="Escape"){query="";search.value="";drawTree();}});
+    listen(article,"scroll",()=>{rememberPosition();clearTimeout(timer);timer=setTimeout(persist,200);});
     dv.container.appendChild(root);
-    return { dispose };
+    await show(selected,{push:false});
+    if(!lifecycle.alive||generation!==lifecycle.generation)lifecycle.dispose?.();
+    return {dispose:lifecycle.dispose};
 }
-module.exports = sportNutritionUi;
-module.exports.parse = sportNutritionParse;
-module.exports.search = sportNutritionSearch;
-module.exports.css = sportNutritionCss;
+module.exports=sportNutritionReader;
+module.exports.parse=sportNutritionParse;
+module.exports.search=sportNutritionSearch;
+module.exports.css=readerCss;
