@@ -1,0 +1,327 @@
+// Навигация по одной заметке. Исходный Markdown читается, но не изменяется.
+function sportNutritionParse(text) {
+    const start = "<!-- SPORT:NUTRITION:CONTENT:START -->";
+    const end = "<!-- SPORT:NUTRITION:CONTENT:END -->";
+    const marker = /^<!-- SPORT:NUTRITION:CONTENT:START -->\s*$/m.exec(text);
+    const offset = marker?.index ?? -1;
+    const content = (offset < 0 ? text : text.slice(offset + start.length)).split(end)[0]
+        .replace(/<!-- SPORT:NUTRITION:BACK:START -->[\s\S]*?<!-- SPORT:NUTRITION:BACK:END -->/g, "");
+    const lines = content.split(/\r?\n/), entries = [], stack = [];
+    let section = "", fenced = false;
+    for (let i = 0; i < lines.length; i++) {
+        if (/^\s*(\x60{3,}|~{3,})/.test(lines[i])) { fenced = !fenced; continue; }
+        if (fenced) continue;
+        const match = /^(#{1,6})\s+(.+?)\s*$/.exec(lines[i]);
+        if (!match) continue;
+        const level = match[1].length, title = match[2];
+        if (level === 1) section = title;
+        while (stack.length && stack[stack.length - 1].level >= level) stack.pop();
+        entries.push({ title, level, section, line: i, path: stack.map(item => item.title) });
+        stack.push({ title, level });
+    }
+    for (let i = 0; i < entries.length; i++) {
+        const entry = entries[i];
+        entry.body = lines.slice(entry.line + 1, entries[i + 1]?.line ?? lines.length).join("\n").trim();
+        entry.plain = sportNutritionPlain(entry.body);
+        entry.titleKey = sportNutritionNormalize(entry.title);
+        entry.bodyKey = sportNutritionNormalize(entry.plain);
+        entry.pathKey = sportNutritionNormalize(entry.path.join(" "));
+    }
+    return entries;
+}
+function sportNutritionNormalize(value) {
+    return String(value).toLocaleLowerCase("ru").replace(/ё/g, "е").replace(/\s+/g, " ").trim();
+}
+function sportNutritionPlain(value) {
+    return String(value)
+        .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, "$2")
+        .replace(/\[\[([^\]]+)\]\]/g, "$1")
+        .replace(/\[([^\]]+)\]\([^]*?\)/g, "$1")
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/[*_\x60>#]/g, "").replace(/^\^[\w-]+$/gm, "")
+        .replace(/\s+/g, " ").trim();
+}
+function sportNutritionSearch(entries, query, section = "") {
+    const key = sportNutritionNormalize(query), terms = key.split(" ").filter(Boolean);
+    return entries.filter(entry => (!section || entry.section === section)
+        && terms.every(term => (entry.titleKey + " " + entry.pathKey + " " + entry.bodyKey).includes(term)))
+        .map(entry => ({ entry, rank: !key ? 5 : entry.titleKey === key ? 0
+            : entry.titleKey.startsWith(key) ? 1 : entry.titleKey.includes(key) ? 2
+                : terms.every(term => entry.titleKey.includes(term)) ? 3 : 4 }))
+        .sort((a, b) => a.rank - b.rank || a.entry.line - b.entry.line).map(item => item.entry);
+}
+// Продолжение общего парсера. Содержимое заметки никогда не записывается из UI.
+const readerCss = [
+".sn-article .sn-current-heading{background:#b8976018;box-shadow:inset 2px 0 #b89760;border-radius:4px;padding-inline-start:8px!important}",
+".sport-nutrition-page,.sn-reader{--sn-bg:#16181c;--sn-panel:#202329;--sn-hover:#282b31;--sn-text:#e4e2de;--sn-muted:#a8a6a1;--sn-accent:#b89760;--sn-line:#363a42}",
+".markdown-preview-view.sport-nutrition-page h1{font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;color:#b89760;border-inline-start:3px solid #b89760;padding-inline-start:14px}",
+".sn-masthead{padding:22px 26px;border:1px solid var(--sn-line);border-top:3px solid var(--sn-accent);border-radius:4px 4px 12px 12px;background:linear-gradient(120deg,#27251f,var(--sn-bg) 75%);color:var(--sn-text);margin-bottom:16px}.sn-kicker{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--sn-accent)}.sn-intro{font-size:13px;color:var(--sn-muted);margin:10px 0 16px}.sn-stats{display:flex;flex-wrap:wrap;gap:12px 28px;padding-top:16px;border-top:1px solid var(--sn-line)}.sn-stat{display:flex;align-items:baseline;gap:7px;font-size:12px;color:var(--sn-muted)}.sn-stat strong{font:600 23px/1.2 'Cascadia Mono',Consolas,monospace;color:var(--sn-accent)}",
+".sn-reader{color:var(--sn-text)}.sn-reader :is(.sn-sidebar,.sn-article){background:var(--sn-bg);color:var(--sn-text)}.sn-reader .sn-search{background:var(--sn-panel)!important;color:var(--sn-text)!important}.sn-reader .sn-action{background:var(--sn-panel)!important;color:var(--sn-muted)!important}.sn-reader .sn-action:hover{color:var(--sn-accent)!important;background:var(--sn-hover)!important}.sn-reader .sn-row{color:var(--sn-text)!important}.sn-reader .sn-row[aria-current=page]{color:var(--sn-accent)!important}.sn-reader .sn-title{border-inline-start:3px solid var(--sn-accent)!important;padding-inline-start:12px}.sn-reader :is(.sn-status,.sn-caption,.sn-breadcrumb){color:var(--sn-muted)}",
+".sn-alphabet{border:1px solid var(--sn-line);border-radius:8px;background:var(--sn-bg);margin-bottom:18px}.sn-alphabet>summary{min-height:44px;padding:12px 14px;color:var(--sn-accent);cursor:pointer;font-size:13px}.sn-letters{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 12px}.sn-reader .sn-letter{min-width:36px;min-height:44px;padding:7px;border:1px solid var(--sn-line);border-radius:6px;background:var(--sn-panel);color:var(--sn-muted);font-size:12px}.sn-reader .sn-letter[aria-pressed=true]{border-color:var(--sn-accent);color:var(--sn-accent)}.sn-alpha-list{max-height:260px;overflow:auto;scrollbar-width:thin;padding:0 14px 12px}.sn-reader .sn-alpha-row{display:block;width:100%;min-height:44px;text-align:left;border:0;border-top:1px solid var(--sn-line);background:transparent;color:var(--sn-text);padding:10px 0;font-size:13px}",
+".sn-fold-actions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.sn-topic-fold{margin:16px 0;border-top:1px solid var(--sn-line)}.sn-topic-fold>summary{cursor:pointer;min-height:44px;color:var(--sn-accent);padding:12px 0;list-style:disclosure-closed}.sn-topic-fold[open]>summary{list-style:disclosure-open}.sn-topic-fold>summary :is(h1,h2,h3,h4,h5,h6){display:inline;font-family:'Iowan Old Style','Palatino Linotype',Georgia,serif;color:var(--sn-accent);margin:0;border:0;padding:0}.sn-fold-body{padding-top:8px}.sn-reader .sn-row[data-selected=true]:not([aria-current=page]){box-shadow:inset 2px 0 #b8976066}",
+".sport-nutrition-page{--file-line-width:100%;--sn-accent:#b89760;--sn-line:var(--background-modifier-border,#363a42)}",
+".markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{max-width:none;width:100%;min-width:0}.sport-nutrition-page .inline-title{display:none}",
+".sn-reader{container:sn-reader / inline-size;min-width:0;width:100%;font-size:15px}.sn-reader *{box-sizing:border-box}.sn-reader [hidden]{display:none!important}",
+".sn-reader :is(button,input,a,summary):focus-visible{outline:2px solid var(--sn-accent);outline-offset:2px}.sn-reader button{font:inherit;box-shadow:none;cursor:pointer;white-space:normal;height:auto}",
+".sn-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0 20px;padding-bottom:16px;border-bottom:1px solid var(--sn-line)}",
+".sn-reader .sn-search{flex:1;min-width:130px;height:44px;padding:10px 12px;border:1px solid var(--sn-line);border-radius:7px;background:var(--background-primary);color:var(--text-normal);font:inherit}",
+".sn-reader .sn-action{min-height:44px;padding:8px 12px;border:1px solid var(--sn-line);border-radius:7px;background:transparent;color:var(--text-muted);font-size:13px}.sn-reader .sn-action[aria-pressed=true]{color:var(--sn-accent);border-color:var(--sn-accent)}.sn-reader button:disabled{opacity:.35;cursor:default}",
+".sn-shell{display:grid;grid-template-columns:minmax(210px,25%) minmax(0,1fr);gap:24px;align-items:start;min-width:0}",
+".sn-sidebar{height:72vh;min-height:300px;overflow:auto;scrollbar-width:thin;padding:8px;border:1px solid var(--sn-line);border-radius:10px;background:var(--background-primary);min-width:0}",
+".sn-reader .sn-row{display:block;width:100%;text-align:left;padding:10px;min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--text-normal);font-size:13px;line-height:1.45;overflow-wrap:anywhere}",
+".sn-reader .sn-row:hover{background:var(--background-modifier-hover,#282b31)}.sn-reader .sn-row[aria-current=page]{background:color-mix(in srgb,var(--sn-accent) 12%,var(--background-primary));box-shadow:inset 2px 0 var(--sn-accent);color:var(--sn-accent)}",
+".sn-branch>summary{display:flex;align-items:start;list-style:none;cursor:pointer}.sn-branch>summary::-webkit-details-marker{display:none}.sn-branch>summary:before{content:'›';flex:0 0 23px;padding-top:11px;text-align:center;color:var(--text-muted)}.sn-branch[open]>summary:before{content:'⌄'}.sn-branch>summary .sn-row{flex:1;min-width:0}.sn-children{margin-left:10px;padding-left:8px;border-left:1px solid var(--sn-line)}",
+".sn-caption{display:block;font-size:11px;color:var(--text-muted);margin-top:4px}.sn-reading{min-width:0}.sn-breadcrumb{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;color:var(--text-muted);font-size:12px}.sn-reader .sn-crumb{border:0;background:none;color:inherit;font-size:inherit;padding:3px;min-height:30px}",
+".sn-reading-head{display:flex;align-items:start;justify-content:space-between;gap:12px;margin-bottom:12px}.sn-reader h2.sn-title{font:600 25px/1.3 'Palatino Linotype',Georgia,serif;color:var(--sn-accent);margin:0;border:0;overflow-wrap:anywhere}.sn-status{font-size:12px;color:var(--text-muted);margin:8px 0 0}",
+".sn-article{height:65vh;min-height:280px;overflow:auto;scrollbar-width:thin;overscroll-behavior:contain;border:1px solid var(--sn-line);border-radius:10px;padding:22px;line-height:1.75;overflow-wrap:anywhere}.sn-article :is(h1,h2,h3,h4){scroll-margin-top:12px}.sn-article>:first-child{margin-top:0}.sn-article a{color:var(--sn-accent)}",
+".sn-footer{display:flex;justify-content:space-between;gap:8px;margin-top:12px}.sn-footer .sn-action{max-width:48%;text-align:left}.sn-nav-toggle{display:none!important}",
+"/* Hide only the native fallback after a complete successful reader render. */",
+".markdown-preview-view.sport-nutrition-page .el-pre:has(.sn-reader[data-ready=true]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight){display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden;visibility:hidden;pointer-events:none}",
+"@container sn-reader (max-width:680px){.sn-shell{grid-template-columns:minmax(0,1fr);gap:16px}.sn-nav-toggle{display:inline-block!important}.sn-reader[data-navigation-open=false] .sn-sidebar{display:none}.sn-sidebar{height:45vh;min-height:180px}.sn-article{height:65vh;padding:16px}.sn-search{flex-basis:100%!important}.sn-reading-head{display:block}}"
+].join("\n") + "\n.sn-reader .sn-alphabet{margin:20px 0 0}.sn-finder-search{display:flex;align-items:center;gap:8px;padding:0 14px 12px;min-width:0}.sn-reader .sn-finder-search .sn-search{flex:1;min-width:0}.sn-finder-search .sn-action{flex:0 0 44px}.sn-reader .sn-toolbar{justify-content:flex-end}" + "\n.markdown-preview-view.sport-nutrition-page{--file-line-width:100%!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{box-sizing:border-box!important;width:98%!important;max-width:none!important;min-width:0!important;margin-inline:auto!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page :is(.markdown-preview-section,.block-language-dataviewjs){box-sizing:border-box;max-width:none!important;min-width:0;width:100%}.sport-nutrition-page .sn-reader{width:100%!important;max-width:none!important}" + "\n.sport-nutrition-page :is(.metadata-container,.frontmatter-container,pre.frontmatter){display:none!important}.markdown-preview-view.sport-nutrition-page .el-h1:has(~ .el-pre .sn-reader){display:none!important}" + "\n.sn-left-panel{display:grid;grid-template-rows:auto minmax(0,1fr);height:72vh;min-width:0}.sn-reader .sn-left-panel>.sn-sidebar{height:100%;min-height:0}.sn-left-panel>.sn-fold-actions{margin:0 0 10px}.sn-left-panel>.sn-fold-actions .sn-action{font-size:12px;padding:8px 10px}@container sn-reader (max-width:680px){.sn-left-panel{height:45vh;min-height:180px}.sn-reader[data-navigation-open=false] .sn-left-panel{display:none}}" + "\n.sn-reader button{min-height:28px!important;height:auto!important;padding-block:4px!important;line-height:1.35}.sn-reader .sn-action{font-size:12px}.sn-reader .sn-branch>summary:before{padding-top:5px}";
+
+async function sportNutritionReader({dv,app,obsidian={}}) {
+    if (!obsidian.MarkdownRenderer || !obsidian.Component) throw new Error("Недоступен MarkdownRenderer Obsidian");
+    const component=dv.component, doc=dv.container.ownerDocument, source=dv.current()?.file?.path || "Спортивное питание.md";
+    if (!component) throw new Error("Недоступен компонент Dataview");
+    let lifecycle=component.__snReader;
+    if (!lifecycle) {
+        lifecycle={generation:0,alive:true,dispose:null};
+        component.__snReader=lifecycle;
+        component.register(()=>{lifecycle.alive=false;lifecycle.generation++;lifecycle.dispose?.();delete component.__snReader;});
+    }
+    lifecycle.dispose?.(); const generation=++lifecycle.generation;
+    const file=app.vault.getAbstractFileByPath(source);
+    const text=await app.vault.read(file);
+    if (!lifecycle.alive || generation!==lifecycle.generation) return;
+    const entries=sportNutritionParse(text);
+    const raw=text.split("<!-- SPORT:NUTRITION:CONTENT:START -->")[1]?.split("<!-- SPORT:NUTRITION:CONTENT:END -->")[0]
+        .replace(/<!-- SPORT:NUTRITION:BACK:START -->[\s\S]*?<!-- SPORT:NUTRITION:BACK:END -->/g,"");
+    if (!raw || !entries.length) throw new Error("Не найден текст справочника");
+    // Use the exact line origin of the common parser.
+    const lines=raw.split(/\r?\n/);
+    const key="sport_nutrition_reader:"+source;
+    let saved={};
+    try {saved=JSON.parse(doc.defaultView.localStorage.getItem(key)) || {};} catch (_) {}
+    let selected=saved.selected===""||entries.some(e=>e.title===saved.selected)?saved.selected:entries[0].title;
+    let opened=new Set(Array.isArray(saved.opened)?saved.opened:[]), positions=saved.positions||{};
+    let query="", disposed=false, renderId=0, child=null, timer=null, displayed=null;
+    let currentTopic=selected, tracked=[], alphaLetter="";
+    const history=[], cleanup=[];
+    const root=doc.createElement("section");root.className="sn-reader";root.dataset.navigationOpen="false";
+    lifecycle.dispose=()=>{disposed=true;renderId++;clearTimeout(timer);cleanup.splice(0).forEach(fn=>fn());release();root.remove();};
+    function release(){if(child){component.removeChild(child);child=null;}}
+    function el(parent,tag,cls,text){const n=doc.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;parent.appendChild(n);return n;}
+    function listen(n,event,fn,options){n.addEventListener(event,fn,options);cleanup.push(()=>n.removeEventListener(event,fn,options));}
+    function persist(){try{doc.defaultView.localStorage.setItem(key,JSON.stringify({selected,opened:[...opened],positions}));}catch(_){}}
+    function button(parent,label,cls,action){const b=el(parent,"button",cls,label);b.type="button";b.dataset.action=action;return b;}
+    const style=doc.getElementById("sport-nutrition-ui-style")||el(doc.head,"style","");
+    style.id="sport-nutrition-ui-style";style.textContent=readerCss;
+    const toolbar=el(root,"div","sn-toolbar");
+    const searchBox=doc.createElement("div");searchBox.className="sn-finder-search";
+    const search=el(searchBox,"input","sn-search");search.type="search";search.placeholder="Найти вещество, термин или фразу";
+    search.setAttribute("aria-label","Поиск по всему справочнику");
+    button(searchBox,"×","sn-action","clear").setAttribute("aria-label","Очистить поиск");
+    const navToggle=button(toolbar,"Разделы","sn-action sn-nav-toggle","navigation");navToggle.setAttribute("aria-expanded","false");
+    const back=button(toolbar,"← Назад","sn-action","back");
+    const alphabet=el(root,"details","sn-alphabet");
+    el(alphabet,"summary","","Поиск и алфавитный указатель");
+    alphabet.open=true;alphabet.appendChild(searchBox);
+    const letters=el(alphabet,"div","sn-letters"),alphaList=el(alphabet,"div","sn-alpha-list");
+    const sorted=[...entries].sort((a,b)=>a.title.localeCompare(b.title,"ru",{numeric:true,sensitivity:"base"}));
+    function initial(entry){const first=entry.title.replace(/^[^А-Яа-яЁёA-Za-z0-9]+/u,"").charAt(0).toLocaleUpperCase("ru");return /\d/.test(first)?"0–9":first;}
+    for(const letter of ["",...[...new Set(entries.map(initial))].sort((a,b)=>a.localeCompare(b,"ru"))]){
+        const b=button(letters,letter||"Все","sn-letter","letter");b.dataset.letter=letter;
+    }
+    function drawAlphabet(){
+        alphaList.replaceChildren();
+        const matches=new Set(sportNutritionSearch(entries,query));
+        for(const entry of sorted.filter(e=>(!alphaLetter||initial(e)===alphaLetter)&&matches.has(e))){
+            const b=button(alphaList,"","sn-alpha-row","select");b.dataset.title=entry.title;
+            el(b,"span","",entry.title);el(b,"small","sn-caption",entry.path.join(" › ")||entry.section);
+        }
+        if(!alphaList.children.length)el(alphaList,"p","sn-status","Совпадений нет");
+        for(const b of letters.children)b.setAttribute("aria-pressed",String(b.dataset.letter===alphaLetter));
+    }
+    drawAlphabet();
+    const shell=el(root,"div","sn-shell"), left=el(shell,"div","sn-left-panel");
+    const foldActions=el(left,"div","sn-fold-actions");
+    button(foldActions,"Свернуть","sn-action","collapse-all");
+    button(foldActions,"Развернуть","sn-action","expand-all");
+    const all=button(foldActions,"Весь текст ->","sn-action","all");
+    const sidebar=el(left,"nav","sn-sidebar");
+    sidebar.setAttribute("aria-label","Рубрикатор справочника");
+    const reading=el(shell,"section","sn-reading"), crumbs=el(reading,"nav","sn-breadcrumb");
+    crumbs.setAttribute("aria-label","Путь раздела");
+    const head=el(reading,"div","sn-reading-head"), heading=el(head,"h2","sn-title");
+    const status=el(head,"p","sn-status");status.setAttribute("role","status");
+    const article=el(reading,"div","sn-article markdown-rendered");article.tabIndex=0;article.setAttribute("aria-label","Текст выбранной темы");
+    const footer=el(reading,"div","sn-footer"), previous=button(footer,"","sn-action","previous"), next=button(footer,"","sn-action","next");
+    const tree=[], stack=[];
+    entries.forEach((entry,index)=>{
+        const node={entry,index,children:[]};
+        while(stack.length&&stack.at(-1).entry.level>=entry.level)stack.pop();
+        (stack.length?stack.at(-1).children:tree).push(node);stack.push(node);
+    });
+    function reveal(){
+        const entry=entries.find(e=>e.title===selected);
+        entry?.path.forEach(title=>opened.add(title));
+    }
+    function row(parent,entry,caption=""){
+        const b=button(parent,"","sn-row","select");b.dataset.title=entry.title;
+        b.setAttribute("aria-current",currentTopic===entry.title?"page":"false");
+        b.dataset.selected=String(selected===entry.title);
+        el(b,"span","",entry.title);if(caption)el(b,"small","sn-caption",caption);
+    }
+    function drawTree(){
+        sidebar.replaceChildren();
+        function draw(nodes,parent){
+            nodes.forEach(node=>{
+                if(!node.children.length){row(parent,node.entry);return;}
+                const details=el(parent,"details","sn-branch");details.dataset.title=node.entry.title;
+                const summary=el(details,"summary","");summary.setAttribute("aria-label","Раскрыть: "+node.entry.title);
+                row(summary,node.entry);
+                draw(node.children,el(details,"div","sn-children"));details.open=opened.has(node.entry.title);
+            });
+        }
+        draw(tree,sidebar);
+        const active=sidebar.querySelector('[aria-current="page"]');
+        if(active){
+            const box=sidebar.getBoundingClientRect(), row=active.getBoundingClientRect();
+            if(row.bottom>box.bottom)sidebar.scrollTop+=row.bottom-box.bottom+12;
+            else if(row.top<box.top)sidebar.scrollTop-=box.top-row.top+12;
+        }
+    }
+    function rememberPosition(){if(displayed!==null)positions[displayed||"__all"]=article.scrollTop;}
+    function foldSections(holder){
+        const stack=[];
+        for(const block of [...holder.children]){
+            const title=block.matches("h1,h2,h3,h4,h5,h6")?block:block.querySelector(":scope > h1,:scope > h2,:scope > h3,:scope > h4,:scope > h5,:scope > h6");
+            if(title){
+                const level=Number(title.tagName.slice(1));
+                while(stack.length&&stack.at(-1).level>=level)stack.pop();
+                const details=doc.createElement("details");details.className="sn-topic-fold";details.open=true;
+                (stack.length?stack.at(-1).body:holder).appendChild(details);
+                const summary=el(details,"summary","");summary.appendChild(block);
+                const body=el(details,"div","sn-fold-body");stack.push({level,body});
+            }else if(stack.length)stack.at(-1).body.appendChild(block);
+        }
+    }
+    function keepCurrentVisible(){
+        const node=sidebar.querySelector('[aria-current="page"]');if(!node)return;
+        const box=sidebar.getBoundingClientRect(),rect=node.getBoundingClientRect();
+        if(rect.bottom>box.bottom)sidebar.scrollTop+=rect.bottom-box.bottom+10;
+        else if(rect.top<box.top)sidebar.scrollTop-=box.top-rect.top+10;
+    }
+    function syncTopic(){
+        if(disposed||displayed===null)return;
+        const top=article.getBoundingClientRect().top+65;
+        let topic=displayed;
+        for(const item of tracked){
+            if(!item.node.getClientRects().length)continue;
+            if(item.node.getBoundingClientRect().top<=top)topic=item.entry.title;
+            else break;
+        }
+        if(topic===currentTopic)return;
+        currentTopic=topic;
+        for(const item of tracked)item.node.classList.toggle("sn-current-heading",item.entry.title===topic);
+        const entry=entries.find(e=>e.title===topic);
+        if(entry&&!query){
+            entry.path.forEach(title=>opened.add(title));
+            for(const branch of sidebar.querySelectorAll("details.sn-branch"))if(opened.has(branch.dataset.title))branch.open=true;
+        }
+        for(const row of sidebar.querySelectorAll(".sn-row"))row.setAttribute("aria-current",String(row.dataset.title===topic?"page":"false"));
+        keepCurrentVisible();
+        status.textContent=entry?"Сейчас: "+entry.title:"Весь справочник";
+    }
+    async function show(title,{push=true}={}){
+        rememberPosition();
+        if(push&&title!==selected)history.push(selected);
+        selected=title;currentTopic=title;query="";search.value="";reveal();drawTree();drawAlphabet();persist();
+
+        root.dataset.navigationOpen="false";navToggle.setAttribute("aria-expanded","false");
+        back.disabled=!history.length;all.setAttribute("aria-pressed",String(!selected));
+        const index=entries.findIndex(e=>e.title===selected), entry=entries[index];
+        crumbs.replaceChildren();
+        if(entry)entry.path.forEach(parent=>{const b=button(crumbs,parent,"sn-crumb","select");b.dataset.title=parent;el(crumbs,"span","","›");});
+        heading.textContent=entry?.title||"Весь справочник";
+        previous.hidden=next.hidden=!entry;
+        previous.disabled=index<=0;next.disabled=index>=entries.length-1;
+        previous.textContent=index>0?"← "+entries[index-1].title:"Начало";
+        next.textContent=index<entries.length-1?"Следующая: "+entries[index+1].title+" →":"Конец";
+        let stop=index+1;
+        while(stop<entries.length&&entries[stop].level>entry?.level)stop++;
+        const markdown=entry?lines.slice(entry.line+1,entries[stop]?.line??lines.length).join("\n"):raw;
+        const token=++renderId, holder=doc.createElement("div");
+        const renderComponent=new obsidian.Component();component.addChild(renderComponent);
+        status.textContent="Загрузка…";
+        try {
+            await obsidian.MarkdownRenderer.render(app,markdown,holder,source,renderComponent);
+            if(disposed||token!==renderId){component.removeChild(renderComponent);return;}
+            foldSections(holder);
+            release();child=renderComponent;article.replaceChildren(holder);displayed=selected;
+            const allowed=new Map(entries.slice(entry?index+1:0,entry?stop:entries.length).map(e=>[sportNutritionNormalize(e.title),e]));
+            tracked=[...holder.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node=>({node,entry:allowed.get(sportNutritionNormalize(node.textContent))})).filter(item=>item.entry);
+
+            article.scrollTop=positions[selected||"__all"]||0;
+            status.textContent=entry?"Тема "+(index+1)+" из "+entries.length:"Все "+entries.length+" заголовков";
+            root.dataset.ready="true";
+            syncTopic();
+        }catch(error){
+            component.removeChild(renderComponent);
+            if(disposed||token!==renderId)return;
+            root.dataset.ready="false";status.textContent="Не удалось показать текст. Исходная заметка доступна ниже.";
+            console.warn("Спортивное питание: чтение",error);
+        }
+    }
+    // toggle does not bubble.
+    root.addEventListener("toggle",onToggle,true);
+    function onToggle(event){const d=event.target;if(d.matches?.("details.sn-topic-fold")){syncTopic();return;}if(!d.matches?.("details.sn-branch"))return;if(d.open)opened.add(d.dataset.title);else opened.delete(d.dataset.title);persist();}
+    cleanup.push(()=>root.removeEventListener("toggle",onToggle,true));
+    listen(root,"click",event=>{
+        const b=event.target.closest?.("button[data-action]");
+        if(b&&root.contains(b)){
+            event.preventDefault();event.stopPropagation();
+            const action=b.dataset.action,index=entries.findIndex(e=>e.title===selected);
+            if(action==="select"){
+                const fromFinder=alphabet.contains(b);
+                show(b.dataset.title).then(()=>{if(fromFinder&&!disposed)reading.scrollIntoView({block:"start",behavior:"smooth"});});
+            }
+            if(action==="all")show("");
+            if(action==="letter"){alphaLetter=b.dataset.letter;drawAlphabet();}
+            if(action==="collapse-all"||action==="expand-all"){
+                const expand=action==="expand-all";opened=expand?new Set(entries.map(e=>e.title)):new Set();
+                for(const branch of sidebar.querySelectorAll("details.sn-branch"))branch.open=expand;
+                persist();
+            }
+            if(action==="previous"&&index>0)show(entries[index-1].title);
+            if(action==="next"&&index<entries.length-1)show(entries[index+1].title);
+            if(action==="back"&&history.length)show(history.pop(),{push:false});
+            if(action==="clear"){query="";search.value="";drawTree();drawAlphabet();search.focus();}
+            if(action==="navigation"){const open=root.dataset.navigationOpen!=="true";root.dataset.navigationOpen=String(open);navToggle.setAttribute("aria-expanded",String(open));}
+            return;
+        }
+        const link=event.target.closest?.("a.internal-link");
+        if(!link||!article.contains(link))return;
+        let target=link.dataset.href||link.getAttribute("href")||"";
+        try{target=decodeURIComponent(target);}catch(_){}
+        const hash=target.indexOf("#");
+        if(hash<0)return;
+        const targetFile=target.slice(0,hash), anchor=target.slice(hash+1);
+        if(targetFile&&targetFile!==source&&targetFile!==source.replace(/\.md$/,""))return;
+        const entry=anchor.startsWith("^")?entries.find(e=>e.body.includes(anchor)):entries.find(e=>e.title===anchor);
+        if(entry){event.preventDefault();event.stopPropagation();show(entry.title);}
+    },true);
+    listen(search,"input",()=>{query=search.value.trim();drawTree();drawAlphabet();if(query){root.dataset.navigationOpen="true";navToggle.setAttribute("aria-expanded","true");}});
+    listen(search,"keydown",event=>{if(event.key==="Escape"){query="";search.value="";drawTree();drawAlphabet();}});
+    listen(article,"scroll",()=>{rememberPosition();syncTopic();clearTimeout(timer);timer=setTimeout(persist,200);});
+    root.appendChild(alphabet);
+    dv.container.appendChild(root);
+    await show(selected,{push:false});
+    if(!lifecycle.alive||generation!==lifecycle.generation)lifecycle.dispose?.();
+    return {dispose:lifecycle.dispose};
+}
+module.exports=sportNutritionReader;
+module.exports.parse=sportNutritionParse;
+module.exports.search=sportNutritionSearch;
+module.exports.css=readerCss;
