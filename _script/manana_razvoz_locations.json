@@ -235,6 +235,42 @@
       "objectId": "70000001067450278",
       "source": "https://2gis.ru/chelyabinsk/firm/70000001067450278",
       "checkedAt": "2026-10-28"
+    },
+    {
+      "address": "Захаренко 11",
+      "formattedAddress": "Захаренко, 11",
+      "lon": 61.304473,
+      "lat": 55.197788,
+      "objectId": "2111697980493811",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980493811",
+      "checkedAt": "2026-10-29"
+    },
+    {
+      "address": "Комсомольский проспект 30",
+      "formattedAddress": "Комсомольский проспект, 30",
+      "lon": 61.350548,
+      "lat": 55.195173,
+      "objectId": "2111697980493026",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980493026",
+      "checkedAt": "2026-10-29"
+    },
+    {
+      "address": "40 лет победы  28а",
+      "formattedAddress": "40-летия Победы, 28а",
+      "lon": 61.300742,
+      "lat": 55.182113,
+      "objectId": "2111697980494846",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980494846",
+      "checkedAt": "2026-10-29"
+    },
+    {
+      "address": "Комсомольский проспект 30д",
+      "formattedAddress": "Комсомольский проспект, 30д",
+      "lon": 61.349756,
+      "lat": 55.19559,
+      "objectId": "2111697980493032",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980493032",
+      "checkedAt": "2026-10-29"
     }
   ]
 }
