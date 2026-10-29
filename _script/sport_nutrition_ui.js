@@ -78,7 +78,7 @@ const readerCss = [
 "/* Hide only the native fallback after a complete successful reader render. */",
 ".markdown-preview-view.sport-nutrition-page .el-pre:has(.sn-reader[data-ready=true]) ~ :not(.markdown-preview-pusher):not(.mod-ui):not(.search-highlight){display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden;visibility:hidden;pointer-events:none}",
 "@container sn-reader (max-width:680px){.sn-shell{grid-template-columns:minmax(0,1fr);gap:16px}.sn-nav-toggle{display:inline-block!important}.sn-reader[data-navigation-open=false] .sn-sidebar{display:none}.sn-sidebar{height:45vh;min-height:180px}.sn-article{height:65vh;padding:16px}.sn-search{flex-basis:100%!important}.sn-reading-head{display:block}}"
-].join("\n");
+].join("\n") + "\n.markdown-preview-view.sport-nutrition-page{--file-line-width:100%!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page .markdown-preview-sizer{box-sizing:border-box!important;width:100%!important;max-width:none!important;min-width:0!important;margin-inline:0!important;padding-inline:0!important}.markdown-preview-view.sport-nutrition-page :is(.markdown-preview-section,.block-language-dataviewjs){box-sizing:border-box;max-width:none!important;min-width:0;width:100%}.sport-nutrition-page .sn-reader{width:100%!important;max-width:none!important}" + "\n.sport-nutrition-page :is(.metadata-container,.frontmatter-container,pre.frontmatter){display:none!important}.markdown-preview-view.sport-nutrition-page .el-h1:has(~ .el-pre .sn-reader){display:none!important}" + "\n.sn-left-panel{display:grid;grid-template-rows:auto minmax(0,1fr);height:72vh;min-width:0}.sn-reader .sn-left-panel>.sn-sidebar{height:100%;min-height:0}.sn-left-panel>.sn-fold-actions{margin:0 0 10px}.sn-left-panel>.sn-fold-actions .sn-action{font-size:12px;padding:8px 10px}@container sn-reader (max-width:680px){.sn-left-panel{height:45vh;min-height:180px}.sn-reader[data-navigation-open=false] .sn-left-panel{display:none}}";
 
 async function sportNutritionReader({dv,app,obsidian={}}) {
     if (!obsidian.MarkdownRenderer || !obsidian.Component) throw new Error("Недоступен MarkdownRenderer Obsidian");
@@ -117,13 +117,6 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
     function button(parent,label,cls,action){const b=el(parent,"button",cls,label);b.type="button";b.dataset.action=action;return b;}
     const style=doc.getElementById("sport-nutrition-ui-style")||el(doc.head,"style","");
     style.id="sport-nutrition-ui-style";style.textContent=readerCss;
-    const masthead=el(root,"header","sn-masthead");
-    el(masthead,"div","sn-kicker","Личный справочник");
-    el(masthead,"p","sn-intro","Выбери тему в рубрикаторе или найди её по названию, тексту и алфавиту.");
-    const stats=el(masthead,"div","sn-stats");
-    for(const [number,label] of [[entries.filter(e=>e.level===1).length,"разделов"],[entries.length,"заголовков"],[1,"файл"]]){
-        const stat=el(stats,"div","sn-stat");el(stat,"strong","",String(number));el(stat,"span","",label);
-    }
     const toolbar=el(root,"div","sn-toolbar");
     const search=el(toolbar,"input","sn-search");search.type="search";search.placeholder="Найти вещество, термин или фразу";
     search.setAttribute("aria-label","Поиск по всему справочнику");
@@ -150,15 +143,16 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
         for(const b of letters.children)b.setAttribute("aria-pressed",String(b.dataset.letter===alphaLetter));
     }
     drawAlphabet();
-    const shell=el(root,"div","sn-shell"), sidebar=el(shell,"nav","sn-sidebar");
+    const shell=el(root,"div","sn-shell"), left=el(shell,"div","sn-left-panel");
+    const foldActions=el(left,"div","sn-fold-actions");
+    button(foldActions,"Свернуть всё","sn-action","collapse-all");
+    button(foldActions,"Развернуть всё","sn-action","expand-all");
+    const sidebar=el(left,"nav","sn-sidebar");
     sidebar.setAttribute("aria-label","Рубрикатор справочника");
     const reading=el(shell,"section","sn-reading"), crumbs=el(reading,"nav","sn-breadcrumb");
     crumbs.setAttribute("aria-label","Путь раздела");
     const head=el(reading,"div","sn-reading-head"), heading=el(head,"h2","sn-title");
     const status=el(head,"p","sn-status");status.setAttribute("role","status");
-    const foldActions=el(reading,"div","sn-fold-actions");
-    const collapse=button(foldActions,"Свернуть всё","sn-action","collapse-all");
-    const expand=button(foldActions,"Развернуть всё","sn-action","expand-all");
     const article=el(reading,"div","sn-article markdown-rendered");article.tabIndex=0;article.setAttribute("aria-label","Текст выбранной темы");
     const footer=el(reading,"div","sn-footer"), previous=button(footer,"","sn-action","previous"), next=button(footer,"","sn-action","next");
     const tree=[], stack=[];
@@ -277,7 +271,7 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
             release();child=renderComponent;article.replaceChildren(holder);displayed=selected;
             const allowed=new Map(entries.slice(entry?index+1:0,entry?stop:entries.length).map(e=>[sportNutritionNormalize(e.title),e]));
             tracked=[...holder.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(node=>({node,entry:allowed.get(sportNutritionNormalize(node.textContent))})).filter(item=>item.entry);
-            collapse.disabled=expand.disabled=!holder.querySelector(".sn-topic-fold");
+
             article.scrollTop=positions[selected||"__all"]||0;
             status.textContent=entry?"Тема "+(index+1)+" из "+entries.length:"Все "+entries.length+" заголовков";
             root.dataset.ready="true";
@@ -301,7 +295,11 @@ async function sportNutritionReader({dv,app,obsidian={}}) {
             if(action==="select")show(b.dataset.title);
             if(action==="all")show("");
             if(action==="letter"){alphaLetter=b.dataset.letter;drawAlphabet();}
-            if(action==="collapse-all"||action==="expand-all"){for(const fold of article.querySelectorAll("details.sn-topic-fold"))fold.open=action==="expand-all";syncTopic();}
+            if(action==="collapse-all"||action==="expand-all"){
+                const expand=action==="expand-all";opened=expand?new Set(entries.map(e=>e.title)):new Set();
+                for(const branch of sidebar.querySelectorAll("details.sn-branch"))branch.open=expand;
+                persist();
+            }
             if(action==="previous"&&index>0)show(entries[index-1].title);
             if(action==="next"&&index<entries.length-1)show(entries[index+1].title);
             if(action==="back"&&history.length)show(history.pop(),{push:false});
