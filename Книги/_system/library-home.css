@@ -133,23 +133,31 @@
 @media(pointer:coarse) { .book-home-ui :is(button,summary,.book-home-action,.book-home-overview) { min-height: 44px; } }
 @media(pointer:coarse) { .book-home-ui .book-home-action.is-icon { flex-basis: 44px; width: 44px; height: 44px; } }
 
-/* Cancel theme embed offsets so the first table column stays reachable on mobile. */
-.books-home-page .book-home-ui :is(.books-base-content,.book-home-native-content,.book-home-native-render) {
-    width: 100%; min-width: 0; max-width: 100%;
-    margin-inline: 0; padding-inline: 0;
+/* Scope layout to the note, preserving Bases' own horizontal scroller. */
+.books-home-page .book-home-ui :is(.book-home-native-content,.book-home-native-render,.books-base-content) {
+    min-width: 0; width: 100%; max-width: 100%; margin-inline: 0;
 }
-.books-home-page .book-home-ui :is(.internal-embed,.markdown-embed,.markdown-embed-content,.bases-embed) {
-    width: 100% !important; min-width: 0 !important; max-width: 100% !important;
+.books-home-page .book-home-ui :is(.bases-embed,.markdown-embed) {
     margin-inline: 0 !important; padding-inline: 0 !important;
-    left: auto !important;
+    width: 100% !important; max-width: 100% !important; min-width: 0;
 }
-/* Keep the native Bases scroll area and its full column width. */
-.books-home-page .book-home-ui :is(.books-base-content,.book-home-native-content) {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+.books-home-page .book-home-ui .bases-view {
+    width: 100%; min-width: 0; max-width: 100%;
 }
-.books-home-page .book-home-ui .bases-table {
-    width: max-content;
-    min-width: 100%;
-    max-width: none;
+/* Live Preview must not reserve a code gutter around the home widget. */
+.markdown-source-view.books-home-page .cm-gutters { display: none !important; }
+.markdown-source-view.books-home-page .inline-title { display: none !important; }
+.markdown-source-view.books-home-page .cm-content { padding-inline: 0 !important; }
+.markdown-source-view.books-home-page .cm-embed-block:has(.book-home-ui) {
+    padding-inline: 0 !important; margin-inline: 0 !important;
+    width: 100% !important; max-width: 100% !important;
+}
+
+/* Bases synchronizes its header and virtual rows through its native scroller.
+   Outer wrappers must not create an independent horizontal scroll area. */
+.books-home-page .book-home-ui :is(.books-base-content,.book-home-native-content,.book-home-native-render) {
+    overflow: clip;
+}
+.books-home-page .book-home-ui .bases-table-container {
+    margin-inline: 0 !important;
 }
