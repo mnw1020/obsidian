@@ -155,12 +155,14 @@
 
 /* Author pages and the author catalogue use the full available note pane. */
 .markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) {
-    --file-line-width: 100%;
+    --file-line-width: 98%;
+    --file-margins: 0;
 }
 .markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) .markdown-preview-sizer {
-    width: 100% !important;
-    max-width: none !important;
-    margin-inline: 0 !important;
+    width: 98% !important;
+    max-width: 98% !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
 }
 .markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) .book-authors-ui {
     width: 100%;

@@ -132,3 +132,24 @@
 }
 @media(pointer:coarse) { .book-home-ui :is(button,summary,.book-home-action,.book-home-overview) { min-height: 44px; } }
 @media(pointer:coarse) { .book-home-ui .book-home-action.is-icon { flex-basis: 44px; width: 44px; height: 44px; } }
+
+/* Cancel theme embed offsets so the first table column stays reachable on mobile. */
+.books-home-page .book-home-ui :is(.books-base-content,.book-home-native-content,.book-home-native-render) {
+    width: 100%; min-width: 0; max-width: 100%;
+    margin-inline: 0; padding-inline: 0;
+}
+.books-home-page .book-home-ui :is(.internal-embed,.markdown-embed,.markdown-embed-content,.bases-embed) {
+    width: 100% !important; min-width: 0 !important; max-width: 100% !important;
+    margin-inline: 0 !important; padding-inline: 0 !important;
+    left: auto !important;
+}
+/* Keep the native Bases scroll area and its full column width. */
+.books-home-page .book-home-ui :is(.books-base-content,.book-home-native-content) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.books-home-page .book-home-ui .bases-table {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+}
