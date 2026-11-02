@@ -113,13 +113,10 @@
 .manana-ui .manana-trip-stops li { padding: 3px 0; }
 .manana-ui .manana-trip-stop { display: flex; align-items: center; gap: calc(8px * var(--manana-scale)); }
 .manana-ui .manana-trip-stop-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.manana-ui .manana-trip-drag { touch-action: none; cursor: grab; border-color: transparent; }
-.manana-ui .manana-trip-drag:disabled { opacity: .3; cursor: default; }
 .manana-ui .manana-trip-stop-actions .manana-trip-remove { border-color: transparent; }
 .manana-ui .manana-trip-stop-actions .manana-trip-remove:hover { color: #e19188; }
 .manana-ui .manana-trip-stops.is-reordering { user-select: none; -webkit-user-select: none; }
 .manana-ui .manana-trip-stops li.is-dragging { background: color-mix(in srgb,var(--manana-accent) 10%,var(--manana-theme-bg,#16181c)); border-radius: calc(4px * var(--manana-scale)); outline: 1px solid var(--manana-accent); }
-.manana-ui .is-dragging .manana-trip-drag { cursor: grabbing; color: var(--manana-accent); }
 .manana-ui .manana-trip-address { display: block; font-size: 10px; opacity: .85; overflow-wrap: anywhere; }
 .manana-ui .manana-road-attribution { display: block; margin-top: calc(6px * var(--manana-scale)); color: var(--manana-theme-muted,#a8a69f); font-size: 9px; text-align: right; text-decoration: none; }
 .manana-ui .manana-empty { margin: 0; padding: calc(24px * var(--manana-scale)) calc(14px * var(--manana-scale)); color: var(--manana-theme-muted,#a8a69f); font-size: 12px; text-align: center; }
@@ -149,3 +146,13 @@
     .manana-ui button.manana-trip-toggle { flex-basis: 100%; }
     .manana-ui .manana-trip-actions { margin-left: auto; }
 }
+
+/* Keep the leading search slot stable when switching to clear. */
+.manana-ui .manana-search-icon { flex: 0 0 calc(20px * var(--manana-scale)); width: calc(20px * var(--manana-scale)); height: calc(20px * var(--manana-scale)); align-items: center; justify-content: center; }
+
+/* Reorder the whole address tile; buttons keep their own actions. */
+.manana-ui ol.manana-trip-stops { list-style: none; padding-left: 0; display: grid; gap: calc(6px * var(--manana-scale)); counter-reset: manana-stop; }
+.manana-ui .manana-trip-stops li.manana-trip-tile { position: relative; counter-increment: manana-stop; padding: calc(8px * var(--manana-scale)) calc(7px * var(--manana-scale)) calc(8px * var(--manana-scale)) calc(28px * var(--manana-scale)); border: 1px solid var(--manana-line); border-radius: calc(6px * var(--manana-scale)); background: var(--manana-theme-surface); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.manana-ui .manana-trip-tile::before { content: counter(manana-stop) '.'; position: absolute; left: calc(9px * var(--manana-scale)); top: 50%; transform: translateY(-50%); color: var(--manana-accent); }
+.manana-ui .manana-trip-tile:focus-visible { outline: 2px solid var(--manana-accent); outline-offset: 2px; }
+.manana-ui .manana-trip-stops li.manana-trip-tile.is-dragging { cursor: grabbing; background: color-mix(in srgb,var(--manana-accent) 12%,var(--manana-theme-surface)); outline: 1px solid var(--manana-accent); box-shadow: 0 3px 10px #0005; }

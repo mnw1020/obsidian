@@ -185,7 +185,9 @@ async function render({ dv, app, obsidian = {} }) {
         const searchAdd = iconButton(searchWrap, 'plus', '+', 'Добавить введённый адрес в список', 'manana-search-add');
         searchAdd.hidden = !search.value.trim();
         const clear = iconButton(searchWrap, 'circle-x', '⊗', 'Очистить поиск', 'manana-search-clear');
+        searchWrap.insertBefore(clear, search);
         clear.hidden = !search.value.length;
+        searchIcon.hidden = Boolean(search.value.length);
         const add = iconButton(toolbar, 'plus', '+', 'Добавить человека', 'manana-add');
         add.setAttribute('aria-haspopup', 'dialog');
         const tripPanel = el(root, 'section', 'manana-trip'); tripPanel.hidden = true;
@@ -239,7 +241,9 @@ async function render({ dv, app, obsidian = {} }) {
                 tripList.replaceChildren();
                 for (const stop of selected.stops) {
                     const entry = entries.find(item => item.id === stop.id);
-                    const item = el(tripList, 'li');
+                    const item = el(tripList, 'li', 'manana-trip-tile');
+                    item.tabIndex = selected.stops.length > 1 ? 0 : -1;
+                    accessibleName(item, 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.');
                     item.dataset.stopId = stop.id;
                     const line = el(item, 'div', 'manana-trip-stop');
                     const text = el(line, 'div', 'manana-trip-stop-text');
@@ -249,8 +253,6 @@ async function render({ dv, app, obsidian = {} }) {
                     const edit = iconButton(actions, 'pencil', '✎', 'Изменить адрес в поездке: ' + (entry?.name || stop.address), 'manana-trip-edit');
                     edit.setAttribute('aria-haspopup', 'dialog');
                     edit.addEventListener('click', () => openTripEdit(stop, selected.revision, edit));
-                    const handle = iconButton(actions, 'grip-vertical', '⠿', 'Перетащить адрес: ' + (entry?.name || stop.address) + '. Стрелки вверх и вниз меняют порядок.', 'manana-trip-drag');
-                    handle.disabled = selected.stops.length < 2;
                     const remove = iconButton(actions, 'x', '×', 'Убрать из поездки: ' + (entry?.name || stop.address), 'manana-trip-remove');
                     remove.addEventListener('click', () => {
                         try { tripStore.remove(stop.id, selected.revision); notifyTrip(); message('Адрес убран из поездки.'); }
@@ -291,12 +293,13 @@ async function render({ dv, app, obsidian = {} }) {
                 tripStore.reorder(ids, revision); notifyTrip(); message('Порядок адресов сохранён.');
             } catch (error) { paintTrip(); message(error.message || String(error), true); }
             for (const item of tripList.children) {
-                if (item.dataset.stopId === focusId) item.querySelector('.manana-trip-drag')?.focus({ preventScroll: true });
+                if (item.dataset.stopId === focusId) item.focus({ preventScroll: true });
             }
         }
         listen(tripList, 'pointerdown', event => {
-            const handle = event.target.closest?.('.manana-trip-drag');
-            if (!handle || handle.disabled || event.button !== 0 || event.isPrimary === false || tripDrag || !tripStore) return;
+            if (event.target.closest?.('button,input,a')) return;
+            const handle = event.target.closest?.('.manana-trip-tile');
+            if (!handle || tripList.children.length < 2 || event.button !== 0 || event.isPrimary === false || tripDrag || !tripStore) return;
             try {
                 const selected = tripStore.read(), original = [...tripList.children];
                 if (selected.stops.map(stop => stop.id).join('\n') !== original.map(item => item.dataset.stopId).join('\n')) { paintTrip(); return; }
@@ -332,8 +335,9 @@ async function render({ dv, app, obsidian = {} }) {
             if (event.key === 'Escape' && tripDrag) { event.preventDefault(); cancelTripDrag(); }
         });
         listen(tripList, 'keydown', event => {
-            const handle = event.target.closest?.('.manana-trip-drag');
-            if (!handle || handle.disabled || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
+            if (event.target.closest?.('button,input,a')) return;
+            const handle = event.target.closest?.('.manana-trip-tile');
+            if (!handle || tripList.children.length < 2 || !['ArrowUp', 'ArrowDown'].includes(event.key)) return;
             event.preventDefault(); cancelTripDrag();
             try {
                 const selected = tripStore.read(), ids = selected.stops.map(stop => stop.id);
@@ -428,6 +432,7 @@ async function render({ dv, app, obsidian = {} }) {
             const visible = filterRows(entries, state.query);
             rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
             clear.hidden = !search.value.length;
+        searchIcon.hidden = Boolean(search.value.length);
             searchAdd.hidden = !search.value.trim();
             if (!visible.length) el(rows, 'p', 'manana-empty', entries.length ? 'Ничего не найдено. Попробуйте другое имя или адрес.' : 'Список пуст. Добавьте первого человека кнопкой +.');
             for (const entry of visible) {
