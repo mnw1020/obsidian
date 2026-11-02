@@ -74,7 +74,7 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
         if (seriesMode) commandLink(actions, 'Добавить произведение', 'Книги - Добавить книгу', null, null, 'book-authors-change book-series-add');
         if (!seriesMode) internal(actions, 'Выбрать автора', `Книги/_system/${catalogue}`, 'book-authors-change');
     }
-    const stats = el(root, 'div', 'book-authors-stats');
+    const stats = el(root, 'div', `book-authors-stats${!seriesMode && !index ? ' book-author-detail-stats' : ''}`);
     const section = el(root, 'section', 'book-authors-collection');
     const sectionHead = el(section, 'div', 'book-authors-section-heading');
     el(sectionHead, 'h2', '', index ? seriesMode ? 'Серии в коллекции' : 'Авторы в коллекции' : 'Произведения');
@@ -273,7 +273,10 @@ async function render({ dv, app, obsidian = {}, mode = 'index' }) {
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
             } else {
                 stat('В коллекции', items.length);
-                if (!seriesMode) stat('Чтений', items.reduce((sum, item) => sum + item.history.length, 0));
+                if (!seriesMode) {
+                    stat('Чтений', items.reduce((sum, item) => sum + item.history.length, 0));
+                    stat('Баллы симпатии', aggregate(items).find(row => row.name === selectedName)?.points ?? 0);
+                }
                 stat('Средняя моя оценка', score(ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null));
                 stat('Любимые 8–10', ratings.filter(value => value >= 8).length);
                 const years = [...new Set(items.flatMap(item => item.years))].sort();

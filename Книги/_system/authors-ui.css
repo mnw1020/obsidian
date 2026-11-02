@@ -120,3 +120,49 @@
     .book-series-ui .book-authors-person-row .book-authors-chips { grid-template-columns: repeat(2,var(--series-metric-size)); }
     .book-series-ui .book-authors-person-row .book-authors-chip:last-child { grid-column: 2; }
 }
+
+/* Six author metrics: keep complete rows at each available pane width. */
+.book-authors-ui .book-author-detail-stats { grid-template-columns: repeat(6,minmax(0,1fr)); row-gap: 22px; }
+.book-authors-ui .book-author-detail-stats .book-authors-stat { grid-column: auto; }
+.book-authors-ui .book-author-detail-stats .book-authors-stat-label { overflow-wrap: anywhere; }
+@container book-authors (max-width: 900px) {
+    .book-authors-ui .book-author-detail-stats { grid-template-columns: repeat(3,minmax(0,1fr)); }
+    .book-authors-ui .book-author-detail-stats .book-authors-stat:nth-child(4) { border-left: 0; padding-left: 0; }
+}
+@container book-authors (max-width: 420px) {
+    .book-authors-ui .book-author-detail-stats { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .book-authors-ui .book-author-detail-stats .book-authors-stat { padding-inline: 12px; border-left: 1px solid var(--authors-line); }
+    .book-authors-ui .book-author-detail-stats .book-authors-stat:nth-child(odd) { border-left: 0; padding-left: 0; }
+}
+
+.book-authors-ui .book-author-detail-stats .book-authors-stat-value { width: 100%; text-align: center; }
+
+.book-authors-ui .book-author-detail-stats .book-authors-stat-label { width: 100%; text-align: center; }
+
+/* Keep embedded Bases inside the page; horizontal scrolling belongs to the table. */
+.book-authors-ui .book-authors-info { min-width: 0; max-width: 100%; }
+.book-authors-ui .book-authors-table { width: 100%; min-width: 0; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.book-authors-ui .book-authors-table .internal-embed,
+.book-authors-ui .book-authors-table .markdown-embed,
+.book-authors-ui .book-authors-table .markdown-embed-content,
+.book-authors-ui .book-authors-table .bases-embed {
+    width: 100% !important; min-width: 0 !important; max-width: 100% !important;
+    margin-inline: 0 !important; padding-inline: 0 !important;
+    left: auto !important; transform: none !important;
+}
+.book-authors-ui .book-authors-table .bases-view { min-width: 0; max-width: 100%; }
+.book-authors-ui .book-authors-table .bases-table-container { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Author pages and the author catalogue use the full available note pane. */
+.markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) {
+    --file-line-width: 100%;
+}
+.markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) .markdown-preview-sizer {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+}
+.markdown-preview-view:has(.book-authors-ui:not(.book-series-ui)) .book-authors-ui {
+    width: 100%;
+    max-width: none;
+}
