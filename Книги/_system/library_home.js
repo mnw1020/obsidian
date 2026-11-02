@@ -234,14 +234,39 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 scroll.setAttribute('aria-label', label);
                 const table = el(scroll, 'table', 'book-home-simple-table');
                 const head = el(el(table, 'thead'), 'tr');
-                for (const title of ['Произведение', 'Автор', 'Тип', 'Оценка', 'Дата', 'Чтений', 'Серия', '№']) el(head, 'th', '', title).scope = 'col';
+                for (const title of ['Произведение', 'Автор', 'Тип', 'Оценка', 'Дата']) el(head, 'th', '', title).scope = 'col';
                 const body = el(table, 'tbody');
                 for (const {file, fm} of rows) {
                     const row = el(body, 'tr');
                     internal(el(row, 'td'), fm.title || file.basename, file.path, '', links);
-                    const authors = Array.isArray(fm.authors) ? fm.authors.join(' · ') : fm.authors || '—';
-                    const types = {book:'Книга',novel:'Роман',novella:'Повесть',story:'Рассказ',collection:'Сборник',poem:'Стихи',essay:'Эссе',play:'Пьеса',article:'Статья',lecture:'Лекция'};
-                    for (const value of [authors, types[fm.work_type] || fm.work_type || '—', fm.rating ?? '—', fm.date || '—', fm.read_count ?? 0, fm.series || '—', fm.series_index || '—']) el(row, 'td', '', value);
+                    function entityLink(parent, name, kind) {
+                        const choice = kind === 'author' ? 'Книги - Открыть автора' : 'Книги - Открыть серию';
+                        const anchor = el(parent, 'a', '', name);
+                        anchor.href = 'obsidian://quickadd?choice=' + encodeURIComponent(choice) + '&value-' + kind + '=' + encodeURIComponent(name);
+                        listen(anchor, 'click', async event => {
+                            const api = app.plugins?.plugins?.quickadd?.api;
+                            if (!api?.executeChoice) return;
+                            event.preventDefault();
+                            try { await api.executeChoice(choice, { [kind]: name }); }
+                            catch (problem) { if (!disposed) { status.hidden = false; status.textContent = String(problem.message || problem); } }
+                        }, links);
+                    }
+                    const authors = (Array.isArray(fm.authors) ? fm.authors : [fm.authors]).map(value => String(value ?? '').trim()).filter(Boolean);
+                    const authorCell = el(row, 'td');
+                    authors.forEach((name, index) => {
+                        if (index) authorCell.appendChild(doc.createTextNode(' · '));
+                        entityLink(authorCell, name, 'author');
+                    });
+                    if (!authors.length) authorCell.textContent = '—';
+                    // Match formula.work_type in _Книги.base, including its default.
+                    const workType = !fm.work_type ? '📕 Книга' : ({story:'📄 Рассказ', lecture:'🎓 Лекция', article:'📰 Статья'}[fm.work_type] || '❓ Другое');
+                    const rawDate = fm.date instanceof Date
+                        ? [fm.date.getFullYear(), String(fm.date.getMonth() + 1).padStart(2, '0'), String(fm.date.getDate()).padStart(2, '0')].join('-')
+                        : String(fm.date ?? '');
+                    const dateParts = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T|\s)/);
+                    const displayDate = dateParts ? `${dateParts[3]}.${dateParts[2]}.${dateParts[1]}` : rawDate || '—';
+                    for (const value of [workType, fm.rating ?? '—', displayDate]) el(row, 'td', '', value);
+
                 }
                 if (!rows.length) el(content, 'p', 'books-empty', 'Пока нет произведений.');
             } catch (problem) {

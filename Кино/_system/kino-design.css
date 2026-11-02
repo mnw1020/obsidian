@@ -95,6 +95,17 @@
 .markdown-preview-view.kino-page:is(.kino-entity, .kino-person-page) > .markdown-preview-sizer {
     padding-inline: 0;
 }
+/* Media cards occupy 98% of the pane, including on mobile. */
+:is(.markdown-preview-view, .markdown-source-view).kino-page.kino-media {
+    --kino-page-width: 98%;
+    --file-margins: 0;
+}
+.markdown-preview-view.kino-page.kino-media {
+    padding-inline: 0 !important;
+}
+.markdown-preview-view.kino-page.kino-media > .markdown-preview-sizer {
+    padding-inline: 0 !important;
+}
 .kino-page .markdown-preview-section { line-height: 1.75; }
 .kino-page p { overflow-wrap: anywhere; }
 .kino-page :is(h1, h2, h3, h4, h5, h6), .movies-dashboard :is(h1, h2, h3),

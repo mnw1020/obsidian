@@ -179,7 +179,9 @@
 .book-home-ui .book-home-simple-content { min-width: 0; max-width: 100%; }
 .book-home-ui .book-home-simple-content > a { display: inline-block; margin: 12px 0; font-size: 13px; }
 .book-home-ui .book-home-simple-scroll { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.book-home-ui table.book-home-simple-table { display: table !important; position: static !important; transform: none !important; width: max-content !important; min-width: 100%; max-width: none !important; margin: 0 !important; border-collapse: collapse; font-size: 13px; }
+.book-home-ui table.book-home-simple-table { display: table !important; position: static !important; transform: none !important; width: max-content !important; min-width: 100%; max-width: none !important; margin: 0 !important; border-collapse: collapse; font-size: 10px !important; }
 .book-home-ui .book-home-simple-table :is(th,td) { position: static !important; transform: none !important; padding: 10px 14px !important; text-align: left; border: 1px solid var(--home-line); white-space: nowrap; }
 .book-home-ui .book-home-simple-table :is(th,td):first-child { min-width: 220px; max-width: 360px; white-space: normal; overflow-wrap: anywhere; }
 .book-home-ui .book-home-simple-table th { background: var(--background-secondary); }
+
+.book-home-ui .book-home-simple-table :is(th,td,a) { font-size: 10px !important; }
