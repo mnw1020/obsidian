@@ -164,3 +164,12 @@
 
 .manana-ui .manana-trip-tools .manana-trip-optimize { color: #69a7ef; }
 .manana-ui .manana-trip-tools .manana-trip-optimize:hover { color: #91c0f7; border-color: #69a7ef; background: #202e42; }
+
+/* Keep the delivery page aligned in Obsidian Live Preview as well as reading mode. */
+.markdown-source-view.mod-cm6.manana-page .cm-gutters,
+.markdown-source-view.mod-cm6.manana-page .cm-lineNumbers { display: none !important; }
+.markdown-source-view.mod-cm6.manana-page .cm-contentContainer { margin-inline: 0 !important; }
+.markdown-source-view.mod-cm6.manana-page :is(.cm-line.cm-embed-block,.cm-preview-code-block):has(.manana-ui) {
+    box-sizing: border-box; width: 100% !important; min-width: 0; max-width: none !important;
+    margin-inline: 0 !important; padding-inline: 0 !important; border-inline: 0 !important;
+}
