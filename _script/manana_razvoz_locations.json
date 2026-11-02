@@ -271,6 +271,96 @@
       "objectId": "2111697980493032",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980493032",
       "checkedAt": "2026-10-29"
+    },
+    {
+      "address": "Сахарова 28",
+      "formattedAddress": "улица Академика Сахарова, 28",
+      "lon": 61.289783,
+      "lat": 55.160912,
+      "objectId": "2111697980532354",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980532354",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "address": "Академика сахарова 28",
+      "formattedAddress": "улица Академика Сахарова, 28",
+      "lon": 61.289783,
+      "lat": 55.160912,
+      "objectId": "2111697980532354",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980532354",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "address": "Проспект победы 308а",
+      "formattedAddress": "проспект Победы, 308а",
+      "lon": 61.342192,
+      "lat": 55.190059,
+      "objectId": "2111697980497319",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980497319",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "address": "Двинская 23",
+      "formattedAddress": "Двинская улица, 23",
+      "lon": 61.344863,
+      "lat": 55.180131,
+      "objectId": "2111697980525197",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980525197",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "address": "Кашириных 127",
+      "formattedAddress": "улица Братьев Кашириных, 127",
+      "lon": 61.319592,
+      "lat": 55.176276,
+      "objectId": "70000001093326351",
+      "source": "https://2gis.ru/chelyabinsk/firm/70000001093326351",
+      "checkedAt": "2026-10-30"
+    },
+    {
+      "address": "250-летия Челябинска 28а",
+      "formattedAddress": "250-летия Челябинска, 28а",
+      "lon": 61.293883,
+      "lat": 55.17763,
+      "objectId": "2111697980494791",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980494791",
+      "checkedAt": "2026-11-02"
+    },
+    {
+      "address": "Братьев Кашириных 127а",
+      "formattedAddress": "улица Братьев Кашириных, 127а",
+      "lon": 61.32025,
+      "lat": 55.176262,
+      "objectId": "70000001112723549",
+      "source": "https://2gis.ru/chelyabinsk/firm/70000001112723549",
+      "checkedAt": "2026-11-02"
+    },
+    {
+      "address": "Блюхера 123",
+      "formattedAddress": "улица Блюхера, 123",
+      "lon": 61.347248,
+      "lat": 55.104279,
+      "objectId": "2111697980527618",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980527618",
+      "checkedAt": "2026-11-02"
+    },
+    {
+      "address": "Блюхера 87",
+      "formattedAddress": "улица Блюхера, 87",
+      "lon": 61.365582,
+      "lat": 55.122779,
+      "objectId": "2111697980510229",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980510229",
+      "checkedAt": "2026-11-02"
+    },
+    {
+      "address": "Гагарина 9",
+      "formattedAddress": "улица Гагарина, 9",
+      "lon": 61.443114,
+      "lat": 55.141859,
+      "objectId": "2111697980497809",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980497809",
+      "checkedAt": "2026-11-02"
     }
   ]
 }

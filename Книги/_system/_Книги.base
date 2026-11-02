@@ -52,13 +52,13 @@ views:
       - formula.series_link
       - series_index
     sort:
-      - property: rating
-        direction: DESC
       - property: date
         direction: DESC
+      - property: formula.author_links
+        direction: ASC
       - property: formula.book_link
         direction: ASC
-      - property: formula.author_links
+      - property: rating
         direction: DESC
   - type: table
     name: По типу
