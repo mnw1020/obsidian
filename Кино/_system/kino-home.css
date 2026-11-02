@@ -163,3 +163,12 @@
 .kino-home-ui.kino-home-ui .kino-home-chart-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px; }
 .kino-home-ui.kino-home-ui :is(.kino-home-chart-bar,.kino-home-chart-dot).is-movies { background: var(--home-movies); }
 .kino-home-ui.kino-home-ui :is(.kino-home-chart-bar,.kino-home-chart-dot).is-serials { background: var(--home-serials); }
+
+.kino-home-ui .kino-home-simple-content { min-width: 0; max-width: 100%; }
+.kino-home-ui .kino-home-simple-content > a { display: inline-block; margin: 12px 0; font-size: 12px; }
+.kino-home-ui .kino-home-simple-scroll { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.kino-home-ui table.kino-home-simple-table { display: table !important; position: static !important; transform: none !important; width: max-content !important; min-width: 100%; max-width: none !important; margin: 0 !important; border-collapse: collapse; font-size: 10px !important; }
+.kino-home-ui .kino-home-simple-table :is(th,td) { position: static !important; transform: none !important; padding: 10px 14px !important; text-align: left; border: 1px solid var(--background-modifier-border); white-space: nowrap; }
+.kino-home-ui .kino-home-simple-table :is(th,td,a) { font-size: 10px !important; }
+.kino-home-ui .kino-home-simple-table :is(th,td):first-child { min-width: 180px; max-width: 300px; white-space: normal; overflow-wrap: anywhere; }
+.kino-home-ui .kino-home-simple-table th { background: var(--background-secondary); }

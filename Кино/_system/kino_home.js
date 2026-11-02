@@ -335,41 +335,56 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const nativeViews = [];
         const viewsVisible = () => overviews.dataset.collapsed !== 'true';
         function nativeView(label, target) {
-            const details = el(overviewBody, 'details', 'kino-home-native-view'); details.dataset.target = target;
+            const details = el(overviewBody, 'details', 'kino-home-native-view');
             rememberDetails(details, 'native:' + target);
             el(details, 'summary', '', label);
-            const isOpen = () => viewsVisible() && details.open;
-            const content = el(details, 'div', 'kino-home-native-content');
-            let child = null, generation = 0;
-            const linkCleanups = [];
-            function clear() {
-                generation++; if (child) release(child); child = null;
-                for (const cleanup of linkCleanups.splice(0)) cleanup();
-                content.replaceChildren();
-            }
+            const content = el(details, 'div', 'kino-home-simple-content');
+            const links = [];
+            function clear() { links.splice(0).forEach(fn => fn()); content.replaceChildren(); }
             cleanups.push(clear);
-            async function open() {
-                if (disposed || !isOpen() || child) return;
-                const current = ++generation;
-                if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !component?.addChild) {
-                    for (const cleanup of linkCleanups.splice(0)) cleanup();
-                    content.replaceChildren(); internal(content, `Открыть ${label.toLocaleLowerCase('ru')}`, target, '', linkCleanups); return;
-                }
-                child = childComponent(); const renderingChild = child;
-                const holder = el(content, 'div', 'kino-home-native-render');
-                try { await obsidian.MarkdownRenderer.render(app, `![[${target}]]`, holder, source, renderingChild); }
-                catch (problem) {
-                    if (!disposed && current === generation && isOpen()) {
-                        holder.replaceChildren(); el(holder, 'p', 'kino-home-widget-error', `Не удалось загрузить представление: ${problem?.message || problem}`);
-                        internal(holder, 'Открыть представление', target, '', linkCleanups);
-                    }
-                    release(renderingChild); if (child === renderingChild) child = null;
-                } finally {
-                    if (disposed || current !== generation || !isOpen()) { release(renderingChild); holder.remove(); if (child === renderingChild) child = null; }
-                }
+            function dateText(value) {
+                if (!value) return '—';
+                const raw = value instanceof Date ? `${value.getFullYear()}-${String(value.getMonth()+1).padStart(2,'0')}-${String(value.getDate()).padStart(2,'0')}` : String(value);
+                const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T|\s)/);
+                return match ? `${match[3]}.${match[2]}.${match[1]}` : raw;
             }
-            listen(details, 'toggle', () => { if (!isOpen()) clear(); else void open(); });
-            nativeViews.push({ clear, open });
+            function open() {
+                if (disposed || !details.open || !viewsVisible()) return;
+                clear();
+                let rows = app.vault.getMarkdownFiles().filter(file => file.path.startsWith('Кино/Media/')).map(file => ({file, fm:app.metadataCache.getFileCache(file)?.frontmatter || {}}));
+                const serial = fm => (Array.isArray(fm.tags) ? fm.tags : String(fm.tags || '').split(/[ ,]+/)).some(tag => String(tag).replace(/^#/, '') === 'serial');
+                const movie = fm => (Array.isArray(fm.tags) ? fm.tags : String(fm.tags || '').split(/[ ,]+/)).some(tag => String(tag).replace(/^#/, '') === 'movies');
+                rows = rows.filter(({fm}) => serial(fm) || movie(fm));
+                const repeated = target.endsWith('#Перепросмотры');
+                if (repeated) rows = rows.filter(({fm}) => Number(fm['Количество просмотров']) > 1);
+                if (target.endsWith('#Последние сериалы')) rows = rows.filter(({fm}) => serial(fm));
+                rows.sort((a,b) => (repeated ? Number(b.fm['Количество просмотров'] || 1)-Number(a.fm['Количество просмотров'] || 1) : 0) || String(b.fm.Просмотрено || '').localeCompare(String(a.fm.Просмотрено || '')) || Number(b.fm.Оценка || 0)-Number(a.fm.Оценка || 0));
+                internal(content, 'Открыть полный каталог', target, '', links);
+                const scroll = el(content, 'div', 'kino-home-simple-scroll'); scroll.tabIndex = 0;
+                scroll.setAttribute('role','region'); scroll.setAttribute('aria-label',label);
+                const table = el(scroll, 'table', 'kino-home-simple-table');
+                const head = el(el(table,'thead'),'tr');
+                for (const text of ['Название','Оригинальное название','Тип','Просмотрено','Моя оценка','Прогноз','IMDb','КП','Релиз','Жанр','Режиссёр']) el(head,'th','',text).scope='col';
+                const body = el(table,'tbody');
+                for (const {file,fm} of rows.slice(0,20)) {
+                    const row = el(body,'tr');
+                    internal(el(row,'td'),file.basename,file.path,'',links);
+                    for (const value of [fm.Название,serial(fm)?'📺 Сериал':'🎬 Фильм',dateText(fm.Просмотрено),fm.Оценка,fm['Прогноз оценки'],fm['Оценка Imdb'],fm['Оценка Кинопоиск'],dateText(fm.Релиз)]) el(row,'td','',value ?? '—');
+                    for (const [key,choice] of [['Жанр','Кино - Открыть жанр'],['Режисер','Кино - Открыть режиссера']]) {
+                        const cell=el(row,'td');
+                        const values=(Array.isArray(fm[key])?fm[key]:[fm[key]]).filter(Boolean);
+                        if (!values.length) cell.textContent='—';
+                        values.forEach((value,i)=>{
+                            if(i) cell.appendChild(doc.createTextNode(' · '));
+                            const link=el(cell,'a','',value);
+                            link.href='obsidian://quickadd?choice='+encodeURIComponent(choice)+'&value-entity='+encodeURIComponent(value);
+                        });
+                    }
+                }
+                if (!rows.length) el(content,'p','','Пока нет произведений.');
+            }
+            listen(details,'toggle',event=>{if(event.target===details){if(details.open)open();else clear();}});
+            nativeViews.push({clear,open});
         }
         nativeView('Последние просмотры', 'Кино/_system/_Кино.base#Последние');
         nativeView('Перепросмотры', 'Кино/_system/_Кино.base#Перепросмотры');

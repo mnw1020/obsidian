@@ -78,7 +78,11 @@
     --max-width: 100%;
 }
 :is(.markdown-preview-view, .markdown-source-view).kino-page:is(.kino-entity, .kino-person-page) {
-    --kino-page-width: 80%;
+    --kino-page-width: 98%;
+    --file-margins: 0;
+}
+.markdown-preview-view.kino-page:is(.kino-entity, .kino-person-page) {
+    padding-inline: 0 !important;
 }
 .markdown-preview-view.kino-page > .markdown-preview-sizer,
 .markdown-source-view.mod-cm6.kino-page .cm-sizer {
@@ -93,17 +97,17 @@
     max-width: 100% !important;
 }
 .markdown-preview-view.kino-page:is(.kino-entity, .kino-person-page) > .markdown-preview-sizer {
-    padding-inline: 0;
+    padding-inline: 0 !important;
 }
 /* Media cards occupy 98% of the pane, including on mobile. */
-:is(.markdown-preview-view, .markdown-source-view).kino-page.kino-media {
+:is(.markdown-preview-view, .markdown-source-view).kino-page:is(.kino-media, .kino-recommendations-page, .kino-analytics-page, .kino-viewing-summary-page) {
     --kino-page-width: 98%;
     --file-margins: 0;
 }
-.markdown-preview-view.kino-page.kino-media {
+.markdown-preview-view.kino-page:is(.kino-media, .kino-recommendations-page, .kino-analytics-page, .kino-viewing-summary-page) {
     padding-inline: 0 !important;
 }
-.markdown-preview-view.kino-page.kino-media > .markdown-preview-sizer {
+.markdown-preview-view.kino-page:is(.kino-media, .kino-recommendations-page, .kino-analytics-page, .kino-viewing-summary-page) > .markdown-preview-sizer {
     padding-inline: 0 !important;
 }
 .kino-page .markdown-preview-section { line-height: 1.75; }
