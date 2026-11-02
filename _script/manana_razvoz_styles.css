@@ -156,3 +156,11 @@
 .manana-ui .manana-trip-tile::before { content: counter(manana-stop) '.'; position: absolute; left: calc(9px * var(--manana-scale)); top: 50%; transform: translateY(-50%); color: var(--manana-accent); }
 .manana-ui .manana-trip-tile:focus-visible { outline: 2px solid var(--manana-accent); outline-offset: 2px; }
 .manana-ui .manana-trip-stops li.manana-trip-tile.is-dragging { cursor: grabbing; background: color-mix(in srgb,var(--manana-accent) 12%,var(--manana-theme-surface)); outline: 1px solid var(--manana-accent); box-shadow: 0 3px 10px #0005; }
+
+.manana-ui .manana-trip-stop-actions .manana-trip-edit { border-color: transparent; }
+
+.manana-ui .manana-trip-tools .manana-trip-reset { color: #e19188; }
+.manana-ui .manana-trip-tools .manana-trip-reset:hover { color: #f2a49c; border-color: #9a5f59; background: #352526; }
+
+.manana-ui .manana-trip-tools .manana-trip-optimize { color: #69a7ef; }
+.manana-ui .manana-trip-tools .manana-trip-optimize:hover { color: #91c0f7; border-color: #69a7ef; background: #202e42; }
