@@ -204,41 +204,52 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
     const nativeViews = [];
     const viewsVisible = () => overviews.dataset.collapsed !== 'true';
     function nativeView(label, target) {
-        const details = el(overviewBody, 'details', 'book-home-native-view'); details.dataset.target = target;
+        const details = el(overviewBody, 'details', 'book-home-native-view');
         rememberDetails(details, 'native:' + target);
         el(details, 'summary', '', label);
-        const content = el(details, 'div', 'book-home-native-content');
-        const isOpen = () => viewsVisible() && details.open;
-        let child = null, generation = 0;
-        const linkCleanups = [];
+        const content = el(details, 'div', 'book-home-simple-content');
+        let generation = 0;
+        const links = [];
         function clear() {
-            generation++; if (child) release(child); child = null;
-            for (const cleanup of linkCleanups.splice(0)) cleanup();
+            generation++;
+            links.splice(0).forEach(cleanup => cleanup());
             content.replaceChildren();
         }
         cleanups.push(clear);
         async function open() {
-            if (disposed || !isOpen() || child) return;
-            const current = ++generation;
-            if (!obsidian.MarkdownRenderer?.render || !obsidian.Component || !dv.component?.addChild) {
-                for (const cleanup of linkCleanups.splice(0)) cleanup();
-                content.replaceChildren(); internal(content, 'Открыть представление', target, '', linkCleanups); return;
-            }
-            child = widgetComponent(); const renderingChild = child;
-            const holder = el(content, 'div', 'book-home-native-render');
-            try { await obsidian.MarkdownRenderer.render(app, `![[${target}]]`, holder, source, renderingChild); }
-            catch (problem) {
-                if (!disposed && current === generation && isOpen()) {
-                    holder.replaceChildren(); el(holder, 'p', 'book-home-widget-error', `Не удалось загрузить представление: ${problem?.message || problem}`);
-                    internal(holder, 'Открыть представление', target, '', linkCleanups);
+            if (disposed || !details.open || !viewsVisible()) return;
+            clear();
+            const current = generation;
+            try {
+                const records = await core.snapshot();
+                if (disposed || current !== generation) return;
+                const reread = target.endsWith('#Перечитанные');
+                let rows = records.filter(record => !reread || Number(record.fm.read_count) > 1);
+                rows.sort((a, b) => String(b.fm.date || '').localeCompare(String(a.fm.date || '')) || String(a.fm.title || a.file.basename).localeCompare(String(b.fm.title || b.file.basename), 'ru'));
+                if (!reread) rows = rows.slice(0, 20);
+                internal(content, 'Открыть полный каталог', target, '', links);
+                const scroll = el(content, 'div', 'book-home-simple-scroll');
+                scroll.tabIndex = 0;
+                scroll.setAttribute('role', 'region');
+                scroll.setAttribute('aria-label', label);
+                const table = el(scroll, 'table', 'book-home-simple-table');
+                const head = el(el(table, 'thead'), 'tr');
+                for (const title of ['Произведение', 'Автор', 'Тип', 'Оценка', 'Дата', 'Чтений', 'Серия', '№']) el(head, 'th', '', title).scope = 'col';
+                const body = el(table, 'tbody');
+                for (const {file, fm} of rows) {
+                    const row = el(body, 'tr');
+                    internal(el(row, 'td'), fm.title || file.basename, file.path, '', links);
+                    const authors = Array.isArray(fm.authors) ? fm.authors.join(' · ') : fm.authors || '—';
+                    const types = {book:'Книга',novel:'Роман',novella:'Повесть',story:'Рассказ',collection:'Сборник',poem:'Стихи',essay:'Эссе',play:'Пьеса',article:'Статья',lecture:'Лекция'};
+                    for (const value of [authors, types[fm.work_type] || fm.work_type || '—', fm.rating ?? '—', fm.date || '—', fm.read_count ?? 0, fm.series || '—', fm.series_index || '—']) el(row, 'td', '', value);
                 }
-                release(renderingChild); if (child === renderingChild) child = null;
-            } finally {
-                if (disposed || current !== generation || !isOpen()) { release(renderingChild); holder.remove(); if (child === renderingChild) child = null; }
+                if (!rows.length) el(content, 'p', 'books-empty', 'Пока нет произведений.');
+            } catch (problem) {
+                if (current === generation && !disposed) el(content, 'p', 'book-home-widget-error', String(problem.message || problem));
             }
         }
-        listen(details, 'toggle', event => { if (event.target !== details) return; if (!isOpen()) clear(); else void open(); });
-        nativeViews.push({ clear, open });
+        listen(details, 'toggle', event => { if (event.target === details) { if (details.open) void open(); else clear(); } });
+        nativeViews.push({clear, open});
     }
     nativeView('Недавние произведения', 'Книги/_system/_Книги.base#Главная');
     nativeView('Перечитанные', 'Книги/_system/_Книги.base#Перечитанные');
