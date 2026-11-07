@@ -152,7 +152,7 @@ async function render({ dv, app, obsidian = {} }) {
                 const tripModule = { exports: {} };
                 new Function('module', await app.vault.read(helper))(tripModule);
                 tripApi = tripModule.exports;
-                tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations, maxStops: 5 });
+                tripStore = tripApi.createTripStore({ storage: doc.defaultView.localStorage, key: tripStorageKey, getEntries: () => entries, locations, maxStops: 6 });
             } catch (error) { tripInitError = error; }
             try {
                 const paths = ['manana_razvoz_geocode.js', 'manana_razvoz_locations.json'];
@@ -251,8 +251,10 @@ async function render({ dv, app, obsidian = {} }) {
                     item.dataset.stopId = stop.id;
                     const line = el(item, 'div', 'manana-trip-stop');
                     const text = el(line, 'div', 'manana-trip-stop-text');
-                    el(text, 'span', '', entry?.name || stop.address);
-                    if (entry?.name) el(text, 'span', 'manana-trip-address', stop.address);
+                    const point = locations.find(location => tripApi.normalizeAddress(location.address) === tripApi.normalizeAddress(stop.address));
+                    const displayedAddress = stop.address + (point?.alternatives?.length ? ' (есть другие варианты)' : '');
+                    el(text, 'span', '', entry?.name || displayedAddress);
+                    if (entry?.name) el(text, 'span', 'manana-trip-address', displayedAddress);
                     const actions = el(line, 'div', 'manana-trip-stop-actions');
                     const edit = iconButton(actions, 'pencil', '✎', 'Изменить адрес в поездке: ' + (entry?.name || stop.address), 'manana-trip-edit');
                     edit.setAttribute('aria-haspopup', 'dialog');
@@ -263,7 +265,7 @@ async function render({ dv, app, obsidian = {} }) {
                         catch (error) { paintTrip(); message(error.message || String(error), true); }
                     });
                 }
-                const overLimit = selected.stops.length > 5;
+                const overLimit = selected.stops.length > 6;
                 tripOpen.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripYandex.disabled = tripPreparing || !selected.stops.length || overLimit;
                 tripOrganicPoints.disabled = tripPreparing || !selected.stops.length || overLimit;
@@ -272,7 +274,7 @@ async function render({ dv, app, obsidian = {} }) {
                 tripOptimize.setAttribute('aria-busy', String(tripOptimizing));
                 tripCopy.disabled = tripReset.disabled = !selected.stops.length;
                 tripUndo.disabled = !tripStore.canUndo();
-                if (overLimit) message('В списке больше 5 адресов. Удалите лишние адреса или очистите список.', true);
+                if (overLimit) message('В списке больше 6 адресов. Удалите лишние адреса или очистите список.', true);
             } catch (error) {
                 tripPanel.hidden = false; tripToggle.textContent = 'Список недоступен';
                 tripList.hidden = true; tripOpen.disabled = tripYandex.disabled = tripOrganicPoints.disabled = tripOptimize.disabled = tripCopy.disabled = tripUndo.disabled = true; tripReset.disabled = !tripStore;
@@ -364,7 +366,7 @@ async function render({ dv, app, obsidian = {} }) {
         async function optimizeTrip() {
             if (disposed || tripOptimizing || !tripStore) return;
             const current = tripStore.read();
-            if (current.stops.length < 3 || current.stops.length > 5) return;
+            if (current.stops.length < 3 || current.stops.length > 6) return;
             const run = ++optimizationGeneration;
             optimizationSnapshot = JSON.stringify([current.revision, current.stops]);
             tripOptimizing = true; paintTrip();
@@ -381,7 +383,7 @@ async function render({ dv, app, obsidian = {} }) {
                     roadOptimizer = optimizeModule.exports.createRoadOptimizer({ requestUrl: options => obsidian.requestUrl(options) });
                 }
                 if (disposed || run !== optimizationGeneration) return;
-                const result = await roadOptimizer.optimize({ stops: current.stops, locations });
+                const result = await roadOptimizer.optimize({ stops: current.stops, locations: locationResolver.points(current.stops.map(stop => stop.address)) });
                 if (disposed || run !== optimizationGeneration) return;
                 optimizationSnapshot = null;
                 tripStore.reorder(result.ids, current.revision);
@@ -422,9 +424,9 @@ async function render({ dv, app, obsidian = {} }) {
             if (disposed || tripPreparing || !tripStore) return;
             try {
                 const current = tripStore.read();
-                if (current.stops.length > 5) throw Error('В списке может быть не больше 5 адресов.');
+                if (current.stops.length > 6) throw Error('В списке может быть не больше 6 адресов.');
                 if (mapInitError) throw mapInitError;
-                const selected = mapProvider(provider), uri = selected.build(current.stops, locations);
+                const selected = mapProvider(provider), uri = selected.build(current.stops, locationResolver.points(current.stops.map(stop => stop.address)));
                 doc.defaultView.open(uri, '_blank');
                 message((provider === 'organic-points' ? 'Адреса переданы в ' : 'Маршрут передан в ') + selected.name + ': ' + addressCount(current.stops.length));
             } catch (error) {
@@ -472,7 +474,7 @@ async function render({ dv, app, obsidian = {} }) {
                     state.tripExpanded = true;
                     notifyTrip();
                     if (locationResolver && !locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(entry.address))) {
-                        void locationResolver.ensure([entry.address]).catch(() => {});
+                        void locationResolver.ensure([entry.address]).then(() => { if (!tripDrag) paintTrip(); }).catch(() => {});
                     }
                 }
             } catch (error) { selectionError = error; }
@@ -493,7 +495,7 @@ async function render({ dv, app, obsidian = {} }) {
                 state.tripExpanded = true;
                 notifyTrip();
                 if (locationResolver && !locations.some(point => tripApi.normalizeAddress(point.address) === tripApi.normalizeAddress(address))) {
-                    void locationResolver.ensure([address]).catch(() => {});
+                    void locationResolver.ensure([address]).then(() => { if (!tripDrag) paintTrip(); }).catch(() => {});
                 }
                 search.value = state.query = ''; paint(); search.focus();
                 message((selection.added ? 'Адрес добавлен' : 'Адрес уже в списке') + ' · в списке ' + addressCount(selection.state.stops.length));
@@ -525,7 +527,7 @@ async function render({ dv, app, obsidian = {} }) {
                             const address = this.addressInput.value.trim();
                             tripStore.editAddress(stop.id, address, revision);
                             this.close(); notifyTrip(); message('Адрес в поездке изменён.');
-                            if (locationResolver) void locationResolver.ensure([address]).catch(() => {});
+                            if (locationResolver) void locationResolver.ensure([address]).then(() => { if (!tripDrag) paintTrip(); }).catch(() => {});
                         } catch (error) { errorText.textContent = error.message || String(error); }
                     });
                     this.addressInput.focus(); this.addressInput.select();

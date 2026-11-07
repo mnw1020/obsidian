@@ -361,6 +361,71 @@
       "objectId": "2111697980497809",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980497809",
       "checkedAt": "2026-11-02"
+    },
+    {
+      "address": "Кирова 7",
+      "formattedAddress": "улица Кирова, 7",
+      "lon": 61.399885,
+      "lat": 55.180114,
+      "objectId": "2111697980490208",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980490208",
+      "checkedAt": "2026-11-03"
+    },
+    {
+      "address": "Кирова 6а",
+      "formattedAddress": "улица Кирова, 6а",
+      "lon": 61.397653,
+      "lat": 55.181082,
+      "objectId": "2111697980490784",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980490784",
+      "checkedAt": "2026-11-03"
+    },
+    {
+      "address": "Кирова 6",
+      "formattedAddress": "улица Кирова, 6",
+      "lon": 61.398685,
+      "lat": 55.180946,
+      "objectId": "2111697980490912",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980490912",
+      "checkedAt": "2026-11-04",
+      "alternatives": [
+        {
+          "address": "Кирова 6",
+          "formattedAddress": "улица Кирова, 6",
+          "lon": 61.371381,
+          "lat": 55.03978,
+          "objectId": "2111697980509781",
+          "source": "https://2gis.ru/chelyabinsk/geo/2111697980509781",
+          "checkedAt": "2026-11-04"
+        }
+      ]
+    },
+    {
+      "address": "Краснопольский проспект 19а",
+      "formattedAddress": "Краснопольский проспект, 19а",
+      "lon": 61.282388,
+      "lat": 55.209419,
+      "objectId": "70030076127227093",
+      "source": "https://2gis.ru/chelyabinsk/geo/70030076127227093",
+      "checkedAt": "2026-11-04"
+    },
+    {
+      "address": "Скульптора головницкого 8",
+      "formattedAddress": "улица Скульптора Головницкого, 8",
+      "lon": 61.287661,
+      "lat": 55.208504,
+      "objectId": "2111697980532905",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980532905",
+      "checkedAt": "2026-11-05"
+    },
+    {
+      "address": "Захаренко 6а",
+      "formattedAddress": "Захаренко, 6а",
+      "lon": 61.313402,
+      "lat": 55.19992,
+      "objectId": "2111697980493512",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980493512",
+      "checkedAt": "2026-11-05"
     }
   ]
 }

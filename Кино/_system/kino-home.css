@@ -172,3 +172,7 @@
 .kino-home-ui .kino-home-simple-table :is(th,td,a) { font-size: 10px !important; }
 .kino-home-ui .kino-home-simple-table :is(th,td):first-child { min-width: 180px; max-width: 300px; white-space: normal; overflow-wrap: anywhere; }
 .kino-home-ui .kino-home-simple-table th { background: var(--background-secondary); }
+
+.kino-home-ui.kino-home-ui .kino-home-reading h2 { display: flex; align-items: center; }
+.kino-home-ui.kino-home-ui .kino-home-reading h2 .kino-home-fold { order: 1; flex: 0 0 auto; width: auto; margin-inline-start: auto; padding-inline-start: 12px; }
+.kino-home-ui .kino-home-reading .kino-home-fold-title a { color: inherit; text-decoration: none; }

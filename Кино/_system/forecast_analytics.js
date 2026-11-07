@@ -149,7 +149,7 @@ async function render({ dv, app, obsidian = {} }) {
             e.preventDefault(); app.workspace.openLinkText(link.dataset.href, source, Boolean(e.ctrlKey || e.metaKey));
         });
         const head = el(root, 'header', 'kino-home-masthead'), nav = el(head, 'nav', 'kino-home-nav');
-        internal(nav, '← Кинотека', 'Кино/_index.md'); internal(nav, 'Итоги просмотров', BASE + 'Итоги просмотров.md'); internal(nav, 'О прогнозах', BASE + 'Прогноз/README.md');
+        internal(nav, '← Кинотека', 'Кино/_index.md'); internal(nav, 'Статистика', BASE + 'Статистика.md'); internal(nav, 'О прогнозах', BASE + 'Прогноз/README.md');
         el(head, 'h1', 'kino-home-title', 'Аналитика прогнозов');
         el(head, 'p', 'kino-home-subtitle', 'Данные, сюжет и итог · точность, веса и сохранённые расчёты');
         const controls = el(head, 'div', 'kino-report-controls');

@@ -29,9 +29,9 @@ function routeDistance(order, matrix) {
     return total;
 }
 function solveOrder(matrix) {
-    // At most 4! permutations. Directed distances account for one-way streets.
+    // At most 5! permutations. Directed distances account for one-way streets.
     const count = matrix?.length;
-    if (!Number.isSafeInteger(count) || count < 1 || count > 5) throw fail('INVALID_MATRIX', 'Нужно от 1 до 5 адресов.');
+    if (!Number.isSafeInteger(count) || count < 1 || count > 6) throw fail('INVALID_MATRIX', 'Нужно от 1 до 6 адресов.');
     validateMatrix(matrix, count);
     const original = Array.from({ length: count }, (_, index) => index);
     let best = original, bestDistance = routeDistance(original, matrix);
@@ -73,9 +73,9 @@ function parseRoadMatrix(data, count) {
     return validateMatrix(matrix, count);
 }
 function selectedPoints(stops, locations) {
-    if (!Array.isArray(stops) || stops.length < 2 || stops.length > 5 || new Set(stops.map(stop => stop?.id)).size !== stops.length
+    if (!Array.isArray(stops) || stops.length < 2 || stops.length > 6 || new Set(stops.map(stop => stop?.id)).size !== stops.length
         || stops.some(stop => !stop || typeof stop.id !== 'string' || !stop.id || typeof stop.address !== 'string' || !normalize(stop.address))) {
-        throw fail('INVALID_STOPS', 'Для подбора порядка выберите от 2 до 5 адресов.');
+        throw fail('INVALID_STOPS', 'Для подбора порядка выберите от 2 до 6 адресов.');
     }
     const index = new Map((locations || []).map(record => [normalize(record.address), record]));
     const missing = [], points = stops.map(stop => {

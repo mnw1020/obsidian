@@ -433,7 +433,7 @@ module.exports = async function renderKino({ dv, app, obsidian = {}, kind = "med
         if (kind === "franchise") {
             const nav = element(header, "nav", "kino-franchise-nav kino-home-nav");
             nav.setAttribute("aria-label", "Разделы кинотеки");
-            for (const [path, label] of [["Кино/_index", "← Кинотека"], ["Кино/_system/_Кино.base#Карточки", "Каталог"], ["Кино/_system/Итоги просмотров", "Итоги просмотров"]]) {
+            for (const [path, label] of [["Кино/_index", "← Кинотека"], ["Кино/_system/_Кино.base#Карточки", "Каталог"], ["Кино/_system/Статистика", "Статистика"]]) {
                 internalLink(nav, { path, display: label });
             }
         }

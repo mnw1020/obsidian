@@ -67,7 +67,7 @@ async function render({dv,app,obsidian={}}) {
         const styles=[];for(const path of ['Кино/_system/kino-home.css','Кино/_system/kino-statistics.css','Кино/_system/kino-audit.css']){const f=app.vault.getAbstractFileByPath(path);if(!f)throw Error('Не найден стиль проверки');styles.push(await app.vault.read(f));if(disposed)return {dispose};}
         root=el(dv.container,'section','kino-home-ui kino-report kino-audit');state.root=root;el(root,'style','',styles.join('\n'));
         const head=el(root,'header','kino-home-masthead');const nav=el(head,'nav','kino-home-nav');
-        for(const [label,path]of [['← Кинотека','Кино/_index'],['Итоги просмотров','Кино/_system/Итоги просмотров'],['Журнал','Кино/_system/Журнал изменений'],['Исключения','Кино/_system/Исключения']])internal(nav,label,path);
+        for(const [label,path]of [['← Кинотека','Кино/_index'],['Статистика','Кино/_system/Статистика'],['Журнал','Кино/_system/Журнал изменений'],['Исключения','Кино/_system/Исключения']])internal(nav,label,path);
         el(head,'h1','kino-home-title','Проверка кинотеки');
         const actions=el(head,'div','kino-home-actions'),buttons=[];
         const status=el(head,'p','kino-audit-status');status.setAttribute('role','status');status.hidden=true;

@@ -147,7 +147,7 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
             const titleNodes = key === 'footer' ? [] : [...heading.childNodes];
             const button = el(heading, 'button', 'kino-home-fold'); button.type = 'button';
             heading.prepend(button);
-            const title = el(button, 'span', 'kino-home-fold-title');
+            const title = el(key === 'reading' ? heading : button, 'span', 'kino-home-fold-title');
             title.id = `${instance}-${key}-title`;
             button.setAttribute('aria-labelledby', title.id);
             if (key === 'footer') title.textContent = 'Служебные ссылки';
@@ -247,7 +247,9 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
         const overviews = el(root, 'section', 'kino-home-panel kino-home-overviews'); el(overviews, 'h2', '', 'Обзор кинотеки');
         const overviewBody = el(overviews, 'div', 'kino-home-overview-body');
         const reading = panel('Статистика', 'kino-home-reading');
-        internal(reading.head, 'Итоги ↗', 'Кино/_system/Итоги просмотров', 'kino-home-section-link kino-home-report-link');
+        const statisticsHeading = reading.head.querySelector('h2');
+        statisticsHeading.textContent = '';
+        internal(statisticsHeading, 'Статистика', 'Кино/_system/Статистика');
         const metrics = el(reading.body, 'div', 'kino-home-metrics'), metricValues = [];
         for (const [key, label] of [['month', 'В этом месяце'], ['year', 'В этом году'], ['reread', 'Пересмотрено за всё время']]) {
             const cell = el(metrics, 'div', 'kino-home-metric'), value = el(cell, 'strong'); value.dataset.period = key;

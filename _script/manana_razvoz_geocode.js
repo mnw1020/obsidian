@@ -50,10 +50,12 @@ function parseSearchHtml(html, address) {
     let state;
     try { state = JSON.parse(quotedString(html, marker.index + marker[0].length)); }
     catch (_) { throw Error('Не удалось прочитать адресные данные 2ГИС.'); }
-    const query = addressParts(address), buildings = new Map(), branches = new Map();
+    const query = addressParts(address), buildings = new Map(), branches = new Map(), resultOrder = new Set();
     for (const wrapper of Object.values(state?.data?.entity?.profile || {})) {
         const item = wrapper?.data;
         if (!['building', 'branch'].includes(item?.type) || item.city_alias !== CITY || !/^\d+$/.test(String(item.id))) continue;
+        const city = item.adm_div?.find(part => part.type === 'city');
+        if (city && city.city_alias !== CITY && normalize(city.name || '') !== 'челябинск') continue;
         // Some buildings (e.g. shopping centres) are represented by a business
         // card even at their /geo/ URL. Accept only an exact address with an
         // explicit building reference; group businesses in the same building.
@@ -67,16 +69,22 @@ function parseSearchHtml(html, address) {
         const lon = Number(point[1]), lat = Number(point[2]);
         if (!Number.isFinite(lon) || !Number.isFinite(lat) || Math.abs(lon) > 180 || Math.abs(lat) > 90) continue;
         const objectId = String(item.id);
+        resultOrder.add(buildingId);
         const found = item.type === 'building' ? buildings : branches;
         if (!found.has(buildingId)) found.set(buildingId, { address, formattedAddress: item.address_name || item.full_name || address, lon, lat, objectId,
             source: 'https://2gis.ru/' + CITY + (item.type === 'building' ? '/geo/' : '/firm/') + objectId,
             checkedAt: new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Yekaterinburg' }) });
     }
-    const found = buildings.size ? buildings : branches;
-    const buildingIds = new Set([...buildings.keys(), ...branches.keys()]);
-    if (buildingIds.size > 1) throw Error('Найдено несколько зданий. Уточните адрес: ' + address);
-    if (!found.size) throw Error('Точный адрес в Челябинске не найден: ' + address);
-    return found.values().next().value;
+    const [first, ...alternatives] = Array.from(resultOrder, id => buildings.get(id) || branches.get(id));
+    if (!first) throw Error('Точный адрес в Челябинске не найден: ' + address);
+    return alternatives.length ? { ...first, alternatives } : first;
+}
+function chooseTripPoints(records, addresses) {
+    const byAddress = new Map(records.map(point => [addressKey(point.address), point]));
+    return addresses.flatMap(address => {
+        const point = byAddress.get(addressKey(address));
+        return point ? [{ ...point, address }] : [];
+    });
 }
 function createLocationResolver({ app, obsidian, records, cachePath = '_script/manana_razvoz_locations.json' }) {
     if (!Array.isArray(records)) throw Error('Не передан список координат.');
@@ -120,7 +128,7 @@ function createLocationResolver({ app, obsidian, records, cachePath = '_script/m
         }
         for (const record of pending) if (dirty.get(addressKey(record.address)) === record) dirty.delete(addressKey(record.address));
     }
-    return { async ensure(addresses) {
+    return { points: addresses => chooseTripPoints(records, addresses), async ensure(addresses) {
         if (!Array.isArray(addresses) || addresses.some(address => typeof address !== 'string' || !address.trim())) throw Error('Не переданы корректные адреса.');
         const unique = [...new Map(addresses.map(address => [addressKey(address), address.trim()])).values()];
         const results = await Promise.allSettled(unique.map(resolve));
@@ -130,4 +138,4 @@ function createLocationResolver({ app, obsidian, records, cachePath = '_script/m
         return results.map(result => result.value);
     } };
 }
-module.exports = { parseSearchHtml, createLocationResolver };
+module.exports = { parseSearchHtml, createLocationResolver, chooseTripPoints };

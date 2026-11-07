@@ -2,7 +2,7 @@
    Load with new Function('module', source), like the other vault UI modules.
    Corrupt saved trips throw INVALID_TRIP; an explicit clear() can recover them. */
 const VERSION = 1;
-const MAX_STOPS = 5; // Default local selection cap, independent of map providers.
+const MAX_STOPS = 6; // Default local selection cap, independent of map providers.
 const MAX_SAVED_STOPS = 99; // Read older larger selections without discarding them.
 const TWO_GIS_MAX_STOPS = 9; // Current location + eight intermediate stops + destination.
 const YANDEX_MAX_STOPS = 19; // Current location + eighteen via points + destination.

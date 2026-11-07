@@ -114,7 +114,7 @@ async function render({ dv, app }) {
         }
     } catch (error) { console.warn("Не удалось подключить оформление коллекций", error); }
 
-    const component = dv.component, doc = dv.container.ownerDocument, source = dv.current?.()?.file?.path || 'Кино/_system/Итоги просмотров.md';
+    const component = dv.component, doc = dv.container.ownerDocument, source = dv.current?.()?.file?.path || 'Кино/_system/Статистика.md';
     const key = '__kinoStatistics';
     let state = component?.[key];
     if (!state) {
@@ -148,7 +148,7 @@ async function render({ dv, app }) {
         el(root,'style','',css.join('\n'));
         const head=el(root,'header','kino-home-masthead');
         const nav=el(head,'nav','kino-home-nav');internal(nav,'← Кинотека','Кино/_index.md');internal(nav,'Каталог','Кино/_system/_Кино.base#Все');
-        el(head,'h1','kino-home-title','Итоги просмотров');
+        el(head,'h1','kino-home-title','Статистика');
         const controls=el(head,'div','kino-report-controls');
         function select(label,options) { const wrap=el(controls,'label','',label);const sel=el(wrap,'select');sel.setAttribute('aria-label',label);for(const [value,text]of options){el(sel,'option','',text).value=value;}return sel; }
         const yearSelect=select('Год просмотра',[['','Все годы']]);
