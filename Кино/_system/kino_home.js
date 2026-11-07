@@ -361,7 +361,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 if (repeated) rows = rows.filter(({fm}) => Number(fm['Количество просмотров']) > 1);
                 if (target.endsWith('#Последние сериалы')) rows = rows.filter(({fm}) => serial(fm));
                 rows.sort((a,b) => (repeated ? Number(b.fm['Количество просмотров'] || 1)-Number(a.fm['Количество просмотров'] || 1) : 0) || String(b.fm.Просмотрено || '').localeCompare(String(a.fm.Просмотрено || '')) || Number(b.fm.Оценка || 0)-Number(a.fm.Оценка || 0));
-                internal(content, 'Открыть полный каталог', target, '', links);
                 const scroll = el(content, 'div', 'kino-home-simple-scroll'); scroll.tabIndex = 0;
                 scroll.setAttribute('role','region'); scroll.setAttribute('aria-label',label);
                 const table = el(scroll, 'table', 'kino-home-simple-table');

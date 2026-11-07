@@ -227,7 +227,6 @@ module.exports = async ({ dv, app, obsidian = {} }) => {
                 let rows = records.filter(record => !reread || Number(record.fm.read_count) > 1);
                 rows.sort((a, b) => String(b.fm.date || '').localeCompare(String(a.fm.date || '')) || String(a.fm.title || a.file.basename).localeCompare(String(b.fm.title || b.file.basename), 'ru'));
                 if (!reread) rows = rows.slice(0, 20);
-                internal(content, 'Открыть полный каталог', target, '', links);
                 const scroll = el(content, 'div', 'book-home-simple-scroll');
                 scroll.tabIndex = 0;
                 scroll.setAttribute('role', 'region');
