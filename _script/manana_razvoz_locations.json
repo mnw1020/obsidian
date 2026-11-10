@@ -426,6 +426,15 @@
       "objectId": "2111697980493512",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980493512",
       "checkedAt": "2026-11-05"
+    },
+    {
+      "address": "Проспект победы 127",
+      "formattedAddress": "проспект Победы, 127 / Артиллерийская улица, 25",
+      "lon": 61.424996,
+      "lat": 55.184976,
+      "objectId": "2111697980511845",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980511845",
+      "checkedAt": "2026-11-09"
     }
   ]
 }
