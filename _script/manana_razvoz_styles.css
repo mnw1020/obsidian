@@ -173,3 +173,6 @@
     box-sizing: border-box; width: 100% !important; min-width: 0; max-width: none !important;
     margin-inline: 0 !important; padding-inline: 0 !important; border-inline: 0 !important;
 }
+.manana-ui .manana-alphabet { display: flex; flex-wrap: wrap; justify-content: center; gap: calc(5px * var(--manana-scale)); width: 98%; margin: calc(9px * var(--manana-scale)) auto; padding: calc(6px * var(--manana-scale)); border: 1px solid var(--manana-line); border-radius: calc(7px * var(--manana-scale)); background: var(--manana-theme-surface); }
+.manana-ui .manana-alphabet button { min-width: calc(28px * var(--manana-scale)); }
+.manana-ui .manana-alphabet button[aria-pressed="true"] { color: var(--manana-accent); border-color: var(--manana-accent); background: var(--manana-theme-bg); }

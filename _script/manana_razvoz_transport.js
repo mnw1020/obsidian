@@ -4,6 +4,7 @@ const END = '\nMANANA:CONTACTS -->';
 const collator = new Intl.Collator('ru', { sensitivity: 'base', numeric: true });
 const normalize = value => String(value).normalize('NFKC').toLocaleLowerCase('ru').replace(/ё/g, 'е');
 const sorted = entries => [...entries].sort((a, b) => collator.compare(a.name, b.name));
+const surnameInitial = name => name.trim().match(/^\p{L}/u)?.[0].toLocaleUpperCase('ru') || '';
 function readData(raw) {
     const text = String(raw).replace(/\r\n/g, '\n');
     const start = text.indexOf(START), end = text.indexOf(END, start + START.length);
@@ -217,6 +218,8 @@ async function render({ dv, app, obsidian = {} }) {
         const counter = el(status, 'span', 'manana-counter');
         const statusMessage = el(status, 'span', 'manana-status-message');
         const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
+        const alphabet = el(root, 'nav', 'manana-alphabet');
+        accessibleName(alphabet, 'Сортировка по начальной букве фамилии', root);
         function message(text, error = false) { if (!disposed) { statusMessage.textContent = text; status.classList.toggle('is-error', error); } }
         function icon(node, name, fallback) {
             if (obsidian.setIcon) obsidian.setIcon(node, name); else node.textContent = fallback;
@@ -436,6 +439,23 @@ async function render({ dv, app, obsidian = {} }) {
         }
         function paint() {
             const visible = filterRows(entries, state.query);
+            const letters = [...new Set(visible.map(entry => surnameInitial(entry.name)).filter(Boolean))].sort(collator.compare);
+            if (!letters.includes(state.initial)) state.initial = '';
+            const priority = entry => surnameInitial(entry.name) === state.initial ? 0 : 1;
+            if (state.initial) visible.sort((a, b) => priority(a) - priority(b));
+            alphabet.replaceChildren();
+            alphabet.hidden = !letters.length;
+            for (const letter of letters) {
+                const button = el(alphabet, 'button', '', letter);
+                button.type = 'button';
+                button.setAttribute('aria-pressed', String(state.initial === letter));
+                button.addEventListener('click', () => {
+                    state.initial = state.initial === letter ? '' : letter;
+                    paint();
+                    [...alphabet.children].find(item => item.textContent === letter)?.focus({ preventScroll: true });
+                    rows.scrollIntoView({ block: 'start' });
+                });
+            }
             rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
             clear.hidden = !search.value.length;
         searchIcon.hidden = Boolean(search.value.length);

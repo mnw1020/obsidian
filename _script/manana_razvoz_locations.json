@@ -435,6 +435,24 @@
       "objectId": "2111697980511845",
       "source": "https://2gis.ru/chelyabinsk/geo/2111697980511845",
       "checkedAt": "2026-11-09"
+    },
+    {
+      "address": "Капитана Ефимова 3",
+      "formattedAddress": "улица им. капитана Ефимова, 3",
+      "lon": 61.244188,
+      "lat": 55.096518,
+      "objectId": "70030076683764820",
+      "source": "https://2gis.ru/chelyabinsk/geo/70030076683764820",
+      "checkedAt": "2026-11-11"
+    },
+    {
+      "address": "Генерала Мартынова 8",
+      "formattedAddress": "Генерала Мартынова улица, 8",
+      "lon": 61.298504,
+      "lat": 55.215534,
+      "objectId": "2111697980600625",
+      "source": "https://2gis.ru/chelyabinsk/geo/2111697980600625",
+      "checkedAt": "2026-11-13"
     }
   ]
 }
