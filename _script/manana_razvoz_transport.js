@@ -219,7 +219,8 @@ async function render({ dv, app, obsidian = {} }) {
         const statusMessage = el(status, 'span', 'manana-status-message');
         const rows = el(root, 'div', 'manana-list'); rows.setAttribute('role', 'list'); accessibleName(rows, 'Адреса для развоза', root);
         const alphabet = el(root, 'nav', 'manana-alphabet');
-        accessibleName(alphabet, 'Сортировка по начальной букве фамилии', root);
+        root.insertBefore(alphabet, rows);
+        accessibleName(alphabet, 'Фильтр по начальной букве фамилии', root);
         function message(text, error = false) { if (!disposed) { statusMessage.textContent = text; status.classList.toggle('is-error', error); } }
         function icon(node, name, fallback) {
             if (obsidian.setIcon) obsidian.setIcon(node, name); else node.textContent = fallback;
@@ -438,11 +439,10 @@ async function render({ dv, app, obsidian = {} }) {
             }
         }
         function paint() {
-            const visible = filterRows(entries, state.query);
-            const letters = [...new Set(visible.map(entry => surnameInitial(entry.name)).filter(Boolean))].sort(collator.compare);
+            const matches = filterRows(entries, state.query);
+            const letters = [...new Set(matches.map(entry => surnameInitial(entry.name)).filter(Boolean))].sort(collator.compare);
             if (!letters.includes(state.initial)) state.initial = '';
-            const priority = entry => surnameInitial(entry.name) === state.initial ? 0 : 1;
-            if (state.initial) visible.sort((a, b) => priority(a) - priority(b));
+            const visible = state.initial ? matches.filter(entry => surnameInitial(entry.name) === state.initial) : matches;
             alphabet.replaceChildren();
             alphabet.hidden = !letters.length;
             for (const letter of letters) {
@@ -453,10 +453,9 @@ async function render({ dv, app, obsidian = {} }) {
                     state.initial = state.initial === letter ? '' : letter;
                     paint();
                     [...alphabet.children].find(item => item.textContent === letter)?.focus({ preventScroll: true });
-                    rows.scrollIntoView({ block: 'start' });
                 });
             }
-            rows.replaceChildren(); counter.textContent = state.query.trim() ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
+            rows.replaceChildren(); counter.textContent = state.query.trim() || state.initial ? `Найдено: ${visible.length} из ${entries.length}` : `Всего: ${entries.length}`;
             clear.hidden = !search.value.length;
         searchIcon.hidden = Boolean(search.value.length);
             searchAdd.hidden = !search.value.trim();
